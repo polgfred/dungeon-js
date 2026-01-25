@@ -1,13 +1,25 @@
-import { createRoot } from 'react-dom/client';
+import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import { createRoot } from "react-dom/client";
 
-import "@mui/material-pigment-css/styles.css";
+import App from "./App.js";
 
-import App from './App.js';
-
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById("root");
 
 if (!rootElement) {
-  throw new Error('Root element not found');
+  throw new Error("Root element not found");
 }
 
-createRoot(rootElement).render(<App />);
+const theme = createTheme({
+  typography: {
+    allVariants: {
+      fontFamily: '"EightBit Atari"',
+    },
+  },
+});
+
+createRoot(rootElement).render(
+  <ThemeProvider theme={theme}>
+    <CssBaseline />
+    <App />
+  </ThemeProvider>,
+);
