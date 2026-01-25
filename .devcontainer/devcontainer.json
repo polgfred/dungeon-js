@@ -1,0 +1,5 @@
+{
+	"name": "DungeonJS",
+	"image": "mcr.microsoft.com/devcontainers/base:trixie",
+	"onCreateCommand": "bash .devcontainer/install.sh"
+}
