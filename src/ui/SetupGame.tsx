@@ -134,6 +134,7 @@ export default function SetupGame({
         margin: "0 auto",
         display: "grid",
         gap: 3,
+        containerType: "inline-size",
         "@keyframes boot": {
           from: { opacity: 0, transform: "translateY(14px)" },
           to: { opacity: 1, transform: "translateY(0)" },
@@ -162,7 +163,10 @@ export default function SetupGame({
         sx={{
           display: "grid",
           gap: 3,
-          gridTemplateColumns: { xs: "1fr", lg: "2fr 1fr" },
+          gridTemplateColumns: "1fr",
+          "@container (min-width: 1280px)": {
+            gridTemplateColumns: "2fr 1fr",
+          },
         }}
       >
         <Box sx={(theme) => panelStyle(theme)}>
