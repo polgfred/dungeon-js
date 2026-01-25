@@ -18,12 +18,12 @@ const theme = createTheme({
       dark: "#183A5E",
     },
     background: {
-      default: "#235082",
-      paper: "#1B436E",
+      default: "#000000",
+      paper: "#235082",
     },
     text: {
       primary: "#D0D0D0",
-      secondary: "#B8B8FF",
+      secondary: "#9ED9FF",
     },
   },
   typography: {
