@@ -372,7 +372,7 @@ export default function SetupGame({
                         letterSpacing: 1,
                       },
                       "& .MuiToggleButton-root.Mui-selected": {
-                        background: alpha(theme.palette.primary.main, 0.35),
+                        background: alpha(theme.palette.primary.light, 0.6),
                         color: theme.palette.text.primary,
                       },
                     })}
@@ -400,7 +400,7 @@ export default function SetupGame({
                         letterSpacing: 1,
                       },
                       "& .MuiToggleButton-root.Mui-selected": {
-                        background: alpha(theme.palette.primary.main, 0.35),
+                        background: alpha(theme.palette.primary.light, 0.6),
                         color: theme.palette.text.primary,
                       },
                     })}
@@ -534,12 +534,8 @@ export default function SetupGame({
             <Stack spacing={1}>
               <Typography sx={{ opacity: 0.7 }}>Supplies</Typography>
               <Typography>Gold: {gold !== null ? gold : "--"}</Typography>
-              <Typography>
-                Weapon: {WEAPON_NAMES[weaponTier]} ({weaponCost}g)
-              </Typography>
-              <Typography>
-                Armor: {ARMOR_NAMES[armorTier]} ({armorCost}g)
-              </Typography>
+              <Typography>Weapon: {WEAPON_NAMES[weaponTier]}</Typography>
+              <Typography>Armor: {ARMOR_NAMES[armorTier]}</Typography>
               <Typography>Flares: {flares}</Typography>
               <Typography sx={{ color: "text.secondary" }}>
                 Remaining: {gold !== null ? gold - totalCost : "--"}

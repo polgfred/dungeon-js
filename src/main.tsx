@@ -35,7 +35,7 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         containedPrimary: ({ theme }) => ({
-          backgroundColor: "#FFFFFF",
+          backgroundColor: theme.palette.text.primary,
           color: theme.palette.primary.main,
           fontWeight: 700,
           letterSpacing: 1.2,
