@@ -1,0 +1,21 @@
+{
+  "name": "dungeon",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/polgfred/dungeon-js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/polgfred/dungeon-js.git"
+  },
+  "license": "ISC",
+  "author": "Frederick Polgardy <fred@polgardy.com>",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
