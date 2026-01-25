@@ -1,5 +1,13 @@
 {
 	"name": "DungeonJS",
 	"image": "mcr.microsoft.com/devcontainers/base:trixie",
-	"onCreateCommand": "bash .devcontainer/install.sh"
+	"onCreateCommand": "bash .devcontainer/install.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"esbenp.prettier-vscode",
+				"openai.chatgpt"
+			]
+		}
+	}
 }
