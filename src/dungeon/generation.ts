@@ -1,6 +1,6 @@
-import { Feature } from "./constants";
-import { Dungeon, Room } from "./model";
-import type { RandomSource } from "./rng";
+import { Feature } from "./constants.js";
+import { Dungeon, Room } from "./model.js";
+import type { RandomSource } from "./rng.js";
 
 const SIZE = 7;
 

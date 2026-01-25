@@ -5,13 +5,13 @@ import {
   Mode,
   Spell,
   TREASURE_NAMES,
-} from "./constants";
-import { EncounterSession } from "./encounter";
-import { generateDungeon } from "./generation";
-import type { Player } from "./model";
-import { Event, StepResult } from "./types";
-import { VendorSession } from "./vendor";
-import { defaultRandomSource, type RandomSource } from "./rng";
+} from "./constants.js";
+import { EncounterSession } from "./encounter.js";
+import { generateDungeon } from "./generation.js";
+import type { Player } from "./model.js";
+import { Event, StepResult } from "./types.js";
+import { VendorSession } from "./vendor.js";
+import { defaultRandomSource, type RandomSource } from "./rng.js";
 
 export class Game {
   static readonly SIZE = 7;

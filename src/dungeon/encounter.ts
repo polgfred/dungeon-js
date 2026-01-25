@@ -1,7 +1,7 @@
-import { Mode, MONSTER_NAMES, Spell, TREASURE_NAMES } from "./constants";
-import type { Player, Room } from "./model";
-import { Event } from "./types";
-import type { RandomSource } from "./rng";
+import { Mode, MONSTER_NAMES, Spell, TREASURE_NAMES } from "./constants.js";
+import type { Player, Room } from "./model.js";
+import { Event } from "./types.js";
+import type { RandomSource } from "./rng.js";
 
 export interface EncounterResult {
   events: Event[];

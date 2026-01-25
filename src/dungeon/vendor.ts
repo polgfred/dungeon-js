@@ -6,10 +6,10 @@ import {
   Spell,
   WEAPON_NAMES,
   WEAPON_PRICES,
-} from "./constants";
-import type { Player } from "./model";
-import { Event } from "./types";
-import type { RandomSource } from "./rng";
+} from "./constants.js";
+import type { Player } from "./model.js";
+import { Event } from "./types.js";
+import type { RandomSource } from "./rng.js";
 
 export interface VendorResult {
   events: Event[];

@@ -1,5 +1,5 @@
-import { ARMOR_NAMES, ARMOR_PRICES, Feature, Race, Spell, WEAPON_NAMES, WEAPON_PRICES } from "./constants";
-import type { RandomSource } from "./rng";
+import { ARMOR_NAMES, ARMOR_PRICES, Feature, Race, Spell, WEAPON_NAMES, WEAPON_PRICES } from "./constants.js";
+import type { RandomSource } from "./rng.js";
 
 export class Room {
   feature: Feature = Feature.EMPTY;
