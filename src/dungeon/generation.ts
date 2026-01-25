@@ -7,8 +7,8 @@ const SIZE = 7;
 export function generateDungeon(rng: RandomSource): Dungeon {
   const rooms: Room[][][] = Array.from({ length: SIZE }, () =>
     Array.from({ length: SIZE }, () =>
-      Array.from({ length: SIZE }, () => createRoom(rng))
-    )
+      Array.from({ length: SIZE }, () => createRoom(rng)),
+    ),
   );
 
   placeTreasures(rng, rooms);

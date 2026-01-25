@@ -1,4 +1,12 @@
-import { ARMOR_NAMES, ARMOR_PRICES, Feature, Race, Spell, WEAPON_NAMES, WEAPON_PRICES } from "./constants.js";
+import {
+  ARMOR_NAMES,
+  ARMOR_PRICES,
+  Feature,
+  Race,
+  Spell,
+  WEAPON_NAMES,
+  WEAPON_PRICES,
+} from "./constants.js";
 import type { RandomSource } from "./rng.js";
 
 export class Room {
@@ -106,7 +114,10 @@ export class Player {
     this.attrPotionTarget = options.attrPotionTarget ?? null;
   }
 
-  static rollBaseStats(rng: RandomSource, race: Race): [number, number, number, number] {
+  static rollBaseStats(
+    rng: RandomSource,
+    race: Race,
+  ): [number, number, number, number] {
     const rn = rng.randint(0, 4);
     const rd = rng.randint(0, 4);
     const ra = rng.randint(0, 4);
@@ -134,7 +145,8 @@ export class Player {
     armorTier: number;
     flareCount: number;
   }): Player {
-    const { rng, race, allocations, weaponTier, armorTier, flareCount } = options;
+    const { rng, race, allocations, weaponTier, armorTier, flareCount } =
+      options;
     let [str_, dex, iq, hp] = Player.rollBaseStats(rng, race);
 
     const strAdd = Number(allocations["STR"]);
@@ -161,7 +173,8 @@ export class Player {
       throw new Error("Flare count must be non-negative");
     }
 
-    const cost = WEAPON_PRICES[weaponTier] + ARMOR_PRICES[armorTier] + flareCount;
+    const cost =
+      WEAPON_PRICES[weaponTier] + ARMOR_PRICES[armorTier] + flareCount;
     if (cost > gold) {
       throw new Error("Not enough gold for purchases");
     }

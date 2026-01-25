@@ -24,7 +24,7 @@ export type PromptData = {
 export type PromptEvent = {
   kind: "PROMPT";
   text: string;
-  data?: PromptData
+  data?: PromptData;
 };
 
 export type StatusEvent = {
@@ -37,8 +37,8 @@ export type MapEvent = {
   kind: "MAP";
   text: "";
   data: {
-    grid: string[]
-  }
+    grid: string[];
+  };
 };
 
 export type Event =

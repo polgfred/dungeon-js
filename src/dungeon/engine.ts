@@ -111,12 +111,12 @@ export class Game {
       events.push(
         Event.debug(
           "DEBUG STATS: " +
-          `weapon_tier=${this.player.weaponTier} ` +
-          `armor_tier=${this.player.armorTier} ` +
-          `armor_damaged=${this.player.armorDamaged} ` +
-          `temp_armor_bonus=${this.player.tempArmorBonus} ` +
-          `fatigued=${this.player.fatigued}`
-        )
+            `weapon_tier=${this.player.weaponTier} ` +
+            `armor_tier=${this.player.armorTier} ` +
+            `armor_damaged=${this.player.armorDamaged} ` +
+            `temp_armor_bonus=${this.player.tempArmorBonus} ` +
+            `fatigued=${this.player.fatigued}`,
+        ),
       );
     }
     return events;
@@ -240,7 +240,9 @@ export class Game {
 
     switch (room.feature) {
       case Feature.MIRROR:
-        events.push(Event.info("There is a magic mirror mounted on the wall here."));
+        events.push(
+          Event.info("There is a magic mirror mounted on the wall here."),
+        );
         break;
       case Feature.SCROLL:
         events.push(Event.info("There is a spell scroll here."));
@@ -270,7 +272,7 @@ export class Game {
       }
       case Feature.WARP:
         events.push(
-          Event.info("This room contains a warp. You are whisked elsewhere...")
+          Event.info("This room contains a warp. You are whisked elsewhere..."),
         );
         this.randomRelocate({ anyFloor: true });
         events.push(...this.enterRoom());
@@ -282,7 +284,9 @@ export class Game {
         events.push(Event.info("There are stairs down here."));
         break;
       case Feature.EXIT:
-        events.push(Event.info("You see the exit to the Dungeon of Doom here."));
+        events.push(
+          Event.info("You see the exit to the Dungeon of Doom here."),
+        );
         break;
       default:
         events.push(Event.info("This room is empty."));
@@ -301,7 +305,9 @@ export class Game {
       this.mode = Mode.GAME_OVER;
       const remaining = 10 - this.player.treasuresFound.size;
       return [
-        Event.info(`You abandon your quest with ${remaining} treasures remaining.`),
+        Event.info(
+          `You abandon your quest with ${remaining} treasures remaining.`,
+        ),
       ];
     }
     this.mode = Mode.VICTORY;
@@ -412,7 +418,7 @@ export class Game {
       const tz = this.rng.randint(1, Game.SIZE);
       return [
         Event.info(
-          `You see the ${this.treasureName(treasure)} at ${tz},${ty},${tx}!`
+          `You see the ${this.treasureName(treasure)} at ${tz},${ty},${tx}!`,
         ),
       ];
     }
@@ -439,7 +445,7 @@ export class Game {
     const [treasure, z, y, x] = this.rng.choice(locations);
     return [
       Event.info(
-        `You see the ${this.treasureName(treasure)} at ${z + 1},${y + 1},${x + 1}!`
+        `You see the ${this.treasureName(treasure)} at ${z + 1},${y + 1},${x + 1}!`,
       ),
     ];
   }
@@ -459,7 +465,9 @@ export class Game {
           this.player.armorTier -= 1;
           this.player.armorDamaged = true;
         }
-        return [Event.info("The perverse thing explodes, damaging your armor!")];
+        return [
+          Event.info("The perverse thing explodes, damaging your armor!"),
+        ];
       default: {
         const gold = 10 + this.rng.randint(0, 20);
         this.player.gold += gold;
@@ -476,7 +484,11 @@ export class Game {
     room.feature = Feature.EMPTY;
     const spell = this.rng.randint(1, 5) as Spell;
     this.player.spells[spell] = (this.player.spells[spell] ?? 0) + 1;
-    return [Event.info(`The scroll contains the ${Spell[spell].toLowerCase()} spell.`)];
+    return [
+      Event.info(
+        `The scroll contains the ${Spell[spell].toLowerCase()} spell.`,
+      ),
+    ];
   }
 
   private drinkPotion(): Event[] {
@@ -498,7 +510,9 @@ export class Game {
       change = -change;
     }
     this.player.applyAttributeChange({ target: effect, change });
-    return [Event.info("You drink the potion... strange energies surge through you.")];
+    return [
+      Event.info("You drink the potion... strange energies surge through you."),
+    ];
   }
 
   private openVendor(): Event[] {
@@ -506,7 +520,10 @@ export class Game {
     if (room.feature !== Feature.VENDOR) {
       return [Event.info("There is no vendor here.")];
     }
-    this.shopSession = new VendorSession({ rng: this.rng, player: this.player });
+    this.shopSession = new VendorSession({
+      rng: this.rng,
+      player: this.player,
+    });
     return this.shopSession.startEvents();
   }
 

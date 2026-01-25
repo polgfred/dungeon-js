@@ -125,35 +125,43 @@ export class EncounterSession {
 
   private debugMonsterEvent(): Event {
     return Event.debug(
-      `DEBUG MONSTER: name=${this.monsterName} level=${this.monsterLevel} vitality=${this.vitality}`
+      `DEBUG MONSTER: name=${this.monsterName} level=${this.monsterLevel} vitality=${this.vitality}`,
     );
   }
 
   private fightRound(): EncounterResult {
     const events: Event[] = [];
     const level = this.monsterLevel;
-    const attackScore = 20 + 5 * (11 - level) + this.player.dex + 3 * this.player.weaponTier;
+    const attackScore =
+      20 + 5 * (11 - level) + this.player.dex + 3 * this.player.weaponTier;
 
     const roll = this.rng.randint(1, 100);
     if (this.debug) {
       events.push(
         Event.debug(
           `DEBUG FIGHT: attack_score=${attackScore} roll=${roll} ` +
-          `weapon_tier=${this.player.weaponTier} str=${this.player.str_} dex=${this.player.dex}`
-        )
+            `weapon_tier=${this.player.weaponTier} str=${this.player.str_} dex=${this.player.dex}`,
+        ),
       );
     }
     if (roll > attackScore) {
       events.push(Event.combat(`The ${this.monsterName} evades your blow!`));
     } else {
       const damage = Math.max(
-        this.player.weaponTier + Math.floor(this.player.str_ / 3) + this.rng.randint(0, 4) - 2,
-        1
+        this.player.weaponTier +
+          Math.floor(this.player.str_ / 3) +
+          this.rng.randint(0, 4) -
+          2,
+        1,
       );
       this.vitality -= damage;
       events.push(Event.combat(`You hit the ${this.monsterName}!`));
       if (this.debug) {
-        events.push(Event.debug(`DEBUG FIGHT: damage=${damage} vitality=${this.vitality}`));
+        events.push(
+          Event.debug(
+            `DEBUG FIGHT: damage=${damage} vitality=${this.vitality}`,
+          ),
+        );
       }
       if (this.vitality <= 0) {
         return this.handleMonsterDeath(events);
@@ -173,12 +181,16 @@ export class EncounterSession {
   private runAttempt(): EncounterResult {
     if (this.player.fatigued) {
       return {
-        events: [Event.info("You are quite fatigued after your previous efforts.")],
+        events: [
+          Event.info("You are quite fatigued after your previous efforts."),
+        ],
         mode: Mode.ENCOUNTER,
       };
     }
     if (this.rng.random() < 0.4) {
-      const events = [Event.info("You slip away and the monster no longer follows.")];
+      const events = [
+        Event.info("You slip away and the monster no longer follows."),
+      ];
       return {
         events,
         mode: Mode.EXPLORE,
@@ -191,7 +203,7 @@ export class EncounterSession {
     return {
       events: [
         Event.info(
-          "Although you run your hardest, your efforts to escape are made in vain."
+          "Although you run your hardest, your efforts to escape are made in vain.",
         ),
       ],
       mode: Mode.ENCOUNTER,
@@ -207,8 +219,8 @@ export class EncounterSession {
       events.push(
         Event.debug(
           `DEBUG MONSTER: dodge_score=${dodgeScore} roll=${roll} ` +
-          `armor_tier=${this.player.armorTier} temp_armor_bonus=${this.player.tempArmorBonus}`
-        )
+            `armor_tier=${this.player.armorTier} temp_armor_bonus=${this.player.tempArmorBonus}`,
+        ),
       );
     }
     if (roll <= dodgeScore) {
@@ -221,7 +233,9 @@ export class EncounterSession {
     this.player.hp -= damage;
     events.push(Event.combat(`The ${this.monsterName} hits you!`));
     if (this.debug) {
-      events.push(Event.debug(`DEBUG MONSTER: damage=${damage} hp=${this.player.hp}`));
+      events.push(
+        Event.debug(`DEBUG MONSTER: damage=${damage} hp=${this.player.hp}`),
+      );
     }
     if (this.player.hp <= 0) {
       events.push(Event.info("YOU HAVE DIED."));
@@ -234,7 +248,7 @@ export class EncounterSession {
     events.push(Event.combat(`The foul ${this.monsterName} expires.`));
     if (this.rng.random() > 0.7) {
       events.push(
-        Event.combat("As it dies, it launches one final desperate attack.")
+        Event.combat("As it dies, it launches one final desperate attack."),
       );
       const [attackEvents, mode] = this.monsterAttack();
       events.push(...attackEvents);
@@ -277,7 +291,10 @@ export class EncounterSession {
       };
     }
     if (charges <= 0) {
-      return { events: [Event.info("You know not that spell.")], mode: Mode.ENCOUNTER };
+      return {
+        events: [Event.info("You know not that spell.")],
+        mode: Mode.ENCOUNTER,
+      };
     }
 
     this.player.spells[spell] = charges - 1;
@@ -303,12 +320,14 @@ export class EncounterSession {
     switch (spell) {
       case Spell.PROTECTION: {
         this.player.tempArmorBonus += 3;
-        events.push(Event.info("Your armor glows briefly in response to your spell."));
+        events.push(
+          Event.info("Your armor glows briefly in response to your spell."),
+        );
         if (this.debug) {
           events.push(
             Event.debug(
-              `DEBUG SPELL: protection_bonus=3 temp_armor_bonus=${this.player.tempArmorBonus}`
-            )
+              `DEBUG SPELL: protection_bonus=3 temp_armor_bonus=${this.player.tempArmorBonus}`,
+            ),
           );
         }
         const [attackEvents, mode] = this.monsterAttack();
@@ -322,11 +341,13 @@ export class EncounterSession {
         if (this.debug) {
           events.push(
             Event.debug(
-              `DEBUG SPELL: fireball_roll=${roll} iq=${this.player.iq} damage=${damage} vitality=${this.vitality}`
-            )
+              `DEBUG SPELL: fireball_roll=${roll} iq=${this.player.iq} damage=${damage} vitality=${this.vitality}`,
+            ),
           );
         }
-        events.push(Event.combat(`A ball of fire scorches the ${this.monsterName}.`));
+        events.push(
+          Event.combat(`A ball of fire scorches the ${this.monsterName}.`),
+        );
         break;
       }
       case Spell.LIGHTNING: {
@@ -336,8 +357,8 @@ export class EncounterSession {
         if (this.debug) {
           events.push(
             Event.debug(
-              `DEBUG SPELL: lightning_roll=${roll} iq=${this.player.iq} damage=${damage} vitality=${this.vitality}`
-            )
+              `DEBUG SPELL: lightning_roll=${roll} iq=${this.player.iq} damage=${damage} vitality=${this.vitality}`,
+            ),
           );
         }
         events.push(Event.combat(`The ${this.monsterName} is thunderstruck!`));
@@ -346,14 +367,18 @@ export class EncounterSession {
       case Spell.WEAKEN: {
         this.vitality = Math.floor(this.vitality / 2);
         if (this.debug) {
-          events.push(Event.debug(`DEBUG SPELL: weakened_vitality=${this.vitality}`));
+          events.push(
+            Event.debug(`DEBUG SPELL: weakened_vitality=${this.vitality}`),
+          );
         }
         events.push(Event.combat("A green mist envelops your foe."));
         break;
       }
       case Spell.TELEPORT: {
         events.push(
-          Event.info("Thy surroundings vibrate as you are transported elsewhere...")
+          Event.info(
+            "Thy surroundings vibrate as you are transported elsewhere...",
+          ),
         );
         this.monsterLevel = 0;
         this.monsterName = "";

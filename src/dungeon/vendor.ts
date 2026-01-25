@@ -30,7 +30,7 @@ export class VendorSession {
   startEvents(): Event[] {
     return [
       Event.prompt(
-        "He is selling: 1> Weapons  2> Armour  3> Scrolls  4> Potions  0> Leave"
+        "He is selling: 1> Weapons  2> Armour  3> Scrolls  4> Potions  0> Leave",
       ),
     ];
   }
@@ -116,7 +116,10 @@ export class VendorSession {
     this.player.weaponTier = tier;
     this.player.weaponName = WEAPON_NAMES[tier];
     this.player.gold -= price;
-    return { events: [Event.info("A fine weapon for your quest.")], done: true };
+    return {
+      events: [Event.info("A fine weapon for your quest.")],
+      done: true,
+    };
   }
 
   private handleShopArmor(raw: string): VendorResult {
@@ -154,22 +157,29 @@ export class VendorSession {
       case "1": {
         const price = POTION_PRICES["HEALING"];
         if (this.player.gold < price) {
-          return { events: [Event.info("Don't try to cheat me. It won't work!")] };
+          return {
+            events: [Event.info("Don't try to cheat me. It won't work!")],
+          };
         }
         this.player.gold -= price;
         this.player.hp = Math.min(this.player.mhp, this.player.hp + 10);
-        return { events: [Event.info("You quaff a healing potion.")], done: true };
+        return {
+          events: [Event.info("You quaff a healing potion.")],
+          done: true,
+        };
       }
       case "2": {
         const price = POTION_PRICES["ATTRIBUTE"];
         if (this.player.gold < price) {
-          return { events: [Event.info("Don't try to cheat me. It won't work!")] };
+          return {
+            events: [Event.info("Don't try to cheat me. It won't work!")],
+          };
         }
         this.phase = "attribute";
         return {
           events: [
             Event.prompt(
-              "Attribute enhancer: 1> Strength  2> Dexterity  3> Intelligence  4> Max HP  0> Leave"
+              "Attribute enhancer: 1> Strength  2> Dexterity  3> Intelligence  4> Max HP  0> Leave",
             ),
           ],
         };
@@ -188,7 +198,10 @@ export class VendorSession {
     }
     const price = POTION_PRICES["ATTRIBUTE"];
     if (this.player.gold < price) {
-      return { events: [Event.info("Don't try to cheat me. It won't work!")], done: true };
+      return {
+        events: [Event.info("Don't try to cheat me. It won't work!")],
+        done: true,
+      };
     }
     this.player.gold -= price;
     const change = this.rng.randint(1, 6);
