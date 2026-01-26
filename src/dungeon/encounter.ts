@@ -264,7 +264,7 @@ export class EncounterSession {
     } else {
       const gold = 5 * this.monsterLevel + this.rng.randint(0, 20);
       this.player.gold += gold;
-      events.push(Event.loot(`You found ${gold} gold pieces.`));
+      events.push(Event.loot(`You find ${gold} gold pieces.`));
     }
 
     this.room.monsterLevel = 0;
