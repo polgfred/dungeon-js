@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import { alpha, type Theme } from '@mui/material/styles';
 import { useState } from 'react';
 
+import type { Player } from './dungeon/model.js';
 import Gameplay from './ui/Gameplay.js';
 import SetupGame from './ui/SetupGame.js';
 import TitleScreen from './ui/TitleScreen.js';
@@ -39,6 +40,7 @@ const screenStyle = (theme: Theme) => ({
 
 export default function App() {
   const [stage, setStage] = useState<AppStage>('title');
+  const [player, setPlayer] = useState<Player | null>(null);
 
   return (
     <Box component="main" sx={(theme) => screenStyle(theme)}>
@@ -46,13 +48,22 @@ export default function App() {
 
       {stage === 'setup' && (
         <SetupGame
-          onComplete={() => setStage('gameplay')}
+          onComplete={(created) => {
+            setPlayer(created);
+            setStage('gameplay');
+          }}
           onBack={() => setStage('title')}
         />
       )}
 
-      {stage === 'gameplay' && (
-        <Gameplay onBack={() => setStage('setup')} />
+      {stage === 'gameplay' && player && (
+        <Gameplay
+          player={player}
+          onBack={() => {
+            setPlayer(null);
+            setStage('setup');
+          }}
+        />
       )}
     </Box>
   );

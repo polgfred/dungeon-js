@@ -374,7 +374,7 @@ function ReadyStage({
 }: {
   player: Player;
   onReset: () => void;
-  onComplete: () => void;
+  onComplete: (player: Player) => void;
 }) {
   return (
     <Stack spacing={3}>
@@ -396,7 +396,11 @@ function ReadyStage({
         <Button variant="outlined" onClick={onReset} color="primary">
           Reset Setup
         </Button>
-        <Button variant="contained" onClick={onComplete} color="primary">
+        <Button
+          variant="contained"
+          onClick={() => onComplete(player)}
+          color="primary"
+        >
           Enter Dungeon
         </Button>
       </Stack>
@@ -459,7 +463,7 @@ export default function SetupGame({
   onComplete,
   onBack,
 }: {
-  onComplete: () => void;
+  onComplete: (player: Player) => void;
   onBack: () => void;
 }) {
   const rng = useMemo(() => defaultRandomSource, []);

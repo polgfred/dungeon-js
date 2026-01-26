@@ -1,7 +1,11 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { alpha, type Theme } from '@mui/material/styles';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { Mode } from '../dungeon/constants.js';
+import { Game } from '../dungeon/engine.js';
+import type { Player } from '../dungeon/model.js';
+import type { Event as GameEvent } from '../dungeon/types.js';
 type Command = {
   id: string;
   key: string;
@@ -109,11 +113,15 @@ function CommandButton({
 
 function MapPanel({
   onTrigger,
-  sampleMap,
+  mapGrid,
+  turnEvents,
 }: {
   onTrigger: (command: Command) => void;
-  sampleMap: string[];
+  mapGrid: string[];
+  turnEvents: string[];
 }) {
+  const rows: string[] =
+    mapGrid.length > 0 ? mapGrid : Array(7).fill('? ? ? ? ? ? ?');
   return (
     <Box sx={(theme) => panelStyle(theme)}>
       <Stack spacing={2}>
@@ -142,25 +150,25 @@ function MapPanel({
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateRows: `repeat(${sampleMap.length}, 1fr)`,
+                gridTemplateRows: `repeat(${rows.length}, 1fr)`,
                 gap: 0.5,
                 width: '100%',
                 alignContent: 'center',
                 justifyItems: 'center',
               }}
             >
-              {sampleMap.map((row, rowIndex) => (
+              {rows.map((row, rowIndex) => (
                 <Box
                   key={`row-${rowIndex}`}
                   sx={{
                     display: 'grid',
-                    gridTemplateColumns: `repeat(${row.length}, 1fr)`,
+                    gridTemplateColumns: `repeat(${row.split(' ').length}, 1fr)`,
                     gap: 0.5,
                     width: '100%',
                     maxWidth: 360,
                   }}
                 >
-                  {row.split('').map((cell, colIndex) => (
+                  {row.split(' ').map((cell, colIndex) => (
                     <Box
                       key={`${rowIndex}-${colIndex}`}
                       sx={(theme) => ({
@@ -264,7 +272,15 @@ function MapPanel({
           <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
             Event Feed
           </Typography>
-          <Typography sx={{ marginTop: 1 }}>There is a chest here.</Typography>
+          <Stack spacing={0.5} sx={{ marginTop: 1 }}>
+            {turnEvents.length === 0 ? (
+              <Typography sx={{ opacity: 0.6 }}>No notable events.</Typography>
+            ) : (
+              turnEvents.map((entry, index) => (
+                <Typography key={`${entry}-${index}`}>{entry}</Typography>
+              ))
+            )}
+          </Stack>
         </Box>
       </Stack>
     </Box>
@@ -329,9 +345,11 @@ function CommandBarPanel({
 function PlayerReadoutPanel({
   encounterMode,
   onBack,
+  player,
 }: {
   encounterMode: boolean;
   onBack: () => void;
+  player: Player;
 }) {
   return (
     <Box sx={(theme) => panelStyle(theme)}>
@@ -341,27 +359,29 @@ function PlayerReadoutPanel({
         </Typography>
         <Stack spacing={0.5}>
           <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
-          <Typography>
-            {encounterMode ? 'Encounter engagement' : 'Exploration'}
-          </Typography>
+          <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
         </Stack>
         <Stack spacing={1}>
           <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
-          <Typography>ST 12</Typography>
-          <Typography>DX 13</Typography>
-          <Typography>IQ 11</Typography>
-          <Typography>HP 18</Typography>
+          <Typography>ST {player.str}</Typography>
+          <Typography>DX {player.dex}</Typography>
+          <Typography>IQ {player.iq}</Typography>
+          <Typography>
+            HP {player.hp} / {player.mhp}
+          </Typography>
         </Stack>
         <Stack spacing={1}>
           <Typography sx={{ opacity: 0.7 }}>Inventory</Typography>
-          <Typography>Gold: 42</Typography>
-          <Typography>Weapon: Axe</Typography>
-          <Typography>Armor: Chain</Typography>
-          <Typography>Flares: 2</Typography>
+          <Typography>Gold: {player.gold}</Typography>
+          <Typography>Weapon: {player.weaponName}</Typography>
+          <Typography>Armor: {player.armorName}</Typography>
+          <Typography>Flares: {player.flares}</Typography>
         </Stack>
         <Stack spacing={1}>
           <Typography sx={{ opacity: 0.7 }}>Location</Typography>
-          <Typography>Floor 3 · Room 4,2</Typography>
+          <Typography>
+            Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
+          </Typography>
         </Stack>
         <Button variant="outlined" onClick={onBack} color="primary">
           Back to Setup
@@ -374,24 +394,41 @@ function PlayerReadoutPanel({
   );
 }
 
-export default function Gameplay({ onBack }: { onBack: () => void }) {
-  const [encounterMode, setEncounterMode] = useState(false);
-  const sampleMap = [
-    '*0?M?0T',
-    '0m0s0c0',
-    '?0f0p0?',
-    '0v0t0w0',
-    '?0U0D0?',
-    '0?0?0?0',
-    '00?X?00',
-  ];
+function eventLines(events: GameEvent[]): string[] {
+  return events
+    .filter((event) =>
+      ['INFO', 'ERROR', 'COMBAT', 'LOOT', 'DEBUG', 'PROMPT'].includes(
+        event.kind
+      )
+    )
+    .map((event) => event.text)
+    .filter(Boolean);
+}
 
+export default function Gameplay({
+  onBack,
+  player,
+}: {
+  onBack: () => void;
+  player: Player;
+}) {
+  const gameRef = useRef<Game | null>(null);
+  if (!gameRef.current) {
+    gameRef.current = new Game({ seed: Date.now(), player });
+  }
+  const game = gameRef.current;
+  const [mode, setMode] = useState<Mode>(game.mode);
+  const [mapGrid, setMapGrid] = useState<string[]>(game.getMapGrid());
+  const [turnEvents, setTurnEvents] = useState<string[]>([]);
+  const initialized = useRef(false);
+
+  const isEncounter = mode === Mode.ENCOUNTER;
   const activeCommands = useMemo(
     () =>
-      encounterMode
+      isEncounter
         ? encounterCommands
         : [...movementCommands, ...verticalCommands, ...roomCommands],
-    [encounterMode]
+    [isEncounter]
   );
 
   const commandMap = useMemo(() => {
@@ -402,7 +439,24 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     return map;
   }, [activeCommands]);
 
-  const handleTrigger = useCallback((_command: Command) => {}, []);
+  const handleTrigger = useCallback(
+    (command: Command) => {
+      const result = game.step(command.key);
+      setMode(result.mode);
+      setTurnEvents(eventLines(result.events));
+      setMapGrid(game.getMapGrid());
+    },
+    [game]
+  );
+
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+    const startEvents = game.startEvents();
+    setTurnEvents(eventLines(startEvents));
+    setMode(game.mode);
+    setMapGrid(game.getMapGrid());
+  }, [game]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -448,14 +502,22 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
           spacing={3}
           sx={{ height: '100%', justifyContent: 'space-between' }}
         >
-          <MapPanel onTrigger={handleTrigger} sampleMap={sampleMap} />
+          <MapPanel
+            onTrigger={handleTrigger}
+            mapGrid={mapGrid}
+            turnEvents={turnEvents}
+          />
           <CommandBarPanel
-            encounterMode={encounterMode}
+            encounterMode={isEncounter}
             onTrigger={handleTrigger}
           />
         </Stack>
 
-        <PlayerReadoutPanel encounterMode={encounterMode} onBack={onBack} />
+        <PlayerReadoutPanel
+          encounterMode={isEncounter}
+          onBack={onBack}
+          player={player}
+        />
       </Box>
     </Box>
   );

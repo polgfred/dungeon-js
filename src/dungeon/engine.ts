@@ -123,6 +123,10 @@ export class Game {
     return events;
   }
 
+  getMapGrid(): string[] {
+    return this.mapGrid();
+  }
+
   resumeEvents(): Event[] {
     const events: Event[] = [];
     if (this.encounterSession) {
@@ -468,9 +472,7 @@ export class Game {
             this.player.armorName = ARMOR_NAMES[0];
             this.player.armorDamaged = false;
             return [
-              Event.info(
-                'The perverse thing explodes, destroying your armor!'
-              ),
+              Event.info('The perverse thing explodes, destroying your armor!'),
             ];
           }
           this.player.armorDamaged = true;
