@@ -1,7 +1,8 @@
-import { Box, Button, Stack, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { alpha, type Theme } from '@mui/material/styles';
 import { useState } from 'react';
 
+import Gameplay from './ui/Gameplay.js';
 import SetupGame from './ui/SetupGame.js';
 import TitleScreen from './ui/TitleScreen.js';
 
@@ -51,29 +52,7 @@ export default function App() {
       )}
 
       {stage === 'gameplay' && (
-        <Box
-          sx={{
-            maxWidth: 900,
-            margin: '0 auto',
-            paddingTop: { xs: 6, md: 10 },
-          }}
-        >
-          <Stack spacing={2}>
-            <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-              Gameplay
-            </Typography>
-            <Typography sx={{ opacity: 0.75 }}>
-              Terminal mode coming next.
-            </Typography>
-            <Button
-              variant="outlined"
-              onClick={() => setStage('setup')}
-              color="primary"
-            >
-              Back to Setup
-            </Button>
-          </Stack>
-        </Box>
+        <Gameplay onBack={() => setStage('setup')} />
       )}
     </Box>
   );
