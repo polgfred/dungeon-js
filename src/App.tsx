@@ -3,6 +3,7 @@ import { alpha, type Theme } from "@mui/material/styles";
 import { useState } from "react";
 
 import SetupGame from "./ui/SetupGame.js";
+import TitleScreen from "./ui/TitleScreen.js";
 
 type AppStage = "title" | "setup" | "gameplay";
 
@@ -40,35 +41,7 @@ export default function App() {
 
   return (
     <Box component="main" sx={(theme) => screenStyle(theme)}>
-      {stage === "title" && (
-        <Box
-          sx={{
-            maxWidth: 900,
-            margin: "0 auto",
-            paddingTop: { xs: 8, md: 12 },
-          }}
-        >
-          <Stack spacing={3} alignItems="flex-start">
-            <Typography sx={{ letterSpacing: 4, textTransform: "uppercase" }}>
-              Dungeon OS
-            </Typography>
-            <Typography variant="h3" sx={{ letterSpacing: 2 }}>
-              Cold Boot Sequence
-            </Typography>
-            <Typography sx={{ opacity: 0.75, maxWidth: 560 }}>
-              Initialize your lineage, tune your stats, and stock your kit
-              before descending.
-            </Typography>
-            <Button
-              variant="contained"
-              onClick={() => setStage("setup")}
-              color="primary"
-            >
-              Begin Setup
-            </Button>
-          </Stack>
-        </Box>
-      )}
+      {stage === "title" && <TitleScreen onStart={() => setStage("setup")} />}
 
       {stage === "setup" && (
         <SetupGame
