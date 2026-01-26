@@ -598,7 +598,9 @@ function HelpDialog({
             dangerouslySetInnerHTML={{ __html: html }}
           />
         ) : (
-          <Typography sx={{ opacity: 0.7 }}>Help text is unavailable.</Typography>
+          <Typography sx={{ opacity: 0.7 }}>
+            Help text is unavailable.
+          </Typography>
         )}
       </DialogContent>
     </Dialog>
@@ -707,6 +709,7 @@ export default function Gameplay({
     game.dungeon.rooms[player.z][player.y][player.x].feature;
   const canCastSpell =
     player.iq >= 12 && Object.values(player.spells).some((count) => count > 0);
+  const canRun = !player.fatigued;
   const atNorthWall = player.y <= 0;
   const atSouthWall = player.y >= Game.SIZE - 1;
   const atWestWall = player.x <= 0;
@@ -759,10 +762,16 @@ export default function Gameplay({
   );
   const encounterCommandList = useMemo(
     () =>
-      encounterCommands.map((command) =>
-        command.key === 'S' ? { ...command, disabled: !canCastSpell } : command
-      ),
-    [canCastSpell]
+      encounterCommands.map((command) => {
+        if (command.key === 'S') {
+          return { ...command, disabled: !canCastSpell };
+        }
+        if (command.key === 'R') {
+          return { ...command, disabled: !canRun };
+        }
+        return command;
+      }),
+    [canCastSpell, canRun]
   );
   const exploreCommandList = useMemo(
     () => [...movementCommandList, ...verticalCommandList, ...roomCommandList],
@@ -786,12 +795,13 @@ export default function Gameplay({
   const commandMap = useMemo(() => {
     const map = new Map<string, Command>();
     const commands = promptCommands ?? activeCommands;
-    const allowDisabledInput = !promptCommands && !isEncounter;
     commands
-      .filter(
-        (command) =>
-          allowDisabledInput || !('disabled' in command && command.disabled)
-      )
+      .filter((command) => {
+        if (!('disabled' in command && command.disabled)) return true;
+        if (promptCommands) return false;
+        if (!isEncounter) return true;
+        return command.key === 'R';
+      })
       .forEach((command) => map.set(command.key.toLowerCase(), command));
     return map;
   }, [activeCommands, promptCommands, isEncounter]);
