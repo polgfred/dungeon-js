@@ -500,7 +500,14 @@ function PlayerReadoutPanel({
           <Typography>ST {player.str}</Typography>
           <Typography>DX {player.dex}</Typography>
           <Typography>IQ {player.iq}</Typography>
-          <Typography>
+          <Typography
+            sx={(theme) => ({
+              color:
+                player.hp < 10
+                  ? theme.palette.error.light
+                  : theme.palette.text.primary,
+            })}
+          >
             HP {player.hp} / {player.mhp}
           </Typography>
         </Stack>
