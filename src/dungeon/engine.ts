@@ -1,4 +1,5 @@
 import {
+  ARMOR_NAMES,
   EXPLORE_COMMANDS,
   FEATURE_SYMBOLS,
   Feature,
@@ -463,11 +464,31 @@ export class Game {
       case 2:
         if (this.player.armorTier > 0) {
           this.player.armorTier -= 1;
+          if (this.player.armorTier === 0) {
+            this.player.armorName = ARMOR_NAMES[0];
+            this.player.armorDamaged = false;
+            return [
+              Event.info(
+                'The perverse thing explodes, destroying your armor!'
+              ),
+            ];
+          }
           this.player.armorDamaged = true;
+          return [
+            Event.info('The perverse thing explodes, damaging your armor!'),
+          ];
         }
-        return [
-          Event.info('The perverse thing explodes, damaging your armor!'),
-        ];
+        this.player.armorName = ARMOR_NAMES[0];
+        this.player.armorDamaged = false;
+        this.player.hp -= this.rng.randint(0, 4) + 3;
+        if (this.player.hp <= 0) {
+          this.mode = Mode.GAME_OVER;
+          return [
+            Event.info('The perverse thing explodes, wounding you!'),
+            Event.info('YOU HAVE DIED.'),
+          ];
+        }
+        return [Event.info('The perverse thing explodes, wounding you!')];
       default: {
         const gold = 10 + this.rng.randint(0, 20);
         this.player.gold += gold;
