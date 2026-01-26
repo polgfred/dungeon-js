@@ -2,7 +2,7 @@ import { Box, Button, Stack, Tooltip, Typography } from '@mui/material';
 import { alpha, type Theme } from '@mui/material/styles';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Mode } from '../dungeon/constants.js';
+import { Feature, Mode } from '../dungeon/constants.js';
 import { Game } from '../dungeon/engine.js';
 import type { Player } from '../dungeon/model.js';
 import type { Event as GameEvent, PromptOption } from '../dungeon/types.js';
@@ -117,10 +117,14 @@ function MapPanel({
   onTrigger,
   mapGrid,
   turnEvents,
+  movementCommandList,
+  verticalCommandList,
 }: {
   onTrigger: (command: Command) => void;
   mapGrid: string[];
   turnEvents: string[][];
+  movementCommandList: Command[];
+  verticalCommandList: Command[];
 }) {
   return (
     <Box sx={(theme) => panelStyle(theme)}>
@@ -128,7 +132,12 @@ function MapPanel({
         <Typography variant="h5" sx={{ letterSpacing: 2 }}>
           Dungeon View
         </Typography>
-        <MapGridPanel mapGrid={mapGrid} onTrigger={onTrigger} />
+        <MapGridPanel
+          mapGrid={mapGrid}
+          onTrigger={onTrigger}
+          movementCommandList={movementCommandList}
+          verticalCommandList={verticalCommandList}
+        />
         <EventFeedPanel turnEvents={turnEvents} />
       </Stack>
     </Box>
@@ -138,9 +147,13 @@ function MapPanel({
 function MapGridPanel({
   mapGrid,
   onTrigger,
+  movementCommandList,
+  verticalCommandList,
 }: {
   mapGrid: string[];
   onTrigger: (command: Command) => void;
+  movementCommandList: Command[];
+  verticalCommandList: Command[];
 }) {
   const rows: string[] =
     mapGrid.length > 0 ? mapGrid : Array(7).fill('? ? ? ? ? ? ?');
@@ -243,13 +256,13 @@ function MapGridPanel({
           >
             <Box />
             <CommandButton
-              command={movementCommands[0]}
+              command={movementCommandList[0]}
               onTrigger={onTrigger}
               layout="stacked"
             />
             <Box />
             <CommandButton
-              command={movementCommands[1]}
+              command={movementCommandList[1]}
               onTrigger={onTrigger}
               layout="stacked"
             />
@@ -261,13 +274,13 @@ function MapGridPanel({
               }}
             />
             <CommandButton
-              command={movementCommands[2]}
+              command={movementCommandList[2]}
               onTrigger={onTrigger}
               layout="stacked"
             />
             <Box />
             <CommandButton
-              command={movementCommands[3]}
+              command={movementCommandList[3]}
               onTrigger={onTrigger}
               layout="stacked"
             />
@@ -279,7 +292,7 @@ function MapGridPanel({
             flexWrap="wrap"
             justifyContent="center"
           >
-            {verticalCommands.map((command) => (
+            {verticalCommandList.map((command) => (
               <CommandButton
                 key={command.id}
                 command={command}
@@ -384,12 +397,14 @@ function CommandBarPanel({
   promptOptions,
   promptText,
   encounterCommandList,
+  roomCommandList,
 }: {
   encounterMode: boolean;
   onTrigger: (command: Command) => void;
   promptOptions: PromptOption[] | null;
   promptText: string | null;
   encounterCommandList: Command[];
+  roomCommandList: Command[];
 }) {
   if (promptOptions && promptOptions.length > 0) {
     return (
@@ -462,7 +477,7 @@ function CommandBarPanel({
               gap: 0.75,
             }}
           >
-            {roomCommands.map((command) => (
+            {roomCommandList.map((command) => (
               <CommandButton
                 key={command.id}
                 command={command}
@@ -632,8 +647,42 @@ export default function Gameplay({
   const initialized = useRef(false);
 
   const isEncounter = mode === Mode.ENCOUNTER;
+  const currentRoomFeature =
+    game.dungeon.rooms[player.z][player.y][player.x].feature;
   const canCastSpell =
     player.iq >= 12 && Object.values(player.spells).some((count) => count > 0);
+  const movementCommandList = movementCommands;
+  const verticalDisabledByKey: Partial<Record<string, boolean>> = {
+    U: currentRoomFeature !== Feature.STAIRS_UP,
+    D: currentRoomFeature !== Feature.STAIRS_DOWN,
+    X: currentRoomFeature !== Feature.EXIT,
+  };
+  const verticalCommandList = useMemo(
+    () =>
+      verticalCommands.map((command) =>
+        command.key in verticalDisabledByKey
+          ? { ...command, disabled: verticalDisabledByKey[command.key] }
+          : command
+      ),
+    [verticalDisabledByKey]
+  );
+  const roomDisabledByKey: Partial<Record<string, boolean>> = {
+    F: player.flares < 1,
+    L: currentRoomFeature !== Feature.MIRROR,
+    O: currentRoomFeature !== Feature.CHEST,
+    R: currentRoomFeature !== Feature.SCROLL,
+    P: currentRoomFeature !== Feature.POTION,
+    B: currentRoomFeature !== Feature.VENDOR,
+  };
+  const roomCommandList = useMemo(
+    () =>
+      roomCommands.map((command) =>
+        command.key in roomDisabledByKey
+          ? { ...command, disabled: roomDisabledByKey[command.key] }
+          : command
+      ),
+    [roomDisabledByKey]
+  );
   const encounterCommandList = useMemo(
     () =>
       encounterCommands.map((command) =>
@@ -641,12 +690,13 @@ export default function Gameplay({
       ),
     [canCastSpell]
   );
+  const exploreCommandList = useMemo(
+    () => [...movementCommandList, ...verticalCommandList, ...roomCommandList],
+    [movementCommandList, verticalCommandList, roomCommandList]
+  );
   const activeCommands = useMemo(
-    () =>
-      isEncounter
-        ? encounterCommandList
-        : [...movementCommands, ...verticalCommands, ...roomCommands],
-    [isEncounter, encounterCommandList]
+    () => (isEncounter ? encounterCommandList : exploreCommandList),
+    [isEncounter, encounterCommandList, exploreCommandList]
   );
   const promptCommands = useMemo(() => {
     if (!promptOptions || promptOptions.length === 0) return null;
@@ -662,11 +712,15 @@ export default function Gameplay({
   const commandMap = useMemo(() => {
     const map = new Map<string, Command>();
     const commands = promptCommands ?? activeCommands;
+    const allowDisabledInput = !promptCommands && !isEncounter;
     commands
-      .filter((command) => !('disabled' in command && command.disabled))
+      .filter(
+        (command) =>
+          allowDisabledInput || !('disabled' in command && command.disabled)
+      )
       .forEach((command) => map.set(command.key.toLowerCase(), command));
     return map;
-  }, [activeCommands, promptCommands]);
+  }, [activeCommands, promptCommands, isEncounter]);
 
   const handleTrigger = useCallback(
     (command: Command) => {
@@ -746,6 +800,8 @@ export default function Gameplay({
             onTrigger={handleTrigger}
             mapGrid={mapGrid}
             turnEvents={turnEvents}
+            movementCommandList={movementCommandList}
+            verticalCommandList={verticalCommandList}
           />
           <CommandBarPanel
             encounterMode={isEncounter}
@@ -753,6 +809,7 @@ export default function Gameplay({
             promptOptions={promptOptions}
             promptText={promptText}
             encounterCommandList={encounterCommandList}
+            roomCommandList={roomCommandList}
           />
         </Stack>
 
