@@ -508,7 +508,10 @@ function PlayerReadoutPanel({
           <Typography sx={{ opacity: 0.7 }}>Inventory</Typography>
           <Typography>Gold: {player.gold}</Typography>
           <Typography>Weapon: {player.weaponName}</Typography>
-          <Typography>Armor: {player.armorName}</Typography>
+          <Typography>
+            Armor: {player.armorName}
+            {player.armorDamaged ? '*' : ''}
+          </Typography>
           <Typography>Flares: {player.flares}</Typography>
           <Typography>Treasures: {player.treasuresFound.size}</Typography>
         </Stack>
