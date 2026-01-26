@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "EightBit Atari";
-  src: url("/fonts/EightBitAtari-Regular.woff") format("woff");
+  font-family: 'EightBit Atari';
+  src: url('/fonts/EightBitAtari-Regular.woff') format('woff');
   font-style: normal;
   font-weight: 400;
   font-display: block;
