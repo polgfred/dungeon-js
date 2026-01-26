@@ -573,6 +573,12 @@ function HelpDialog({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      PaperProps={{
+        sx: {
+          height: '80vh',
+          maxHeight: '80vh',
+        },
+      }}
       sx={(theme) => ({
         '& .MuiDialogTitle-root, & .MuiDialogContent-root': {
           background: alpha(theme.palette.primary.dark, 0.35),
