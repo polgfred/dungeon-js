@@ -42,7 +42,6 @@ export const EXPLORE_COMMANDS = new Set([
   'W',
   'U',
   'D',
-  'M',
   'F',
   'X',
   'L',

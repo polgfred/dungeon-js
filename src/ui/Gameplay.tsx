@@ -35,7 +35,6 @@ const verticalCommands = [
 ];
 
 const roomCommands = [
-  { id: 'map', key: 'M', label: 'Map' },
   { id: 'flare', key: 'F', label: 'Flare' },
   { id: 'look', key: 'L', label: 'Look' },
   { id: 'open', key: 'O', label: 'Open Chest' },
@@ -479,7 +478,7 @@ export default function Gameplay({
   }
   const game = gameRef.current;
   const [mode, setMode] = useState<Mode>(game.mode);
-  const [mapGrid, setMapGrid] = useState<string[]>(game.getMapGrid());
+  const [mapGrid, setMapGrid] = useState<string[]>(game.mapGrid());
   const [turnEvents, setTurnEvents] = useState<string[]>([]);
   const [promptOptions, setPromptOptions] = useState<PromptOption[] | null>(
     null
@@ -530,7 +529,7 @@ export default function Gameplay({
       const prompt = promptData(result.events);
       setMode(result.mode);
       setTurnEvents(eventLines(result.events));
-      setMapGrid(game.getMapGrid());
+      setMapGrid(game.mapGrid());
       setPromptOptions(prompt.promptOptions);
       setPromptText(prompt.promptText);
     },
@@ -544,7 +543,7 @@ export default function Gameplay({
     const prompt = promptData(startEvents);
     setTurnEvents(eventLines(startEvents));
     setMode(game.mode);
-    setMapGrid(game.getMapGrid());
+    setMapGrid(game.mapGrid());
     setPromptOptions(prompt.promptOptions);
     setPromptText(prompt.promptText);
   }, [game]);

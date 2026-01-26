@@ -123,8 +123,27 @@ export class Game {
     return events;
   }
 
-  getMapGrid(): string[] {
-    return this.mapGrid();
+  mapGrid(): string[] {
+    const grid: string[] = [];
+    for (let y = 0; y < Game.SIZE; y += 1) {
+      const row: string[] = [];
+      for (let x = 0; x < Game.SIZE; x += 1) {
+        const room = this.dungeon.rooms[this.player.z][y][x];
+        if (this.player.y === y && this.player.x === x) {
+          row.push('*');
+        } else if (!room.seen) {
+          row.push('?');
+        } else if (room.monsterLevel > 0) {
+          row.push('M');
+        } else if (room.treasureId) {
+          row.push('T');
+        } else {
+          row.push(FEATURE_SYMBOLS[room.feature] ?? '0');
+        }
+      }
+      grid.push(row.join(' '));
+    }
+    return grid;
   }
 
   resumeEvents(): Event[] {
@@ -132,7 +151,6 @@ export class Game {
     if (this.encounterSession) {
       events.push(...this.encounterSession.startEvents());
     }
-    events.push(Event.map(this.mapGrid()));
     return events;
   }
 
@@ -167,8 +185,6 @@ export class Game {
         return this.stairsUp();
       case 'D':
         return this.stairsDown();
-      case 'M':
-        return [Event.map(this.mapGrid())];
       case 'F':
         return this.useFlare();
       case 'X':
@@ -336,34 +352,9 @@ export class Game {
         }
       }
     }
-    return [
-      Event.info('The flare illuminates nearby rooms.'),
-      Event.map(this.mapGrid()),
-    ];
+    return [Event.info('The flare illuminates nearby rooms.')];
   }
 
-  private mapGrid(): string[] {
-    const grid: string[] = [];
-    for (let y = 0; y < Game.SIZE; y += 1) {
-      const row: string[] = [];
-      for (let x = 0; x < Game.SIZE; x += 1) {
-        const room = this.dungeon.rooms[this.player.z][y][x];
-        if (this.player.y === y && this.player.x === x) {
-          row.push('*');
-        } else if (!room.seen) {
-          row.push('?');
-        } else if (room.monsterLevel > 0) {
-          row.push('M');
-        } else if (room.treasureId) {
-          row.push('T');
-        } else {
-          row.push(FEATURE_SYMBOLS[room.feature] ?? '0');
-        }
-      }
-      grid.push(row.join(' '));
-    }
-    return grid;
-  }
 
   private statusData(): Record<string, number | string> {
     return {
@@ -390,7 +381,7 @@ export class Game {
       'COMMAND SUMMARY:\n' +
       'Move: N=North  S=South  E=East  W=West  U=Up  D=Down\n' +
       'Act:  L=Look  O=Open chest  R=Read scroll  P=Potion  F=Flare  B=Buy\n' +
-      'Info: M=Map  H=Help  X=eXit\n' +
+      'Info: H=Help  X=eXit\n' +
       '\n' +
       'Encounter: F=Fight  R=Run  S=Spell\n' +
       '\n' +
