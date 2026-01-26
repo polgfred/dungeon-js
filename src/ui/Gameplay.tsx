@@ -49,33 +49,60 @@ const encounterCommands = [
 function CommandButton({
   command,
   onTrigger,
-  compact = false,
+  layout = 'inline',
 }: {
   command: Command;
   onTrigger: (command: Command) => void;
-  compact?: boolean;
+  layout?: 'inline' | 'stacked';
 }) {
+  const stacked = layout === 'stacked';
   return (
     <Button
       variant="outlined"
       onClick={() => onTrigger(command)}
       color="primary"
-      size={compact ? 'small' : 'medium'}
-      sx={{
+      size={stacked ? 'small' : 'medium'}
+      sx={(theme) => ({
         textTransform: 'none',
-        letterSpacing: 0.8,
-        paddingY: compact ? 0.6 : 1.2,
-        minWidth: compact ? 72 : undefined,
-      }}
+        letterSpacing: stacked ? 0.8 : 0.6,
+        paddingY: stacked ? 0.6 : 1,
+        paddingX: stacked ? 1.5 : 2,
+        minWidth: stacked ? 72 : 0,
+        borderColor: alpha(theme.palette.primary.light, 0.5),
+        '&:hover': {
+          borderColor: alpha(theme.palette.primary.light, 0.7),
+          backgroundColor: alpha(theme.palette.primary.light, 0.16),
+        },
+      })}
     >
-      <Stack spacing={0.2} alignItems="center">
-        <Typography sx={{ fontSize: compact ? 11 : 13 }}>
-          {command.label}
-        </Typography>
-        <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 10 }}>
-          {command.key}
-        </Typography>
-      </Stack>
+      {stacked ? (
+        <Stack spacing={0.2} alignItems="center">
+          <Typography sx={{ fontSize: 11 }}>{command.label}</Typography>
+          <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 10 }}>
+            {command.key}
+          </Typography>
+        </Stack>
+      ) : (
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          sx={{ width: '100%' }}
+        >
+          <Typography
+            sx={{
+              fontSize: 13,
+              lineHeight: 1.2,
+              flex: 1,
+            }}
+          >
+            {command.label}
+          </Typography>
+          <Typography variant="caption" sx={{ opacity: 0.6 }}>
+            {command.key}
+          </Typography>
+        </Stack>
+      )}
     </Button>
   );
 }
@@ -180,13 +207,13 @@ function MapPanel({
                 <CommandButton
                   command={movementCommands[0]}
                   onTrigger={onTrigger}
-                  compact
+                  layout="stacked"
                 />
                 <Box />
                 <CommandButton
                   command={movementCommands[1]}
                   onTrigger={onTrigger}
-                  compact
+                  layout="stacked"
                 />
                 <Box
                   sx={{
@@ -198,13 +225,13 @@ function MapPanel({
                 <CommandButton
                   command={movementCommands[2]}
                   onTrigger={onTrigger}
-                  compact
+                  layout="stacked"
                 />
                 <Box />
                 <CommandButton
                   command={movementCommands[3]}
                   onTrigger={onTrigger}
-                  compact
+                  layout="stacked"
                 />
                 <Box />
               </Box>
@@ -219,7 +246,7 @@ function MapPanel({
                     key={command.id}
                     command={command}
                     onTrigger={onTrigger}
-                    compact
+                    layout="stacked"
                   />
                 ))}
               </Stack>
@@ -269,7 +296,6 @@ function CommandBarPanel({
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
-                compact
               />
             ))}
           </Stack>
@@ -281,9 +307,9 @@ function CommandBarPanel({
           </Typography>
           <Box
             sx={{
-              display: 'grid',
+              display: 'flex',
+              flexWrap: 'wrap',
               gap: 0.75,
-              gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
             }}
           >
             {roomCommands.map((command) => (
@@ -291,7 +317,6 @@ function CommandBarPanel({
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
-                compact
               />
             ))}
           </Box>
@@ -304,11 +329,9 @@ function CommandBarPanel({
 function PlayerReadoutPanel({
   encounterMode,
   onBack,
-  onToggleEncounter,
 }: {
   encounterMode: boolean;
   onBack: () => void;
-  onToggleEncounter: () => void;
 }) {
   return (
     <Box sx={(theme) => panelStyle(theme)}>
@@ -340,18 +363,9 @@ function PlayerReadoutPanel({
           <Typography sx={{ opacity: 0.7 }}>Location</Typography>
           <Typography>Floor 3 · Room 4,2</Typography>
         </Stack>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-          <Button
-            variant="outlined"
-            onClick={onToggleEncounter}
-            color="primary"
-          >
-            {encounterMode ? 'End Encounter' : 'Enter Encounter'}
-          </Button>
-          <Button variant="outlined" onClick={onBack} color="primary">
-            Back to Setup
-          </Button>
-        </Stack>
+        <Button variant="outlined" onClick={onBack} color="primary">
+          Back to Setup
+        </Button>
         <Typography sx={{ opacity: 0.6 }}>
           Tip: press the letter keys shown on each command.
         </Typography>
@@ -441,11 +455,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
           />
         </Stack>
 
-        <PlayerReadoutPanel
-          encounterMode={encounterMode}
-          onBack={onBack}
-          onToggleEncounter={() => setEncounterMode((prev) => !prev)}
-        />
+        <PlayerReadoutPanel encounterMode={encounterMode} onBack={onBack} />
       </Box>
     </Box>
   );
