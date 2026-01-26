@@ -44,6 +44,8 @@ const verticalCommands = [
   { id: 'exit', key: 'X', label: 'Exit', disabled: false },
 ];
 
+const helpCommand = { id: 'help', key: 'H', label: 'Help', disabled: false };
+
 const roomCommands = [
   { id: 'flare', key: 'F', label: 'Flare', disabled: false },
   { id: 'look', key: 'L', label: 'Look', disabled: false },
@@ -51,7 +53,7 @@ const roomCommands = [
   { id: 'read', key: 'R', label: 'Read Scroll', disabled: false },
   { id: 'potion', key: 'P', label: 'Drink Potion', disabled: false },
   { id: 'buy', key: 'B', label: 'Buy', disabled: false },
-  { id: 'help', key: 'H', label: 'Help', disabled: false },
+  helpCommand,
 ];
 
 const encounterCommands = [
@@ -762,8 +764,8 @@ export default function Gameplay({
     [roomDisabledByKey]
   );
   const encounterCommandList = useMemo(
-    () =>
-      encounterCommands.map((command) => {
+    () => {
+      const base = encounterCommands.map((command) => {
         if (command.key === 'S') {
           return { ...command, disabled: !canCastSpell };
         }
@@ -771,7 +773,9 @@ export default function Gameplay({
           return { ...command, disabled: !canRun };
         }
         return command;
-      }),
+      });
+      return [...base, helpCommand];
+    },
     [canCastSpell, canRun]
   );
   const exploreCommandList = useMemo(
