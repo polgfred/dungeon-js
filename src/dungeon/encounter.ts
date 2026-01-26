@@ -140,7 +140,7 @@ export class EncounterSession {
       events.push(
         Event.debug(
           `DEBUG FIGHT: attack_score=${attackScore} roll=${roll} ` +
-            `weapon_tier=${this.player.weaponTier} str=${this.player.str_} dex=${this.player.dex}`
+            `weapon_tier=${this.player.weaponTier} st=${this.player.str} dx=${this.player.dex}`
         )
       );
     }
@@ -149,7 +149,7 @@ export class EncounterSession {
     } else {
       const damage = Math.max(
         this.player.weaponTier +
-          Math.floor(this.player.str_ / 3) +
+          Math.floor(this.player.str / 3) +
           this.rng.randint(0, 4) -
           2,
         1

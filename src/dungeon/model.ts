@@ -47,7 +47,8 @@ export class Player {
   y: number;
   x: number;
 
-  str_: number;
+  race: Race;
+  str: number;
   dex: number;
   iq: number;
   hp: number;
@@ -74,7 +75,8 @@ export class Player {
     z: number;
     y: number;
     x: number;
-    str_: number;
+    race: Race;
+    str: number;
     dex: number;
     iq: number;
     hp: number;
@@ -95,7 +97,8 @@ export class Player {
     this.z = options.z;
     this.y = options.y;
     this.x = options.x;
-    this.str_ = options.str_;
+    this.race = options.race;
+    this.str = options.str;
     this.dex = options.dex;
     this.iq = options.iq;
     this.hp = options.hp;
@@ -139,7 +142,7 @@ export class Player {
 
   static create(options: {
     race: Race;
-    baseStats: { STR: number; DEX: number; IQ: number; HP: number };
+    baseStats: { ST: number; DX: number; IQ: number; HP: number };
     gold: number;
     allocations: Record<string, number>;
     weaponTier: number;
@@ -155,19 +158,19 @@ export class Player {
       armorTier,
       flareCount,
     } = options;
-    let { STR: str_, DEX: dex, IQ: iq, HP: hp } = baseStats;
+    let { ST: st, DX: dx, IQ: iq, HP: hp } = baseStats;
 
-    const strAdd = Number(allocations['STR']);
-    const dexAdd = Number(allocations['DEX']);
+    const stAdd = Number(allocations['ST']);
+    const dxAdd = Number(allocations['DX']);
     const iqAdd = Number(allocations['IQ']);
-    if (Math.min(strAdd, dexAdd, iqAdd) < 0) {
+    if (Math.min(stAdd, dxAdd, iqAdd) < 0) {
       throw new Error('Invalid allocation amount.');
     }
-    if (strAdd + dexAdd + iqAdd !== 5) {
+    if (stAdd + dxAdd + iqAdd !== 5) {
       throw new Error('Allocation must total 5 points.');
     }
-    str_ = Math.min(18, str_ + strAdd);
-    dex = Math.min(18, dex + dexAdd);
+    st = Math.min(18, st + stAdd);
+    dx = Math.min(18, dx + dxAdd);
     iq = Math.min(18, iq + iqAdd);
 
     if (![1, 2, 3].includes(weaponTier)) {
@@ -192,8 +195,9 @@ export class Player {
       z: 0,
       y: 3,
       x: 3,
-      str_,
-      dex,
+      race,
+      str: st,
+      dex: dx,
       iq,
       hp,
       mhp: hp,
@@ -211,10 +215,10 @@ export class Player {
   applyAttributeChange(options: { target: string; change: number }): void {
     const { target, change } = options;
     switch (target) {
-      case 'STR':
-        this.str_ = Math.max(1, Math.min(18, this.str_ + change));
+      case 'ST':
+        this.str = Math.max(1, Math.min(18, this.str + change));
         break;
-      case 'DEX':
+      case 'DX':
         this.dex = Math.max(1, Math.min(18, this.dex + change));
         break;
       case 'IQ':

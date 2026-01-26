@@ -20,12 +20,12 @@ import {
 import { Player } from '../dungeon/model.js';
 import { defaultRandomSource } from '../dungeon/rng.js';
 
-type AllocationKey = 'STR' | 'DEX' | 'IQ';
+type AllocationKey = 'ST' | 'DX' | 'IQ';
 type AllocationState = Record<AllocationKey, number>;
 type SetupStage = 'race' | 'allocate' | 'shop' | 'ready';
 type Stats = {
-  STR: number;
-  DEX: number;
+  ST: number;
+  DX: number;
   IQ: number;
   HP: number;
 };
@@ -116,7 +116,7 @@ function RaceStage({
         >
           <Typography sx={{ opacity: 0.7 }}>Rolled Stats</Typography>
           <Typography sx={{ letterSpacing: 1.5 }}>
-            STR {baseStats.STR} · DEX {baseStats.DEX} · IQ {baseStats.IQ} · HP{' '}
+            ST {baseStats.ST} · DX {baseStats.DX} · IQ {baseStats.IQ} · HP{' '}
             {baseStats.HP}
           </Typography>
         </Box>
@@ -163,7 +163,7 @@ function AllocationStage({
         Attributes are capped at 18.
       </Typography>
       <Stack spacing={2}>
-        {(['STR', 'DEX', 'IQ'] as AllocationKey[]).map((key) => {
+        {(['ST', 'DX', 'IQ'] as AllocationKey[]).map((key) => {
           const baseValue = baseStats ? baseStats[key] : 0;
           const totalValue = Math.min(18, baseValue + allocations[key]);
           return (
@@ -382,7 +382,7 @@ function ReadyStage({
         Setup Complete
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Brave adventurer, thy gear outfits you well! But victory remains to be
+        Brave adventurer, thy gear outfits thee well! But victory remains to be
         seen.
       </Typography>
       <Stack spacing={1}>
@@ -436,8 +436,8 @@ function StatusReadout({
       </Stack>
       <Stack spacing={1}>
         <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
-        <Typography>STR {derivedStats ? derivedStats.STR : '--'}</Typography>
-        <Typography>DEX {derivedStats ? derivedStats.DEX : '--'}</Typography>
+        <Typography>ST {derivedStats ? derivedStats.ST : '--'}</Typography>
+        <Typography>DX {derivedStats ? derivedStats.DX : '--'}</Typography>
         <Typography>IQ {derivedStats ? derivedStats.IQ : '--'}</Typography>
         <Typography>HP {derivedStats ? derivedStats.HP : '--'}</Typography>
       </Stack>
@@ -467,8 +467,8 @@ export default function SetupGame({
   const [race, setRace] = useState<Race | null>(null);
   const [baseStats, setBaseStats] = useState<Stats | null>(null);
   const [allocations, setAllocations] = useState<AllocationState>({
-    STR: 0,
-    DEX: 0,
+    ST: 0,
+    DX: 0,
     IQ: 0,
   });
   const [gold, setGold] = useState<number | null>(null);
@@ -478,7 +478,7 @@ export default function SetupGame({
   const [setupError, setSetupError] = useState<string | null>(null);
   const [player, setPlayer] = useState<Player | null>(null);
 
-  const totalAllocated = allocations.STR + allocations.DEX + allocations.IQ;
+  const totalAllocated = allocations.ST + allocations.DX + allocations.IQ;
   const remainingPoints = 5 - totalAllocated;
   const weaponCost = WEAPON_PRICES[weaponTier];
   const armorCost = ARMOR_PRICES[armorTier];
@@ -488,8 +488,8 @@ export default function SetupGame({
 
   const derivedStats = baseStats
     ? {
-        STR: Math.min(18, baseStats.STR + allocations.STR),
-        DEX: Math.min(18, baseStats.DEX + allocations.DEX),
+        ST: Math.min(18, baseStats.ST + allocations.ST),
+        DX: Math.min(18, baseStats.DX + allocations.DX),
         IQ: Math.min(18, baseStats.IQ + allocations.IQ),
         HP: baseStats.HP,
       }
@@ -497,9 +497,9 @@ export default function SetupGame({
 
   const handleRaceSelect = (value: Race) => {
     setRace(value);
-    const [str, dex, iq, hp] = Player.rollBaseStats(rng, value);
-    setBaseStats({ STR: str, DEX: dex, IQ: iq, HP: hp });
-    setAllocations({ STR: 0, DEX: 0, IQ: 0 });
+    const [st, dx, iq, hp] = Player.rollBaseStats(rng, value);
+    setBaseStats({ ST: st, DX: dx, IQ: iq, HP: hp });
+    setAllocations({ ST: 0, DX: 0, IQ: 0 });
     setSetupError(null);
   };
 

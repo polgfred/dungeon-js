@@ -372,8 +372,8 @@ export class Game {
       teleport: this.player.spells[Spell.TELEPORT] ?? 0,
       armor: this.armorDisplayName(),
       weapon: this.player.weaponName,
-      str: this.player.str_,
-      dex: this.player.dex,
+      st: this.player.str,
+      dx: this.player.dex,
       iq: this.player.iq,
       hp: this.player.hp,
       mhp: this.player.mhp,
@@ -504,7 +504,7 @@ export class Game {
       return [Event.info('You drink the potion... healing results.')];
     }
 
-    const effect = this.rng.choice(['STR', 'DEX', 'IQ', 'MHP']);
+    const effect = this.rng.choice(['ST', 'DX', 'IQ', 'MHP']);
     let change = this.rng.randint(1, 6);
     if (this.rng.random() > 0.5) {
       change = -change;

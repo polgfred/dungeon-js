@@ -206,8 +206,8 @@ export class VendorSession {
     this.player.gold -= price;
     const change = this.rng.randint(1, 6);
     const targets: Record<string, string> = {
-      '1': 'STR',
-      '2': 'DEX',
+      '1': 'ST',
+      '2': 'DX',
       '3': 'IQ',
       '4': 'MHP',
     };
