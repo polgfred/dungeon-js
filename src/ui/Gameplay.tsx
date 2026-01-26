@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Typography } from '@mui/material';
+import { Box, Button, Stack, Tooltip, Typography } from '@mui/material';
 import { alpha, type Theme } from '@mui/material/styles';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -170,29 +170,42 @@ function MapPanel({
                   }}
                 >
                   {row.split(' ').map((cell, colIndex) => (
-                    <Box
+                    <Tooltip
                       key={`${rowIndex}-${colIndex}`}
-                      sx={(theme) => ({
-                        borderRadius: 0.5,
-                        border: `1px solid ${alpha(
-                          theme.palette.primary.light,
-                          0.35
-                        )}`,
-                        background: alpha(theme.palette.primary.dark, 0.2),
-                        display: 'grid',
-                        placeItems: 'center',
-                        height: 28,
-                        fontSize: 14,
-                        color:
-                          cell === '*'
-                            ? theme.palette.primary.light
-                            : cell === '•' || cell === '·'
-                              ? alpha(theme.palette.text.primary, 0.35)
-                              : theme.palette.text.primary,
-                      })}
+                      title={mapTooltip(cell)}
+                      arrow
+                      placement="top"
                     >
-                      {cell}
-                    </Box>
+                      <Box
+                        sx={(theme) => ({
+                          borderRadius: 0.5,
+                          border: `1px solid ${alpha(
+                            theme.palette.primary.light,
+                            0.35
+                          )}`,
+                          background: alpha(theme.palette.primary.dark, 0.2),
+                          display: 'grid',
+                          placeItems: 'center',
+                          height: 28,
+                          fontSize: 14,
+                          color:
+                            cell === '*'
+                              ? theme.palette.primary.light
+                              : cell === '•' || cell === '·'
+                                ? alpha(theme.palette.text.primary, 0.35)
+                                : theme.palette.text.primary,
+                          transition: 'background-color 150ms ease',
+                          '&:hover': {
+                            background: alpha(
+                              theme.palette.primary.light,
+                              0.18
+                            ),
+                          },
+                        })}
+                      >
+                        {cell}
+                      </Box>
+                    </Tooltip>
                   ))}
                 </Box>
               ))}
@@ -451,6 +464,46 @@ function eventLines(events: GameEvent[]): string[] {
     .filter(Boolean);
 }
 
+function mapTooltip(cell: string): string {
+  switch (cell) {
+    case '*':
+      return 'You';
+    case '•':
+    case '·':
+      return 'Unknown';
+    case '-':
+      return 'Empty';
+    case 'M':
+      return 'Monster';
+    case 'T':
+      return 'Treasure';
+    case 'm':
+      return 'Mirror';
+    case 's':
+      return 'Scroll';
+    case 'c':
+      return 'Chest';
+    case 'f':
+      return 'Flares';
+    case 'p':
+      return 'Potion';
+    case 'v':
+      return 'Vendor';
+    case 't':
+      return 'Thief';
+    case 'w':
+      return 'Warp';
+    case 'U':
+      return 'Stairs Up';
+    case 'D':
+      return 'Stairs Down';
+    case 'X':
+      return 'Exit';
+    default:
+      return '';
+  }
+}
+
 function promptData(events: GameEvent[]): {
   promptOptions: PromptOption[] | null;
   promptText: string | null;
@@ -553,7 +606,11 @@ export default function Gameplay({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) return;
-      const key = event.key.toLowerCase();
+      let key = event.key.toLowerCase();
+      if (key === 'arrowup') key = 'n';
+      if (key === 'arrowdown') key = 's';
+      if (key === 'arrowleft') key = 'w';
+      if (key === 'arrowright') key = 'e';
       const command = commandMap.get(key);
       if (!command) return;
       event.preventDefault();
