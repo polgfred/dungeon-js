@@ -524,8 +524,9 @@ export default function SetupGame({
     setSetupError(null);
     try {
       const created = Player.create({
-        rng,
         race,
+        baseStats,
+        gold,
         allocations,
         weaponTier,
         armorTier,

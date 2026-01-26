@@ -138,16 +138,24 @@ export class Player {
   }
 
   static create(options: {
-    rng: RandomSource;
     race: Race;
+    baseStats: { STR: number; DEX: number; IQ: number; HP: number };
+    gold: number;
     allocations: Record<string, number>;
     weaponTier: number;
     armorTier: number;
     flareCount: number;
   }): Player {
-    const { rng, race, allocations, weaponTier, armorTier, flareCount } =
-      options;
-    let [str_, dex, iq, hp] = Player.rollBaseStats(rng, race);
+    const {
+      race,
+      baseStats,
+      gold,
+      allocations,
+      weaponTier,
+      armorTier,
+      flareCount,
+    } = options;
+    let { STR: str_, DEX: dex, IQ: iq, HP: hp } = baseStats;
 
     const strAdd = Number(allocations['STR']);
     const dexAdd = Number(allocations['DEX']);
@@ -162,7 +170,6 @@ export class Player {
     dex = Math.min(18, dex + dexAdd);
     iq = Math.min(18, iq + iqAdd);
 
-    const gold = rng.randint(50, 60);
     if (![1, 2, 3].includes(weaponTier)) {
       throw new Error('Weapon tier must be 1..3');
     }
