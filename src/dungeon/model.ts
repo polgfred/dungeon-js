@@ -6,8 +6,8 @@ import {
   Spell,
   WEAPON_NAMES,
   WEAPON_PRICES,
-} from "./constants.js";
-import type { RandomSource } from "./rng.js";
+} from './constants.js';
+import type { RandomSource } from './rng.js';
 
 export class Room {
   feature: Feature = Feature.EMPTY;
@@ -59,8 +59,8 @@ export class Player {
 
   weaponTier = 0;
   armorTier = 0;
-  weaponName = "none";
-  armorName = "none";
+  weaponName = 'none';
+  armorName = 'none';
   armorDamaged = false;
 
   spells: SpellCounts;
@@ -105,8 +105,8 @@ export class Player {
     this.treasuresFound = options.treasuresFound ?? new Set<number>();
     this.weaponTier = options.weaponTier ?? 0;
     this.armorTier = options.armorTier ?? 0;
-    this.weaponName = options.weaponName ?? "none";
-    this.armorName = options.armorName ?? "none";
+    this.weaponName = options.weaponName ?? 'none';
+    this.armorName = options.armorName ?? 'none';
     this.armorDamaged = options.armorDamaged ?? false;
     this.spells = options.spells ?? createSpellCounts();
     this.fatigued = options.fatigued ?? false;
@@ -116,7 +116,7 @@ export class Player {
 
   static rollBaseStats(
     rng: RandomSource,
-    race: Race,
+    race: Race
   ): [number, number, number, number] {
     const rn = rng.randint(0, 4);
     const rd = rng.randint(0, 4);
@@ -133,7 +133,7 @@ export class Player {
       case Race.HALFLING:
         return [6 + rn, 10 + rd, 9 + ra, 18 + r2];
       default:
-        throw new Error("Unknown race");
+        throw new Error('Unknown race');
     }
   }
 
@@ -149,14 +149,14 @@ export class Player {
       options;
     let [str_, dex, iq, hp] = Player.rollBaseStats(rng, race);
 
-    const strAdd = Number(allocations["STR"]);
-    const dexAdd = Number(allocations["DEX"]);
-    const iqAdd = Number(allocations["IQ"]);
+    const strAdd = Number(allocations['STR']);
+    const dexAdd = Number(allocations['DEX']);
+    const iqAdd = Number(allocations['IQ']);
     if (Math.min(strAdd, dexAdd, iqAdd) < 0) {
-      throw new Error("Invalid allocation amount.");
+      throw new Error('Invalid allocation amount.');
     }
     if (strAdd + dexAdd + iqAdd !== 5) {
-      throw new Error("Allocation must total 5 points.");
+      throw new Error('Allocation must total 5 points.');
     }
     str_ = Math.min(18, str_ + strAdd);
     dex = Math.min(18, dex + dexAdd);
@@ -164,19 +164,19 @@ export class Player {
 
     const gold = rng.randint(50, 60);
     if (![1, 2, 3].includes(weaponTier)) {
-      throw new Error("Weapon tier must be 1..3");
+      throw new Error('Weapon tier must be 1..3');
     }
     if (![1, 2, 3].includes(armorTier)) {
-      throw new Error("Armor tier must be 1..3");
+      throw new Error('Armor tier must be 1..3');
     }
     if (flareCount < 0) {
-      throw new Error("Flare count must be non-negative");
+      throw new Error('Flare count must be non-negative');
     }
 
     const cost =
       WEAPON_PRICES[weaponTier] + ARMOR_PRICES[armorTier] + flareCount;
     if (cost > gold) {
-      throw new Error("Not enough gold for purchases");
+      throw new Error('Not enough gold for purchases');
     }
 
     const spells = createSpellCounts();
@@ -204,16 +204,16 @@ export class Player {
   applyAttributeChange(options: { target: string; change: number }): void {
     const { target, change } = options;
     switch (target) {
-      case "STR":
+      case 'STR':
         this.str_ = Math.max(1, Math.min(18, this.str_ + change));
         break;
-      case "DEX":
+      case 'DEX':
         this.dex = Math.max(1, Math.min(18, this.dex + change));
         break;
-      case "IQ":
+      case 'IQ':
         this.iq = Math.max(1, Math.min(18, this.iq + change));
         break;
-      case "MHP":
+      case 'MHP':
         this.mhp = Math.max(1, this.mhp + change);
         this.hp = Math.max(1, Math.min(this.hp + change, this.mhp));
         break;

@@ -1,14 +1,14 @@
-import { Feature } from "./constants.js";
-import { Dungeon, Room } from "./model.js";
-import type { RandomSource } from "./rng.js";
+import { Feature } from './constants.js';
+import { Dungeon, Room } from './model.js';
+import type { RandomSource } from './rng.js';
 
 const SIZE = 7;
 
 export function generateDungeon(rng: RandomSource): Dungeon {
   const rooms: Room[][][] = Array.from({ length: SIZE }, () =>
     Array.from({ length: SIZE }, () =>
-      Array.from({ length: SIZE }, () => createRoom(rng)),
-    ),
+      Array.from({ length: SIZE }, () => createRoom(rng))
+    )
   );
 
   placeTreasures(rng, rooms);
@@ -93,7 +93,7 @@ function placeExit(rng: RandomSource, rooms: Room[][][]): void {
 export function validateDungeon(dungeon: Dungeon): string[] {
   const errors: string[] = [];
   if (dungeon.rooms.length !== SIZE) {
-    errors.push("Dungeon has incorrect number of floors.");
+    errors.push('Dungeon has incorrect number of floors.');
     return errors;
   }
 
@@ -108,7 +108,7 @@ export function validateDungeon(dungeon: Dungeon): string[] {
         const room = dungeon.rooms[z][y][x];
         if (room.feature === Feature.EXIT) {
           if (z !== SIZE - 1) {
-            errors.push("Exit placed on non-final floor.");
+            errors.push('Exit placed on non-final floor.');
           }
           exitCount += 1;
         }
@@ -117,11 +117,11 @@ export function validateDungeon(dungeon: Dungeon): string[] {
         }
         if (room.feature === Feature.STAIRS_UP) {
           if (z === SIZE - 1) {
-            errors.push("Stairs up on final floor.");
+            errors.push('Stairs up on final floor.');
           } else {
             const below = dungeon.rooms[z + 1][y][x];
             if (below.feature !== Feature.STAIRS_DOWN) {
-              errors.push("Stair alignment mismatch.");
+              errors.push('Stair alignment mismatch.');
             }
           }
         }
@@ -130,10 +130,10 @@ export function validateDungeon(dungeon: Dungeon): string[] {
   }
 
   if (exitCount !== 1) {
-    errors.push("Dungeon must contain exactly one exit.");
+    errors.push('Dungeon must contain exactly one exit.');
   }
   if (treasureCount !== 10) {
-    errors.push("Dungeon must contain exactly 10 treasures.");
+    errors.push('Dungeon must contain exactly 10 treasures.');
   }
 
   return errors;

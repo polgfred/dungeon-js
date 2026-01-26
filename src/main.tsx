@@ -1,29 +1,29 @@
-import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
-import { createRoot } from "react-dom/client";
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { createRoot } from 'react-dom/client';
 
-import App from "./App.js";
+import App from './App.js';
 
-const rootElement = document.getElementById("root");
+const rootElement = document.getElementById('root');
 
 if (!rootElement) {
-  throw new Error("Root element not found");
+  throw new Error('Root element not found');
 }
 
 const theme = createTheme({
   palette: {
-    mode: "dark",
+    mode: 'dark',
     primary: {
-      main: "#235082",
-      light: "#3B6A9A",
-      dark: "#183A5E",
+      main: '#235082',
+      light: '#3B6A9A',
+      dark: '#183A5E',
     },
     background: {
-      default: "#000000",
-      paper: "#235082",
+      default: '#000000',
+      paper: '#235082',
     },
     text: {
-      primary: "#D0D0D0",
-      secondary: "#9ED9FF",
+      primary: '#D0D0D0',
+      secondary: '#9ED9FF',
     },
   },
   typography: {
@@ -39,16 +39,16 @@ const theme = createTheme({
           color: theme.palette.primary.main,
           fontWeight: 700,
           letterSpacing: 1.2,
-          "&:hover": {
+          '&:hover': {
             backgroundColor: theme.palette.grey[200],
           },
         }),
         outlinedPrimary: ({ theme }) => ({
           borderColor: theme.palette.primary.light,
           color: theme.palette.text.primary,
-          "&:hover": {
+          '&:hover': {
             borderColor: theme.palette.primary.main,
-            backgroundColor: "transparent",
+            backgroundColor: 'transparent',
           },
         }),
       },
@@ -60,5 +60,5 @@ createRoot(rootElement).render(
   <ThemeProvider theme={theme}>
     <CssBaseline />
     <App />
-  </ThemeProvider>,
+  </ThemeProvider>
 );

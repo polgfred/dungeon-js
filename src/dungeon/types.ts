@@ -1,20 +1,20 @@
-import { Mode } from "./constants.js";
+import { Mode } from './constants.js';
 
 export type EventKind =
-  | "INFO"
-  | "ERROR"
-  | "COMBAT"
-  | "LOOT"
-  | "PROMPT"
-  | "STATUS"
-  | "MAP"
-  | "DEBUG";
+  | 'INFO'
+  | 'ERROR'
+  | 'COMBAT'
+  | 'LOOT'
+  | 'PROMPT'
+  | 'STATUS'
+  | 'MAP'
+  | 'DEBUG';
 
-export type InfoEvent = { kind: "INFO"; text: string };
-export type ErrorEvent = { kind: "ERROR"; text: string };
-export type CombatEvent = { kind: "COMBAT"; text: string };
-export type LootEvent = { kind: "LOOT"; text: string };
-export type DebugEvent = { kind: "DEBUG"; text: string };
+export type InfoEvent = { kind: 'INFO'; text: string };
+export type ErrorEvent = { kind: 'ERROR'; text: string };
+export type CombatEvent = { kind: 'COMBAT'; text: string };
+export type LootEvent = { kind: 'LOOT'; text: string };
+export type DebugEvent = { kind: 'DEBUG'; text: string };
 
 export type PromptData = {
   type?: string;
@@ -22,20 +22,20 @@ export type PromptData = {
 };
 
 export type PromptEvent = {
-  kind: "PROMPT";
+  kind: 'PROMPT';
   text: string;
   data?: PromptData;
 };
 
 export type StatusEvent = {
-  kind: "STATUS";
-  text: "";
+  kind: 'STATUS';
+  text: '';
   data: Record<string, number | string>;
 };
 
 export type MapEvent = {
-  kind: "MAP";
-  text: "";
+  kind: 'MAP';
+  text: '';
   data: {
     grid: string[];
   };
@@ -53,28 +53,28 @@ export type Event =
 
 export const Event = {
   info(text: string): InfoEvent {
-    return { kind: "INFO", text };
+    return { kind: 'INFO', text };
   },
   error(text: string): ErrorEvent {
-    return { kind: "ERROR", text };
+    return { kind: 'ERROR', text };
   },
   combat(text: string): CombatEvent {
-    return { kind: "COMBAT", text };
+    return { kind: 'COMBAT', text };
   },
   loot(text: string): LootEvent {
-    return { kind: "LOOT", text };
+    return { kind: 'LOOT', text };
   },
   prompt(text: string, data?: PromptData): PromptEvent {
-    return data ? { kind: "PROMPT", text, data } : { kind: "PROMPT", text };
+    return data ? { kind: 'PROMPT', text, data } : { kind: 'PROMPT', text };
   },
   status(data: Record<string, number | string>): StatusEvent {
-    return { kind: "STATUS", text: "", data };
+    return { kind: 'STATUS', text: '', data };
   },
   map(grid: string[]): MapEvent {
-    return { kind: "MAP", text: "", data: { grid } };
+    return { kind: 'MAP', text: '', data: { grid } };
   },
   debug(text: string): DebugEvent {
-    return { kind: "DEBUG", text };
+    return { kind: 'DEBUG', text };
   },
 };
 

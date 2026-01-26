@@ -36,53 +36,53 @@ export enum Mode {
 }
 
 export const EXPLORE_COMMANDS = new Set([
-  "N",
-  "S",
-  "E",
-  "W",
-  "U",
-  "D",
-  "M",
-  "F",
-  "X",
-  "L",
-  "O",
-  "R",
-  "P",
-  "B",
-  "H",
+  'N',
+  'S',
+  'E',
+  'W',
+  'U',
+  'D',
+  'M',
+  'F',
+  'X',
+  'L',
+  'O',
+  'R',
+  'P',
+  'B',
+  'H',
 ]);
 
-export const ENCOUNTER_COMMANDS = new Set(["F", "R", "S"]);
+export const ENCOUNTER_COMMANDS = new Set(['F', 'R', 'S']);
 
 export const MONSTER_NAMES = [
-  "Skeleton",
-  "Goblin",
-  "Kobold",
-  "Orc",
-  "Troll",
-  "Werewolf",
-  "Banshee",
-  "Hellhound",
-  "Chimaera",
-  "Dragon",
+  'Skeleton',
+  'Goblin',
+  'Kobold',
+  'Orc',
+  'Troll',
+  'Werewolf',
+  'Banshee',
+  'Hellhound',
+  'Chimaera',
+  'Dragon',
 ];
 
 export const TREASURE_NAMES = [
-  "Gold Fleece",
-  "Black Pearl",
-  "Ruby Ring",
-  "Diamond Clasp",
-  "Silver Medallion",
-  "Precious Spices",
-  "Sapphire",
-  "Golden Circlet",
-  "Jeweled Cross",
-  "Silmaril",
+  'Gold Fleece',
+  'Black Pearl',
+  'Ruby Ring',
+  'Diamond Clasp',
+  'Silver Medallion',
+  'Precious Spices',
+  'Sapphire',
+  'Golden Circlet',
+  'Jeweled Cross',
+  'Silmaril',
 ];
 
-export const WEAPON_NAMES = ["none", "Dagger", "Short sword", "Broadsword"];
-export const ARMOR_NAMES = ["none", "Leather", "Wooden", "Chain mail"];
+export const WEAPON_NAMES = ['none', 'Dagger', 'Short sword', 'Broadsword'];
+export const ARMOR_NAMES = ['none', 'Leather', 'Wooden', 'Chain mail'];
 
 export const WEAPON_PRICES: Record<number, number> = { 1: 10, 2: 20, 3: 30 };
 export const ARMOR_PRICES: Record<number, number> = { 1: 10, 2: 20, 3: 30 };
@@ -101,16 +101,16 @@ export const POTION_PRICES: Record<string, number> = {
 };
 
 export const FEATURE_SYMBOLS: Record<Feature, string> = {
-  [Feature.EMPTY]: "0",
-  [Feature.MIRROR]: "m",
-  [Feature.SCROLL]: "s",
-  [Feature.CHEST]: "c",
-  [Feature.FLARES]: "f",
-  [Feature.POTION]: "p",
-  [Feature.VENDOR]: "v",
-  [Feature.THIEF]: "t",
-  [Feature.WARP]: "w",
-  [Feature.STAIRS_UP]: "U",
-  [Feature.STAIRS_DOWN]: "D",
-  [Feature.EXIT]: "X",
+  [Feature.EMPTY]: '0',
+  [Feature.MIRROR]: 'm',
+  [Feature.SCROLL]: 's',
+  [Feature.CHEST]: 'c',
+  [Feature.FLARES]: 'f',
+  [Feature.POTION]: 'p',
+  [Feature.VENDOR]: 'v',
+  [Feature.THIEF]: 't',
+  [Feature.WARP]: 'w',
+  [Feature.STAIRS_UP]: 'U',
+  [Feature.STAIRS_DOWN]: 'D',
+  [Feature.EXIT]: 'X',
 };

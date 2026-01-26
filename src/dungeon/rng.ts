@@ -7,21 +7,21 @@ export interface RandomSource {
 
 function randint(min: number, max: number): number {
   if (max < min) {
-    throw new Error("randint max must be >= min");
+    throw new Error('randint max must be >= min');
   }
   return min + Math.floor(Math.random() * (max - min + 1));
 }
 
 function randrange(maxExclusive: number): number {
   if (maxExclusive <= 0) {
-    throw new Error("randrange max must be > 0");
+    throw new Error('randrange max must be > 0');
   }
   return Math.floor(Math.random() * maxExclusive);
 }
 
 function choice<T>(items: T[]): T {
   if (items.length === 0) {
-    throw new Error("choice requires a non-empty array");
+    throw new Error('choice requires a non-empty array');
   }
   return items[randrange(items.length)];
 }

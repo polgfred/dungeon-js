@@ -5,13 +5,13 @@ import {
   Mode,
   Spell,
   TREASURE_NAMES,
-} from "./constants.js";
-import { EncounterSession } from "./encounter.js";
-import { generateDungeon } from "./generation.js";
-import type { Player } from "./model.js";
-import { Event, StepResult } from "./types.js";
-import { VendorSession } from "./vendor.js";
-import { defaultRandomSource, type RandomSource } from "./rng.js";
+} from './constants.js';
+import { EncounterSession } from './encounter.js';
+import { generateDungeon } from './generation.js';
+import type { Player } from './model.js';
+import { Event, StepResult } from './types.js';
+import { VendorSession } from './vendor.js';
+import { defaultRandomSource, type RandomSource } from './rng.js';
 
 export class Game {
   static readonly SIZE = 7;
@@ -110,13 +110,13 @@ export class Game {
     if (this.debug) {
       events.push(
         Event.debug(
-          "DEBUG STATS: " +
+          'DEBUG STATS: ' +
             `weapon_tier=${this.player.weaponTier} ` +
             `armor_tier=${this.player.armorTier} ` +
             `armor_damaged=${this.player.armorDamaged} ` +
             `temp_armor_bonus=${this.player.tempArmorBonus} ` +
-            `fatigued=${this.player.fatigued}`,
-        ),
+            `fatigued=${this.player.fatigued}`
+        )
       );
     }
     return events;
@@ -138,10 +138,10 @@ export class Game {
     if (this.encounterSession) {
       return this.encounterSession.prompt();
     }
-    if (events.some((event) => event.kind === "PROMPT")) {
-      return "?> ";
+    if (events.some((event) => event.kind === 'PROMPT')) {
+      return '?> ';
     }
-    return "--> ";
+    return '--> ';
   }
 
   private currentRoom() {
@@ -150,35 +150,35 @@ export class Game {
 
   private handleExplore(key: string): Event[] {
     switch (key) {
-      case "N":
+      case 'N':
         return this.move(-1, 0);
-      case "S":
+      case 'S':
         return this.move(1, 0);
-      case "E":
+      case 'E':
         return this.move(0, 1);
-      case "W":
+      case 'W':
         return this.move(0, -1);
-      case "U":
+      case 'U':
         return this.stairsUp();
-      case "D":
+      case 'D':
         return this.stairsDown();
-      case "M":
+      case 'M':
         return [Event.map(this.mapGrid())];
-      case "F":
+      case 'F':
         return this.useFlare();
-      case "X":
+      case 'X':
         return this.attemptExit();
-      case "L":
+      case 'L':
         return this.useMirror();
-      case "O":
+      case 'O':
         return this.openChest();
-      case "R":
+      case 'R':
         return this.readScroll();
-      case "P":
+      case 'P':
         return this.drinkPotion();
-      case "B":
+      case 'B':
         return this.openVendor();
-      case "H":
+      case 'H':
         return [Event.info(this.helpText())];
       default:
         return [];
@@ -189,7 +189,7 @@ export class Game {
     const ny = this.player.y + dy;
     const nx = this.player.x + dx;
     if (ny < 0 || ny >= Game.SIZE || nx < 0 || nx >= Game.SIZE) {
-      return [Event.info("A wall interposes itself.")];
+      return [Event.info('A wall interposes itself.')];
     }
     this.player.y = ny;
     this.player.x = nx;
@@ -200,7 +200,7 @@ export class Game {
     const room = this.currentRoom();
     if (room.feature !== Feature.STAIRS_UP) {
       return [
-        Event.info("There are no stairs leading up here, foolish adventurer."),
+        Event.info('There are no stairs leading up here, foolish adventurer.'),
       ];
     }
     this.player.z += 1;
@@ -210,7 +210,7 @@ export class Game {
   private stairsDown(): Event[] {
     const room = this.currentRoom();
     if (room.feature !== Feature.STAIRS_DOWN) {
-      return [Event.info("There is no downward staircase here.")];
+      return [Event.info('There is no downward staircase here.')];
     }
     this.player.z -= 1;
     return this.enterRoom();
@@ -241,14 +241,14 @@ export class Game {
     switch (room.feature) {
       case Feature.MIRROR:
         events.push(
-          Event.info("There is a magic mirror mounted on the wall here."),
+          Event.info('There is a magic mirror mounted on the wall here.')
         );
         break;
       case Feature.SCROLL:
-        events.push(Event.info("There is a spell scroll here."));
+        events.push(Event.info('There is a spell scroll here.'));
         break;
       case Feature.CHEST:
-        events.push(Event.info("There is a chest here."));
+        events.push(Event.info('There is a chest here.'));
         break;
       case Feature.FLARES: {
         const gained = this.rng.randint(1, 5);
@@ -258,10 +258,10 @@ export class Game {
         break;
       }
       case Feature.POTION:
-        events.push(Event.info("There is a magic potion here."));
+        events.push(Event.info('There is a magic potion here.'));
         break;
       case Feature.VENDOR:
-        events.push(Event.info("There is a vendor here."));
+        events.push(Event.info('There is a vendor here.'));
         break;
       case Feature.THIEF: {
         const stolen = Math.min(this.rng.randint(1, 50), this.player.gold);
@@ -272,24 +272,24 @@ export class Game {
       }
       case Feature.WARP:
         events.push(
-          Event.info("This room contains a warp. You are whisked elsewhere..."),
+          Event.info('This room contains a warp. You are whisked elsewhere...')
         );
         this.randomRelocate({ anyFloor: true });
         events.push(...this.enterRoom());
         break;
       case Feature.STAIRS_UP:
-        events.push(Event.info("There are stairs up here."));
+        events.push(Event.info('There are stairs up here.'));
         break;
       case Feature.STAIRS_DOWN:
-        events.push(Event.info("There are stairs down here."));
+        events.push(Event.info('There are stairs down here.'));
         break;
       case Feature.EXIT:
         events.push(
-          Event.info("You see the exit to the Dungeon of Doom here."),
+          Event.info('You see the exit to the Dungeon of Doom here.')
         );
         break;
       default:
-        events.push(Event.info("This room is empty."));
+        events.push(Event.info('This room is empty.'));
         break;
     }
 
@@ -299,24 +299,24 @@ export class Game {
   private attemptExit(): Event[] {
     const room = this.currentRoom();
     if (room.feature !== Feature.EXIT) {
-      return [Event.info("There is no exit here.")];
+      return [Event.info('There is no exit here.')];
     }
     if (this.player.treasuresFound.size < 10) {
       this.mode = Mode.GAME_OVER;
       const remaining = 10 - this.player.treasuresFound.size;
       return [
         Event.info(
-          `You abandon your quest with ${remaining} treasures remaining.`,
+          `You abandon your quest with ${remaining} treasures remaining.`
         ),
       ];
     }
     this.mode = Mode.VICTORY;
-    return [Event.info("ALL HAIL THE VICTOR!")];
+    return [Event.info('ALL HAIL THE VICTOR!')];
   }
 
   private useFlare(): Event[] {
     if (this.player.flares < 1) {
-      return [Event.info("Thou hast no flares.")];
+      return [Event.info('Thou hast no flares.')];
     }
     this.player.flares -= 1;
     for (const dy of [-1, 0, 1]) {
@@ -332,7 +332,7 @@ export class Game {
       }
     }
     return [
-      Event.info("The flare illuminates nearby rooms."),
+      Event.info('The flare illuminates nearby rooms.'),
       Event.map(this.mapGrid()),
     ];
   }
@@ -344,18 +344,18 @@ export class Game {
       for (let x = 0; x < Game.SIZE; x += 1) {
         const room = this.dungeon.rooms[this.player.z][y][x];
         if (this.player.y === y && this.player.x === x) {
-          row.push("*");
+          row.push('*');
         } else if (!room.seen) {
-          row.push("?");
+          row.push('?');
         } else if (room.monsterLevel > 0) {
-          row.push("M");
+          row.push('M');
         } else if (room.treasureId) {
-          row.push("T");
+          row.push('T');
         } else {
-          row.push(FEATURE_SYMBOLS[room.feature] ?? "0");
+          row.push(FEATURE_SYMBOLS[room.feature] ?? '0');
         }
       }
-      grid.push(row.join(" "));
+      grid.push(row.join(' '));
     }
     return grid;
   }
@@ -382,32 +382,32 @@ export class Game {
 
   private helpText(): string {
     return (
-      "COMMAND SUMMARY:\n" +
-      "Move: N=North  S=South  E=East  W=West  U=Up  D=Down\n" +
-      "Act:  L=Look  O=Open chest  R=Read scroll  P=Potion  F=Flare  B=Buy\n" +
-      "Info: M=Map  H=Help  X=eXit\n" +
-      "\n" +
-      "Encounter: F=Fight  R=Run  S=Spell\n" +
-      "\n" +
-      "MAP LEGEND:\n" +
-      "0=Empty  m=Mirror  s=Scroll  c=Chest  f=Flares  p=Potion\n" +
-      "v=Vendor  t=Thief  w=Warp  U=Up  D=Down  X=eXit\n" +
-      "T=Treasure  M=Monster  *=You  ?=Unknown"
+      'COMMAND SUMMARY:\n' +
+      'Move: N=North  S=South  E=East  W=West  U=Up  D=Down\n' +
+      'Act:  L=Look  O=Open chest  R=Read scroll  P=Potion  F=Flare  B=Buy\n' +
+      'Info: M=Map  H=Help  X=eXit\n' +
+      '\n' +
+      'Encounter: F=Fight  R=Run  S=Spell\n' +
+      '\n' +
+      'MAP LEGEND:\n' +
+      '0=Empty  m=Mirror  s=Scroll  c=Chest  f=Flares  p=Potion\n' +
+      'v=Vendor  t=Thief  w=Warp  U=Up  D=Down  X=eXit\n' +
+      'T=Treasure  M=Monster  *=You  ?=Unknown'
     );
   }
 
   private useMirror(): Event[] {
     const room = this.currentRoom();
     if (room.feature !== Feature.MIRROR) {
-      return [Event.info("There is no mirror here.")];
+      return [Event.info('There is no mirror here.')];
     }
     if (this.rng.randint(1, 50) > this.player.iq) {
       const visions = [
-        "The mirror is cloudy and yields no vision.",
-        "You see yourself dead and lying in a black coffin.",
-        "You see a dragon beckoning to you.",
-        "You see the three heads of a chimaera grinning at you.",
-        "You see the exit on the 7th floor, big and friendly-looking.",
+        'The mirror is cloudy and yields no vision.',
+        'You see yourself dead and lying in a black coffin.',
+        'You see a dragon beckoning to you.',
+        'You see the three heads of a chimaera grinning at you.',
+        'You see the exit on the 7th floor, big and friendly-looking.',
       ];
       if (this.rng.randint(1, 10) <= 5) {
         return [Event.info(this.rng.choice(visions))];
@@ -418,7 +418,7 @@ export class Game {
       const tz = this.rng.randint(1, Game.SIZE);
       return [
         Event.info(
-          `You see the ${this.treasureName(treasure)} at ${tz},${ty},${tx}!`,
+          `You see the ${this.treasureName(treasure)} at ${tz},${ty},${tx}!`
         ),
       ];
     }
@@ -440,12 +440,12 @@ export class Game {
       }
     }
     if (locations.length === 0) {
-      return [Event.info("The mirror is cloudy and yields no vision.")];
+      return [Event.info('The mirror is cloudy and yields no vision.')];
     }
     const [treasure, z, y, x] = this.rng.choice(locations);
     return [
       Event.info(
-        `You see the ${this.treasureName(treasure)} at ${z + 1},${y + 1},${x + 1}!`,
+        `You see the ${this.treasureName(treasure)} at ${z + 1},${y + 1},${x + 1}!`
       ),
     ];
   }
@@ -453,20 +453,20 @@ export class Game {
   private openChest(): Event[] {
     const room = this.currentRoom();
     if (room.feature !== Feature.CHEST) {
-      return [Event.info("There is no chest here.")];
+      return [Event.info('There is no chest here.')];
     }
     room.feature = Feature.EMPTY;
     const roll = this.rng.randint(1, 5);
     switch (roll) {
       case 1:
-        return [Event.info("It containeth naught.")];
+        return [Event.info('It containeth naught.')];
       case 2:
         if (this.player.armorTier > 0) {
           this.player.armorTier -= 1;
           this.player.armorDamaged = true;
         }
         return [
-          Event.info("The perverse thing explodes, damaging your armor!"),
+          Event.info('The perverse thing explodes, damaging your armor!'),
         ];
       default: {
         const gold = 10 + this.rng.randint(0, 20);
@@ -479,14 +479,14 @@ export class Game {
   private readScroll(): Event[] {
     const room = this.currentRoom();
     if (room.feature !== Feature.SCROLL) {
-      return [Event.info("Sorry. There is nothing to read here.")];
+      return [Event.info('Sorry. There is nothing to read here.')];
     }
     room.feature = Feature.EMPTY;
     const spell = this.rng.randint(1, 5) as Spell;
     this.player.spells[spell] = (this.player.spells[spell] ?? 0) + 1;
     return [
       Event.info(
-        `The scroll contains the ${Spell[spell].toLowerCase()} spell.`,
+        `The scroll contains the ${Spell[spell].toLowerCase()} spell.`
       ),
     ];
   }
@@ -494,31 +494,31 @@ export class Game {
   private drinkPotion(): Event[] {
     const room = this.currentRoom();
     if (room.feature !== Feature.POTION) {
-      return [Event.info("There is no potion here, I fear.")];
+      return [Event.info('There is no potion here, I fear.')];
     }
     room.feature = Feature.EMPTY;
     const roll = this.rng.randint(1, 5);
     if (roll === 1) {
       const heal = 5 + this.rng.randint(1, 10);
       this.player.hp = Math.min(this.player.mhp, this.player.hp + heal);
-      return [Event.info("You drink the potion... healing results.")];
+      return [Event.info('You drink the potion... healing results.')];
     }
 
-    const effect = this.rng.choice(["STR", "DEX", "IQ", "MHP"]);
+    const effect = this.rng.choice(['STR', 'DEX', 'IQ', 'MHP']);
     let change = this.rng.randint(1, 6);
     if (this.rng.random() > 0.5) {
       change = -change;
     }
     this.player.applyAttributeChange({ target: effect, change });
     return [
-      Event.info("You drink the potion... strange energies surge through you."),
+      Event.info('You drink the potion... strange energies surge through you.'),
     ];
   }
 
   private openVendor(): Event[] {
     const room = this.currentRoom();
     if (room.feature !== Feature.VENDOR) {
-      return [Event.info("There is no vendor here.")];
+      return [Event.info('There is no vendor here.')];
     }
     this.shopSession = new VendorSession({
       rng: this.rng,

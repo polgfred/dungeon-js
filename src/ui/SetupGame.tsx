@@ -6,9 +6,9 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
-} from "@mui/material";
-import { alpha, type Theme } from "@mui/material/styles";
-import { useMemo, useState } from "react";
+} from '@mui/material';
+import { alpha, type Theme } from '@mui/material/styles';
+import { useMemo, useState } from 'react';
 
 import {
   ARMOR_NAMES,
@@ -16,13 +16,13 @@ import {
   WEAPON_NAMES,
   WEAPON_PRICES,
   Race,
-} from "../dungeon/constants.js";
-import { Player } from "../dungeon/model.js";
-import { defaultRandomSource } from "../dungeon/rng.js";
+} from '../dungeon/constants.js';
+import { Player } from '../dungeon/model.js';
+import { defaultRandomSource } from '../dungeon/rng.js';
 
-type AllocationKey = "STR" | "DEX" | "IQ";
+type AllocationKey = 'STR' | 'DEX' | 'IQ';
 type AllocationState = Record<AllocationKey, number>;
-type SetupStage = "race" | "allocate" | "shop" | "ready";
+type SetupStage = 'race' | 'allocate' | 'shop' | 'ready';
 type Stats = {
   STR: number;
   DEX: number;
@@ -31,10 +31,10 @@ type Stats = {
 };
 
 const raceOptions = [
-  { value: Race.HUMAN, label: "Human", tagline: "Balanced and adaptable." },
-  { value: Race.DWARF, label: "Dwarf", tagline: "Stout and resilient." },
-  { value: Race.ELF, label: "Elf", tagline: "Quick and arcane." },
-  { value: Race.HALFLING, label: "Halfling", tagline: "Steady and lucky." },
+  { value: Race.HUMAN, label: 'Human', tagline: 'Balanced and adaptable.' },
+  { value: Race.DWARF, label: 'Dwarf', tagline: 'Stout and resilient.' },
+  { value: Race.ELF, label: 'Elf', tagline: 'Quick and arcane.' },
+  { value: Race.HALFLING, label: 'Halfling', tagline: 'Steady and lucky.' },
 ];
 
 const panelStyle = (theme: Theme) => ({
@@ -68,9 +68,9 @@ function RaceStage({
       </Typography>
       <Box
         sx={{
-          display: "grid",
+          display: 'grid',
           gap: 2,
-          gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+          gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
         }}
       >
         {raceOptions.map((option) => {
@@ -82,7 +82,7 @@ function RaceStage({
               sx={(theme) => ({
                 borderRadius: 2,
                 padding: 2,
-                textAlign: "left",
+                textAlign: 'left',
                 border: active
                   ? `1px solid ${alpha(theme.palette.primary.light, 0.9)}`
                   : `1px solid ${alpha(theme.palette.primary.light, 0.5)}`,
@@ -91,9 +91,9 @@ function RaceStage({
                   : alpha(theme.palette.primary.dark, 0.35),
                 boxShadow: active
                   ? `0 0 20px ${alpha(theme.palette.primary.light, 0.45)}`
-                  : "none",
-                display: "flex",
-                flexDirection: "column",
+                  : 'none',
+                display: 'flex',
+                flexDirection: 'column',
                 gap: 1,
               })}
             >
@@ -116,12 +116,12 @@ function RaceStage({
         >
           <Typography sx={{ opacity: 0.7 }}>Rolled Stats</Typography>
           <Typography sx={{ letterSpacing: 1.5 }}>
-            STR {baseStats.STR} · DEX {baseStats.DEX} · IQ {baseStats.IQ} · HP{" "}
+            STR {baseStats.STR} · DEX {baseStats.DEX} · IQ {baseStats.IQ} · HP{' '}
             {baseStats.HP}
           </Typography>
         </Box>
       )}
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <Button variant="outlined" onClick={onBack} color="primary">
           Back
         </Button>
@@ -162,17 +162,17 @@ function AllocationStage({
         Distribute points across STR, DEX, and IQ. Each caps at 18.
       </Typography>
       <Stack spacing={2}>
-        {(["STR", "DEX", "IQ"] as AllocationKey[]).map((key) => {
+        {(['STR', 'DEX', 'IQ'] as AllocationKey[]).map((key) => {
           const baseValue = baseStats ? baseStats[key] : 0;
           const totalValue = Math.min(18, baseValue + allocations[key]);
           return (
             <Box
               key={key}
               sx={(theme) => ({
-                display: "grid",
-                gridTemplateColumns: "80px 1fr auto",
+                display: 'grid',
+                gridTemplateColumns: '80px 1fr auto',
                 gap: 2,
-                alignItems: "center",
+                alignItems: 'center',
                 border: `1px solid ${alpha(theme.palette.primary.light, 0.45)}`,
                 borderRadius: 2,
                 padding: 2,
@@ -207,10 +207,10 @@ function AllocationStage({
           );
         })}
       </Stack>
-      <Typography sx={{ color: "text.secondary" }}>
+      <Typography sx={{ color: 'text.secondary' }}>
         Points remaining: {remainingPoints}
       </Typography>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <Button variant="outlined" onClick={onBack} color="primary">
           Back
         </Button>
@@ -270,13 +270,13 @@ function ShopStage({
             value={weaponTier}
             onChange={(_, value) => value && onWeaponTier(value)}
             sx={(theme) => ({
-              "& .MuiToggleButton-root": {
+              '& .MuiToggleButton-root': {
                 borderColor: alpha(theme.palette.primary.light, 0.5),
                 color: theme.palette.text.primary,
-                textTransform: "none",
+                textTransform: 'none',
                 letterSpacing: 1,
               },
-              "& .MuiToggleButton-root.Mui-selected": {
+              '& .MuiToggleButton-root.Mui-selected': {
                 background: alpha(theme.palette.primary.light, 0.6),
                 color: theme.palette.text.primary,
               },
@@ -298,13 +298,13 @@ function ShopStage({
             value={armorTier}
             onChange={(_, value) => value && onArmorTier(value)}
             sx={(theme) => ({
-              "& .MuiToggleButton-root": {
+              '& .MuiToggleButton-root': {
                 borderColor: alpha(theme.palette.primary.light, 0.5),
                 color: theme.palette.text.primary,
-                textTransform: "none",
+                textTransform: 'none',
                 letterSpacing: 1,
               },
-              "& .MuiToggleButton-root.Mui-selected": {
+              '& .MuiToggleButton-root.Mui-selected': {
                 background: alpha(theme.palette.primary.light, 0.6),
                 color: theme.palette.text.primary,
               },
@@ -330,7 +330,7 @@ function ShopStage({
             >
               -
             </Button>
-            <Typography sx={{ minWidth: 40, textAlign: "center" }}>
+            <Typography sx={{ minWidth: 40, textAlign: 'center' }}>
               {flares}
             </Typography>
             <Button
@@ -346,9 +346,9 @@ function ShopStage({
         </Box>
       </Stack>
       {setupError && (
-        <Typography sx={{ color: "error.light" }}>{setupError}</Typography>
+        <Typography sx={{ color: 'error.light' }}>{setupError}</Typography>
       )}
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <Button variant="outlined" onClick={onBack} color="primary">
           Back
         </Button>
@@ -388,7 +388,7 @@ function ReadyStage({
         <Typography>Flares: {player.flares}</Typography>
         <Typography>Gold Remaining: {player.gold}</Typography>
       </Stack>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <Button variant="outlined" onClick={onReset} color="primary">
           Reset Setup
         </Button>
@@ -419,7 +419,7 @@ function StatusReadout({
 }) {
   return (
     <Stack spacing={2}>
-      <Typography sx={{ letterSpacing: 2, textTransform: "uppercase" }}>
+      <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
         Status Readout
       </Typography>
       <Stack spacing={1}>
@@ -427,24 +427,24 @@ function StatusReadout({
         <Typography>
           {race
             ? raceOptions.find((option) => option.value === race)?.label
-            : "Unassigned"}
+            : 'Unassigned'}
         </Typography>
       </Stack>
       <Stack spacing={1}>
         <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
-        <Typography>STR {derivedStats ? derivedStats.STR : "--"}</Typography>
-        <Typography>DEX {derivedStats ? derivedStats.DEX : "--"}</Typography>
-        <Typography>IQ {derivedStats ? derivedStats.IQ : "--"}</Typography>
-        <Typography>HP {derivedStats ? derivedStats.HP : "--"}</Typography>
+        <Typography>STR {derivedStats ? derivedStats.STR : '--'}</Typography>
+        <Typography>DEX {derivedStats ? derivedStats.DEX : '--'}</Typography>
+        <Typography>IQ {derivedStats ? derivedStats.IQ : '--'}</Typography>
+        <Typography>HP {derivedStats ? derivedStats.HP : '--'}</Typography>
       </Stack>
       <Stack spacing={1}>
         <Typography sx={{ opacity: 0.7 }}>Supplies</Typography>
-        <Typography>Gold: {gold !== null ? gold : "--"}</Typography>
+        <Typography>Gold: {gold !== null ? gold : '--'}</Typography>
         <Typography>Weapon: {WEAPON_NAMES[weaponTier]}</Typography>
         <Typography>Armor: {ARMOR_NAMES[armorTier]}</Typography>
         <Typography>Flares: {flares}</Typography>
-        <Typography sx={{ color: "text.secondary" }}>
-          Remaining: {gold !== null ? gold - totalCost : "--"}
+        <Typography sx={{ color: 'text.secondary' }}>
+          Remaining: {gold !== null ? gold - totalCost : '--'}
         </Typography>
       </Stack>
     </Stack>
@@ -454,14 +454,14 @@ function StatusReadout({
 function MissionLog() {
   return (
     <Stack spacing={2}>
-      <Typography sx={{ letterSpacing: 2, textTransform: "uppercase" }}>
+      <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
         Mission Log
       </Typography>
       <Box
         sx={{
-          display: "grid",
+          display: 'grid',
           gap: 1,
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: '1fr 1fr',
           fontSize: 14,
           opacity: 0.8,
         }}
@@ -483,7 +483,7 @@ export default function SetupGame({
   onBack: () => void;
 }) {
   const rng = useMemo(() => defaultRandomSource, []);
-  const [stage, setStage] = useState<SetupStage>("race");
+  const [stage, setStage] = useState<SetupStage>('race');
   const [race, setRace] = useState<Race | null>(null);
   const [baseStats, setBaseStats] = useState<Stats | null>(null);
   const [allocations, setAllocations] = useState<AllocationState>({
@@ -532,7 +532,7 @@ export default function SetupGame({
 
   const handleAdvanceToShop = () => {
     if (remainingPoints === 0) {
-      setStage("shop");
+      setStage('shop');
       if (gold === null) {
         setGold(rng.randint(50, 60));
       }
@@ -552,9 +552,9 @@ export default function SetupGame({
         flareCount: flares,
       });
       setPlayer(created);
-      setStage("ready");
+      setStage('ready');
     } catch (error) {
-      setSetupError(error instanceof Error ? error.message : "Setup failed.");
+      setSetupError(error instanceof Error ? error.message : 'Setup failed.');
     }
   };
 
@@ -562,67 +562,67 @@ export default function SetupGame({
     <Box
       sx={{
         maxWidth: 1280,
-        margin: "0 auto",
-        display: "grid",
+        margin: '0 auto',
+        display: 'grid',
         gap: 3,
-        containerType: "inline-size",
-        "@keyframes boot": {
-          from: { opacity: 0, transform: "translateY(14px)" },
-          to: { opacity: 1, transform: "translateY(0)" },
+        containerType: 'inline-size',
+        '@keyframes boot': {
+          from: { opacity: 0, transform: 'translateY(14px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
         },
-        animation: "boot 650ms ease-out",
+        animation: 'boot 650ms ease-out',
       }}
     >
       <Box
         sx={(theme) => ({
           ...panelStyle(theme),
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           paddingY: 1.5,
         })}
       >
-        <Typography sx={{ letterSpacing: 3, textTransform: "uppercase" }}>
+        <Typography sx={{ letterSpacing: 3, textTransform: 'uppercase' }}>
           Dungeon OS // Player Boot
         </Typography>
-        <Typography sx={{ color: "text.secondary", opacity: 0.8 }}>
+        <Typography sx={{ color: 'text.secondary', opacity: 0.8 }}>
           {stage.toUpperCase()}
         </Typography>
       </Box>
 
       <Box
         sx={{
-          display: "grid",
+          display: 'grid',
           gap: 3,
-          gridTemplateColumns: "1fr",
-          "@container (min-width: 1280px)": {
-            gridTemplateColumns: "2fr 1fr",
+          gridTemplateColumns: '1fr',
+          '@container (min-width: 1280px)': {
+            gridTemplateColumns: '2fr 1fr',
           },
         }}
       >
         <Box sx={(theme) => panelStyle(theme)}>
-          {stage === "race" && (
+          {stage === 'race' && (
             <RaceStage
               race={race}
               baseStats={baseStats}
               onSelect={handleRaceSelect}
               onBack={onBack}
-              onConfirm={() => setStage("allocate")}
+              onConfirm={() => setStage('allocate')}
             />
           )}
 
-          {stage === "allocate" && (
+          {stage === 'allocate' && (
             <AllocationStage
               baseStats={baseStats}
               allocations={allocations}
               remainingPoints={remainingPoints}
               onAdjust={handleAdjust}
-              onBack={() => setStage("race")}
+              onBack={() => setStage('race')}
               onConfirm={handleAdvanceToShop}
             />
           )}
 
-          {stage === "shop" && (
+          {stage === 'shop' && (
             <ShopStage
               weaponTier={weaponTier}
               armorTier={armorTier}
@@ -632,16 +632,16 @@ export default function SetupGame({
               onWeaponTier={setWeaponTier}
               onArmorTier={setArmorTier}
               onFlaresChange={setFlares}
-              onBack={() => setStage("allocate")}
+              onBack={() => setStage('allocate')}
               onConfirm={handleFinish}
               disableConfirm={gold === null || totalCost > gold}
             />
           )}
 
-          {stage === "ready" && player && (
+          {stage === 'ready' && player && (
             <ReadyStage
               player={player}
-              onReset={() => setStage("race")}
+              onReset={() => setStage('race')}
               onComplete={onComplete}
             />
           )}
