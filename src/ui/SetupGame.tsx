@@ -7,7 +7,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { alpha, type Theme } from '@mui/material/styles';
+import { alpha, lighten, type Theme } from '@mui/material/styles';
 import { useMemo, useState } from 'react';
 
 import {
@@ -61,10 +61,10 @@ function RaceStage({
   return (
     <Stack spacing={3}>
       <Typography variant="h5" sx={{ letterSpacing: 2 }}>
-        Choose Your Lineage
+        Choose Thy Race
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Base stats are rolled on selection. Confirm to lock it in.
+        Base player stats are rolled on selection. Confirm to lock in stats.
       </Typography>
       <Box
         sx={{
@@ -87,7 +87,7 @@ function RaceStage({
                   ? `1px solid ${alpha(theme.palette.primary.light, 0.9)}`
                   : `1px solid ${alpha(theme.palette.primary.light, 0.5)}`,
                 background: active
-                  ? alpha(theme.palette.primary.main, 0.35)
+                  ? alpha(theme.palette.primary.light, 0.35)
                   : alpha(theme.palette.primary.dark, 0.35),
                 boxShadow: active
                   ? `0 0 20px ${alpha(theme.palette.primary.light, 0.45)}`
@@ -156,10 +156,11 @@ function AllocationStage({
   return (
     <Stack spacing={3}>
       <Typography variant="h5" sx={{ letterSpacing: 2 }}>
-        Allocate 5 Points
+        Allocate Points
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Distribute points across STR, DEX, and IQ. Each caps at 18.
+        Distribute five points across strength, dexterity, and intelligence.
+        Attributes are capped at 18.
       </Typography>
       <Stack spacing={2}>
         {(['STR', 'DEX', 'IQ'] as AllocationKey[]).map((key) => {
@@ -220,7 +221,7 @@ function AllocationStage({
           onClick={onConfirm}
           color="primary"
         >
-          Lock Allocation
+          Lock Stats
         </Button>
       </Stack>
     </Stack>
@@ -255,10 +256,11 @@ function ShopStage({
   return (
     <Stack spacing={3}>
       <Typography variant="h5" sx={{ letterSpacing: 2 }}>
-        Outfit for the Descent
+        Arm Thyself
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Spend your starting gold. Remaining gold is kept.
+        Now, you must purchase a weapon, armor, and flares. Any remaining gold
+        is kept.
       </Typography>
       <Stack spacing={2}>
         <Box>
@@ -277,14 +279,14 @@ function ShopStage({
                 letterSpacing: 1,
               },
               '& .MuiToggleButton-root.Mui-selected': {
-                background: alpha(theme.palette.primary.light, 0.6),
+                background: alpha(theme.palette.primary.light, 0.7),
                 color: theme.palette.text.primary,
               },
             })}
           >
             {[1, 2, 3].map((tier) => (
               <ToggleButton key={tier} value={tier}>
-                {WEAPON_NAMES[tier]} ({WEAPON_PRICES[tier]}g)
+                {WEAPON_NAMES[tier]} - {WEAPON_PRICES[tier]}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
@@ -312,7 +314,7 @@ function ShopStage({
           >
             {[1, 2, 3].map((tier) => (
               <ToggleButton key={tier} value={tier}>
-                {ARMOR_NAMES[tier]} ({ARMOR_PRICES[tier]}g)
+                {ARMOR_NAMES[tier]} - {ARMOR_PRICES[tier]}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
@@ -358,7 +360,7 @@ function ShopStage({
           onClick={onConfirm}
           color="primary"
         >
-          Finalize Loadout
+          Finalize Inventory
         </Button>
       </Stack>
     </Stack>
@@ -375,12 +377,13 @@ function ReadyStage({
   onComplete: () => void;
 }) {
   return (
-    <Stack spacing={2}>
+    <Stack spacing={3}>
       <Typography variant="h5" sx={{ letterSpacing: 2 }}>
-        Boot Sequence Complete
+        Setup Complete
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Systems online. Awaiting descent command.
+        Brave adventurer, thy gear outfits you well! But victory remains to be
+        seen.
       </Typography>
       <Stack spacing={1}>
         <Typography>Weapon: {player.weaponName}</Typography>
@@ -388,6 +391,7 @@ function ReadyStage({
         <Typography>Flares: {player.flares}</Typography>
         <Typography>Gold Remaining: {player.gold}</Typography>
       </Stack>
+      <Typography sx={{ opacity: 0.75 }}>THE DUNGEON AWAITS YOU...</Typography>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <Button variant="outlined" onClick={onReset} color="primary">
           Reset Setup
@@ -420,7 +424,7 @@ function StatusReadout({
   return (
     <Stack spacing={2}>
       <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-        Status Readout
+        Player Readout
       </Typography>
       <Stack spacing={1}>
         <Typography sx={{ opacity: 0.7 }}>Race</Typography>
@@ -447,30 +451,6 @@ function StatusReadout({
           Remaining: {gold !== null ? gold - totalCost : '--'}
         </Typography>
       </Stack>
-    </Stack>
-  );
-}
-
-function MissionLog() {
-  return (
-    <Stack spacing={2}>
-      <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-        Mission Log
-      </Typography>
-      <Box
-        sx={{
-          display: 'grid',
-          gap: 1,
-          gridTemplateColumns: '1fr 1fr',
-          fontSize: 14,
-          opacity: 0.8,
-        }}
-      >
-        <Typography>Event Queue</Typography>
-        <Typography>Awaiting input...</Typography>
-        <Typography>Telemetry</Typography>
-        <Typography>Standby</Typography>
-      </Box>
     </Stack>
   );
 }
@@ -583,7 +563,7 @@ export default function SetupGame({
         })}
       >
         <Typography sx={{ letterSpacing: 3, textTransform: 'uppercase' }}>
-          Dungeon OS // Player Boot
+          Player Setup
         </Typography>
         <Typography sx={{ color: 'text.secondary', opacity: 0.8 }}>
           {stage.toUpperCase()}

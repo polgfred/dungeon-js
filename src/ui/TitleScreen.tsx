@@ -46,13 +46,13 @@ export default function TitleScreen({ onStart }: { onStart: () => void }) {
         </Button>
       </Stack>
       <Stack
+        spacing={2}
         sx={(theme) => ({
           gridColumn: { xs: 'auto', md: '1 / -1' },
           borderRadius: 2,
           padding: 3,
           border: `1px solid ${theme.palette.primary.light}`,
           background: 'rgba(0, 0, 0, 0.36)',
-          gap: 2,
           marginTop: 4,
           maxWidth: 1100,
           opacity: 0.6,
