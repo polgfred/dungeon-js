@@ -510,6 +510,7 @@ function PlayerReadoutPanel({
           <Typography>Weapon: {player.weaponName}</Typography>
           <Typography>Armor: {player.armorName}</Typography>
           <Typography>Flares: {player.flares}</Typography>
+          <Typography>Treasures: {player.treasuresFound.size}</Typography>
         </Stack>
         <Stack spacing={1}>
           <Typography sx={{ opacity: 0.7 }}>Location</Typography>
@@ -517,9 +518,6 @@ function PlayerReadoutPanel({
             Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
           </Typography>
         </Stack>
-        <Button variant="outlined" onClick={onBack} color="primary">
-          Back to Setup
-        </Button>
         <Typography sx={{ opacity: 0.6 }}>
           Tip: press the letter keys shown on each command.
         </Typography>
