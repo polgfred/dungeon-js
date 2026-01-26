@@ -453,7 +453,7 @@ function CommandBarPanel({
       ) : (
         <Stack spacing={2}>
           <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-            Command Bar
+            Explore Commands
           </Typography>
           <Box
             sx={{
