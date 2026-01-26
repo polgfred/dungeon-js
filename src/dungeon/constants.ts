@@ -80,8 +80,8 @@ export const TREASURE_NAMES = [
   'Silmaril',
 ];
 
-export const WEAPON_NAMES = ['none', 'Dagger', 'Short sword', 'Broadsword'];
-export const ARMOR_NAMES = ['none', 'Leather', 'Wooden', 'Chain mail'];
+export const WEAPON_NAMES = ['(None)', 'Dagger', 'Short sword', 'Broadsword'];
+export const ARMOR_NAMES = ['(None)', 'Leather', 'Wooden', 'Chain mail'];
 
 export const WEAPON_PRICES: Record<number, number> = { 1: 10, 2: 20, 3: 30 };
 export const ARMOR_PRICES: Record<number, number> = { 1: 10, 2: 20, 3: 30 };
