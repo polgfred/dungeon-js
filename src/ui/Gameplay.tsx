@@ -20,7 +20,7 @@ type Command = {
   id: string;
   key: string;
   label: string;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
 const panelStyle = (theme: Theme) => ({
@@ -32,32 +32,32 @@ const panelStyle = (theme: Theme) => ({
 });
 
 const movementCommands = [
-  { id: 'move-north', key: 'N', label: 'North' },
-  { id: 'move-west', key: 'W', label: 'West' },
-  { id: 'move-east', key: 'E', label: 'East' },
-  { id: 'move-south', key: 'S', label: 'South' },
+  { id: 'move-north', key: 'N', label: 'North', disabled: false },
+  { id: 'move-west', key: 'W', label: 'West', disabled: false },
+  { id: 'move-east', key: 'E', label: 'East', disabled: false },
+  { id: 'move-south', key: 'S', label: 'South', disabled: false },
 ];
 
 const verticalCommands = [
-  { id: 'move-up', key: 'U', label: 'Up' },
-  { id: 'move-down', key: 'D', label: 'Down' },
-  { id: 'exit', key: 'X', label: 'Exit' },
+  { id: 'move-up', key: 'U', label: 'Up', disabled: false },
+  { id: 'move-down', key: 'D', label: 'Down', disabled: false },
+  { id: 'exit', key: 'X', label: 'Exit', disabled: false },
 ];
 
 const roomCommands = [
-  { id: 'flare', key: 'F', label: 'Flare' },
-  { id: 'look', key: 'L', label: 'Look' },
-  { id: 'open', key: 'O', label: 'Open Chest' },
-  { id: 'read', key: 'R', label: 'Read Scroll' },
-  { id: 'potion', key: 'P', label: 'Drink Potion' },
-  { id: 'buy', key: 'B', label: 'Buy' },
-  { id: 'help', key: 'H', label: 'Help' },
+  { id: 'flare', key: 'F', label: 'Flare', disabled: false },
+  { id: 'look', key: 'L', label: 'Look', disabled: false },
+  { id: 'open', key: 'O', label: 'Open Chest', disabled: false },
+  { id: 'read', key: 'R', label: 'Read Scroll', disabled: false },
+  { id: 'potion', key: 'P', label: 'Drink Potion', disabled: false },
+  { id: 'buy', key: 'B', label: 'Buy', disabled: false },
+  { id: 'help', key: 'H', label: 'Help', disabled: false },
 ];
 
 const encounterCommands = [
-  { id: 'fight', key: 'F', label: 'Fight' },
-  { id: 'run', key: 'R', label: 'Run' },
-  { id: 'spell', key: 'S', label: 'Spell' },
+  { id: 'fight', key: 'F', label: 'Fight', disabled: false },
+  { id: 'run', key: 'R', label: 'Run', disabled: false },
+  { id: 'spell', key: 'S', label: 'Spell', disabled: false },
 ];
 
 function CommandButton({
@@ -714,7 +714,7 @@ export default function Gameplay({
   const atSouthWall = player.y >= Game.SIZE - 1;
   const atWestWall = player.x <= 0;
   const atEastWall = player.x >= Game.SIZE - 1;
-  const movementDisabledByKey: Partial<Record<string, boolean>> = {
+  const movementDisabledByKey: Record<string, boolean> = {
     N: atNorthWall,
     S: atSouthWall,
     W: atWestWall,
@@ -729,7 +729,7 @@ export default function Gameplay({
       ),
     [movementDisabledByKey]
   );
-  const verticalDisabledByKey: Partial<Record<string, boolean>> = {
+  const verticalDisabledByKey: Record<string, boolean> = {
     U: currentRoomFeature !== Feature.STAIRS_UP,
     D: currentRoomFeature !== Feature.STAIRS_DOWN,
     X: currentRoomFeature !== Feature.EXIT,
@@ -743,13 +743,14 @@ export default function Gameplay({
       ),
     [verticalDisabledByKey]
   );
-  const roomDisabledByKey: Partial<Record<string, boolean>> = {
+  const roomDisabledByKey: Record<string, boolean> = {
     F: player.flares < 1,
     L: currentRoomFeature !== Feature.MIRROR,
     O: currentRoomFeature !== Feature.CHEST,
     R: currentRoomFeature !== Feature.SCROLL,
     P: currentRoomFeature !== Feature.POTION,
     B: currentRoomFeature !== Feature.VENDOR,
+    H: false,
   };
   const roomCommandList = useMemo(
     () =>
@@ -789,6 +790,7 @@ export default function Gameplay({
         id: `prompt-${option.key}`,
         key: option.key,
         label: option.label,
+        disabled: false,
       }));
   }, [promptOptions]);
 
@@ -797,7 +799,7 @@ export default function Gameplay({
     const commands = promptCommands ?? activeCommands;
     commands
       .filter((command) => {
-        if (!('disabled' in command && command.disabled)) return true;
+        if (!command.disabled) return true;
         if (promptCommands) return false;
         if (!isEncounter) return true;
         return command.key === 'R';
