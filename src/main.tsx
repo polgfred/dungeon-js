@@ -73,6 +73,24 @@ const theme = createTheme({
         }),
       },
     },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: ({ theme }) => ({
+          backgroundColor: theme.palette.text.primary,
+          color: theme.palette.primary.main,
+          fontFamily: '"EightBit Atari"',
+          fontSize: 12,
+          letterSpacing: 0.6,
+          border: `1px solid ${theme.palette.primary.light}`,
+        }),
+        arrow: ({ theme }) => ({
+          color: theme.palette.text.primary,
+          '&::before': {
+            border: `1px solid ${theme.palette.primary.light}`,
+          },
+        }),
+      },
+    },
   },
 });
 
