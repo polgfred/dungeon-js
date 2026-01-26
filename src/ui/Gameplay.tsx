@@ -26,45 +26,53 @@ const movementCommands = [
 const verticalCommands = [
   { id: 'move-up', key: 'U', label: 'Up' },
   { id: 'move-down', key: 'D', label: 'Down' },
-  { id: 'examine', key: 'X', label: 'Examine' },
+  { id: 'exit', key: 'X', label: 'Exit' },
 ];
 
 const roomCommands = [
-  { id: 'look', key: 'L', label: 'Look' },
-  { id: 'open', key: 'O', label: 'Open' },
-  { id: 'grab', key: 'G', label: 'Grab' },
-  { id: 'search', key: 'R', label: 'Search' },
-  { id: 'talk', key: 'T', label: 'Talk' },
   { id: 'map', key: 'M', label: 'Map' },
+  { id: 'flare', key: 'F', label: 'Flare' },
+  { id: 'look', key: 'L', label: 'Look' },
+  { id: 'open', key: 'O', label: 'Open Chest' },
+  { id: 'read', key: 'R', label: 'Read Scroll' },
+  { id: 'potion', key: 'P', label: 'Drink Potion' },
+  { id: 'buy', key: 'B', label: 'Buy' },
+  { id: 'help', key: 'H', label: 'Help' },
 ];
 
 const encounterCommands = [
   { id: 'fight', key: 'F', label: 'Fight' },
-  { id: 'retreat', key: 'R', label: 'Retreat' },
+  { id: 'run', key: 'R', label: 'Run' },
   { id: 'spell', key: 'S', label: 'Spell' },
 ];
 
 function CommandButton({
   command,
   onTrigger,
+  compact = false,
 }: {
   command: Command;
   onTrigger: (command: Command) => void;
+  compact?: boolean;
 }) {
   return (
     <Button
       variant="outlined"
       onClick={() => onTrigger(command)}
       color="primary"
+      size={compact ? 'small' : 'medium'}
       sx={{
         textTransform: 'none',
-        letterSpacing: 1,
-        paddingY: 1.2,
+        letterSpacing: 0.8,
+        paddingY: compact ? 0.6 : 1.2,
+        minWidth: compact ? 72 : undefined,
       }}
     >
-      <Stack spacing={0.2}>
-        <Typography sx={{ fontSize: 13 }}>{command.label}</Typography>
-        <Typography variant="caption" sx={{ opacity: 0.6 }}>
+      <Stack spacing={0.2} alignItems="center">
+        <Typography sx={{ fontSize: compact ? 11 : 13 }}>
+          {command.label}
+        </Typography>
+        <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 10 }}>
           {command.key}
         </Typography>
       </Stack>
@@ -72,11 +80,7 @@ function CommandButton({
   );
 }
 
-export default function Gameplay({
-  onBack,
-}: {
-  onBack: () => void;
-}) {
+export default function Gameplay({ onBack }: { onBack: () => void }) {
   const [encounterMode, setEncounterMode] = useState(false);
   const [lastAction, setLastAction] = useState('Awaiting command.');
   const [log, setLog] = useState<string[]>([]);
@@ -166,9 +170,9 @@ export default function Gameplay({
                 Dungeon View
               </Typography>
               <Typography sx={{ opacity: 0.75, maxWidth: 620 }}>
-                The torchlight trembles against stone walls. A chill draft
-                slips from a corridor to the east while a stairwell descends
-                into shadow.
+                The torchlight trembles against stone walls. A chill draft slips
+                from a corridor to the east while a stairwell descends into
+                shadow.
               </Typography>
               <Box
                 sx={(theme) => ({
@@ -179,7 +183,7 @@ export default function Gameplay({
                   borderRadius: 2,
                   padding: 2,
                   background: alpha(theme.palette.primary.dark, 0.35),
-                  minHeight: 180,
+                  minHeight: 260,
                   display: 'grid',
                   placeItems: 'center',
                 })}
@@ -191,39 +195,44 @@ export default function Gameplay({
             </Stack>
           </Box>
 
-          <Box sx={(theme) => panelStyle(theme)}>
+          <Box
+            sx={(theme) => ({
+              ...panelStyle(theme),
+              paddingY: { xs: 1.5, md: 2 },
+            })}
+          >
             {encounterMode ? (
               <Stack spacing={2}>
-                <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
+                <Typography
+                  sx={{ letterSpacing: 2, textTransform: 'uppercase' }}
+                >
                   Encounter Commands
                 </Typography>
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  useFlexGap
-                  flexWrap="wrap"
-                >
+                <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
                   {encounterCommands.map((command) => (
                     <CommandButton
                       key={command.id}
                       command={command}
                       onTrigger={handleTrigger}
+                      compact
                     />
                   ))}
                 </Stack>
               </Stack>
             ) : (
               <Stack spacing={2}>
-                <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
+                <Typography
+                  sx={{ letterSpacing: 2, textTransform: 'uppercase' }}
+                >
                   Command Bar
                 </Typography>
                 <Box
                   sx={{
                     display: 'grid',
-                    gap: 2,
+                    gap: 1.5,
                     gridTemplateColumns: {
                       xs: '1fr',
-                      md: 'auto auto 1fr',
+                      md: 'auto 1fr',
                     },
                     alignItems: 'start',
                   }}
@@ -231,62 +240,67 @@ export default function Gameplay({
                   <Box
                     sx={{
                       display: 'grid',
-                      gap: 1,
-                      gridTemplateColumns: 'repeat(3, minmax(64px, 1fr))',
+                      gap: 0.5,
+                      gridTemplateColumns: 'repeat(3, minmax(54px, 1fr))',
                       gridTemplateRows: 'repeat(3, 1fr)',
+                      alignItems: 'center',
                     }}
                   >
                     <Box />
                     <CommandButton
                       command={movementCommands[0]}
                       onTrigger={handleTrigger}
+                      compact
                     />
                     <Box />
                     <CommandButton
                       command={movementCommands[1]}
                       onTrigger={handleTrigger}
+                      compact
                     />
                     <Box
                       sx={{
                         borderRadius: 1,
                         border: '1px dashed rgba(255,255,255,0.2)',
-                        minHeight: 54,
+                        minHeight: 40,
                       }}
                     />
                     <CommandButton
                       command={movementCommands[2]}
                       onTrigger={handleTrigger}
+                      compact
                     />
                     <Box />
                     <CommandButton
                       command={movementCommands[3]}
                       onTrigger={handleTrigger}
+                      compact
                     />
                     <Box />
                   </Box>
 
-                  <Stack spacing={1}>
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gap: 0.75,
+                      gridTemplateColumns:
+                        'repeat(auto-fit, minmax(110px, 1fr))',
+                    }}
+                  >
                     {verticalCommands.map((command) => (
                       <CommandButton
                         key={command.id}
                         command={command}
                         onTrigger={handleTrigger}
+                        compact
                       />
                     ))}
-                  </Stack>
-
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gap: 1.5,
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-                    }}
-                  >
                     {roomCommands.map((command) => (
                       <CommandButton
                         key={command.id}
                         command={command}
                         onTrigger={handleTrigger}
+                        compact
                       />
                     ))}
                   </Box>
