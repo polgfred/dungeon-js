@@ -1,13 +1,13 @@
 import { Box } from '@mui/material';
 import { alpha, type Theme } from '@mui/material/styles';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { Player } from './dungeon/model.js';
+import HomePage from './pages/HomePage.js';
 import Gameplay from './ui/Gameplay.js';
 import SetupGame from './ui/SetupGame.js';
-import TitleScreen from './ui/TitleScreen.js';
 
-type AppStage = 'title' | 'setup' | 'gameplay';
+type RoutePath = '/' | '/setup' | '/gameplay';
 
 const screenStyle = (theme: Theme) => ({
   minHeight: '100vh',
@@ -39,32 +39,77 @@ const screenStyle = (theme: Theme) => ({
 });
 
 export default function App() {
-  const [stage, setStage] = useState<AppStage>('title');
+  const [route, setRoute] = useState<RoutePath>(() => getRoutePath());
   const [player, setPlayer] = useState<Player | null>(null);
+
+  const navigate = useCallback((path: RoutePath, replace = false) => {
+    const target = `#${path}`;
+    if (replace) {
+      window.history.replaceState(null, '', target);
+    } else {
+      window.history.pushState(null, '', target);
+    }
+    setRoute(path);
+  }, []);
+
+  useEffect(() => {
+    const handleChange = () => {
+      setRoute(getRoutePath());
+    };
+    window.addEventListener('popstate', handleChange);
+    window.addEventListener('hashchange', handleChange);
+    return () => {
+      window.removeEventListener('popstate', handleChange);
+      window.removeEventListener('hashchange', handleChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (route === '/gameplay' && !player) {
+      navigate('/setup', true);
+    }
+  }, [navigate, player, route]);
 
   return (
     <Box component="main" sx={(theme) => screenStyle(theme)}>
-      {stage === 'title' && <TitleScreen onStart={() => setStage('setup')} />}
-
-      {stage === 'setup' && (
-        <SetupGame
-          onComplete={(created) => {
-            setPlayer(created);
-            setStage('gameplay');
-          }}
-          onBack={() => setStage('title')}
+      {route === '/' && (
+        <HomePage
+          setupHref="#/setup"
+          onBeginSetup={() => navigate('/setup')}
         />
       )}
 
-      {stage === 'gameplay' && player && (
+      {route === '/setup' && (
+        <SetupGame
+          onComplete={(created) => {
+            setPlayer(created);
+            navigate('/gameplay');
+          }}
+          onBack={() => navigate('/')}
+        />
+      )}
+
+      {route === '/gameplay' && player && (
         <Gameplay
           player={player}
           onBack={() => {
             setPlayer(null);
-            setStage('setup');
+            navigate('/setup');
           }}
         />
       )}
     </Box>
   );
+}
+
+function getRoutePath(): RoutePath {
+  const hashPath = window.location.hash.replace(/^#/, '');
+  const candidate = hashPath || window.location.pathname;
+  if (candidate.startsWith('/setup')) {
+    return '/setup';
+  }
+  if (candidate.startsWith('/gameplay')) {
+    return '/gameplay';
+  }
+  return '/';
 }

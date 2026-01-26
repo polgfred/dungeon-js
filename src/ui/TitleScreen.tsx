@@ -1,6 +1,20 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
+import type { MouseEvent } from 'react';
 
-export default function TitleScreen({ onStart }: { onStart: () => void }) {
+type TitleScreenProps = {
+  setupHref: string;
+  onStart?: () => void;
+};
+
+export default function TitleScreen({ setupHref, onStart }: TitleScreenProps) {
+  const handleStart = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!onStart) {
+      return;
+    }
+    event.preventDefault();
+    onStart();
+  };
+
   return (
     <Box
       sx={{
@@ -41,7 +55,13 @@ export default function TitleScreen({ onStart }: { onStart: () => void }) {
           Now, brave adventurer: prepare to choose thy race, arm thyself, and
           descend into the dungeon.
         </Typography>
-        <Button variant="contained" onClick={onStart} color="primary">
+        <Button
+          variant="contained"
+          component="a"
+          href={setupHref}
+          onClick={handleStart}
+          color="primary"
+        >
           Begin Setup
         </Button>
       </Stack>
