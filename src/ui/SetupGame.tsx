@@ -559,23 +559,6 @@ export default function SetupGame({
       }}
     >
       <Box
-        sx={(theme) => ({
-          ...panelStyle(theme),
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingY: 1.5,
-        })}
-      >
-        <Typography sx={{ letterSpacing: 3, textTransform: 'uppercase' }}>
-          Player Setup
-        </Typography>
-        <Typography sx={{ color: 'text.secondary', opacity: 0.8 }}>
-          {stage.toUpperCase()}
-        </Typography>
-      </Box>
-
-      <Box
         sx={{
           display: 'grid',
           gap: 3,

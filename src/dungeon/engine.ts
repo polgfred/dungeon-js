@@ -2,10 +2,10 @@ import {
   ARMOR_NAMES,
   EXPLORE_COMMANDS,
   FEATURE_SYMBOLS,
+  TREASURE_NAMES,
   Feature,
   Mode,
   Spell,
-  TREASURE_NAMES,
 } from './constants.js';
 import { EncounterSession } from './encounter.js';
 import { generateDungeon } from './generation.js';

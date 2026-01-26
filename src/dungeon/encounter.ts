@@ -321,10 +321,6 @@ export class EncounterSession {
     const iqTooLow = this.player.iq < 12;
     const options = [
       {
-        key: 'C',
-        label: 'Cancel',
-      },
-      {
         key: 'P',
         label: `Protection (${spells[Spell.PROTECTION] ?? 0})`,
         disabled: iqTooLow || (spells[Spell.PROTECTION] ?? 0) <= 0,
@@ -348,6 +344,10 @@ export class EncounterSession {
         key: 'T',
         label: `Teleport (${spells[Spell.TELEPORT] ?? 0})`,
         disabled: iqTooLow || (spells[Spell.TELEPORT] ?? 0) <= 0,
+      },
+      {
+        key: 'C',
+        label: 'Cancel',
       },
     ];
     return {

@@ -6,6 +6,7 @@ import { Mode } from '../dungeon/constants.js';
 import { Game } from '../dungeon/engine.js';
 import type { Player } from '../dungeon/model.js';
 import type { Event as GameEvent, PromptOption } from '../dungeon/types.js';
+
 type Command = {
   id: string;
   key: string;
