@@ -382,8 +382,8 @@ function ReadyStage({
         Setup Complete
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Brave adventurer, thy gear outfits thee well! But victory remains to be
-        seen.
+        Brave adventurer, thy gear outfits thee well! But alas, victory remains
+        to be seen.
       </Typography>
       <Stack spacing={1}>
         <Typography>Weapon: {player.weaponName}</Typography>

@@ -64,8 +64,8 @@ export default function TitleScreen({ onStart }: { onStart: () => void }) {
           800XL.
         </Typography>
         <Typography>
-          The core game engine and UX were ported to Python and TypeScript with
-          the help of OpenAI's GPT-5.2-Codex.
+          The original game engine was ported to Python and TypeScript in
+          conversation with OpenAI's GPT-5.2-Codex.
         </Typography>
         <Typography>
           I have attempted to preserve the language and visual style of the game
