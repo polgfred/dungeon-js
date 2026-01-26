@@ -707,7 +707,25 @@ export default function Gameplay({
     game.dungeon.rooms[player.z][player.y][player.x].feature;
   const canCastSpell =
     player.iq >= 12 && Object.values(player.spells).some((count) => count > 0);
-  const movementCommandList = movementCommands;
+  const atNorthWall = player.y <= 0;
+  const atSouthWall = player.y >= Game.SIZE - 1;
+  const atWestWall = player.x <= 0;
+  const atEastWall = player.x >= Game.SIZE - 1;
+  const movementDisabledByKey: Partial<Record<string, boolean>> = {
+    N: atNorthWall,
+    S: atSouthWall,
+    W: atWestWall,
+    E: atEastWall,
+  };
+  const movementCommandList = useMemo(
+    () =>
+      movementCommands.map((command) =>
+        command.key in movementDisabledByKey
+          ? { ...command, disabled: movementDisabledByKey[command.key] }
+          : command
+      ),
+    [movementDisabledByKey]
+  );
   const verticalDisabledByKey: Partial<Record<string, boolean>> = {
     U: currentRoomFeature !== Feature.STAIRS_UP,
     D: currentRoomFeature !== Feature.STAIRS_DOWN,
