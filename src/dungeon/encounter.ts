@@ -65,7 +65,6 @@ export class EncounterSession {
   startEvents(): Event[] {
     const events: Event[] = [
       Event.combat(`You are facing an angry ${this.monsterName}!`),
-      Event.info('Encounter mode: F=Fight  R=Run  S=Spell'),
     ];
     if (this.debug) {
       events.push(this.debugMonsterEvent());

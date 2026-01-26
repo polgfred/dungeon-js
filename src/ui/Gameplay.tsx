@@ -321,19 +321,17 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
       >
         <Stack
           ref={eventFeedRef}
-          spacing={1.5}
+          spacing={2.5}
           sx={{
             height: '100%',
             overflowY: 'auto',
             paddingRight: 0.5,
-            maskImage:
-              'linear-gradient(to bottom, transparent 0px, black 18px, black 100%)',
-            WebkitMaskImage:
-              'linear-gradient(to bottom, transparent 0px, black 18px, black 100%)',
           }}
         >
           {turnEvents.length === 0 ? (
-            <Typography sx={{ opacity: 0.6 }}>No notable events.</Typography>
+            <Typography sx={{ opacity: 0.6 }}>
+              You see nothing special.
+            </Typography>
           ) : (
             turnEvents.map((group, groupIndex) => (
               <Stack
@@ -345,10 +343,10 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
                   '&::before': {
                     content: '""',
                     position: 'absolute',
-                    left: '6px',
-                    top: '4px',
-                    bottom: '4px',
-                    borderLeft: `1px solid ${alpha(
+                    left: '0px',
+                    top: '16px',
+                    bottom: '8px',
+                    borderLeft: `4px solid ${alpha(
                       theme.palette.text.primary,
                       0.6
                     )}`,
@@ -356,10 +354,10 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
                   '&::after': {
                     content: '""',
                     position: 'absolute',
-                    left: '6px',
-                    top: '4px',
-                    width: '8px',
-                    height: '1px',
+                    left: '0px',
+                    top: '12px',
+                    width: '10px',
+                    height: '4px',
                     backgroundColor: alpha(theme.palette.text.primary, 0.6),
                     boxShadow: `0 calc(100% - 1px) 0 0 ${alpha(
                       theme.palette.text.primary,
