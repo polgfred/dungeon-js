@@ -9,7 +9,7 @@ export default function TitleScreen({ onStart }: { onStart: () => void }) {
         paddingTop: { xs: 6, md: 10 },
         display: 'grid',
         gap: { xs: 4, md: 5 },
-        gridTemplateColumns: { xs: '1fr', md: '1.1fr 0.9fr' },
+        gridTemplateColumns: { xs: '1fr', md: '.85fr 1.15fr' },
         alignItems: 'center',
       }}
     >
