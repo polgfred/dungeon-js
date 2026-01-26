@@ -1,4 +1,13 @@
-import { Box, Button, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { alpha, type Theme } from '@mui/material/styles';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -551,6 +560,51 @@ function PlayerReadoutPanel({
   );
 }
 
+function HelpDialog({
+  open,
+  onClose,
+  html,
+}: {
+  open: boolean;
+  onClose: () => void;
+  html: string;
+}) {
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      sx={(theme) => ({
+        '& .MuiDialogTitle-root, & .MuiDialogContent-root': {
+          background: alpha(theme.palette.primary.dark, 0.35),
+        },
+      })}
+    >
+      <DialogTitle>Dungeon of Doom</DialogTitle>
+      <DialogContent dividers>
+        {html ? (
+          <Box
+            sx={{
+              '& h1': { marginTop: 0 },
+              '& h1, & h2, & h3': {
+                letterSpacing: 1.2,
+                textTransform: 'uppercase',
+              },
+              '& ul, & ol': { paddingLeft: 0, listStylePosition: 'inside' },
+              '& li': { marginBottom: 0.5 },
+              '& ul li::marker': { content: '"- "' },
+            }}
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        ) : (
+          <Typography sx={{ opacity: 0.7 }}>Help text is unavailable.</Typography>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function eventLines(events: GameEvent[]): string[] {
   return events
     .filter((event) =>
@@ -644,6 +698,8 @@ export default function Gameplay({
     null
   );
   const [promptText, setPromptText] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpHtml, setHelpHtml] = useState<string>('');
   const initialized = useRef(false);
 
   const isEncounter = mode === Mode.ENCOUNTER;
@@ -724,6 +780,10 @@ export default function Gameplay({
 
   const handleTrigger = useCallback(
     (command: Command) => {
+      if (command.key === 'H') {
+        setHelpOpen(true);
+        return;
+      }
       const result = game.step(command.key);
       const prompt = promptData(result.events);
       setMode(result.mode);
@@ -746,6 +806,13 @@ export default function Gameplay({
     setPromptOptions(prompt.promptOptions);
     setPromptText(prompt.promptText);
   }, [game]);
+
+  useEffect(() => {
+    fetch('/help.html')
+      .then((response) => (response.ok ? response.text() : ''))
+      .then((content) => setHelpHtml(content))
+      .catch(() => setHelpHtml(''));
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -819,6 +886,11 @@ export default function Gameplay({
           player={player}
         />
       </Box>
+      <HelpDialog
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        html={helpHtml}
+      />
     </Box>
   );
 }
