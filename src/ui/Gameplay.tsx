@@ -606,6 +606,7 @@ export default function Gameplay({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
       let key = event.key.toLowerCase();
       if (key === 'arrowup') key = 'n';
       if (key === 'arrowdown') key = 's';
