@@ -277,10 +277,27 @@ export class EncounterSession {
 
   private handleSpellChoice(raw: string): EncounterResult {
     this.awaitingSpell = false;
-    if (!['1', '2', '3', '4', '5'].includes(raw)) {
-      return { events: [Event.error('Choose 1..5.')], mode: Mode.ENCOUNTER };
+    const key = raw[0];
+    if (key === 'C') {
+      return {
+        events: [Event.info('You ready yourself for the fight.')],
+        mode: Mode.ENCOUNTER,
+      };
     }
-    const spell = Number(raw) as Spell;
+    const spellMap: Record<string, Spell> = {
+      P: Spell.PROTECTION,
+      F: Spell.FIREBALL,
+      L: Spell.LIGHTNING,
+      W: Spell.WEAKEN,
+      T: Spell.TELEPORT,
+    };
+    const spell = spellMap[key];
+    if (!spell) {
+      return {
+        events: [Event.error('Choose P/F/L/W/T or C to cancel.')],
+        mode: Mode.ENCOUNTER,
+      };
+    }
     const charges = this.player.spells[spell] ?? 0;
     if (this.player.iq < 12) {
       return {
@@ -304,27 +321,31 @@ export class EncounterSession {
     const iqTooLow = this.player.iq < 12;
     const options = [
       {
-        key: '1',
+        key: 'C',
+        label: 'Cancel',
+      },
+      {
+        key: 'P',
         label: `Protection (${spells[Spell.PROTECTION] ?? 0})`,
         disabled: iqTooLow || (spells[Spell.PROTECTION] ?? 0) <= 0,
       },
       {
-        key: '2',
+        key: 'F',
         label: `Fireball (${spells[Spell.FIREBALL] ?? 0})`,
         disabled: iqTooLow || (spells[Spell.FIREBALL] ?? 0) <= 0,
       },
       {
-        key: '3',
+        key: 'L',
         label: `Lightning (${spells[Spell.LIGHTNING] ?? 0})`,
         disabled: iqTooLow || (spells[Spell.LIGHTNING] ?? 0) <= 0,
       },
       {
-        key: '4',
+        key: 'W',
         label: `Weaken (${spells[Spell.WEAKEN] ?? 0})`,
         disabled: iqTooLow || (spells[Spell.WEAKEN] ?? 0) <= 0,
       },
       {
-        key: '5',
+        key: 'T',
         label: `Teleport (${spells[Spell.TELEPORT] ?? 0})`,
         disabled: iqTooLow || (spells[Spell.TELEPORT] ?? 0) <= 0,
       },
