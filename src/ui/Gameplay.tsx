@@ -55,12 +55,10 @@ function CommandButton({
   command,
   onTrigger,
   layout = 'inline',
-  disabled = false,
 }: {
   command: Command;
   onTrigger: (command: Command) => void;
   layout?: 'inline' | 'stacked';
-  disabled?: boolean;
 }) {
   const stacked = layout === 'stacked';
   return (
@@ -69,7 +67,7 @@ function CommandButton({
       onClick={() => onTrigger(command)}
       color="primary"
       size={stacked ? 'small' : 'medium'}
-      disabled={disabled}
+      disabled={Boolean(command.disabled)}
       sx={(theme) => ({
         textTransform: 'none',
         letterSpacing: stacked ? 0.8 : 0.6,
@@ -330,9 +328,9 @@ function CommandBarPanel({
                   id: `prompt-${option.key}`,
                   key: option.key,
                   label: option.label,
+                  disabled: option.disabled,
                 }}
                 onTrigger={onTrigger}
-                disabled={option.disabled}
               />
             ))}
           </Box>
@@ -359,7 +357,6 @@ function CommandBarPanel({
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
-                disabled={command.disabled}
               />
             ))}
           </Stack>
@@ -381,7 +378,6 @@ function CommandBarPanel({
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
-                disabled={command.disabled}
               />
             ))}
           </Box>
@@ -497,9 +493,7 @@ export default function Gameplay({
   const encounterCommandList = useMemo(
     () =>
       encounterCommands.map((command) =>
-        command.key === 'S'
-          ? { ...command, disabled: !canCastSpell }
-          : command
+        command.key === 'S' ? { ...command, disabled: !canCastSpell } : command
       ),
     [canCastSpell]
   );
@@ -525,7 +519,7 @@ export default function Gameplay({
     const map = new Map<string, Command>();
     const commands = promptCommands ?? activeCommands;
     commands
-      .filter((command) => !command.disabled)
+      .filter((command) => !('disabled' in command && command.disabled))
       .forEach((command) => map.set(command.key.toLowerCase(), command));
     return map;
   }, [activeCommands, promptCommands]);
