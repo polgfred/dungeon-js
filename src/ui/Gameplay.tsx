@@ -82,8 +82,15 @@ function CommandButton({
 
 export default function Gameplay({ onBack }: { onBack: () => void }) {
   const [encounterMode, setEncounterMode] = useState(false);
-  const [lastAction, setLastAction] = useState('Awaiting command.');
-  const [log, setLog] = useState<string[]>([]);
+  const sampleMap = [
+    '*0?M?0T',
+    '0m0s0c0',
+    '?0f0p0?',
+    '0v0t0w0',
+    '?0U0D0?',
+    '0?0?0?0',
+    '00?X?00',
+  ];
 
   const activeCommands = useMemo(
     () =>
@@ -101,11 +108,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
     return map;
   }, [activeCommands]);
 
-  const handleTrigger = useCallback((command: Command) => {
-    const entry = `${command.label} [${command.key}]`;
-    setLastAction(entry);
-    setLog((prev) => [entry, ...prev].slice(0, 6));
-  }, []);
+  const handleTrigger = useCallback((_command: Command) => {}, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -137,42 +140,21 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
       }}
     >
       <Box
-        sx={(theme) => ({
-          ...panelStyle(theme),
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingY: 1.5,
-        })}
-      >
-        <Typography sx={{ letterSpacing: 3, textTransform: 'uppercase' }}>
-          Dungeon Operations
-        </Typography>
-        <Typography sx={{ color: 'text.secondary', opacity: 0.8 }}>
-          {encounterMode ? 'ENCOUNTER' : 'EXPLORATION'}
-        </Typography>
-      </Box>
-
-      <Box
         sx={{
           display: 'grid',
           gap: 3,
           gridTemplateColumns: '1fr',
+          alignItems: 'stretch',
           '@container (min-width: 1280px)': {
             gridTemplateColumns: '2fr 1fr',
           },
         }}
       >
-        <Stack spacing={3}>
+        <Stack spacing={3} sx={{ height: '100%', justifyContent: 'space-between' }}>
           <Box sx={(theme) => panelStyle(theme)}>
             <Stack spacing={2}>
               <Typography variant="h5" sx={{ letterSpacing: 2 }}>
                 Dungeon View
-              </Typography>
-              <Typography sx={{ opacity: 0.75, maxWidth: 620 }}>
-                The torchlight trembles against stone walls. A chill draft slips
-                from a corridor to the east while a stairwell descends into
-                shadow.
               </Typography>
               <Box
                 sx={(theme) => ({
@@ -184,12 +166,153 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
                   padding: 2,
                   background: alpha(theme.palette.primary.dark, 0.35),
                   minHeight: 260,
-                  display: 'grid',
-                  placeItems: 'center',
                 })}
               >
-                <Typography sx={{ opacity: 0.6, letterSpacing: 1 }}>
-                  Tactical map feed imminent.
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '1fr', md: '1fr auto' },
+                    gap: 2,
+                    width: '100%',
+                    height: '100%',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateRows: `repeat(${sampleMap.length}, 1fr)`,
+                      gap: 0.5,
+                      width: '100%',
+                      alignContent: 'center',
+                      justifyItems: 'center',
+                    }}
+                  >
+                    {sampleMap.map((row, rowIndex) => (
+                      <Box
+                        key={`row-${rowIndex}`}
+                        sx={{
+                          display: 'grid',
+                          gridTemplateColumns: `repeat(${row.length}, 1fr)`,
+                          gap: 0.5,
+                          width: '100%',
+                          maxWidth: 360,
+                        }}
+                      >
+                        {row.split('').map((cell, colIndex) => (
+                          <Box
+                            key={`${rowIndex}-${colIndex}`}
+                            sx={(theme) => ({
+                              borderRadius: 0.5,
+                              border: `1px solid ${alpha(
+                                theme.palette.primary.light,
+                                0.35
+                              )}`,
+                              background: alpha(
+                                theme.palette.primary.dark,
+                                0.2
+                              ),
+                              display: 'grid',
+                              placeItems: 'center',
+                              height: 28,
+                              fontSize: 14,
+                              color:
+                                cell === '*'
+                                  ? theme.palette.primary.light
+                                  : theme.palette.text.primary,
+                            })}
+                          >
+                            {cell}
+                          </Box>
+                        ))}
+                      </Box>
+                    ))}
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gap: 1,
+                      justifyItems: 'center',
+                      minWidth: 120,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gap: 0.5,
+                        gridTemplateColumns: 'repeat(3, minmax(44px, 1fr))',
+                        gridTemplateRows: 'repeat(3, 1fr)',
+                      }}
+                    >
+                      <Box />
+                      <CommandButton
+                        command={movementCommands[0]}
+                        onTrigger={handleTrigger}
+                        compact
+                      />
+                      <Box />
+                      <CommandButton
+                        command={movementCommands[1]}
+                        onTrigger={handleTrigger}
+                        compact
+                      />
+                      <Box
+                        sx={{
+                          borderRadius: 1,
+                          border: '1px dashed rgba(255,255,255,0.2)',
+                          minHeight: 40,
+                        }}
+                      />
+                      <CommandButton
+                        command={movementCommands[2]}
+                        onTrigger={handleTrigger}
+                        compact
+                      />
+                      <Box />
+                      <CommandButton
+                        command={movementCommands[3]}
+                        onTrigger={handleTrigger}
+                        compact
+                      />
+                      <Box />
+                    </Box>
+                    <Stack
+                      spacing={0.5}
+                      direction="row"
+                      flexWrap="wrap"
+                      justifyContent="center"
+                    >
+                      {verticalCommands.map((command) => (
+                        <CommandButton
+                          key={command.id}
+                          command={command}
+                          onTrigger={handleTrigger}
+                          compact
+                        />
+                      ))}
+                    </Stack>
+                  </Box>
+                </Box>
+              </Box>
+              <Box
+                sx={(theme) => ({
+                  border: `1px solid ${alpha(
+                    theme.palette.primary.light,
+                    0.35
+                  )}`,
+                  borderRadius: 2,
+                  padding: 2,
+                  background: alpha(theme.palette.primary.dark, 0.25),
+                })}
+              >
+                <Typography
+                  sx={{ letterSpacing: 2, textTransform: 'uppercase' }}
+                >
+                  Event Feed
+                </Typography>
+                <Typography sx={{ marginTop: 1 }}>
+                  There is a chest here.
                 </Typography>
               </Box>
             </Stack>
@@ -229,81 +352,18 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
                 <Box
                   sx={{
                     display: 'grid',
-                    gap: 1.5,
-                    gridTemplateColumns: {
-                      xs: '1fr',
-                      md: 'auto 1fr',
-                    },
-                    alignItems: 'start',
+                    gap: 0.75,
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gap: 0.5,
-                      gridTemplateColumns: 'repeat(3, minmax(54px, 1fr))',
-                      gridTemplateRows: 'repeat(3, 1fr)',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Box />
+                  {roomCommands.map((command) => (
                     <CommandButton
-                      command={movementCommands[0]}
+                      key={command.id}
+                      command={command}
                       onTrigger={handleTrigger}
                       compact
                     />
-                    <Box />
-                    <CommandButton
-                      command={movementCommands[1]}
-                      onTrigger={handleTrigger}
-                      compact
-                    />
-                    <Box
-                      sx={{
-                        borderRadius: 1,
-                        border: '1px dashed rgba(255,255,255,0.2)',
-                        minHeight: 40,
-                      }}
-                    />
-                    <CommandButton
-                      command={movementCommands[2]}
-                      onTrigger={handleTrigger}
-                      compact
-                    />
-                    <Box />
-                    <CommandButton
-                      command={movementCommands[3]}
-                      onTrigger={handleTrigger}
-                      compact
-                    />
-                    <Box />
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gap: 0.75,
-                      gridTemplateColumns:
-                        'repeat(auto-fit, minmax(110px, 1fr))',
-                    }}
-                  >
-                    {verticalCommands.map((command) => (
-                      <CommandButton
-                        key={command.id}
-                        command={command}
-                        onTrigger={handleTrigger}
-                        compact
-                      />
-                    ))}
-                    {roomCommands.map((command) => (
-                      <CommandButton
-                        key={command.id}
-                        command={command}
-                        onTrigger={handleTrigger}
-                        compact
-                      />
-                    ))}
-                  </Box>
+                  ))}
                 </Box>
               </Stack>
             )}
@@ -313,7 +373,7 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
         <Box sx={(theme) => panelStyle(theme)}>
           <Stack spacing={2}>
             <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-              Field Readout
+              Player Readout
             </Typography>
             <Stack spacing={0.5}>
               <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
@@ -321,20 +381,23 @@ export default function Gameplay({ onBack }: { onBack: () => void }) {
                 {encounterMode ? 'Encounter engagement' : 'Exploration'}
               </Typography>
             </Stack>
-            <Stack spacing={0.5}>
-              <Typography sx={{ opacity: 0.7 }}>Last Command</Typography>
-              <Typography>{lastAction}</Typography>
+            <Stack spacing={1}>
+              <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
+              <Typography>ST 12</Typography>
+              <Typography>DX 13</Typography>
+              <Typography>IQ 11</Typography>
+              <Typography>HP 18</Typography>
             </Stack>
             <Stack spacing={1}>
-              <Typography sx={{ opacity: 0.7 }}>Recent Log</Typography>
-              {log.length === 0 && (
-                <Typography sx={{ opacity: 0.6 }}>
-                  No commands issued yet.
-                </Typography>
-              )}
-              {log.map((entry, index) => (
-                <Typography key={`${entry}-${index}`}>{entry}</Typography>
-              ))}
+              <Typography sx={{ opacity: 0.7 }}>Inventory</Typography>
+              <Typography>Gold: 42</Typography>
+              <Typography>Weapon: Axe</Typography>
+              <Typography>Armor: Chain</Typography>
+              <Typography>Flares: 2</Typography>
+            </Stack>
+            <Stack spacing={1}>
+              <Typography sx={{ opacity: 0.7 }}>Location</Typography>
+              <Typography>Floor 3 · Room 4,2</Typography>
             </Stack>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
               <Button
