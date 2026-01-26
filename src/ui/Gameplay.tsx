@@ -539,9 +539,7 @@ function PlayerReadoutPanel({
 function eventLines(events: GameEvent[]): string[] {
   return events
     .filter((event) =>
-      ['INFO', 'ERROR', 'COMBAT', 'LOOT', 'DEBUG', 'PROMPT'].includes(
-        event.kind
-      )
+      ['INFO', 'ERROR', 'COMBAT', 'LOOT', 'DEBUG'].includes(event.kind)
     )
     .map((event) => event.text)
     .filter(Boolean);

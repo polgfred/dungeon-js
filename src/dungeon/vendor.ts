@@ -71,7 +71,9 @@ export class VendorSession {
   private handleShopItem(raw: string): VendorResult {
     switch (raw) {
       case 'C':
-        return { events: [Event.info('Perhaps another time.')], done: true };
+        this.phase = 'category';
+        this.category = null;
+        return { events: [this.categoryPrompt()] };
       case '1':
       case '2':
       case '3':
@@ -206,7 +208,8 @@ export class VendorSession {
 
   private handleShopAttribute(raw: string): VendorResult {
     if (raw === 'C') {
-      return { events: [Event.info('Perhaps another time.')], done: true };
+      this.phase = 'item';
+      return { events: [this.itemPrompt()] };
     }
     if (!['1', '2', '3', '4'].includes(raw)) {
       return {
