@@ -122,9 +122,180 @@ function MapPanel({
   mapGrid: string[];
   turnEvents: string[][];
 }) {
-  const eventFeedRef = useRef<HTMLDivElement | null>(null);
+  return (
+    <Box sx={(theme) => panelStyle(theme)}>
+      <Stack spacing={2}>
+        <Typography variant="h5" sx={{ letterSpacing: 2 }}>
+          Dungeon View
+        </Typography>
+        <MapGridPanel mapGrid={mapGrid} onTrigger={onTrigger} />
+        <EventFeedPanel turnEvents={turnEvents} />
+      </Stack>
+    </Box>
+  );
+}
+
+function MapGridPanel({
+  mapGrid,
+  onTrigger,
+}: {
+  mapGrid: string[];
+  onTrigger: (command: Command) => void;
+}) {
   const rows: string[] =
     mapGrid.length > 0 ? mapGrid : Array(7).fill('? ? ? ? ? ? ?');
+
+  return (
+    <Box
+      sx={(theme) => ({
+        border: `1px solid ${alpha(theme.palette.primary.light, 0.4)}`,
+        borderRadius: 2,
+        padding: 2,
+        background: alpha(theme.palette.primary.dark, 0.35),
+        minHeight: 260,
+      })}
+    >
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: '1fr auto' },
+          gap: 2,
+          width: '100%',
+          height: '100%',
+          alignItems: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateRows: `repeat(${rows.length}, 1fr)`,
+            gap: 0.5,
+            width: '100%',
+            alignContent: 'center',
+            justifyItems: 'center',
+          }}
+        >
+          {rows.map((row, rowIndex) => (
+            <Box
+              key={`row-${rowIndex}`}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${row.split(' ').length}, 1fr)`,
+                gap: 0.5,
+                width: '100%',
+                maxWidth: 360,
+              }}
+            >
+              {row.split(' ').map((cell, colIndex) => (
+                <Tooltip
+                  key={`${rowIndex}-${colIndex}`}
+                  title={mapTooltip(cell)}
+                  arrow
+                  placement="top"
+                >
+                  <Box
+                    sx={(theme) => ({
+                      borderRadius: 0.5,
+                      border: `1px solid ${alpha(
+                        theme.palette.primary.light,
+                        0.35
+                      )}`,
+                      background: alpha(theme.palette.primary.dark, 0.2),
+                      display: 'grid',
+                      placeItems: 'center',
+                      height: 28,
+                      fontSize: 14,
+                      color:
+                        cell === '*'
+                          ? theme.palette.primary.light
+                          : cell === '•' || cell === '·'
+                            ? alpha(theme.palette.text.primary, 0.35)
+                            : theme.palette.text.primary,
+                      transition: 'background-color 150ms ease',
+                      '&:hover': {
+                        background: alpha(theme.palette.primary.light, 0.18),
+                      },
+                    })}
+                  >
+                    {cell}
+                  </Box>
+                </Tooltip>
+              ))}
+            </Box>
+          ))}
+        </Box>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 1,
+            justifyItems: 'center',
+            minWidth: 120,
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 0.5,
+              gridTemplateColumns: 'repeat(3, minmax(44px, 1fr))',
+              gridTemplateRows: 'repeat(3, 1fr)',
+            }}
+          >
+            <Box />
+            <CommandButton
+              command={movementCommands[0]}
+              onTrigger={onTrigger}
+              layout="stacked"
+            />
+            <Box />
+            <CommandButton
+              command={movementCommands[1]}
+              onTrigger={onTrigger}
+              layout="stacked"
+            />
+            <Box
+              sx={{
+                borderRadius: 1,
+                border: '1px dashed rgba(255,255,255,0.2)',
+                minHeight: 40,
+              }}
+            />
+            <CommandButton
+              command={movementCommands[2]}
+              onTrigger={onTrigger}
+              layout="stacked"
+            />
+            <Box />
+            <CommandButton
+              command={movementCommands[3]}
+              onTrigger={onTrigger}
+              layout="stacked"
+            />
+            <Box />
+          </Box>
+          <Stack
+            spacing={0.5}
+            direction="row"
+            flexWrap="wrap"
+            justifyContent="center"
+          >
+            {verticalCommands.map((command) => (
+              <CommandButton
+                key={command.id}
+                command={command}
+                onTrigger={onTrigger}
+                layout="stacked"
+              />
+            ))}
+          </Stack>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
+  const eventFeedRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const node = eventFeedRef.current;
@@ -133,235 +304,78 @@ function MapPanel({
   }, [turnEvents]);
 
   return (
-    <Box sx={(theme) => panelStyle(theme)}>
-      <Stack spacing={2}>
-        <Typography variant="h5" sx={{ letterSpacing: 2 }}>
-          Dungeon View
-        </Typography>
-        <Box
-          sx={(theme) => ({
-            border: `1px solid ${alpha(theme.palette.primary.light, 0.4)}`,
-            borderRadius: 2,
-            padding: 2,
-            background: alpha(theme.palette.primary.dark, 0.35),
-            minHeight: 260,
-          })}
+    <Box
+      sx={(theme) => ({
+        border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
+        borderRadius: 2,
+        padding: 2,
+        background: alpha(theme.palette.primary.dark, 0.25),
+      })}
+    >
+      <Box
+        sx={{
+          position: 'relative',
+          height: 220,
+          overflow: 'hidden',
+        }}
+      >
+        <Stack
+          ref={eventFeedRef}
+          spacing={1.5}
+          sx={{
+            height: '100%',
+            overflowY: 'auto',
+            paddingRight: 0.5,
+            maskImage:
+              'linear-gradient(to bottom, transparent 0px, black 18px, black 100%)',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, transparent 0px, black 18px, black 100%)',
+          }}
         >
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '1fr auto' },
-              gap: 2,
-              width: '100%',
-              height: '100%',
-              alignItems: 'center',
-            }}
-          >
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateRows: `repeat(${rows.length}, 1fr)`,
-                gap: 0.5,
-                width: '100%',
-                alignContent: 'center',
-                justifyItems: 'center',
-              }}
-            >
-              {rows.map((row, rowIndex) => (
-                <Box
-                  key={`row-${rowIndex}`}
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${row.split(' ').length}, 1fr)`,
-                    gap: 0.5,
-                    width: '100%',
-                    maxWidth: 360,
-                  }}
-                >
-                  {row.split(' ').map((cell, colIndex) => (
-                    <Tooltip
-                      key={`${rowIndex}-${colIndex}`}
-                      title={mapTooltip(cell)}
-                      arrow
-                      placement="top"
-                    >
-                      <Box
-                        sx={(theme) => ({
-                          borderRadius: 0.5,
-                          border: `1px solid ${alpha(
-                            theme.palette.primary.light,
-                            0.35
-                          )}`,
-                          background: alpha(theme.palette.primary.dark, 0.2),
-                          display: 'grid',
-                          placeItems: 'center',
-                          height: 28,
-                          fontSize: 14,
-                          color:
-                            cell === '*'
-                              ? theme.palette.primary.light
-                              : cell === '•' || cell === '·'
-                                ? alpha(theme.palette.text.primary, 0.35)
-                                : theme.palette.text.primary,
-                          transition: 'background-color 150ms ease',
-                          '&:hover': {
-                            background: alpha(
-                              theme.palette.primary.light,
-                              0.18
-                            ),
-                          },
-                        })}
-                      >
-                        {cell}
-                      </Box>
-                    </Tooltip>
-                  ))}
-                </Box>
-              ))}
-            </Box>
-
-            <Box
-              sx={{
-                display: 'grid',
-                gap: 1,
-                justifyItems: 'center',
-                minWidth: 120,
-              }}
-            >
-              <Box
-                sx={{
-                  display: 'grid',
-                  gap: 0.5,
-                  gridTemplateColumns: 'repeat(3, minmax(44px, 1fr))',
-                  gridTemplateRows: 'repeat(3, 1fr)',
-                }}
-              >
-                <Box />
-                <CommandButton
-                  command={movementCommands[0]}
-                  onTrigger={onTrigger}
-                  layout="stacked"
-                />
-                <Box />
-                <CommandButton
-                  command={movementCommands[1]}
-                  onTrigger={onTrigger}
-                  layout="stacked"
-                />
-                <Box
-                  sx={{
-                    borderRadius: 1,
-                    border: '1px dashed rgba(255,255,255,0.2)',
-                    minHeight: 40,
-                  }}
-                />
-                <CommandButton
-                  command={movementCommands[2]}
-                  onTrigger={onTrigger}
-                  layout="stacked"
-                />
-                <Box />
-                <CommandButton
-                  command={movementCommands[3]}
-                  onTrigger={onTrigger}
-                  layout="stacked"
-                />
-                <Box />
-              </Box>
+          {turnEvents.length === 0 ? (
+            <Typography sx={{ opacity: 0.6 }}>No notable events.</Typography>
+          ) : (
+            turnEvents.map((group, groupIndex) => (
               <Stack
+                key={`turn-${groupIndex}`}
                 spacing={0.5}
-                direction="row"
-                flexWrap="wrap"
-                justifyContent="center"
+                sx={(theme) => ({
+                  position: 'relative',
+                  paddingLeft: '18px',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    left: '6px',
+                    top: '4px',
+                    bottom: '4px',
+                    borderLeft: `1px solid ${alpha(
+                      theme.palette.text.primary,
+                      0.6
+                    )}`,
+                  },
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    left: '6px',
+                    top: '4px',
+                    width: '8px',
+                    height: '1px',
+                    backgroundColor: alpha(theme.palette.text.primary, 0.6),
+                    boxShadow: `0 calc(100% - 1px) 0 0 ${alpha(
+                      theme.palette.text.primary,
+                      0.6
+                    )}`,
+                  },
+                })}
               >
-                {verticalCommands.map((command) => (
-                  <CommandButton
-                    key={command.id}
-                    command={command}
-                    onTrigger={onTrigger}
-                    layout="stacked"
-                  />
+                {group.map((entry, index) => (
+                  <Typography key={`${entry}-${index}`}>{entry}</Typography>
                 ))}
               </Stack>
-            </Box>
-          </Box>
-        </Box>
-        <Box
-          sx={(theme) => ({
-            border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-            borderRadius: 2,
-            padding: 2,
-            background: alpha(theme.palette.primary.dark, 0.25),
-          })}
-        >
-          <Box
-            sx={{
-              position: 'relative',
-              height: 220,
-              overflow: 'hidden',
-            }}
-          >
-            <Stack
-              ref={eventFeedRef}
-              spacing={2.5}
-              sx={{
-                height: '100%',
-                overflowY: 'auto',
-                paddingRight: 0.5,
-                maskImage:
-                  'linear-gradient(to bottom, transparent 0px, black 18px, black 100%)',
-                WebkitMaskImage:
-                  'linear-gradient(to bottom, transparent 0px, black 18px, black 100%)',
-              }}
-            >
-              {turnEvents.length === 0 ? (
-                <Typography sx={{ opacity: 0.6 }}>
-                  No notable events.
-                </Typography>
-              ) : (
-                turnEvents.map((group, groupIndex) => (
-                  <Stack
-                    key={`turn-${groupIndex}`}
-                    spacing={0.5}
-                    sx={(theme) => ({
-                      position: 'relative',
-                      paddingLeft: '18px',
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        left: '0px',
-                        top: '16px',
-                        bottom: '10px',
-                        borderLeft: `4px solid ${alpha(
-                          theme.palette.text.primary,
-                          0.4
-                        )}`,
-                      },
-                      '&::after': {
-                        content: '""',
-                        position: 'absolute',
-                        left: '0px',
-                        top: '13px',
-                        width: '8px',
-                        height: '3px',
-                        backgroundColor: alpha(theme.palette.text.primary, 0.4),
-                        boxShadow: `0 calc(100% - 1px) 0 0 ${alpha(
-                          theme.palette.text.primary,
-                          0.4
-                        )}`,
-                      },
-                    })}
-                  >
-                    {group.map((entry, index) => (
-                      <Typography key={`${entry}-${index}`}>{entry}</Typography>
-                    ))}
-                  </Stack>
-                ))
-              )}
-            </Stack>
-          </Box>
-        </Box>
-      </Stack>
+            ))
+          )}
+        </Stack>
+      </Box>
     </Box>
   );
 }
