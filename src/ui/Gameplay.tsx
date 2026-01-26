@@ -363,30 +363,26 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
                 spacing={0.5}
                 sx={(theme) => ({
                   position: 'relative',
-                  paddingLeft: '18px',
+                  paddingLeft: '24px',
                   '&::before': {
                     content: '""',
                     position: 'absolute',
-                    left: '0px',
+                    left: '4px',
                     top: '16px',
                     bottom: '8px',
                     borderLeft: `4px solid ${alpha(
                       theme.palette.text.primary,
-                      0.6
+                      0.5
                     )}`,
                   },
                   '&::after': {
                     content: '""',
                     position: 'absolute',
-                    left: '0px',
+                    left: '4px',
                     top: '12px',
                     width: '10px',
                     height: '4px',
-                    backgroundColor: alpha(theme.palette.text.primary, 0.6),
-                    boxShadow: `0 calc(100% - 1px) 0 0 ${alpha(
-                      theme.palette.text.primary,
-                      0.6
-                    )}`,
+                    backgroundColor: alpha(theme.palette.text.primary, 0.5),
                   },
                 })}
               >
@@ -763,21 +759,18 @@ export default function Gameplay({
       ),
     [roomDisabledByKey]
   );
-  const encounterCommandList = useMemo(
-    () => {
-      const base = encounterCommands.map((command) => {
-        if (command.key === 'S') {
-          return { ...command, disabled: !canCastSpell };
-        }
-        if (command.key === 'R') {
-          return { ...command, disabled: !canRun };
-        }
-        return command;
-      });
-      return [...base, helpCommand];
-    },
-    [canCastSpell, canRun]
-  );
+  const encounterCommandList = useMemo(() => {
+    const base = encounterCommands.map((command) => {
+      if (command.key === 'S') {
+        return { ...command, disabled: !canCastSpell };
+      }
+      if (command.key === 'R') {
+        return { ...command, disabled: !canRun };
+      }
+      return command;
+    });
+    return [...base, helpCommand];
+  }, [canCastSpell, canRun]);
   const exploreCommandList = useMemo(
     () => [...movementCommandList, ...verticalCommandList, ...roomCommandList],
     [movementCommandList, verticalCommandList, roomCommandList]
