@@ -320,7 +320,38 @@ function MapPanel({
                 </Typography>
               ) : (
                 turnEvents.map((group, groupIndex) => (
-                  <Stack key={`turn-${groupIndex}`} spacing={0.5}>
+                  <Stack
+                    key={`turn-${groupIndex}`}
+                    spacing={0.5}
+                    sx={(theme) => ({
+                      position: 'relative',
+                      paddingLeft: '18px',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        left: '0px',
+                        top: '16px',
+                        bottom: '10px',
+                        borderLeft: `4px solid ${alpha(
+                          theme.palette.text.primary,
+                          0.4
+                        )}`,
+                      },
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        left: '0px',
+                        top: '13px',
+                        width: '8px',
+                        height: '3px',
+                        backgroundColor: alpha(theme.palette.text.primary, 0.4),
+                        boxShadow: `0 calc(100% - 1px) 0 0 ${alpha(
+                          theme.palette.text.primary,
+                          0.4
+                        )}`,
+                      },
+                    })}
+                  >
                     {group.map((entry, index) => (
                       <Typography key={`${entry}-${index}`}>{entry}</Typography>
                     ))}
