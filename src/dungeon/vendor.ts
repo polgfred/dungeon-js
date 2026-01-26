@@ -29,9 +29,15 @@ export class VendorSession {
 
   startEvents(): Event[] {
     return [
-      Event.prompt(
-        'He is selling: 1> Weapons  2> Armour  3> Scrolls  4> Potions  0> Leave'
-      ),
+      Event.prompt('He is selling:', {
+        options: [
+          { key: '1', label: 'Weapons' },
+          { key: '2', label: 'Armour' },
+          { key: '3', label: 'Scrolls' },
+          { key: '4', label: 'Potions' },
+          { key: '0', label: 'Leave' },
+        ],
+      }),
     ];
   }
 
@@ -53,12 +59,6 @@ export class VendorSession {
   }
 
   private handleShopCategory(raw: string): VendorResult {
-    const promptMap: Record<string, string> = {
-      '1': 'Weapons: 1> Dagger  2> Short sword  3> Broadsword  0> Leave',
-      '2': 'Armour: 1> Leather  2> Wooden  3> Chain mail  0> Leave',
-      '3': 'Scrolls: 1> Protection  2> Fireball  3> Lightning  4> Weaken  5> Teleport  0> Leave',
-      '4': 'Potions: 1> Healing  2> Attribute enhancer  0> Leave',
-    };
     switch (raw) {
       case '0':
         return { events: [Event.info('Perhaps another time.')], done: true };
@@ -68,7 +68,7 @@ export class VendorSession {
       case '4':
         this.category = raw;
         this.phase = 'item';
-        return { events: [Event.prompt(promptMap[raw])] };
+        return { events: [this.itemPrompt()] };
       default:
         return { events: [Event.error('Choose 1..4.')] };
     }
@@ -177,11 +177,7 @@ export class VendorSession {
         }
         this.phase = 'attribute';
         return {
-          events: [
-            Event.prompt(
-              'Attribute enhancer: 1> Strength  2> Dexterity  3> Intelligence  4> Max HP  0> Leave'
-            ),
-          ],
+          events: [this.attributePrompt()],
         };
       }
       default:
@@ -213,5 +209,59 @@ export class VendorSession {
     };
     this.player.applyAttributeChange({ target: targets[raw], change });
     return { events: [Event.info('The potion takes effect.')], done: true };
+  }
+
+  private itemPrompt(): Event {
+    if (this.category === '1') {
+      return Event.prompt('Choose a weapon:', {
+        options: [
+          { key: '1', label: `Dagger (${WEAPON_PRICES[1]}g)` },
+          { key: '2', label: `Short sword (${WEAPON_PRICES[2]}g)` },
+          { key: '3', label: `Broadsword (${WEAPON_PRICES[3]}g)` },
+          { key: '0', label: 'Leave' },
+        ],
+      });
+    }
+    if (this.category === '2') {
+      return Event.prompt('Choose armor:', {
+        options: [
+          { key: '1', label: `Leather (${ARMOR_PRICES[1]}g)` },
+          { key: '2', label: `Wooden (${ARMOR_PRICES[2]}g)` },
+          { key: '3', label: `Chain mail (${ARMOR_PRICES[3]}g)` },
+          { key: '0', label: 'Leave' },
+        ],
+      });
+    }
+    if (this.category === '3') {
+      return Event.prompt('Choose a scroll:', {
+        options: [
+          { key: '1', label: `Protection (${SPELL_PRICES[Spell.PROTECTION]}g)` },
+          { key: '2', label: `Fireball (${SPELL_PRICES[Spell.FIREBALL]}g)` },
+          { key: '3', label: `Lightning (${SPELL_PRICES[Spell.LIGHTNING]}g)` },
+          { key: '4', label: `Weaken (${SPELL_PRICES[Spell.WEAKEN]}g)` },
+          { key: '5', label: `Teleport (${SPELL_PRICES[Spell.TELEPORT]}g)` },
+          { key: '0', label: 'Leave' },
+        ],
+      });
+    }
+    return Event.prompt('Choose a potion:', {
+      options: [
+        { key: '1', label: `Healing (${POTION_PRICES['HEALING']}g)` },
+        { key: '2', label: `Attribute enhancer (${POTION_PRICES['ATTRIBUTE']}g)` },
+        { key: '0', label: 'Leave' },
+      ],
+    });
+  }
+
+  private attributePrompt(): Event {
+    return Event.prompt('Choose an attribute:', {
+      options: [
+        { key: '1', label: 'Strength' },
+        { key: '2', label: 'Dexterity' },
+        { key: '3', label: 'Intelligence' },
+        { key: '4', label: 'Max HP' },
+        { key: '0', label: 'Leave' },
+      ],
+    });
   }
 }

@@ -16,9 +16,15 @@ export type CombatEvent = { kind: 'COMBAT'; text: string };
 export type LootEvent = { kind: 'LOOT'; text: string };
 export type DebugEvent = { kind: 'DEBUG'; text: string };
 
+export type PromptOption = {
+  key: string;
+  label: string;
+  disabled?: boolean;
+};
+
 export type PromptData = {
   type?: string;
-  options?: Record<string, number>;
+  options?: PromptOption[];
 };
 
 export type PromptEvent = {

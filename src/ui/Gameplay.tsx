@@ -5,11 +5,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Mode } from '../dungeon/constants.js';
 import { Game } from '../dungeon/engine.js';
 import type { Player } from '../dungeon/model.js';
-import type { Event as GameEvent } from '../dungeon/types.js';
+import type { Event as GameEvent, PromptOption } from '../dungeon/types.js';
 type Command = {
   id: string;
   key: string;
   label: string;
+  disabled?: boolean;
 };
 
 const panelStyle = (theme: Theme) => ({
@@ -54,10 +55,12 @@ function CommandButton({
   command,
   onTrigger,
   layout = 'inline',
+  disabled = false,
 }: {
   command: Command;
   onTrigger: (command: Command) => void;
   layout?: 'inline' | 'stacked';
+  disabled?: boolean;
 }) {
   const stacked = layout === 'stacked';
   return (
@@ -66,6 +69,7 @@ function CommandButton({
       onClick={() => onTrigger(command)}
       color="primary"
       size={stacked ? 'small' : 'medium'}
+      disabled={disabled}
       sx={(theme) => ({
         textTransform: 'none',
         letterSpacing: stacked ? 0.8 : 0.6,
@@ -290,10 +294,53 @@ function MapPanel({
 function CommandBarPanel({
   encounterMode,
   onTrigger,
+  promptOptions,
+  promptText,
+  encounterCommandList,
 }: {
   encounterMode: boolean;
   onTrigger: (command: Command) => void;
+  promptOptions: PromptOption[] | null;
+  promptText: string | null;
+  encounterCommandList: Command[];
 }) {
+  if (promptOptions && promptOptions.length > 0) {
+    return (
+      <Box
+        sx={(theme) => ({
+          ...panelStyle(theme),
+          paddingY: { xs: 1.5, md: 2 },
+        })}
+      >
+        <Stack spacing={2}>
+          <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
+            {promptText || 'Choose'}
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 0.75,
+            }}
+          >
+            {promptOptions.map((option) => (
+              <CommandButton
+                key={`prompt-${option.key}`}
+                command={{
+                  id: `prompt-${option.key}`,
+                  key: option.key,
+                  label: option.label,
+                }}
+                onTrigger={onTrigger}
+                disabled={option.disabled}
+              />
+            ))}
+          </Box>
+        </Stack>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={(theme) => ({
@@ -307,11 +354,12 @@ function CommandBarPanel({
             Encounter Commands
           </Typography>
           <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
-            {encounterCommands.map((command) => (
+            {encounterCommandList.map((command) => (
               <CommandButton
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
+                disabled={command.disabled}
               />
             ))}
           </Stack>
@@ -333,6 +381,7 @@ function CommandBarPanel({
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
+                disabled={command.disabled}
               />
             ))}
           </Box>
@@ -405,6 +454,22 @@ function eventLines(events: GameEvent[]): string[] {
     .filter(Boolean);
 }
 
+function promptData(events: GameEvent[]): {
+  promptOptions: PromptOption[] | null;
+  promptText: string | null;
+} {
+  const promptEvent = [...events]
+    .reverse()
+    .find((event) => event.kind === 'PROMPT');
+  if (!promptEvent) {
+    return { promptOptions: null, promptText: null };
+  }
+  return {
+    promptOptions: promptEvent.data?.options ?? null,
+    promptText: promptEvent.text || null,
+  };
+}
+
 export default function Gameplay({
   onBack,
   player,
@@ -420,31 +485,60 @@ export default function Gameplay({
   const [mode, setMode] = useState<Mode>(game.mode);
   const [mapGrid, setMapGrid] = useState<string[]>(game.getMapGrid());
   const [turnEvents, setTurnEvents] = useState<string[]>([]);
+  const [promptOptions, setPromptOptions] = useState<PromptOption[] | null>(
+    null
+  );
+  const [promptText, setPromptText] = useState<string | null>(null);
   const initialized = useRef(false);
 
   const isEncounter = mode === Mode.ENCOUNTER;
+  const canCastSpell =
+    player.iq >= 12 && Object.values(player.spells).some((count) => count > 0);
+  const encounterCommandList = useMemo(
+    () =>
+      encounterCommands.map((command) =>
+        command.key === 'S'
+          ? { ...command, disabled: !canCastSpell }
+          : command
+      ),
+    [canCastSpell]
+  );
   const activeCommands = useMemo(
     () =>
       isEncounter
-        ? encounterCommands
+        ? encounterCommandList
         : [...movementCommands, ...verticalCommands, ...roomCommands],
-    [isEncounter]
+    [isEncounter, encounterCommandList]
   );
+  const promptCommands = useMemo(() => {
+    if (!promptOptions || promptOptions.length === 0) return null;
+    return promptOptions
+      .filter((option) => !option.disabled)
+      .map((option) => ({
+        id: `prompt-${option.key}`,
+        key: option.key,
+        label: option.label,
+      }));
+  }, [promptOptions]);
 
   const commandMap = useMemo(() => {
     const map = new Map<string, Command>();
-    activeCommands.forEach((command) =>
-      map.set(command.key.toLowerCase(), command)
-    );
+    const commands = promptCommands ?? activeCommands;
+    commands
+      .filter((command) => !command.disabled)
+      .forEach((command) => map.set(command.key.toLowerCase(), command));
     return map;
-  }, [activeCommands]);
+  }, [activeCommands, promptCommands]);
 
   const handleTrigger = useCallback(
     (command: Command) => {
       const result = game.step(command.key);
+      const prompt = promptData(result.events);
       setMode(result.mode);
       setTurnEvents(eventLines(result.events));
       setMapGrid(game.getMapGrid());
+      setPromptOptions(prompt.promptOptions);
+      setPromptText(prompt.promptText);
     },
     [game]
   );
@@ -453,9 +547,12 @@ export default function Gameplay({
     if (initialized.current) return;
     initialized.current = true;
     const startEvents = game.startEvents();
+    const prompt = promptData(startEvents);
     setTurnEvents(eventLines(startEvents));
     setMode(game.mode);
     setMapGrid(game.getMapGrid());
+    setPromptOptions(prompt.promptOptions);
+    setPromptText(prompt.promptText);
   }, [game]);
 
   useEffect(() => {
@@ -510,6 +607,9 @@ export default function Gameplay({
           <CommandBarPanel
             encounterMode={isEncounter}
             onTrigger={handleTrigger}
+            promptOptions={promptOptions}
+            promptText={promptText}
+            encounterCommandList={encounterCommandList}
           />
         </Stack>
 

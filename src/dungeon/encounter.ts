@@ -301,15 +301,37 @@ export class EncounterSession {
 
   private spellMenu(): Record<string, unknown> {
     const spells = this.player.spells;
+    const iqTooLow = this.player.iq < 12;
+    const options = [
+      {
+        key: '1',
+        label: `Protection (${spells[Spell.PROTECTION] ?? 0})`,
+        disabled: iqTooLow || (spells[Spell.PROTECTION] ?? 0) <= 0,
+      },
+      {
+        key: '2',
+        label: `Fireball (${spells[Spell.FIREBALL] ?? 0})`,
+        disabled: iqTooLow || (spells[Spell.FIREBALL] ?? 0) <= 0,
+      },
+      {
+        key: '3',
+        label: `Lightning (${spells[Spell.LIGHTNING] ?? 0})`,
+        disabled: iqTooLow || (spells[Spell.LIGHTNING] ?? 0) <= 0,
+      },
+      {
+        key: '4',
+        label: `Weaken (${spells[Spell.WEAKEN] ?? 0})`,
+        disabled: iqTooLow || (spells[Spell.WEAKEN] ?? 0) <= 0,
+      },
+      {
+        key: '5',
+        label: `Teleport (${spells[Spell.TELEPORT] ?? 0})`,
+        disabled: iqTooLow || (spells[Spell.TELEPORT] ?? 0) <= 0,
+      },
+    ];
     return {
       type: 'spell',
-      options: {
-        protection: spells[Spell.PROTECTION] ?? 0,
-        fireball: spells[Spell.FIREBALL] ?? 0,
-        lightning: spells[Spell.LIGHTNING] ?? 0,
-        weaken: spells[Spell.WEAKEN] ?? 0,
-        teleport: spells[Spell.TELEPORT] ?? 0,
-      },
+      options,
     };
   }
 
