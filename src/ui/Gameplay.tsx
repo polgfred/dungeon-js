@@ -120,10 +120,18 @@ function MapPanel({
 }: {
   onTrigger: (command: Command) => void;
   mapGrid: string[];
-  turnEvents: string[];
+  turnEvents: string[][];
 }) {
+  const eventFeedRef = useRef<HTMLDivElement | null>(null);
   const rows: string[] =
     mapGrid.length > 0 ? mapGrid : Array(7).fill('? ? ? ? ? ? ?');
+
+  useEffect(() => {
+    const node = eventFeedRef.current;
+    if (!node) return;
+    node.scrollTop = node.scrollHeight;
+  }, [turnEvents]);
+
   return (
     <Box sx={(theme) => panelStyle(theme)}>
       <Stack spacing={2}>
@@ -286,18 +294,41 @@ function MapPanel({
             background: alpha(theme.palette.primary.dark, 0.25),
           })}
         >
-          <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-            Event Feed
-          </Typography>
-          <Stack spacing={0.5} sx={{ marginTop: 1 }}>
-            {turnEvents.length === 0 ? (
-              <Typography sx={{ opacity: 0.6 }}>No notable events.</Typography>
-            ) : (
-              turnEvents.map((entry, index) => (
-                <Typography key={`${entry}-${index}`}>{entry}</Typography>
-              ))
-            )}
-          </Stack>
+          <Box
+            sx={{
+              position: 'relative',
+              height: 220,
+              overflow: 'hidden',
+            }}
+          >
+            <Stack
+              ref={eventFeedRef}
+              spacing={2.5}
+              sx={{
+                height: '100%',
+                overflowY: 'auto',
+                paddingRight: 0.5,
+                maskImage:
+                  'linear-gradient(to bottom, transparent 0px, black 18px, black 100%)',
+                WebkitMaskImage:
+                  'linear-gradient(to bottom, transparent 0px, black 18px, black 100%)',
+              }}
+            >
+              {turnEvents.length === 0 ? (
+                <Typography sx={{ opacity: 0.6 }}>
+                  No notable events.
+                </Typography>
+              ) : (
+                turnEvents.map((group, groupIndex) => (
+                  <Stack key={`turn-${groupIndex}`} spacing={0.5}>
+                    {group.map((entry, index) => (
+                      <Typography key={`${entry}-${index}`}>{entry}</Typography>
+                    ))}
+                  </Stack>
+                ))
+              )}
+            </Stack>
+          </Box>
         </Box>
       </Stack>
     </Box>
@@ -465,6 +496,15 @@ function eventLines(events: GameEvent[]): string[] {
     .filter(Boolean);
 }
 
+const EVENT_FEED_LIMIT = 10;
+
+function appendEventFeed(previous: string[][], next: string[]): string[][] {
+  if (next.length === 0) return previous;
+  const combined = [...previous, next];
+  if (combined.length <= EVENT_FEED_LIMIT) return combined;
+  return combined.slice(combined.length - EVENT_FEED_LIMIT);
+}
+
 function mapTooltip(cell: string): string {
   switch (cell) {
     case '*':
@@ -535,7 +575,7 @@ export default function Gameplay({
   const game = gameRef.current;
   const [mode, setMode] = useState<Mode>(game.mode);
   const [mapGrid, setMapGrid] = useState<string[]>(game.mapGrid());
-  const [turnEvents, setTurnEvents] = useState<string[]>([]);
+  const [turnEvents, setTurnEvents] = useState<string[][]>([]);
   const [promptOptions, setPromptOptions] = useState<PromptOption[] | null>(
     null
   );
@@ -584,7 +624,7 @@ export default function Gameplay({
       const result = game.step(command.key);
       const prompt = promptData(result.events);
       setMode(result.mode);
-      setTurnEvents(eventLines(result.events));
+      setTurnEvents((prev) => appendEventFeed(prev, eventLines(result.events)));
       setMapGrid(game.mapGrid());
       setPromptOptions(prompt.promptOptions);
       setPromptText(prompt.promptText);
@@ -597,7 +637,7 @@ export default function Gameplay({
     initialized.current = true;
     const startEvents = game.startEvents();
     const prompt = promptData(startEvents);
-    setTurnEvents(eventLines(startEvents));
+    setTurnEvents((prev) => appendEventFeed(prev, eventLines(startEvents)));
     setMode(game.mode);
     setMapGrid(game.mapGrid());
     setPromptOptions(prompt.promptOptions);
