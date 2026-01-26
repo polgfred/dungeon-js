@@ -100,7 +100,7 @@ export const POTION_PRICES: Record<string, number> = {
 };
 
 export const FEATURE_SYMBOLS: Record<Feature, string> = {
-  [Feature.EMPTY]: '0',
+  [Feature.EMPTY]: '-',
   [Feature.MIRROR]: 'm',
   [Feature.SCROLL]: 's',
   [Feature.CHEST]: 'c',

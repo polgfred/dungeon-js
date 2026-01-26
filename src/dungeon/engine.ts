@@ -132,13 +132,13 @@ export class Game {
         if (this.player.y === y && this.player.x === x) {
           row.push('*');
         } else if (!room.seen) {
-          row.push('?');
+          row.push('·');
         } else if (room.monsterLevel > 0) {
           row.push('M');
         } else if (room.treasureId) {
           row.push('T');
         } else {
-          row.push(FEATURE_SYMBOLS[room.feature] ?? '0');
+          row.push(FEATURE_SYMBOLS[room.feature] ?? '-');
         }
       }
       grid.push(row.join(' '));
@@ -355,7 +355,6 @@ export class Game {
     return [Event.info('The flare illuminates nearby rooms.')];
   }
 
-
   private statusData(): Record<string, number | string> {
     return {
       gold: this.player.gold,
@@ -386,9 +385,9 @@ export class Game {
       'Encounter: F=Fight  R=Run  S=Spell\n' +
       '\n' +
       'MAP LEGEND:\n' +
-      '0=Empty  m=Mirror  s=Scroll  c=Chest  f=Flares  p=Potion\n' +
+      '-=Empty  m=Mirror  s=Scroll  c=Chest  f=Flares  p=Potion\n' +
       'v=Vendor  t=Thief  w=Warp  U=Up  D=Down  X=eXit\n' +
-      'T=Treasure  M=Monster  *=You  ?=Unknown'
+      'T=Treasure  M=Monster  *=You  ·=Unknown'
     );
   }
 

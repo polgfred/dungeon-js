@@ -186,7 +186,9 @@ function MapPanel({
                         color:
                           cell === '*'
                             ? theme.palette.primary.light
-                            : theme.palette.text.primary,
+                            : cell === '•' || cell === '·'
+                              ? alpha(theme.palette.text.primary, 0.35)
+                              : theme.palette.text.primary,
                       })}
                     >
                       {cell}
