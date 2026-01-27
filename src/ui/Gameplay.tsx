@@ -92,6 +92,7 @@ function MapPanel({
 }) {
   const rows: string[] =
     mapGrid.length > 0 ? mapGrid : Array(7).fill('? ? ? ? ? ? ?');
+  const mapCellWidth = 42;
 
   return (
     <Box sx={(theme) => panelStyle(theme)}>
@@ -112,9 +113,11 @@ function MapPanel({
             display: 'grid',
             gridTemplateRows: `repeat(${rows.length}, 1fr)`,
             gap: 0.5,
-            width: '100%',
+            width: 'fit-content',
+            maxWidth: '100%',
             alignContent: 'center',
             justifyItems: 'center',
+            justifyContent: 'center',
           }}
         >
           {rows.map((row, rowIndex) => (
@@ -122,9 +125,10 @@ function MapPanel({
               key={`row-${rowIndex}`}
               sx={{
                 display: 'grid',
-                gridTemplateColumns: `repeat(${row.split(' ').length}, 1fr)`,
+                gridTemplateColumns: `repeat(${row.split(' ').length}, minmax(0, ${mapCellWidth}px))`,
                 gap: 0.5,
-                width: '100%',
+                width: 'fit-content',
+                maxWidth: '100%',
               }}
             >
               {row.split(' ').map((cell, colIndex) => {
@@ -148,7 +152,7 @@ function MapPanel({
                           : alpha(theme.palette.primary.dark, 0.26),
                         display: 'grid',
                         placeItems: 'center',
-                        height: 28,
+                        width: mapCellWidth,
                         fontSize: 14,
                         color:
                           cell === '·'
