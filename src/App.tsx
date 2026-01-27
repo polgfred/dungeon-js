@@ -2,18 +2,15 @@ import { Box } from '@mui/material';
 import { alpha, type Theme } from '@mui/material/styles';
 import { useCallback, useEffect, useState } from 'react';
 
-import { ARMOR_PRICES, Race, WEAPON_PRICES } from './dungeon/constants.js';
 import type { GameSave } from './dungeon/serialization.js';
 import type { Player } from './dungeon/model.js';
-import { Player as PlayerModel } from './dungeon/model.js';
-import { defaultRandomSource, type RandomSource } from './dungeon/rng.js';
 import { deserializePlayer } from './dungeon/serialization.js';
 import HomePage from './pages/HomePage.js';
 import { hasSavedGame, loadSavedGame } from './storage/gameSave.js';
 import Gameplay from './ui/Gameplay.js';
 import SetupGame from './ui/SetupGame.js';
 
-type RoutePath = '/' | '/setup' | '/gameplay' | '/random';
+type View = 'home' | 'setup' | 'gameplay';
 
 const screenStyle = (theme: Theme) => ({
   minHeight: '100vh',
@@ -45,36 +42,18 @@ const screenStyle = (theme: Theme) => ({
 });
 
 export default function App() {
-  const [route, setRoute] = useState<RoutePath>(() => getRoutePath());
+  const [view, setView] = useState<View>('home');
   const [player, setPlayer] = useState<Player | null>(null);
   const [savedGame, setSavedGame] = useState<GameSave | null>(null);
   const [saveAvailable, setSaveAvailable] = useState(false);
 
-  const navigate = useCallback((path: RoutePath, replace = false) => {
-    const target = `#${path}`;
-    if (replace) {
-      window.history.replaceState(null, '', target);
-    } else {
-      window.history.pushState(null, '', target);
-    }
-    setRoute(path);
-  }, []);
-
-  useEffect(() => {
-    const handleChange = () => {
-      setRoute(getRoutePath());
-    };
-    window.addEventListener('popstate', handleChange);
-    window.addEventListener('hashchange', handleChange);
-    return () => {
-      window.removeEventListener('popstate', handleChange);
-      window.removeEventListener('hashchange', handleChange);
-    };
+  const navigate = useCallback((nextView: View) => {
+    setView(nextView);
   }, []);
 
   useEffect(() => {
     setSaveAvailable(hasSavedGame());
-  }, [route]);
+  }, [view]);
 
   useEffect(() => {
     const handleStorage = () => setSaveAvailable(hasSavedGame());
@@ -83,122 +62,49 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (route === '/gameplay' && !player) {
-      navigate('/setup', true);
+    if (view === 'gameplay' && !player) {
+      navigate('setup');
     }
-  }, [navigate, player, route]);
-
-  useEffect(() => {
-    if (route === '/random') {
-      const randomPlayer = createRandomPlayer(defaultRandomSource);
-      setPlayer(randomPlayer);
-      setSavedGame(null);
-      navigate('/gameplay');
-    }
-  }, [navigate, route]);
+  }, [navigate, player, view]);
 
   return (
     <Box component="main" sx={(theme) => screenStyle(theme)}>
-      {route === '/' && (
+      {view === 'home' && (
         <HomePage
-          setupHref="#/setup"
-          onBeginSetup={() => navigate('/setup')}
+          onBeginSetup={() => navigate('setup')}
           hasSave={saveAvailable}
           onContinue={() => {
             const save = loadSavedGame();
             if (!save) return;
             setSavedGame(save);
             setPlayer(deserializePlayer(save.player));
-            navigate('/gameplay');
+            navigate('gameplay');
           }}
         />
       )}
 
-      {route === '/setup' && (
+      {view === 'setup' && (
         <SetupGame
           onComplete={(created) => {
             setPlayer(created);
             setSavedGame(null);
-            navigate('/gameplay');
+            navigate('gameplay');
           }}
-          onBack={() => navigate('/')}
+          onBack={() => navigate('home')}
         />
       )}
 
-      {route === '/gameplay' && player && (
+      {view === 'gameplay' && player && (
         <Gameplay
           player={player}
           savedGame={savedGame}
           onBack={() => {
             setPlayer(null);
             setSavedGame(null);
-            navigate('/');
+            navigate('home');
           }}
         />
       )}
     </Box>
   );
-}
-
-function getRoutePath(): RoutePath {
-  const hashPath = window.location.hash.replace(/^#/, '');
-  const candidate = hashPath || window.location.pathname;
-  if (candidate.startsWith('/setup')) {
-    return '/setup';
-  }
-  if (candidate.startsWith('/random')) {
-    return '/random';
-  }
-  if (candidate.startsWith('/gameplay')) {
-    return '/gameplay';
-  }
-  return '/';
-}
-
-const allocationKeys = ['ST', 'DX', 'IQ'];
-type AllocationKey = (typeof allocationKeys)[number];
-type AllocationState = Record<AllocationKey, number>;
-
-function createRandomPlayer(rng: RandomSource): Player {
-  const race = rng.choice([Race.HUMAN, Race.DWARF, Race.ELF, Race.HALFLING]);
-  const [st, dx, iq, hp] = PlayerModel.rollBaseStats(rng, race);
-  const allocations: AllocationState = { ST: 0, DX: 0, IQ: 0 };
-  for (let i = 0; i < 5; i += 1) {
-    const key = rng.choice(allocationKeys);
-    allocations[key] += 1;
-  }
-  const gold = rng.randint(50, 60);
-
-  let weaponTier = rng.randint(1, 3);
-  let armorTier = rng.randint(1, 3);
-  let baseCost = WEAPON_PRICES[weaponTier] + ARMOR_PRICES[armorTier];
-  while (baseCost > gold) {
-    if (weaponTier > 1 && armorTier > 1) {
-      if (rng.random() < 0.5) {
-        weaponTier -= 1;
-      } else {
-        armorTier -= 1;
-      }
-    } else if (weaponTier > 1) {
-      weaponTier -= 1;
-    } else if (armorTier > 1) {
-      armorTier -= 1;
-    } else {
-      break;
-    }
-    baseCost = WEAPON_PRICES[weaponTier] + ARMOR_PRICES[armorTier];
-  }
-
-  const maxFlares = Math.max(0, gold - baseCost);
-  const flareCount = rng.randint(0, maxFlares);
-
-  return PlayerModel.create({
-    race,
-    baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },
-    gold,
-    allocations,
-    weaponTier,
-    armorTier,
-    flareCount,
-  });
 }
