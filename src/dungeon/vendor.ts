@@ -145,16 +145,8 @@ export class VendorSession {
         this.phase = 'category';
         this.category = null;
         return { events: [this.categoryPrompt()] };
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-        return this.handleShopItemChoice(raw);
       default:
-        return {
-          events: [Event.error('Choose 1..5 or Esc.'), this.itemPrompt()],
-        };
+        return this.handleShopItemChoice(raw);
     }
   }
 
@@ -179,10 +171,12 @@ export class VendorSession {
   }
 
   private handleShopWeapons(raw: string): VendorResult {
-    if (!['1', '2', '3'].includes(raw)) {
-      return { events: [Event.error('Choose 1..3.'), this.itemPrompt()] };
+    const tier = ({ D: 1, S: 2, B: 3 } as const)[
+      raw as 'D' | 'S' | 'B'
+    ];
+    if (!tier) {
+      return { events: [Event.error('Choose D/S/B.'), this.itemPrompt()] };
     }
-    const tier = Number(raw);
     const price = WEAPON_PRICES[tier];
     if (this.player.gold < price) {
       return {
@@ -204,10 +198,12 @@ export class VendorSession {
   }
 
   private handleShopArmor(raw: string): VendorResult {
-    if (!['1', '2', '3'].includes(raw)) {
-      return { events: [Event.error('Choose 1..3.'), this.itemPrompt()] };
+    const tier = ({ L: 1, W: 2, C: 3 } as const)[
+      raw as 'L' | 'W' | 'C'
+    ];
+    if (!tier) {
+      return { events: [Event.error('Choose L/W/C.'), this.itemPrompt()] };
     }
-    const tier = Number(raw);
     const price = ARMOR_PRICES[tier];
     if (this.player.gold < price) {
       return {
@@ -227,10 +223,18 @@ export class VendorSession {
   }
 
   private handleShopScrolls(raw: string): VendorResult {
-    if (!['1', '2', '3', '4', '5'].includes(raw)) {
-      return { events: [Event.error('Choose 1..5.'), this.itemPrompt()] };
+    const spell = (
+      {
+        P: Spell.PROTECTION,
+        F: Spell.FIREBALL,
+        L: Spell.LIGHTNING,
+        W: Spell.WEAKEN,
+        T: Spell.TELEPORT,
+      } as const
+    )[raw as 'P' | 'F' | 'L' | 'W' | 'T'];
+    if (!spell) {
+      return { events: [Event.error('Choose P/F/L/W/T.'), this.itemPrompt()] };
     }
-    const spell = Number(raw) as Spell;
     const price = SPELL_PRICES[spell];
     if (this.player.gold < price) {
       return {
@@ -249,7 +253,7 @@ export class VendorSession {
 
   private handleShopPotions(raw: string): VendorResult {
     switch (raw) {
-      case '1': {
+      case 'H': {
         const price = POTION_PRICES['HEALING'];
         if (this.player.gold < price) {
           return {
@@ -268,7 +272,7 @@ export class VendorSession {
           done: true,
         };
       }
-      case '2': {
+      case 'A': {
         const price = POTION_PRICES['ATTRIBUTE'];
         if (this.player.gold < price) {
           return {
@@ -286,7 +290,7 @@ export class VendorSession {
         };
       }
       default:
-        return { events: [Event.error('Choose 1 or 2.'), this.itemPrompt()] };
+        return { events: [Event.error('Choose H or A.'), this.itemPrompt()] };
     }
   }
 
@@ -295,9 +299,9 @@ export class VendorSession {
       this.phase = 'item';
       return { events: [this.itemPrompt()] };
     }
-    if (!['1', '2', '3', '4'].includes(raw)) {
+    if (!['S', 'D', 'I', 'M'].includes(raw)) {
       return {
-        events: [Event.error('Choose 1..4 or Esc.'), this.attributePrompt()],
+        events: [Event.error('Choose S/D/I/M or Esc.'), this.attributePrompt()],
       };
     }
     const price = POTION_PRICES['ATTRIBUTE'];
@@ -314,10 +318,10 @@ export class VendorSession {
     this.player.gold -= price;
     const change = this.rng.randint(1, 6);
     const targets: Record<string, string> = {
-      '1': 'ST',
-      '2': 'DX',
-      '3': 'IQ',
-      '4': 'MHP',
+      S: 'ST',
+      D: 'DX',
+      I: 'IQ',
+      M: 'MHP',
     };
     this.player.applyAttributeChange({ target: targets[raw], change });
     return { events: [Event.info('The potion takes effect.')], done: true };
@@ -341,17 +345,17 @@ export class VendorSession {
         hasCancel: true,
         options: [
           {
-            key: '1',
+            key: 'D',
             label: `Dagger (${WEAPON_PRICES[1]}g)`,
             disabled: this.player.gold < WEAPON_PRICES[1],
           },
           {
-            key: '2',
+            key: 'S',
             label: `Short sword (${WEAPON_PRICES[2]}g)`,
             disabled: this.player.gold < WEAPON_PRICES[2],
           },
           {
-            key: '3',
+            key: 'B',
             label: `Broadsword (${WEAPON_PRICES[3]}g)`,
             disabled: this.player.gold < WEAPON_PRICES[3],
           },
@@ -363,17 +367,17 @@ export class VendorSession {
         hasCancel: true,
         options: [
           {
-            key: '1',
+            key: 'L',
             label: `Leather (${ARMOR_PRICES[1]}g)`,
             disabled: this.player.gold < ARMOR_PRICES[1],
           },
           {
-            key: '2',
+            key: 'W',
             label: `Wooden (${ARMOR_PRICES[2]}g)`,
             disabled: this.player.gold < ARMOR_PRICES[2],
           },
           {
-            key: '3',
+            key: 'C',
             label: `Chain mail (${ARMOR_PRICES[3]}g)`,
             disabled: this.player.gold < ARMOR_PRICES[3],
           },
@@ -385,27 +389,27 @@ export class VendorSession {
         hasCancel: true,
         options: [
           {
-            key: '1',
+            key: 'P',
             label: `Protection (${SPELL_PRICES[Spell.PROTECTION]}g)`,
             disabled: this.player.gold < SPELL_PRICES[Spell.PROTECTION],
           },
           {
-            key: '2',
+            key: 'F',
             label: `Fireball (${SPELL_PRICES[Spell.FIREBALL]}g)`,
             disabled: this.player.gold < SPELL_PRICES[Spell.FIREBALL],
           },
           {
-            key: '3',
+            key: 'L',
             label: `Lightning (${SPELL_PRICES[Spell.LIGHTNING]}g)`,
             disabled: this.player.gold < SPELL_PRICES[Spell.LIGHTNING],
           },
           {
-            key: '4',
+            key: 'W',
             label: `Weaken (${SPELL_PRICES[Spell.WEAKEN]}g)`,
             disabled: this.player.gold < SPELL_PRICES[Spell.WEAKEN],
           },
           {
-            key: '5',
+            key: 'T',
             label: `Teleport (${SPELL_PRICES[Spell.TELEPORT]}g)`,
             disabled: this.player.gold < SPELL_PRICES[Spell.TELEPORT],
           },
@@ -416,12 +420,12 @@ export class VendorSession {
       hasCancel: true,
       options: [
         {
-          key: '1',
+          key: 'H',
           label: `Healing (${POTION_PRICES['HEALING']}g)`,
           disabled: this.player.gold < POTION_PRICES['HEALING'],
         },
         {
-          key: '2',
+          key: 'A',
           label: `Attribute enhancer (${POTION_PRICES['ATTRIBUTE']}g)`,
           disabled: this.player.gold < POTION_PRICES['ATTRIBUTE'],
         },
@@ -433,10 +437,10 @@ export class VendorSession {
     return Event.prompt('Choose an attribute:', {
       hasCancel: true,
       options: [
-        { key: '1', label: 'Strength', disabled: false },
-        { key: '2', label: 'Dexterity', disabled: false },
-        { key: '3', label: 'Intelligence', disabled: false },
-        { key: '4', label: 'Max HP', disabled: false },
+        { key: 'S', label: 'Strength', disabled: false },
+        { key: 'D', label: 'Dexterity', disabled: false },
+        { key: 'I', label: 'Intelligence', disabled: false },
+        { key: 'M', label: 'Max HP', disabled: false },
       ],
     });
   }

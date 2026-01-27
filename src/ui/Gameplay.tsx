@@ -52,7 +52,7 @@ const verticalCommands = [
   { id: 'exit', key: 'X', label: 'Exit', disabled: false },
 ];
 
-const helpCommand = { id: 'help', key: 'H', label: 'Help', disabled: false };
+const helpCommand = { id: 'help', key: '?', label: 'Help', disabled: false };
 
 const roomCommands = [
   { id: 'flare', key: 'F', label: 'Flare', disabled: false },
@@ -840,7 +840,7 @@ export default function Gameplay({
 
   const handleTrigger = useCallback(
     (command: Command) => {
-      if (command.key === 'H') {
+      if (command.key === '?') {
         setHelpOpen(true);
         return;
       }
