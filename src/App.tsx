@@ -5,10 +5,10 @@ import { useCallback, useEffect, useState } from 'react';
 import type { GameSave } from './dungeon/serialization.js';
 import type { Player } from './dungeon/model.js';
 import { deserializePlayer } from './dungeon/serialization.js';
-import HomePage from './pages/HomePage.js';
 import { hasSavedGame, loadSavedGame } from './storage/gameSave.js';
 import Gameplay from './ui/Gameplay.js';
 import SetupGame from './ui/SetupGame.js';
+import TitleScreen from './ui/TitleScreen.js';
 
 type View = 'home' | 'setup' | 'gameplay';
 
@@ -70,8 +70,8 @@ export default function App() {
   return (
     <Box component="main" sx={(theme) => screenStyle(theme)}>
       {view === 'home' && (
-        <HomePage
-          onBeginSetup={() => navigate('setup')}
+        <TitleScreen
+          onStart={() => navigate('setup')}
           hasSave={saveAvailable}
           onContinue={() => {
             const save = loadSavedGame();
