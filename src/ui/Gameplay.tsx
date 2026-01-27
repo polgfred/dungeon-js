@@ -346,17 +346,6 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
         position: 'relative',
         height: 220,
         overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 28,
-          background: `linear-gradient(${alpha(theme.palette.background.paper, 0.8)}, ${alpha(theme.palette.background.paper, 0)})`,
-          pointerEvents: 'none',
-          zIndex: 1,
-        },
       })}
     >
       <Stack
