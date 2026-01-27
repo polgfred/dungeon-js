@@ -18,6 +18,7 @@ import type { Player } from '../dungeon/model.js';
 import type { Event as GameEvent, PromptOption } from '../dungeon/types.js';
 import { storeSavedGame } from '../storage/gameSave.js';
 import { CommandButton, type Command } from './CommandButton.js';
+import helpHtmlContent from '../assets/help.html?raw';
 
 const panelStyle = (theme: Theme) => ({
   background: alpha(theme.palette.background.paper, 0.9),
@@ -699,7 +700,7 @@ export default function Gameplay({
   );
   const [promptText, setPromptText] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [helpHtml, setHelpHtml] = useState<string>('');
+  const [helpHtml] = useState<string>(helpHtmlContent);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(
     savedGame?.savedAt ? new Date(savedGame.savedAt).toLocaleString() : null
   );
@@ -879,13 +880,6 @@ export default function Gameplay({
     setPromptOptions(prompt.promptOptions);
     setPromptText(prompt.promptText);
   }, [game]);
-
-  useEffect(() => {
-    fetch('/help.html')
-      .then((response) => (response.ok ? response.text() : ''))
-      .then((content) => setHelpHtml(content))
-      .catch(() => setHelpHtml(''));
-  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

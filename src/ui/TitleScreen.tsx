@@ -1,6 +1,6 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
 
-import titleImage from '../../public/DofDTitle.png';
+import titleImage from '../assets/DofDTitle.png';
 
 type TitleScreenProps = {
   onStart?: () => void;
