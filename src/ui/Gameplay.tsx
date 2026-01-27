@@ -13,12 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Feature, Mode } from '../dungeon/constants.js';
 import { Game } from '../dungeon/engine.js';
-import {
-  deserializePlayer,
-  serializePlayer,
-  type GameSave,
-  type PlayerSave,
-} from '../dungeon/serialization.js';
+import type { GameSave } from '../dungeon/serialization.js';
 import type { Player } from '../dungeon/model.js';
 import type { Event as GameEvent, PromptOption } from '../dungeon/types.js';
 import { storeSavedGame } from '../storage/gameSave.js';
@@ -717,19 +712,17 @@ function promptData(events: GameEvent[]): {
 
 export default function Gameplay({
   onBack,
+  onSetup,
   player: initialPlayer,
   savedGame,
 }: {
   onBack: () => void;
+  onSetup: () => void;
   player: Player;
   savedGame?: GameSave | null;
 }) {
   const gameRef = useRef<Game | null>(null);
   const loadedFromSaveRef = useRef(false);
-  const initialPlayerSaveRef = useRef<PlayerSave | null>(null);
-  if (!initialPlayerSaveRef.current) {
-    initialPlayerSaveRef.current = serializePlayer(initialPlayer);
-  }
   if (!gameRef.current) {
     if (savedGame) {
       try {
@@ -876,26 +869,6 @@ export default function Gameplay({
     return map;
   }, [activeCommands, promptCommands, isEncounter]);
 
-  const restartGame = useCallback(() => {
-    const saved = initialPlayerSaveRef.current;
-    if (!saved) return;
-    const nextGame = new Game({
-      seed: Date.now(),
-      player: deserializePlayer(saved),
-    });
-    gameRef.current = nextGame;
-    loadedFromSaveRef.current = false;
-    setSaveError(null);
-    setLastSavedAt(null);
-    const initialEvents = nextGame.startEvents();
-    const prompt = promptData(initialEvents);
-    setTurnEvents(() => appendEventFeed([], eventLines(initialEvents)));
-    setMode(nextGame.mode);
-    setMapGrid(nextGame.mapGrid());
-    setPromptOptions(prompt.promptOptions);
-    setPromptText(prompt.promptText);
-  }, []);
-
   const handleTrigger = useCallback(
     (command: Command) => {
       if (command.key === 'H') {
@@ -904,7 +877,7 @@ export default function Gameplay({
       }
       if (isEndState) {
         if (command.key === 'Y') {
-          restartGame();
+          onSetup();
         } else if (command.key === 'N') {
           onBack();
         }
@@ -918,7 +891,7 @@ export default function Gameplay({
       setPromptOptions(prompt.promptOptions);
       setPromptText(prompt.promptText);
     },
-    [game, isEndState, onBack, restartGame]
+    [game, isEndState, onBack, onSetup]
   );
 
   const handleSave = useCallback(() => {

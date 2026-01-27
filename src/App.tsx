@@ -103,6 +103,11 @@ export default function App() {
             setSavedGame(null);
             navigate('home');
           }}
+          onSetup={() => {
+            setPlayer(null);
+            setSavedGame(null);
+            navigate('setup');
+          }}
         />
       )}
     </Box>
