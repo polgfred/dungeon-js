@@ -182,7 +182,7 @@ export class VendorSession {
       return {
         events: [
           Event.info(
-            `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
           ),
           this.itemPrompt(),
         ],
@@ -209,7 +209,7 @@ export class VendorSession {
       return {
         events: [
           Event.info(
-            `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
           ),
           this.itemPrompt(),
         ],
@@ -240,7 +240,7 @@ export class VendorSession {
       return {
         events: [
           Event.info(
-            `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
           ),
           this.itemPrompt(),
         ],
@@ -259,7 +259,7 @@ export class VendorSession {
           return {
             events: [
               Event.info(
-                `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+                `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
               ),
               this.itemPrompt(),
             ],
@@ -278,7 +278,7 @@ export class VendorSession {
           return {
             events: [
               Event.info(
-                `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+                `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
               ),
               this.itemPrompt(),
             ],
@@ -309,7 +309,7 @@ export class VendorSession {
       return {
         events: [
           Event.info(
-            `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
           ),
         ],
         done: true,
