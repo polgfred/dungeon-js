@@ -64,7 +64,8 @@ function RaceStage({
         Choose Thy Race
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Base player stats are rolled on selection. Confirm to lock in stats.
+        Base player stats are rolled on selection. Confirm to lock in your
+        numbers.
       </Typography>
       <Box
         sx={{
@@ -159,8 +160,8 @@ function AllocationStage({
         Allocate Points
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Distribute five points across strength, dexterity, and intelligence.
-        Attributes are capped at 18.
+        Distribute five additional points across strength, dexterity, and
+        intelligence. Attributes are capped at 18.
       </Typography>
       <Stack spacing={2}>
         {(['ST', 'DX', 'IQ'] as AllocationKey[]).map((key) => {
@@ -260,7 +261,7 @@ function ShopStage({
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
         Now, you must purchase a weapon, armor, and flares. Any remaining gold
-        is kept.
+        is kept for future exploits.
       </Typography>
       <Stack spacing={2}>
         <Box>
@@ -360,7 +361,7 @@ function ShopStage({
           onClick={onConfirm}
           color="primary"
         >
-          Finalize Supplies
+          Finalize Gear
         </Button>
       </Stack>
     </Stack>
@@ -382,8 +383,8 @@ function ReadyStage({
         Setup Complete
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Brave adventurer, thy gear outfits thee well! But alas, victory remains
-        to be seen.
+        Brave adventurer, thy gear outfits thee well! But alas, victory is not
+        for the faint of heart. Are you ready?
       </Typography>
       <Stack spacing={1}>
         <Typography>Weapon: {player.weaponName}</Typography>
