@@ -80,7 +80,6 @@ function MapPanel({
   mapGrid,
   playerX,
   playerY,
-  turnEvents,
   movementCommandList,
   verticalCommandList,
 }: {
@@ -88,39 +87,6 @@ function MapPanel({
   mapGrid: string[];
   playerX: number;
   playerY: number;
-  turnEvents: string[][];
-  movementCommandList: Command[];
-  verticalCommandList: Command[];
-}) {
-  return (
-    <Box sx={(theme) => panelStyle(theme)}>
-      <Stack spacing={4}>
-        <MapGridPanel
-          mapGrid={mapGrid}
-          playerX={playerX}
-          playerY={playerY}
-          onTrigger={onTrigger}
-          movementCommandList={movementCommandList}
-          verticalCommandList={verticalCommandList}
-        />
-        <EventFeedPanel turnEvents={turnEvents} />
-      </Stack>
-    </Box>
-  );
-}
-
-function MapGridPanel({
-  mapGrid,
-  playerX,
-  playerY,
-  onTrigger,
-  movementCommandList,
-  verticalCommandList,
-}: {
-  mapGrid: string[];
-  playerX: number;
-  playerY: number;
-  onTrigger: (command: Command) => void;
   movementCommandList: Command[];
   verticalCommandList: Command[];
 }) {
@@ -128,142 +94,145 @@ function MapGridPanel({
     mapGrid.length > 0 ? mapGrid : Array(7).fill('? ? ? ? ? ? ?');
 
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) auto' },
-        columnGap: 10,
-        rowGap: 2,
-        paddingX: { xs: 0, md: 5 },
-        width: '100%',
-        height: '100%',
-        alignItems: 'center',
-      }}
-    >
+    <Box sx={(theme) => panelStyle(theme)}>
       <Box
         sx={{
           display: 'grid',
-          gridTemplateRows: `repeat(${rows.length}, 1fr)`,
-          gap: 0.5,
+          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) auto' },
+          columnGap: 10,
+          rowGap: 2,
+          paddingX: { xs: 0, md: 5 },
           width: '100%',
-          alignContent: 'center',
-          justifyItems: 'center',
-        }}
-      >
-        {rows.map((row, rowIndex) => (
-          <Box
-            key={`row-${rowIndex}`}
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: `repeat(${row.split(' ').length}, 1fr)`,
-              gap: 0.5,
-              width: '100%',
-            }}
-          >
-            {row.split(' ').map((cell, colIndex) => {
-              const isPlayerCell = rowIndex === playerY && colIndex === playerX;
-              return (
-                <Tooltip
-                  key={`${rowIndex}-${colIndex}`}
-                  title={mapTooltip(cell)}
-                  arrow
-                  placement="top"
-                >
-                  <Box
-                    sx={(theme) => ({
-                      borderRadius: 0.5,
-                      border: isPlayerCell
-                        ? `2px solid ${alpha(theme.palette.primary.light, 0.9)}`
-                        : `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-                      background: isPlayerCell
-                        ? alpha(theme.palette.primary.dark, 0.32)
-                        : alpha(theme.palette.primary.dark, 0.26),
-                      display: 'grid',
-                      placeItems: 'center',
-                      height: 28,
-                      fontSize: 14,
-                      color:
-                        cell === '·'
-                          ? alpha(theme.palette.text.primary, 0.35)
-                          : theme.palette.text.primary,
-                      transition: 'background-color 150ms ease',
-                      '&:hover': {
-                        background: alpha(theme.palette.primary.light, 0.18),
-                      },
-                    })}
-                  >
-                    {cell}
-                  </Box>
-                </Tooltip>
-              );
-            })}
-          </Box>
-        ))}
-      </Box>
-
-      <Box
-        sx={{
-          display: 'grid',
-          gap: 1,
-          justifyItems: 'center',
-          minWidth: 120,
+          height: '100%',
+          alignItems: 'center',
         }}
       >
         <Box
           sx={{
             display: 'grid',
+            gridTemplateRows: `repeat(${rows.length}, 1fr)`,
             gap: 0.5,
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gridTemplateRows: 'repeat(3, 1fr)',
+            width: '100%',
+            alignContent: 'center',
+            justifyItems: 'center',
           }}
         >
-          <Box />
-          <CommandButton
-            command={movementCommandList[0]}
-            onTrigger={onTrigger}
-            layout="stacked"
-          />
-          <Box />
-          <CommandButton
-            command={movementCommandList[1]}
-            onTrigger={onTrigger}
-            layout="stacked"
-          />
+          {rows.map((row, rowIndex) => (
+            <Box
+              key={`row-${rowIndex}`}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${row.split(' ').length}, 1fr)`,
+                gap: 0.5,
+                width: '100%',
+              }}
+            >
+              {row.split(' ').map((cell, colIndex) => {
+                const isPlayerCell =
+                  rowIndex === playerY && colIndex === playerX;
+                return (
+                  <Tooltip
+                    key={`${rowIndex}-${colIndex}`}
+                    title={mapTooltip(cell)}
+                    arrow
+                    placement="top"
+                  >
+                    <Box
+                      sx={(theme) => ({
+                        borderRadius: 0.5,
+                        border: isPlayerCell
+                          ? `2px solid ${alpha(theme.palette.primary.light, 0.9)}`
+                          : `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
+                        background: isPlayerCell
+                          ? alpha(theme.palette.primary.dark, 0.32)
+                          : alpha(theme.palette.primary.dark, 0.26),
+                        display: 'grid',
+                        placeItems: 'center',
+                        height: 28,
+                        fontSize: 14,
+                        color:
+                          cell === '·'
+                            ? alpha(theme.palette.text.primary, 0.35)
+                            : theme.palette.text.primary,
+                        transition: 'background-color 150ms ease',
+                        '&:hover': {
+                          background: alpha(theme.palette.primary.light, 0.18),
+                        },
+                      })}
+                    >
+                      {cell}
+                    </Box>
+                  </Tooltip>
+                );
+              })}
+            </Box>
+          ))}
+        </Box>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 1,
+            justifyItems: 'center',
+            minWidth: 120,
+          }}
+        >
           <Box
             sx={{
-              borderRadius: 1,
-              border: '1px dashed rgba(255,255,255,0.2)',
-              minHeight: 40,
+              display: 'grid',
+              gap: 0.5,
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gridTemplateRows: 'repeat(3, 1fr)',
             }}
-          />
-          <CommandButton
-            command={movementCommandList[2]}
-            onTrigger={onTrigger}
-            layout="stacked"
-          />
-          <Box />
-          <CommandButton
-            command={movementCommandList[3]}
-            onTrigger={onTrigger}
-            layout="stacked"
-          />
-          <Box />
-        </Box>
-        <Stack
-          spacing={0.5}
-          direction="row"
-          flexWrap="wrap"
-          justifyContent="center"
-        >
-          {verticalCommandList.map((command) => (
+          >
+            <Box />
             <CommandButton
-              key={command.id}
-              command={command}
+              command={movementCommandList[0]}
               onTrigger={onTrigger}
               layout="stacked"
             />
-          ))}
-        </Stack>
+            <Box />
+            <CommandButton
+              command={movementCommandList[1]}
+              onTrigger={onTrigger}
+              layout="stacked"
+            />
+            <Box
+              sx={{
+                borderRadius: 1,
+                border: '1px dashed rgba(255,255,255,0.2)',
+                minHeight: 40,
+              }}
+            />
+            <CommandButton
+              command={movementCommandList[2]}
+              onTrigger={onTrigger}
+              layout="stacked"
+            />
+            <Box />
+            <CommandButton
+              command={movementCommandList[3]}
+              onTrigger={onTrigger}
+              layout="stacked"
+            />
+            <Box />
+          </Box>
+          <Stack
+            spacing={0.5}
+            direction="row"
+            flexWrap="wrap"
+            justifyContent="center"
+          >
+            {verticalCommandList.map((command) => (
+              <CommandButton
+                key={command.id}
+                command={command}
+                onTrigger={onTrigger}
+                layout="stacked"
+              />
+            ))}
+          </Stack>
+        </Box>
       </Box>
     </Box>
   );
@@ -935,10 +904,10 @@ export default function Gameplay({
             mapGrid={mapGrid}
             playerX={player.x}
             playerY={player.y}
-            turnEvents={turnEvents}
             movementCommandList={movementCommandList}
             verticalCommandList={verticalCommandList}
           />
+          <EventFeedPanel turnEvents={turnEvents} />
           <CommandBarPanel
             encounterMode={isEncounter}
             onTrigger={handleTrigger}
