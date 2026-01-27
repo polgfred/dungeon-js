@@ -167,17 +167,13 @@ export function deserializeGame(save: GameSave): GameSaveState {
 
 export function serializeDungeon(dungeon: Dungeon): DungeonSave {
   return dungeon.rooms.map((floor) =>
-    floor.map((row) =>
-      row.map((room) => encodeRoom(room))
-    )
+    floor.map((row) => row.map((room) => encodeRoom(room)))
   );
 }
 
 export function deserializeDungeon(save: DungeonSave): Dungeon {
   const rooms = save.map((floor) =>
-    floor.map((row) =>
-      row.map((savedRoom) => decodeRoom(savedRoom))
-    )
+    floor.map((row) => row.map((savedRoom) => decodeRoom(savedRoom)))
   );
   return new Dungeon(rooms);
 }
