@@ -95,7 +95,10 @@ export class VendorSession {
         return this.handleShopAttribute(raw);
       default:
         return {
-          events: [Event.error('Choose W/A/S/P or C.'), this.categoryPrompt()],
+          events: [
+            Event.error('Choose W/A/S/P or Esc.'),
+            this.categoryPrompt(),
+          ],
         };
     }
   }
@@ -128,7 +131,10 @@ export class VendorSession {
         return { events: [this.itemPrompt()] };
       default:
         return {
-          events: [Event.error('Choose W/A/S/P or C.'), this.categoryPrompt()],
+          events: [
+            Event.error('Choose W/A/S/P or Esc.'),
+            this.categoryPrompt(),
+          ],
         };
     }
   }
@@ -147,7 +153,7 @@ export class VendorSession {
         return this.handleShopItemChoice(raw);
       default:
         return {
-          events: [Event.error('Choose 1..5 or C.'), this.itemPrompt()],
+          events: [Event.error('Choose 1..5 or Esc.'), this.itemPrompt()],
         };
     }
   }
@@ -164,7 +170,10 @@ export class VendorSession {
         return this.handleShopPotions(raw);
       default:
         return {
-          events: [Event.error('Choose W/A/S/P or C.'), this.categoryPrompt()],
+          events: [
+            Event.error('Choose W/A/S/P or Esc.'),
+            this.categoryPrompt(),
+          ],
         };
     }
   }
@@ -288,7 +297,7 @@ export class VendorSession {
     }
     if (!['1', '2', '3', '4'].includes(raw)) {
       return {
-        events: [Event.error('Choose 1..4 or C.'), this.attributePrompt()],
+        events: [Event.error('Choose 1..4 or Esc.'), this.attributePrompt()],
       };
     }
     const price = POTION_PRICES['ATTRIBUTE'];

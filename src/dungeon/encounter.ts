@@ -351,7 +351,7 @@ export class EncounterSession {
     const spell = spellMap[key];
     if (!spell) {
       return {
-        events: [Event.error('Choose P/F/L/W/T or C to cancel.')],
+        events: [Event.error('Choose P/F/L/W/T or Esc to cancel.')],
         mode: Mode.ENCOUNTER,
       };
     }
