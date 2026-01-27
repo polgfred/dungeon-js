@@ -93,7 +93,7 @@ function MapPanel({
 }) {
   return (
     <Box sx={(theme) => panelStyle(theme)}>
-      <Stack spacing={2}>
+      <Stack spacing={4}>
         <MapGridPanel
           mapGrid={mapGrid}
           playerX={playerX}
@@ -301,15 +301,26 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
             You see nothing special.
           </Typography>
         ) : (
-          turnEvents.map((group, groupIndex) => (
-            <Box key={`turn-${groupIndex}`} sx={subtleBoxStyle}>
-              <Stack spacing={0.5}>
-                {group.map((entry, index) => (
-                  <Typography key={`${entry}-${index}`}>{entry}</Typography>
-                ))}
-              </Stack>
-            </Box>
-          ))
+          turnEvents.map((group, groupIndex) => {
+            const isLatest = groupIndex === turnEvents.length - 1;
+            return (
+              <Box key={`turn-${groupIndex}`} sx={subtleBoxStyle}>
+                <Stack spacing={0.5}>
+                  {group.map((entry, index) => (
+                    <Typography
+                      key={`${entry}-${index}`}
+                      sx={{
+                        color: isLatest ? 'text.primary' : 'text.disabled',
+                        opacity: isLatest ? 1 : 0.7,
+                      }}
+                    >
+                      {entry}
+                    </Typography>
+                  ))}
+                </Stack>
+              </Box>
+            );
+          })
         )}
       </Stack>
     </Box>
