@@ -17,6 +17,21 @@ export interface VendorResult {
   done?: boolean;
 }
 
+const raceLabel = (race: Race): string => {
+  switch (race) {
+    case Race.HUMAN:
+      return 'Human';
+    case Race.DWARF:
+      return 'Dwarf';
+    case Race.ELF:
+      return 'Elf';
+    case Race.HALFLING:
+      return 'Halfling';
+    default:
+      return 'Adventurer';
+  }
+};
+
 export class VendorSession {
   private rng: RandomSource;
   private player: Player;
@@ -147,7 +162,9 @@ export class VendorSession {
     if (this.player.gold < price) {
       return {
         events: [
-          Event.info("Don't try to cheat me. It won't work!"),
+          Event.info(
+            `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+          ),
           this.itemPrompt(),
         ],
       };
@@ -170,7 +187,9 @@ export class VendorSession {
     if (this.player.gold < price) {
       return {
         events: [
-          Event.info("Don't try to cheat me. It won't work!"),
+          Event.info(
+            `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+          ),
           this.itemPrompt(),
         ],
       };
@@ -191,7 +210,9 @@ export class VendorSession {
     if (this.player.gold < price) {
       return {
         events: [
-          Event.info("Don't try to cheat me. It won't work!"),
+          Event.info(
+            `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+          ),
           this.itemPrompt(),
         ],
       };
@@ -208,7 +229,9 @@ export class VendorSession {
         if (this.player.gold < price) {
           return {
             events: [
-              Event.info("Don't try to cheat me. It won't work!"),
+              Event.info(
+                `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+              ),
               this.itemPrompt(),
             ],
           };
@@ -225,7 +248,9 @@ export class VendorSession {
         if (this.player.gold < price) {
           return {
             events: [
-              Event.info("Don't try to cheat me. It won't work!"),
+              Event.info(
+                `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+              ),
               this.itemPrompt(),
             ],
           };
@@ -253,7 +278,11 @@ export class VendorSession {
     const price = POTION_PRICES['ATTRIBUTE'];
     if (this.player.gold < price) {
       return {
-        events: [Event.info("Don't try to cheat me. It won't work!")],
+        events: [
+          Event.info(
+            `Don't try to cheat me, you stupid ${raceLabel(this.player.race)}. It won't work!`
+          ),
+        ],
         done: true,
       };
     }
