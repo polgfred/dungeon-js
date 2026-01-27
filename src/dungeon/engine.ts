@@ -159,6 +159,49 @@ export class Game {
     return { events, mode: this.mode, needsInput: true };
   }
 
+  attemptCancel(): StepResult {
+    const events: Event[] = [];
+
+    if (this.mode === Mode.GAME_OVER || this.mode === Mode.VICTORY) {
+      return { events, mode: this.mode, needsInput: false };
+    }
+
+    if (this.shopSession) {
+      const result = this.shopSession.attemptCancel();
+      events.push(...result.events);
+      if (result.done) {
+        this.shopSession = null;
+      }
+      return { events, mode: this.mode, needsInput: true };
+    }
+
+    if (this.encounterSession) {
+      const result = this.encounterSession.attemptCancel();
+      events.push(...result.events);
+      if (result.mode !== Mode.ENCOUNTER) {
+        this.encounterSession = null;
+      }
+      this.mode = result.mode;
+      if (result.relocate) {
+        this.randomRelocate({ anyFloor: Boolean(result.relocateAnyFloor) });
+        if (result.enterRoom) {
+          events.push(...this.enterRoom());
+        }
+      }
+      return {
+        events,
+        mode: this.mode,
+        needsInput: this.mode !== Mode.GAME_OVER && this.mode !== Mode.VICTORY,
+      };
+    }
+
+    return {
+      events,
+      mode: this.mode,
+      needsInput: true,
+    };
+  }
+
   prompt(): string {
     return this.nextPrompt([]);
   }

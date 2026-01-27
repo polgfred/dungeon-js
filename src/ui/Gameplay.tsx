@@ -15,7 +15,11 @@ import { Feature, Mode } from '../dungeon/constants.js';
 import { Game } from '../dungeon/engine.js';
 import type { GameSave } from '../dungeon/serialization.js';
 import type { Player } from '../dungeon/model.js';
-import type { Event as GameEvent, PromptOption } from '../dungeon/types.js';
+import type {
+  Event as GameEvent,
+  PromptOption,
+  StepResult,
+} from '../dungeon/types.js';
 import { storeSavedGame } from '../storage/gameSave.js';
 import { CommandButton, type Command } from './CommandButton.js';
 import helpHtmlContent from '../assets/help.html?raw';
@@ -306,6 +310,7 @@ function CommandBarPanel({
   onTrigger,
   promptOptions,
   promptText,
+  promptHasCancel,
   encounterCommandList,
   roomCommandList,
 }: {
@@ -313,10 +318,25 @@ function CommandBarPanel({
   onTrigger: (command: Command) => void;
   promptOptions: PromptOption[] | null;
   promptText: string | null;
+  promptHasCancel: boolean;
   encounterCommandList: Command[];
   roomCommandList: Command[];
 }) {
   if (promptOptions && promptOptions.length > 0) {
+    const commands = promptOptions.map((option) => ({
+      id: `prompt-${option.key}`,
+      key: option.key,
+      label: option.label,
+      disabled: option.disabled,
+    }));
+    if (promptHasCancel) {
+      commands.push({
+        id: 'prompt-cancel',
+        key: 'Esc',
+        label: 'Cancel',
+        disabled: false,
+      });
+    }
     return (
       <Box
         sx={(theme) => ({
@@ -335,15 +355,10 @@ function CommandBarPanel({
               gap: 0.75,
             }}
           >
-            {promptOptions.map((option) => (
+            {commands.map((command) => (
               <CommandButton
-                key={`prompt-${option.key}`}
-                command={{
-                  id: `prompt-${option.key}`,
-                  key: option.key,
-                  label: option.label,
-                  disabled: option.disabled,
-                }}
+                key={command.id}
+                command={command}
                 onTrigger={onTrigger}
               />
             ))}
@@ -625,16 +640,18 @@ function mapTooltip(cell: string): string {
 function promptData(events: GameEvent[]): {
   promptOptions: PromptOption[] | null;
   promptText: string | null;
+  promptHasCancel: boolean;
 } {
   const promptEvent = [...events]
     .reverse()
     .find((event) => event.kind === 'PROMPT');
   if (!promptEvent) {
-    return { promptOptions: null, promptText: null };
+    return { promptOptions: null, promptText: null, promptHasCancel: false };
   }
   return {
     promptOptions: promptEvent.data?.options ?? null,
     promptText: promptEvent.text || null,
+    promptHasCancel: promptEvent.data?.hasCancel ?? false,
   };
 }
 
@@ -672,6 +689,7 @@ export default function Gameplay({
     null
   );
   const [promptText, setPromptText] = useState<string | null>(null);
+  const [promptHasCancel, setPromptHasCancel] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpHtml] = useState<string>(helpHtmlContent);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(
@@ -763,6 +781,7 @@ export default function Gameplay({
   const effectivePromptOptions = isEndState
     ? ENDGAME_PROMPT.options
     : promptOptions;
+  const effectivePromptHasCancel = isEndState ? false : promptHasCancel;
   const effectivePromptText = isEndState
     ? isVictory
       ? ENDGAME_PROMPT.victoryText
@@ -773,7 +792,7 @@ export default function Gameplay({
     if (!effectivePromptOptions || effectivePromptOptions.length === 0) {
       return null;
     }
-    return effectivePromptOptions
+    const commands = effectivePromptOptions
       .filter((option) => !option.disabled)
       .map((option) => ({
         id: `prompt-${option.key}`,
@@ -781,7 +800,16 @@ export default function Gameplay({
         label: option.label,
         disabled: false,
       }));
-  }, [effectivePromptOptions]);
+    if (effectivePromptHasCancel) {
+      commands.push({
+        id: 'prompt-cancel',
+        key: 'Esc',
+        label: 'Cancel',
+        disabled: false,
+      });
+    }
+    return commands;
+  }, [effectivePromptHasCancel, effectivePromptOptions]);
 
   const commandMap = useMemo(() => {
     const map = new Map<string, Command>();
@@ -797,10 +825,27 @@ export default function Gameplay({
     return map;
   }, [activeCommands, promptCommands, isEncounter]);
 
+  const applyStepResult = useCallback(
+    (result: StepResult) => {
+      const prompt = promptData(result.events);
+      setMode(result.mode);
+      setTurnEvents((prev) => appendEventFeed(prev, eventLines(result.events)));
+      setMapGrid(game.mapGrid());
+      setPromptOptions(prompt.promptOptions);
+      setPromptText(prompt.promptText);
+      setPromptHasCancel(prompt.promptHasCancel);
+    },
+    [game]
+  );
+
   const handleTrigger = useCallback(
     (command: Command) => {
       if (command.key === 'H') {
         setHelpOpen(true);
+        return;
+      }
+      if (command.id === 'prompt-cancel') {
+        applyStepResult(game.attemptCancel());
         return;
       }
       if (isEndState) {
@@ -811,15 +856,9 @@ export default function Gameplay({
         }
         return;
       }
-      const result = game.step(command.key);
-      const prompt = promptData(result.events);
-      setMode(result.mode);
-      setTurnEvents((prev) => appendEventFeed(prev, eventLines(result.events)));
-      setMapGrid(game.mapGrid());
-      setPromptOptions(prompt.promptOptions);
-      setPromptText(prompt.promptText);
+      applyStepResult(game.step(command.key));
     },
-    [game, isEndState, onBack, onSetup]
+    [applyStepResult, game, isEndState, onBack, onSetup]
   );
 
   const handleSave = useCallback(() => {
@@ -852,6 +891,7 @@ export default function Gameplay({
     setMapGrid(game.mapGrid());
     setPromptOptions(prompt.promptOptions);
     setPromptText(prompt.promptText);
+    setPromptHasCancel(prompt.promptHasCancel);
   }, [game]);
 
   useEffect(() => {
@@ -859,6 +899,7 @@ export default function Gameplay({
       if (event.repeat) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       let key = event.key.toLowerCase();
+      if (key === 'escape') key = 'esc';
       if (key === 'arrowup') key = 'n';
       if (key === 'arrowdown') key = 's';
       if (key === 'arrowleft') key = 'w';
@@ -917,6 +958,7 @@ export default function Gameplay({
             onTrigger={handleTrigger}
             promptOptions={effectivePromptOptions}
             promptText={effectivePromptText}
+            promptHasCancel={effectivePromptHasCancel}
             encounterCommandList={encounterCommandList}
             roomCommandList={roomCommandList}
           />

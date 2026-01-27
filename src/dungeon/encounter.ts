@@ -1,7 +1,7 @@
 import { Mode, MONSTER_NAMES, Spell, TREASURE_NAMES } from './constants.js';
 import type { EncounterSave } from './serialization.js';
 import type { Player, Room } from './model.js';
-import { Event } from './types.js';
+import { Event, PromptData } from './types.js';
 import type { RandomSource } from './rng.js';
 
 export interface EncounterResult {
@@ -122,24 +122,11 @@ export class EncounterSession {
   }
 
   step(raw: string): EncounterResult {
-    const withDebug = (result: EncounterResult): EncounterResult => {
-      if (!this.debug) {
-        return result;
-      }
-      return {
-        events: [this.debugMonsterEvent(), ...result.events],
-        mode: result.mode,
-        relocate: result.relocate,
-        relocateAnyFloor: result.relocateAnyFloor,
-        enterRoom: result.enterRoom,
-      };
-    };
-
     if (this.awaitingSpell) {
-      return withDebug(this.handleSpellChoice(raw));
+      return this.withDebug(this.handleSpellChoice(raw));
     }
     if (!raw) {
-      return withDebug({
+      return this.withDebug({
         events: [Event.error("I don't understand that.")],
         mode: Mode.ENCOUNTER,
       });
@@ -147,21 +134,41 @@ export class EncounterSession {
     const key = raw[0];
     switch (key) {
       case 'F':
-        return withDebug(this.fightRound());
+        return this.withDebug(this.fightRound());
       case 'R':
-        return withDebug(this.runAttempt());
+        return this.withDebug(this.runAttempt());
       case 'S':
         this.awaitingSpell = true;
-        return withDebug({
+        return this.withDebug({
           events: [Event.prompt('Choose a spell:', this.spellMenu())],
           mode: Mode.ENCOUNTER,
         });
       default:
-        return withDebug({
+        return this.withDebug({
           events: [Event.error("I don't understand that.")],
           mode: Mode.ENCOUNTER,
         });
     }
+  }
+
+  attemptCancel(): EncounterResult {
+    if (this.awaitingSpell) {
+      return this.withDebug(this.handleSpellChoice('C'));
+    }
+    return this.withDebug({ events: [], mode: Mode.ENCOUNTER });
+  }
+
+  private withDebug(result: EncounterResult): EncounterResult {
+    if (!this.debug) {
+      return result;
+    }
+    return {
+      events: [this.debugMonsterEvent(), ...result.events],
+      mode: result.mode,
+      relocate: result.relocate,
+      relocateAnyFloor: result.relocateAnyFloor,
+      enterRoom: result.enterRoom,
+    };
   }
 
   private debugMonsterEvent(): Event {
@@ -366,7 +373,7 @@ export class EncounterSession {
     return this.castSpell(spell);
   }
 
-  private spellMenu(): Record<string, unknown> {
+  private spellMenu(): PromptData {
     const spells = this.player.spells;
     const iqTooLow = this.player.iq < 12;
     const options = [
@@ -395,14 +402,11 @@ export class EncounterSession {
         label: `Teleport (${spells[Spell.TELEPORT] ?? 0})`,
         disabled: iqTooLow || (spells[Spell.TELEPORT] ?? 0) <= 0,
       },
-      {
-        key: 'C',
-        label: 'Cancel',
-      },
     ];
     return {
       type: 'spell',
       options,
+      hasCancel: true,
     };
   }
 

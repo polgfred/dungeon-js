@@ -25,6 +25,7 @@ export type PromptOption = {
 export type PromptData = {
   type?: string;
   options?: PromptOption[];
+  hasCancel: boolean;
 };
 
 export type PromptEvent = {
