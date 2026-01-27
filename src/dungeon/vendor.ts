@@ -171,9 +171,7 @@ export class VendorSession {
   }
 
   private handleShopWeapons(raw: string): VendorResult {
-    const tier = ({ D: 1, S: 2, B: 3 } as const)[
-      raw as 'D' | 'S' | 'B'
-    ];
+    const tier = ({ D: 1, S: 2, B: 3 } as const)[raw as 'D' | 'S' | 'B'];
     if (!tier) {
       return { events: [Event.error('Choose D/S/B.'), this.itemPrompt()] };
     }
@@ -198,9 +196,7 @@ export class VendorSession {
   }
 
   private handleShopArmor(raw: string): VendorResult {
-    const tier = ({ L: 1, W: 2, C: 3 } as const)[
-      raw as 'L' | 'W' | 'C'
-    ];
+    const tier = ({ L: 1, W: 2, C: 3 } as const)[raw as 'L' | 'W' | 'C'];
     if (!tier) {
       return { events: [Event.error('Choose L/W/C.'), this.itemPrompt()] };
     }
