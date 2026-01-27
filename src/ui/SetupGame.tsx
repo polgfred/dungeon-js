@@ -7,8 +7,8 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { alpha, lighten, type Theme } from '@mui/material/styles';
-import { useMemo, useState } from 'react';
+import { alpha, type Theme } from '@mui/material/styles';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   ARMOR_NAMES,
@@ -30,6 +30,21 @@ type Stats = {
   HP: number;
 };
 
+type Command = {
+  id: string;
+  key: string;
+  label: string;
+  disabled: boolean;
+};
+
+function normalizeCommandKey(event: KeyboardEvent): string | null {
+  if (event.key === 'Enter') return 'Enter';
+  if (event.key === 'Escape') return 'Esc';
+  if (event.key.length !== 1) return null;
+  const upper = event.key.toUpperCase();
+  return event.shiftKey ? `Shift+${upper}` : upper;
+}
+
 const raceOptions = [
   { value: Race.HUMAN, label: 'Human', tagline: 'Balanced and adaptable.' },
   { value: Race.DWARF, label: 'Dwarf', tagline: 'Stout and resilient.' },
@@ -44,6 +59,81 @@ const panelStyle = (theme: Theme) => ({
   borderRadius: 2,
   padding: { xs: 2, md: 3 },
 });
+
+function CommandButton({
+  command,
+  onTrigger,
+}: {
+  command: Command;
+  onTrigger: (command: Command) => void;
+}) {
+  return (
+    <Button
+      variant="outlined"
+      onClick={() => onTrigger(command)}
+      color="primary"
+      size="small"
+      disabled={Boolean(command.disabled)}
+      sx={{
+        textTransform: 'none',
+        letterSpacing: 0.6,
+        paddingY: 0.6,
+        paddingX: 1.4,
+        minWidth: 86,
+      }}
+    >
+      <Stack spacing={0.2} alignItems="center">
+        <Typography sx={{ fontSize: 12 }}>{command.label}</Typography>
+        <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 10 }}>
+          {command.key}
+        </Typography>
+      </Stack>
+    </Button>
+  );
+}
+
+function SetupCommandPanel({
+  title,
+  commands,
+  onTrigger,
+}: {
+  title: string;
+  commands: Command[];
+  onTrigger: (command: Command) => void;
+}) {
+  return (
+    <Box
+      sx={(theme) => ({
+        ...panelStyle(theme),
+        paddingY: { xs: 1.5, md: 2 },
+      })}
+    >
+      <Stack spacing={2}>
+        <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
+          {title}
+        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 0.75,
+          }}
+        >
+          {commands.map((command) => (
+            <CommandButton
+              key={command.id}
+              command={command}
+              onTrigger={onTrigger}
+            />
+          ))}
+        </Box>
+        <Typography variant="caption" sx={{ opacity: 0.6 }}>
+          Tip: press the letter keys shown on each command.
+        </Typography>
+      </Stack>
+    </Box>
+  );
+}
 
 function RaceStage({
   race,
@@ -545,6 +635,275 @@ export default function SetupGame({
     }
   };
 
+  const commandList = useMemo(() => {
+    if (stage === 'race') {
+      return [
+        { id: 'race-human', key: 'H', label: 'Human', disabled: false },
+        { id: 'race-dwarf', key: 'D', label: 'Dwarf', disabled: false },
+        { id: 'race-elf', key: 'E', label: 'Elf', disabled: false },
+        { id: 'race-halfling', key: 'L', label: 'Halfling', disabled: false },
+        {
+          id: 'race-confirm',
+          key: 'Enter',
+          label: 'Confirm',
+          disabled: !race || !baseStats,
+        },
+        { id: 'race-back', key: 'Esc', label: 'Back', disabled: false },
+      ];
+    }
+
+    if (stage === 'allocate') {
+      const canAdjust = Boolean(baseStats);
+      const stTotal = baseStats ? baseStats.ST + allocations.ST : 0;
+      const dxTotal = baseStats ? baseStats.DX + allocations.DX : 0;
+      const iqTotal = baseStats ? baseStats.IQ + allocations.IQ : 0;
+      return [
+        {
+          id: 'alloc-st-plus',
+          key: 'S',
+          label: 'ST +',
+          disabled: !canAdjust || remainingPoints <= 0 || stTotal >= 18,
+        },
+        {
+          id: 'alloc-st-minus',
+          key: 'Shift+S',
+          label: 'ST -',
+          disabled: !canAdjust || allocations.ST === 0,
+        },
+        {
+          id: 'alloc-dx-plus',
+          key: 'D',
+          label: 'DX +',
+          disabled: !canAdjust || remainingPoints <= 0 || dxTotal >= 18,
+        },
+        {
+          id: 'alloc-dx-minus',
+          key: 'Shift+D',
+          label: 'DX -',
+          disabled: !canAdjust || allocations.DX === 0,
+        },
+        {
+          id: 'alloc-iq-plus',
+          key: 'I',
+          label: 'IQ +',
+          disabled: !canAdjust || remainingPoints <= 0 || iqTotal >= 18,
+        },
+        {
+          id: 'alloc-iq-minus',
+          key: 'Shift+I',
+          label: 'IQ -',
+          disabled: !canAdjust || allocations.IQ === 0,
+        },
+        {
+          id: 'alloc-confirm',
+          key: 'Enter',
+          label: 'Lock Stats',
+          disabled: remainingPoints !== 0,
+        },
+        { id: 'alloc-back', key: 'Esc', label: 'Back', disabled: false },
+      ];
+    }
+
+    if (stage === 'shop') {
+      const confirmDisabled = gold === null || totalCost > gold;
+      return [
+        {
+          id: 'shop-weapon-plus',
+          key: 'W',
+          label: 'Weapon +',
+          disabled: weaponTier >= 3,
+        },
+        {
+          id: 'shop-weapon-minus',
+          key: 'Shift+W',
+          label: 'Weapon -',
+          disabled: weaponTier <= 1,
+        },
+        {
+          id: 'shop-armor-plus',
+          key: 'A',
+          label: 'Armor +',
+          disabled: armorTier >= 3,
+        },
+        {
+          id: 'shop-armor-minus',
+          key: 'Shift+A',
+          label: 'Armor -',
+          disabled: armorTier <= 1,
+        },
+        {
+          id: 'shop-flares-plus',
+          key: 'F',
+          label: 'Flares +',
+          disabled: flares >= maxFlares,
+        },
+        {
+          id: 'shop-flares-minus',
+          key: 'Shift+F',
+          label: 'Flares -',
+          disabled: flares <= 0,
+        },
+        {
+          id: 'shop-confirm',
+          key: 'Enter',
+          label: 'Finalize',
+          disabled: confirmDisabled,
+        },
+        { id: 'shop-back', key: 'Esc', label: 'Back', disabled: false },
+      ];
+    }
+
+    return [
+      { id: 'ready-reset', key: 'R', label: 'Reset', disabled: false },
+      { id: 'ready-enter', key: 'Enter', label: 'Enter', disabled: false },
+    ];
+  }, [
+    stage,
+    race,
+    baseStats,
+    allocations,
+    remainingPoints,
+    weaponTier,
+    armorTier,
+    flares,
+    maxFlares,
+    gold,
+    totalCost,
+  ]);
+
+  const commandMap = useMemo(() => {
+    const map = new Map<string, Command>();
+    commandList
+      .filter((command) => !command.disabled)
+      .forEach((command) => map.set(command.key, command));
+    return map;
+  }, [commandList]);
+
+  const handleTrigger = useCallback(
+    (command: Command) => {
+      if (stage === 'race') {
+        switch (command.id) {
+          case 'race-human':
+            handleRaceSelect(Race.HUMAN);
+            return;
+          case 'race-dwarf':
+            handleRaceSelect(Race.DWARF);
+            return;
+          case 'race-elf':
+            handleRaceSelect(Race.ELF);
+            return;
+          case 'race-halfling':
+            handleRaceSelect(Race.HALFLING);
+            return;
+          case 'race-confirm':
+            if (race && baseStats) setStage('allocate');
+            return;
+          case 'race-back':
+            onBack();
+            return;
+        }
+      }
+
+      if (stage === 'allocate') {
+        switch (command.id) {
+          case 'alloc-st-plus':
+            handleAdjust('ST', 1);
+            return;
+          case 'alloc-st-minus':
+            handleAdjust('ST', -1);
+            return;
+          case 'alloc-dx-plus':
+            handleAdjust('DX', 1);
+            return;
+          case 'alloc-dx-minus':
+            handleAdjust('DX', -1);
+            return;
+          case 'alloc-iq-plus':
+            handleAdjust('IQ', 1);
+            return;
+          case 'alloc-iq-minus':
+            handleAdjust('IQ', -1);
+            return;
+          case 'alloc-confirm':
+            handleAdvanceToShop();
+            return;
+          case 'alloc-back':
+            setStage('race');
+            return;
+        }
+      }
+
+      if (stage === 'shop') {
+        switch (command.id) {
+          case 'shop-weapon-plus':
+            setWeaponTier((prev) => Math.min(3, prev + 1));
+            return;
+          case 'shop-weapon-minus':
+            setWeaponTier((prev) => Math.max(1, prev - 1));
+            return;
+          case 'shop-armor-plus':
+            setArmorTier((prev) => Math.min(3, prev + 1));
+            return;
+          case 'shop-armor-minus':
+            setArmorTier((prev) => Math.max(1, prev - 1));
+            return;
+          case 'shop-flares-plus':
+            setFlares((prev) => Math.min(maxFlares, prev + 1));
+            return;
+          case 'shop-flares-minus':
+            setFlares((prev) => Math.max(0, prev - 1));
+            return;
+          case 'shop-confirm':
+            handleFinish();
+            return;
+          case 'shop-back':
+            setStage('allocate');
+            return;
+        }
+      }
+
+      if (stage === 'ready') {
+        switch (command.id) {
+          case 'ready-reset':
+            setStage('race');
+            return;
+          case 'ready-enter':
+            if (player) onComplete(player);
+            return;
+        }
+      }
+    },
+    [
+      stage,
+      race,
+      baseStats,
+      handleRaceSelect,
+      onBack,
+      handleAdjust,
+      handleAdvanceToShop,
+      handleFinish,
+      maxFlares,
+      player,
+      onComplete,
+    ]
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.repeat) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const key = normalizeCommandKey(event);
+      if (!key) return;
+      const command = commandMap.get(key);
+      if (!command) return;
+      event.preventDefault();
+      handleTrigger(command);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [commandMap, handleTrigger]);
+
   return (
     <Box
       sx={{
@@ -570,52 +929,59 @@ export default function SetupGame({
           },
         }}
       >
-        <Box sx={(theme) => panelStyle(theme)}>
-          {stage === 'race' && (
-            <RaceStage
-              race={race}
-              baseStats={baseStats}
-              onSelect={handleRaceSelect}
-              onBack={onBack}
-              onConfirm={() => setStage('allocate')}
-            />
-          )}
+        <Stack spacing={3}>
+          <Box sx={(theme) => panelStyle(theme)}>
+            {stage === 'race' && (
+              <RaceStage
+                race={race}
+                baseStats={baseStats}
+                onSelect={handleRaceSelect}
+                onBack={onBack}
+                onConfirm={() => setStage('allocate')}
+              />
+            )}
 
-          {stage === 'allocate' && (
-            <AllocationStage
-              baseStats={baseStats}
-              allocations={allocations}
-              remainingPoints={remainingPoints}
-              onAdjust={handleAdjust}
-              onBack={() => setStage('race')}
-              onConfirm={handleAdvanceToShop}
-            />
-          )}
+            {stage === 'allocate' && (
+              <AllocationStage
+                baseStats={baseStats}
+                allocations={allocations}
+                remainingPoints={remainingPoints}
+                onAdjust={handleAdjust}
+                onBack={() => setStage('race')}
+                onConfirm={handleAdvanceToShop}
+              />
+            )}
 
-          {stage === 'shop' && (
-            <ShopStage
-              weaponTier={weaponTier}
-              armorTier={armorTier}
-              flares={flares}
-              maxFlares={maxFlares}
-              setupError={setupError}
-              onWeaponTier={setWeaponTier}
-              onArmorTier={setArmorTier}
-              onFlaresChange={setFlares}
-              onBack={() => setStage('allocate')}
-              onConfirm={handleFinish}
-              disableConfirm={gold === null || totalCost > gold}
-            />
-          )}
+            {stage === 'shop' && (
+              <ShopStage
+                weaponTier={weaponTier}
+                armorTier={armorTier}
+                flares={flares}
+                maxFlares={maxFlares}
+                setupError={setupError}
+                onWeaponTier={setWeaponTier}
+                onArmorTier={setArmorTier}
+                onFlaresChange={setFlares}
+                onBack={() => setStage('allocate')}
+                onConfirm={handleFinish}
+                disableConfirm={gold === null || totalCost > gold}
+              />
+            )}
 
-          {stage === 'ready' && player && (
-            <ReadyStage
-              player={player}
-              onReset={() => setStage('race')}
-              onComplete={onComplete}
-            />
-          )}
-        </Box>
+            {stage === 'ready' && player && (
+              <ReadyStage
+                player={player}
+                onReset={() => setStage('race')}
+                onComplete={onComplete}
+              />
+            )}
+          </Box>
+          <SetupCommandPanel
+            title={`Setup Console: ${stage}`}
+            commands={commandList}
+            onTrigger={handleTrigger}
+          />
+        </Stack>
 
         <Box sx={(theme) => panelStyle(theme)}>
           <StatusReadout
