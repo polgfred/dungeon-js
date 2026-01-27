@@ -15,7 +15,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "dist": "bash scripts/update-dist-branch.sh"
+    "dist": "./scripts/update-dist-branch.sh"
   },
   "devDependencies": {
     "@emotion/react": "^11.14.0",
