@@ -3,9 +3,10 @@ import {
   ARMOR_PRICES,
   POTION_PRICES,
   SPELL_PRICES,
-  Spell,
   WEAPON_NAMES,
   WEAPON_PRICES,
+  Race,
+  Spell,
 } from './constants.js';
 import type { VendorSave } from './serialization.js';
 import type { Player } from './model.js';
@@ -301,11 +302,11 @@ export class VendorSession {
   private categoryPrompt(): Event {
     return Event.prompt('He is selling:', {
       options: [
-        { key: 'W', label: 'Weapons' },
-        { key: 'A', label: 'Armor' },
-        { key: 'S', label: 'Scrolls' },
-        { key: 'P', label: 'Potions' },
-        { key: 'C', label: 'Cancel' },
+        { key: 'W', label: 'Weapons', disabled: false },
+        { key: 'A', label: 'Armor', disabled: false },
+        { key: 'S', label: 'Scrolls', disabled: false },
+        { key: 'P', label: 'Potions', disabled: false },
+        { key: 'C', label: 'Cancel', disabled: false },
       ],
     });
   }
@@ -329,7 +330,7 @@ export class VendorSession {
             label: `Broadsword (${WEAPON_PRICES[3]}g)`,
             disabled: this.player.gold < WEAPON_PRICES[3],
           },
-          { key: 'C', label: 'Cancel' },
+          { key: 'C', label: 'Cancel', disabled: false },
         ],
       });
     }
@@ -351,7 +352,7 @@ export class VendorSession {
             label: `Chain mail (${ARMOR_PRICES[3]}g)`,
             disabled: this.player.gold < ARMOR_PRICES[3],
           },
-          { key: 'C', label: 'Cancel' },
+          { key: 'C', label: 'Cancel', disabled: false },
         ],
       });
     }
@@ -383,7 +384,7 @@ export class VendorSession {
             label: `Teleport (${SPELL_PRICES[Spell.TELEPORT]}g)`,
             disabled: this.player.gold < SPELL_PRICES[Spell.TELEPORT],
           },
-          { key: 'C', label: 'Cancel' },
+          { key: 'C', label: 'Cancel', disabled: false },
         ],
       });
     }
@@ -399,7 +400,7 @@ export class VendorSession {
           label: `Attribute enhancer (${POTION_PRICES['ATTRIBUTE']}g)`,
           disabled: this.player.gold < POTION_PRICES['ATTRIBUTE'],
         },
-        { key: 'C', label: 'Cancel' },
+        { key: 'C', label: 'Cancel', disabled: false },
       ],
     });
   }
@@ -407,11 +408,11 @@ export class VendorSession {
   private attributePrompt(): Event {
     return Event.prompt('Choose an attribute:', {
       options: [
-        { key: '1', label: 'Strength' },
-        { key: '2', label: 'Dexterity' },
-        { key: '3', label: 'Intelligence' },
-        { key: '4', label: 'Max HP' },
-        { key: 'C', label: 'Cancel' },
+        { key: '1', label: 'Strength', disabled: false },
+        { key: '2', label: 'Dexterity', disabled: false },
+        { key: '3', label: 'Intelligence', disabled: false },
+        { key: '4', label: 'Max HP', disabled: false },
+        { key: 'C', label: 'Cancel', disabled: false },
       ],
     });
   }
