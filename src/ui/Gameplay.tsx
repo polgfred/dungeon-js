@@ -535,8 +535,9 @@ function HelpDialog({
         },
       }}
       sx={(theme) => ({
-        '& .MuiDialogTitle-root, & .MuiDialogContent-root': {
-          background: alpha(theme.palette.background.paper, 0.9),
+        '& .MuiDialog-paper': {
+          background: theme.palette.grey[400],
+          color: theme.palette.common.black,
         },
       })}
     >
@@ -555,7 +556,7 @@ function HelpDialog({
           variant="inherit"
           onClick={onClose}
           sx={{
-            cursor: '',
+            cursor: 'pointer',
           }}
         >
           X
