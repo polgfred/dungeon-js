@@ -13,8 +13,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Feature, Mode } from '../dungeon/constants.js';
 import { Game } from '../dungeon/engine.js';
+import type { GameSave } from '../dungeon/serialization.js';
 import type { Player } from '../dungeon/model.js';
 import type { Event as GameEvent, PromptOption } from '../dungeon/types.js';
+import { storeSavedGame } from '../storage/gameSave.js';
 
 type Command = {
   id: string;
@@ -502,14 +504,20 @@ function PlayerReadoutPanel({
   encounterMode,
   onBack,
   player,
+  onSave,
+  lastSavedAt,
+  saveError,
 }: {
   encounterMode: boolean;
   onBack: () => void;
   player: Player;
+  onSave: () => void;
+  lastSavedAt: string | null;
+  saveError: string | null;
 }) {
   return (
     <Box sx={(theme) => panelStyle(theme)}>
-      <Stack spacing={2}>
+      <Stack spacing={2} sx={{ height: '100%' }}>
         <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
           Player Readout
         </Typography>
@@ -553,6 +561,27 @@ function PlayerReadoutPanel({
         <Typography sx={{ opacity: 0.6 }}>
           Tip: press the letter keys shown on each command.
         </Typography>
+        <Box sx={{ flexGrow: 1 }} />
+        <Stack spacing={1}>
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            <Button variant="outlined" onClick={onSave}>
+              Save Game
+            </Button>
+            <Button variant="outlined" onClick={onBack}>
+              Exit
+            </Button>
+          </Stack>
+          {lastSavedAt && (
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              Saved {lastSavedAt}
+            </Typography>
+          )}
+          {saveError && (
+            <Typography variant="caption" color="error">
+              {saveError}
+            </Typography>
+          )}
+        </Stack>
       </Stack>
     </Box>
   );
@@ -618,6 +647,10 @@ function eventLines(events: GameEvent[]): string[] {
     )
     .map((event) => event.text)
     .filter(Boolean);
+}
+
+function resumeLines(events: GameEvent[]): string[] {
+  return events.map((event) => event.text).filter(Boolean);
 }
 
 const EVENT_FEED_LIMIT = 10;
@@ -687,16 +720,29 @@ function promptData(events: GameEvent[]): {
 
 export default function Gameplay({
   onBack,
-  player,
+  player: initialPlayer,
+  savedGame,
 }: {
   onBack: () => void;
   player: Player;
+  savedGame?: GameSave | null;
 }) {
   const gameRef = useRef<Game | null>(null);
+  const loadedFromSaveRef = useRef(false);
   if (!gameRef.current) {
-    gameRef.current = new Game({ seed: Date.now(), player });
+    if (savedGame) {
+      try {
+        gameRef.current = Game.fromSave(savedGame);
+        loadedFromSaveRef.current = true;
+      } catch {
+        gameRef.current = new Game({ seed: Date.now(), player: initialPlayer });
+      }
+    } else {
+      gameRef.current = new Game({ seed: Date.now(), player: initialPlayer });
+    }
   }
   const game = gameRef.current;
+  const player = game.player;
   const [mode, setMode] = useState<Mode>(game.mode);
   const [mapGrid, setMapGrid] = useState<string[]>(game.mapGrid());
   const [turnEvents, setTurnEvents] = useState<string[][]>([]);
@@ -706,6 +752,10 @@ export default function Gameplay({
   const [promptText, setPromptText] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpHtml, setHelpHtml] = useState<string>('');
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(
+    savedGame?.savedAt ? new Date(savedGame.savedAt).toLocaleString() : null
+  );
+  const [saveError, setSaveError] = useState<string | null>(null);
   const initialized = useRef(false);
 
   const isEncounter = mode === Mode.ENCOUNTER;
@@ -828,12 +878,32 @@ export default function Gameplay({
     [game]
   );
 
+  const handleSave = useCallback(() => {
+    const save = game.toSave();
+    const stored = storeSavedGame(save);
+    if (stored.ok) {
+      setSaveError(null);
+      setLastSavedAt(new Date(save.savedAt).toLocaleString());
+    } else {
+      setSaveError(stored.error ?? 'Save failed.');
+    }
+  }, [game]);
+
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
-    const startEvents = game.startEvents();
-    const prompt = promptData(startEvents);
-    setTurnEvents((prev) => appendEventFeed(prev, eventLines(startEvents)));
+    const initialEvents = loadedFromSaveRef.current
+      ? game.resumeEvents()
+      : game.startEvents();
+    const prompt = promptData(initialEvents);
+    setTurnEvents((prev) =>
+      appendEventFeed(
+        prev,
+        loadedFromSaveRef.current
+          ? resumeLines(initialEvents)
+          : eventLines(initialEvents)
+      )
+    );
     setMode(game.mode);
     setMapGrid(game.mapGrid());
     setPromptOptions(prompt.promptOptions);
@@ -917,6 +987,9 @@ export default function Gameplay({
           encounterMode={isEncounter}
           onBack={onBack}
           player={player}
+          onSave={handleSave}
+          lastSavedAt={lastSavedAt}
+          saveError={saveError}
         />
       </Box>
       <HelpDialog

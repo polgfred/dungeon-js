@@ -1,4 +1,5 @@
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { createRoot } from 'react-dom/client';
 
 import App from './App.js';
@@ -64,11 +65,11 @@ const theme = createTheme({
           },
         }),
         outlinedPrimary: ({ theme }) => ({
-          borderColor: theme.palette.primary.light,
+          borderColor: alpha(theme.palette.primary.light, 0.5),
           color: theme.palette.text.primary,
           '&:hover': {
-            borderColor: theme.palette.primary.main,
-            backgroundColor: 'transparent',
+            borderColor: alpha(theme.palette.primary.light, 0.7),
+            backgroundColor: alpha(theme.palette.primary.light, 0.16),
           },
         }),
       },

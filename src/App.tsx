@@ -3,10 +3,13 @@ import { alpha, type Theme } from '@mui/material/styles';
 import { useCallback, useEffect, useState } from 'react';
 
 import { ARMOR_PRICES, Race, WEAPON_PRICES } from './dungeon/constants.js';
+import type { GameSave } from './dungeon/serialization.js';
 import type { Player } from './dungeon/model.js';
 import { Player as PlayerModel } from './dungeon/model.js';
 import { defaultRandomSource, type RandomSource } from './dungeon/rng.js';
+import { deserializePlayer } from './dungeon/serialization.js';
 import HomePage from './pages/HomePage.js';
+import { hasSavedGame, loadSavedGame } from './storage/gameSave.js';
 import Gameplay from './ui/Gameplay.js';
 import SetupGame from './ui/SetupGame.js';
 
@@ -44,6 +47,8 @@ const screenStyle = (theme: Theme) => ({
 export default function App() {
   const [route, setRoute] = useState<RoutePath>(() => getRoutePath());
   const [player, setPlayer] = useState<Player | null>(null);
+  const [savedGame, setSavedGame] = useState<GameSave | null>(null);
+  const [saveAvailable, setSaveAvailable] = useState(false);
 
   const navigate = useCallback((path: RoutePath, replace = false) => {
     const target = `#${path}`;
@@ -68,6 +73,16 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    setSaveAvailable(hasSavedGame());
+  }, [route]);
+
+  useEffect(() => {
+    const handleStorage = () => setSaveAvailable(hasSavedGame());
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  useEffect(() => {
     if (route === '/gameplay' && !player) {
       navigate('/setup', true);
     }
@@ -77,6 +92,7 @@ export default function App() {
     if (route === '/random') {
       const randomPlayer = createRandomPlayer(defaultRandomSource);
       setPlayer(randomPlayer);
+      setSavedGame(null);
       navigate('/gameplay');
     }
   }, [navigate, route]);
@@ -84,13 +100,25 @@ export default function App() {
   return (
     <Box component="main" sx={(theme) => screenStyle(theme)}>
       {route === '/' && (
-        <HomePage setupHref="#/setup" onBeginSetup={() => navigate('/setup')} />
+        <HomePage
+          setupHref="#/setup"
+          onBeginSetup={() => navigate('/setup')}
+          hasSave={saveAvailable}
+          onContinue={() => {
+            const save = loadSavedGame();
+            if (!save) return;
+            setSavedGame(save);
+            setPlayer(deserializePlayer(save.player));
+            navigate('/gameplay');
+          }}
+        />
       )}
 
       {route === '/setup' && (
         <SetupGame
           onComplete={(created) => {
             setPlayer(created);
+            setSavedGame(null);
             navigate('/gameplay');
           }}
           onBack={() => navigate('/')}
@@ -100,9 +128,11 @@ export default function App() {
       {route === '/gameplay' && player && (
         <Gameplay
           player={player}
+          savedGame={savedGame}
           onBack={() => {
             setPlayer(null);
-            navigate('/setup');
+            setSavedGame(null);
+            navigate('/');
           }}
         />
       )}

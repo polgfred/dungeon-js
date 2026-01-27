@@ -4,15 +4,27 @@ import type { MouseEvent } from 'react';
 type TitleScreenProps = {
   setupHref: string;
   onStart?: () => void;
+  hasSave?: boolean;
+  onContinue?: () => void;
 };
 
-export default function TitleScreen({ setupHref, onStart }: TitleScreenProps) {
+export default function TitleScreen({
+  setupHref,
+  onStart,
+  hasSave = false,
+  onContinue,
+}: TitleScreenProps) {
   const handleStart = (event: MouseEvent<HTMLAnchorElement>) => {
     if (!onStart) {
       return;
     }
     event.preventDefault();
     onStart();
+  };
+
+  const handleContinue = () => {
+    if (!onContinue) return;
+    onContinue();
   };
 
   return (
@@ -55,15 +67,22 @@ export default function TitleScreen({ setupHref, onStart }: TitleScreenProps) {
           Now, brave adventurer: prepare to choose thy race, arm thyself, and
           descend into the dungeon.
         </Typography>
-        <Button
-          variant="contained"
-          component="a"
-          href={setupHref}
-          onClick={handleStart}
-          color="primary"
-        >
-          Begin Setup
-        </Button>
+        <Stack direction="column" spacing={2}>
+          <Button
+            variant="contained"
+            component="a"
+            href={setupHref}
+            onClick={handleStart}
+            color="primary"
+          >
+            Begin Setup
+          </Button>
+          {hasSave && (
+            <Button variant="outlined" onClick={handleContinue} color="primary">
+              Continue Adventure
+            </Button>
+          )}
+        </Stack>
       </Stack>
       <Stack
         spacing={2}
