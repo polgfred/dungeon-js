@@ -19,6 +19,7 @@ import {
 } from '../dungeon/constants.js';
 import { Player } from '../dungeon/model.js';
 import { defaultRandomSource } from '../dungeon/rng.js';
+import { CommandButton, type Command } from './CommandButton.js';
 
 type AllocationKey = 'ST' | 'DX' | 'IQ';
 type AllocationState = Record<AllocationKey, number>;
@@ -28,13 +29,6 @@ type Stats = {
   DX: number;
   IQ: number;
   HP: number;
-};
-
-type Command = {
-  id: string;
-  key: string;
-  label: string;
-  disabled: boolean;
 };
 
 function normalizeCommandKey(event: KeyboardEvent): string | null {
@@ -59,38 +53,6 @@ const panelStyle = (theme: Theme) => ({
   borderRadius: 2,
   padding: { xs: 2, md: 3 },
 });
-
-function CommandButton({
-  command,
-  onTrigger,
-}: {
-  command: Command;
-  onTrigger: (command: Command) => void;
-}) {
-  return (
-    <Button
-      variant="outlined"
-      onClick={() => onTrigger(command)}
-      color="primary"
-      size="small"
-      disabled={Boolean(command.disabled)}
-      sx={{
-        textTransform: 'none',
-        letterSpacing: 0.6,
-        paddingY: 0.6,
-        paddingX: 1.4,
-        minWidth: 86,
-      }}
-    >
-      <Stack spacing={0.2} alignItems="center">
-        <Typography sx={{ fontSize: 12 }}>{command.label}</Typography>
-        <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 10 }}>
-          {command.key}
-        </Typography>
-      </Stack>
-    </Button>
-  );
-}
 
 function SetupCommandPanel({
   title,
