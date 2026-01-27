@@ -87,7 +87,7 @@ function RaceStage({
                   ? `1px solid ${alpha(theme.palette.primary.light, 0.9)}`
                   : `1px solid ${alpha(theme.palette.primary.light, 0.5)}`,
                 background: active
-                  ? alpha(theme.palette.primary.light, 0.35)
+                  ? alpha(theme.palette.primary.light, 0.5)
                   : alpha(theme.palette.primary.dark, 0.35),
                 boxShadow: active
                   ? `0 0 20px ${alpha(theme.palette.primary.light, 0.45)}`
@@ -360,7 +360,7 @@ function ShopStage({
           onClick={onConfirm}
           color="primary"
         >
-          Finalize Inventory
+          Finalize Supplies
         </Button>
       </Stack>
     </Stack>
@@ -427,10 +427,7 @@ function StatusReadout({
 }) {
   return (
     <Stack spacing={2}>
-      <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-        Player Readout
-      </Typography>
-      <Stack spacing={1}>
+      <Stack spacing={0.5}>
         <Typography sx={{ opacity: 0.7 }}>Race</Typography>
         <Typography>
           {race
@@ -438,23 +435,27 @@ function StatusReadout({
             : 'Unassigned'}
         </Typography>
       </Stack>
-      <Stack spacing={1}>
+      <Stack spacing={0.5}>
         <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
         <Typography>ST {derivedStats ? derivedStats.ST : '--'}</Typography>
         <Typography>DX {derivedStats ? derivedStats.DX : '--'}</Typography>
         <Typography>IQ {derivedStats ? derivedStats.IQ : '--'}</Typography>
         <Typography>HP {derivedStats ? derivedStats.HP : '--'}</Typography>
       </Stack>
-      <Stack spacing={1}>
-        <Typography sx={{ opacity: 0.7 }}>Supplies</Typography>
+      <Stack spacing={0.5}>
+        <Typography sx={{ opacity: 0.7 }}>Inventory</Typography>
         <Typography>Gold: {gold !== null ? gold : '--'}</Typography>
         <Typography>Weapon: {WEAPON_NAMES[weaponTier]}</Typography>
         <Typography>Armor: {ARMOR_NAMES[armorTier]}</Typography>
         <Typography>Flares: {flares}</Typography>
-        <Typography sx={{ color: 'text.secondary' }}>
-          Remaining: {gold !== null ? gold - totalCost : '--'}
-        </Typography>
       </Stack>
+      {gold !== null && (
+        <Stack spacing={0.5}>
+          <Typography sx={{ color: 'text.secondary' }}>
+            Remaining: {gold !== null ? gold - totalCost : '--'}
+          </Typography>
+        </Stack>
+      )}
     </Stack>
   );
 }
