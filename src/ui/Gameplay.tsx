@@ -175,9 +175,9 @@ function MapGridPanel({
       sx={{
         display: 'grid',
         gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) auto' },
-        columnGap: 2,
+        columnGap: 10,
         rowGap: 2,
-        paddingX: { xs: 0, md: 2 },
+        paddingX: { xs: 0, md: 5 },
         width: '100%',
         height: '100%',
         alignItems: 'center',
@@ -201,7 +201,6 @@ function MapGridPanel({
               gridTemplateColumns: `repeat(${row.split(' ').length}, 1fr)`,
               gap: 0.5,
               width: '100%',
-              maxWidth: 360,
             }}
           >
             {row.split(' ').map((cell, colIndex) => (
