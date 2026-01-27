@@ -228,7 +228,12 @@ export class EncounterSession {
     }
     if (this.rng.random() < 0.4) {
       const events = [
-        Event.info('You slip away and the monster no longer follows.'),
+        Event.info(
+          `You turn and flee, the vile ${this.monsterName} following close behind.`
+        ),
+        Event.info(
+          `Suddenly, you realize that the ${this.monsterName} is no longer following you.`
+        ),
       ];
       return {
         events,
@@ -287,7 +292,9 @@ export class EncounterSession {
     events.push(Event.combat(`The foul ${this.monsterName} expires.`));
     if (this.rng.random() > 0.7) {
       events.push(
-        Event.combat('As it dies, it launches one final desperate attack.')
+        Event.combat(
+          `As he dies, though, he launches one final desperate attack.`
+        )
       );
       const [attackEvents, mode] = this.monsterAttack();
       events.push(...attackEvents);
@@ -405,7 +412,7 @@ export class EncounterSession {
       case Spell.PROTECTION: {
         this.player.tempArmorBonus += 3;
         events.push(
-          Event.info('Your armor glows briefly in response to your spell.')
+          Event.info('Your armour glows briefly in response to your spell.')
         );
         if (this.debug) {
           events.push(
@@ -430,7 +437,9 @@ export class EncounterSession {
           );
         }
         events.push(
-          Event.combat(`A ball of fire scorches the ${this.monsterName}.`)
+          Event.combat(
+            `A glowing ball of fire converges with the ${this.monsterName}.`
+          )
         );
         break;
       }
@@ -455,13 +464,17 @@ export class EncounterSession {
             Event.debug(`DEBUG SPELL: weakened_vitality=${this.vitality}`)
           );
         }
-        events.push(Event.combat('A green mist envelops your foe.'));
+        events.push(
+          Event.combat(
+            `A green mist envelops the ${this.monsterName}, depriving him of half his vitality.`
+          )
+        );
         break;
       }
       case Spell.TELEPORT: {
         events.push(
           Event.info(
-            'Thy surroundings vibrate as you are transported elsewhere...'
+            'Thy surroundings vibrate momentarily, as you are magically transported elsewhere...'
           )
         );
         this.monsterLevel = 0;

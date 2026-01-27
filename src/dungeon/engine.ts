@@ -290,7 +290,11 @@ export class Game {
   private stairsDown(): Event[] {
     const room = this.currentRoom();
     if (room.feature !== Feature.STAIRS_DOWN) {
-      return [Event.info('There is no downward staircase here.')];
+      return [
+        Event.info(
+          'There is no downward staircase here, so how do you propose to go down?'
+        ),
+      ];
     }
     this.player.z -= 1;
     return this.enterRoom();
@@ -323,9 +327,7 @@ export class Game {
         const gained = this.rng.randint(1, 5);
         this.player.flares += gained;
         room.feature = Feature.EMPTY;
-        events.push(
-          Event.info(`You pick up ${gained} ${pluralize(gained, 'flare')}.`)
-        );
+        events.push(Event.info('You pick up some flares here.'));
         break;
       }
       case Feature.THIEF: {
@@ -342,7 +344,9 @@ export class Game {
       }
       case Feature.WARP:
         events.push(
-          Event.info('This room contains a warp. You are whisked elsewhere...')
+          Event.info(
+            'This room contains a warp. Before you realize what is going on, you appear elsewhere...'
+          )
         );
         this.randomRelocate({ anyFloor: true });
         events.push(...this.enterRoom());
@@ -386,7 +390,11 @@ export class Game {
         events.push(Event.info('There is a magic potion here.'));
         break;
       case Feature.VENDOR:
-        events.push(Event.info('There is a vendor here.'));
+        events.push(
+          Event.info(
+            'There is a vendor here. Do you wish to purchase something?'
+          )
+        );
         break;
       case Feature.STAIRS_UP:
         events.push(Event.info('There are stairs up here.'));
@@ -396,7 +404,7 @@ export class Game {
         break;
       case Feature.EXIT:
         events.push(
-          Event.info('You see the exit to the Dungeon of Doom here.')
+          Event.info('You see the exit to the DUNGEON of DOOM here.')
         );
         break;
       default:
@@ -417,7 +425,10 @@ export class Game {
       const remaining = 10 - this.player.treasuresFound.size;
       return [
         Event.info(
-          `You abandon your quest with ${remaining} treasures remaining.`
+          'What? And hast thou abandoned thy quest before it was accomplished?'
+        ),
+        Event.info(
+          `The DUNGEON of DOOM still holds ${remaining} treasures that thine eyes shall never behold! Verily thy triumph is incomplete!`
         ),
       ];
     }
@@ -552,12 +563,16 @@ export class Game {
             this.player.armorName = ARMOR_NAMES[0];
             this.player.armorDamaged = false;
             return [
-              Event.info('The perverse thing explodes, destroying your armor!'),
+              Event.info(
+                'The perverse thing explodes as you open it, destroying your armour!'
+              ),
             ];
           }
           this.player.armorDamaged = true;
           return [
-            Event.info('The perverse thing explodes, damaging your armor!'),
+            Event.info(
+              'The perverse thing explodes as you open it, damaging your armour!'
+            ),
           ];
         }
         this.player.armorName = ARMOR_NAMES[0];
@@ -566,11 +581,17 @@ export class Game {
         if (this.player.hp <= 0) {
           this.mode = Mode.GAME_OVER;
           return [
-            Event.info('The perverse thing explodes, wounding you!'),
+            Event.info(
+              'The perverse thing explodes as you open it, wounding you!'
+            ),
             Event.info('YOU HAVE DIED.'),
           ];
         }
-        return [Event.info('The perverse thing explodes, wounding you!')];
+        return [
+          Event.info(
+            'The perverse thing explodes as you open it, wounding you!'
+          ),
+        ];
       default: {
         const gold = 10 + this.rng.randint(0, 20);
         this.player.gold += gold;
