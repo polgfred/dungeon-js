@@ -186,9 +186,7 @@ export class Game {
       const row: string[] = [];
       for (let x = 0; x < Game.SIZE; x += 1) {
         const room = this.dungeon.rooms[this.player.z][y][x];
-        if (this.player.y === y && this.player.x === x) {
-          row.push('*');
-        } else if (!room.seen) {
+        if (!room.seen) {
           row.push('·');
         } else if (room.monsterLevel > 0) {
           row.push('M');

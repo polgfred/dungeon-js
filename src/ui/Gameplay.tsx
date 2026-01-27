@@ -140,12 +140,16 @@ function CommandButton({
 function MapPanel({
   onTrigger,
   mapGrid,
+  playerX,
+  playerY,
   turnEvents,
   movementCommandList,
   verticalCommandList,
 }: {
   onTrigger: (command: Command) => void;
   mapGrid: string[];
+  playerX: number;
+  playerY: number;
   turnEvents: string[][];
   movementCommandList: Command[];
   verticalCommandList: Command[];
@@ -155,6 +159,8 @@ function MapPanel({
       <Stack spacing={2}>
         <MapGridPanel
           mapGrid={mapGrid}
+          playerX={playerX}
+          playerY={playerY}
           onTrigger={onTrigger}
           movementCommandList={movementCommandList}
           verticalCommandList={verticalCommandList}
@@ -167,11 +173,15 @@ function MapPanel({
 
 function MapGridPanel({
   mapGrid,
+  playerX,
+  playerY,
   onTrigger,
   movementCommandList,
   verticalCommandList,
 }: {
   mapGrid: string[];
+  playerX: number;
+  playerY: number;
   onTrigger: (command: Command) => void;
   movementCommandList: Command[];
   verticalCommandList: Command[];
@@ -212,38 +222,43 @@ function MapGridPanel({
               width: '100%',
             }}
           >
-            {row.split(' ').map((cell, colIndex) => (
-              <Tooltip
-                key={`${rowIndex}-${colIndex}`}
-                title={mapTooltip(cell)}
-                arrow
-                placement="top"
-              >
-                <Box
-                  sx={(theme) => ({
-                    borderRadius: 0.5,
-                    border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-                    background: alpha(theme.palette.primary.dark, 0.2),
-                    display: 'grid',
-                    placeItems: 'center',
-                    height: 28,
-                    fontSize: 14,
-                    color:
-                      cell === '*'
-                        ? theme.palette.primary.light
-                        : cell === '·'
+            {row.split(' ').map((cell, colIndex) => {
+              const isPlayerCell = rowIndex === playerY && colIndex === playerX;
+              return (
+                <Tooltip
+                  key={`${rowIndex}-${colIndex}`}
+                  title={mapTooltip(cell)}
+                  arrow
+                  placement="top"
+                >
+                  <Box
+                    sx={(theme) => ({
+                      borderRadius: 0.5,
+                      border: isPlayerCell
+                        ? `2px solid ${alpha(theme.palette.primary.light, 0.9)}`
+                        : `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
+                      background: isPlayerCell
+                        ? alpha(theme.palette.primary.dark, 0.32)
+                        : alpha(theme.palette.primary.dark, 0.26),
+                      display: 'grid',
+                      placeItems: 'center',
+                      height: 28,
+                      fontSize: 14,
+                      color:
+                        cell === '·'
                           ? alpha(theme.palette.text.primary, 0.35)
                           : theme.palette.text.primary,
-                    transition: 'background-color 150ms ease',
-                    '&:hover': {
-                      background: alpha(theme.palette.primary.light, 0.18),
-                    },
-                  })}
-                >
-                  {cell}
-                </Box>
-              </Tooltip>
-            ))}
+                      transition: 'background-color 150ms ease',
+                      '&:hover': {
+                        background: alpha(theme.palette.primary.light, 0.18),
+                      },
+                    })}
+                  >
+                    {cell}
+                  </Box>
+                </Tooltip>
+              );
+            })}
           </Box>
         ))}
       </Box>
@@ -985,6 +1000,8 @@ export default function Gameplay({
           <MapPanel
             onTrigger={handleTrigger}
             mapGrid={mapGrid}
+            playerX={player.x}
+            playerY={player.y}
             turnEvents={turnEvents}
             movementCommandList={movementCommandList}
             verticalCommandList={verticalCommandList}
