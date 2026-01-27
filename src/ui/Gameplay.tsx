@@ -358,6 +358,7 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
           zIndex: 0,
         }}
       >
+        <Box sx={{ minHeight: 180, flexShrink: 0 }} />
         {turnEvents.length === 0 ? (
           <Typography sx={{ opacity: 0.6 }}>
             You see nothing special.
@@ -540,7 +541,7 @@ function PlayerReadoutPanel({
         <Stack spacing={1}>
           <Stack direction="row" spacing={1} flexWrap="wrap">
             <Button variant="outlined" onClick={onSave}>
-              Save Game
+              Save
             </Button>
             <Button variant="outlined" onClick={onBack}>
               Exit
