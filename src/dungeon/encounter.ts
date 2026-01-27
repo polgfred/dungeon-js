@@ -12,6 +12,10 @@ export interface EncounterResult {
   enterRoom?: boolean;
 }
 
+function pluralize(count: number, singular: string, plural = `${singular}s`) {
+  return count === 1 ? singular : plural;
+}
+
 export class EncounterSession {
   private rng: RandomSource;
   private player: Player;
@@ -302,7 +306,9 @@ export class EncounterSession {
     } else {
       const gold = 5 * this.monsterLevel + this.rng.randint(0, 20);
       this.player.gold += gold;
-      events.push(Event.loot(`You find ${gold} gold pieces.`));
+      events.push(
+        Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}.`)
+      );
     }
 
     this.room.monsterLevel = 0;

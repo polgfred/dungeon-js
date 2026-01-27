@@ -20,6 +20,10 @@ import { Event, StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
 import { defaultRandomSource, type RandomSource } from './rng.js';
 
+function pluralize(count: number, singular: string, plural = `${singular}s`) {
+  return count === 1 ? singular : plural;
+}
+
 export class Game {
   static readonly SIZE = 7;
   static readonly SAVE_VERSION = 1;
@@ -321,14 +325,18 @@ export class Game {
         const gained = this.rng.randint(1, 5);
         this.player.flares += gained;
         room.feature = Feature.EMPTY;
-        events.push(Event.info(`You pick up ${gained} flares.`));
+        events.push(
+          Event.info(`You pick up ${gained} ${pluralize(gained, 'flare')}.`)
+        );
         break;
       }
       case Feature.THIEF: {
         const stolen = Math.min(this.rng.randint(1, 50), this.player.gold);
         this.player.gold -= stolen;
         room.feature = Feature.EMPTY;
-        events.push(Event.info(`A thief steals ${stolen} gold pieces.`));
+        events.push(
+          Event.info(`A thief steals ${stolen} gold ${pluralize(stolen, 'piece')}.`)
+        );
         break;
       }
       case Feature.WARP:
@@ -565,7 +573,9 @@ export class Game {
       default: {
         const gold = 10 + this.rng.randint(0, 20);
         this.player.gold += gold;
-        return [Event.info(`You find ${gold} gold pieces!`)];
+        return [
+          Event.info(`You find ${gold} gold ${pluralize(gold, 'piece')}!`),
+        ];
       }
     }
   }
