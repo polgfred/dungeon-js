@@ -5,9 +5,9 @@ import type { RandomSource } from './rng.js';
 const SIZE = 7;
 
 export function generateDungeon(rng: RandomSource): Dungeon {
-  const rooms: Room[][][] = Array.from({ length: SIZE }, () =>
+  const rooms: Room[][][] = Array.from({ length: SIZE }, (_, z) =>
     Array.from({ length: SIZE }, () =>
-      Array.from({ length: SIZE }, () => createRoom(rng))
+      Array.from({ length: SIZE }, () => createRoom(rng, z))
     )
   );
 
@@ -18,12 +18,14 @@ export function generateDungeon(rng: RandomSource): Dungeon {
   return new Dungeon(rooms);
 }
 
-function createRoom(rng: RandomSource): Room {
+function createRoom(rng: RandomSource, floor: number): Room {
   const room = new Room();
   if (rng.random() > 0.3) {
     const roll = rng.randint(1, 10);
     if (roll > 8) {
-      room.monsterLevel = rng.randint(1, 10);
+      const minLevel = floor + 1;
+      const maxLevel = Math.min(10, minLevel + 5);
+      room.monsterLevel = rng.randint(minLevel, maxLevel);
     } else {
       room.feature = roll as Feature;
     }
