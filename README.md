@@ -2,6 +2,14 @@
 
 Dungeon of Doom is a small, turn-based dungeon crawler. You explore a 7-floor maze, fight monsters, collect treasures, and decide when to press deeper or retreat.
 
+## What to Expect
+
+- Rooms may contain features, monsters, or treasure.
+- Monsters trigger an encounter where you can fight, run, or cast spells.
+- Scrolls grant spell charges. Spells can protect you, deal damage, weaken foes, or teleport you.
+- Vendors sell better gear, scrolls, and potions.
+- Flares reveal nearby rooms on your current floor.
+
 ## How to Play
 
 1. Start the game and choose a seed, race, and starting gear.
@@ -13,16 +21,19 @@ Dungeon of Doom is a small, turn-based dungeon crawler. You explore a 7-floor ma
 Commands are single letters and are case-insensitive.
 
 Movement:
+
 - `N` `S` `E` `W` move
 - `U` stairs up (only in a stairs-up room)
 - `D` stairs down (only in a stairs-down room)
 
 World:
+
 - `M` map of the current floor
 - `F` flare (reveals nearby rooms)
 - `X` exit (only in the exit room)
 
 Interaction:
+
 - `L` look in mirror
 - `O` open chest
 - `R` read scroll
@@ -30,35 +41,38 @@ Interaction:
 - `B` buy from vendor
 
 Info:
-- `H` help
+
+- `?` help
 
 Encounter-only:
+
 - `F` fight
 - `R` run
 - `S` cast spell (choose from the spell list)
 
-## What to Expect
+## Monsters
 
-- Rooms may contain features, monsters, or treasure.
-- Monsters trigger an encounter where you can fight, run, or cast spells.
-- Scrolls grant spell charges. Spells can protect you, deal damage, weaken foes, or teleport you.
-- Vendors sell better gear, scrolls, and potions.
-- Flares reveal nearby rooms on your current floor.
+Monsters increase in difficulty as you progress toward the exit of the dungeon.
 
-## Saving and Loading
-
-During play, use:
-- `/save [path]` to save (defaults to `game.sav`)
-- `/load [path]` to load (defaults to `game.sav`)
+- Skeleton (easiest)
+- Goblin
+- Kobold
+- Orc
+- Troll
+- Werewolf
+- Banshee
+- Hellhound
+- Chimaera
+- Dragon (hardest)
 
 ## Map Legend
 
 When exploring, the map uses:
-- `*` you
-- `?` unknown
+
+- `·` unknown
+- `-` empty
 - `M` monster
 - `T` treasure
-- `0` empty
 - `m` mirror
 - `s` scroll
 - `c` chest
