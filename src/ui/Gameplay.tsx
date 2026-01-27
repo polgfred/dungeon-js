@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  IconButton,
   Stack,
   Tooltip,
   Typography,
@@ -177,8 +176,10 @@ function MapGridPanel({
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: '1fr auto' },
-          gap: 2,
+          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) auto' },
+          columnGap: 2,
+          rowGap: 2,
+          paddingX: { xs: 0, md: 2 },
           width: '100%',
           height: '100%',
           alignItems: 'center',
@@ -215,10 +216,7 @@ function MapGridPanel({
                   <Box
                     sx={(theme) => ({
                       borderRadius: 0.5,
-                      border: `1px solid ${alpha(
-                        theme.palette.primary.light,
-                        0.35
-                      )}`,
+                      border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
                       background: alpha(theme.palette.primary.dark, 0.2),
                       display: 'grid',
                       placeItems: 'center',
@@ -227,7 +225,7 @@ function MapGridPanel({
                       color:
                         cell === '*'
                           ? theme.palette.primary.light
-                          : cell === '•' || cell === '·'
+                          : cell === '·'
                             ? alpha(theme.palette.text.primary, 0.35)
                             : theme.palette.text.primary,
                       transition: 'background-color 150ms ease',
@@ -256,7 +254,7 @@ function MapGridPanel({
             sx={{
               display: 'grid',
               gap: 0.5,
-              gridTemplateColumns: 'repeat(3, minmax(44px, 1fr))',
+              gridTemplateColumns: 'repeat(3, 1fr)',
               gridTemplateRows: 'repeat(3, 1fr)',
             }}
           >
@@ -340,7 +338,7 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
       >
         <Stack
           ref={eventFeedRef}
-          spacing={2.5}
+          spacing={2}
           sx={{
             height: '100%',
             overflowY: 'auto',
@@ -353,38 +351,21 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
             </Typography>
           ) : (
             turnEvents.map((group, groupIndex) => (
-              <Stack
+              <Box
                 key={`turn-${groupIndex}`}
-                spacing={0.5}
                 sx={(theme) => ({
-                  position: 'relative',
-                  paddingLeft: '24px',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    left: '4px',
-                    top: '16px',
-                    bottom: '8px',
-                    borderLeft: `4px solid ${alpha(
-                      theme.palette.text.primary,
-                      0.5
-                    )}`,
-                  },
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    left: '4px',
-                    top: '12px',
-                    width: '10px',
-                    height: '4px',
-                    backgroundColor: alpha(theme.palette.text.primary, 0.5),
-                  },
+                  padding: 1.25,
+                  borderRadius: 2,
+                  border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
+                  background: alpha(theme.palette.primary.dark, 0.18),
                 })}
               >
-                {group.map((entry, index) => (
-                  <Typography key={`${entry}-${index}`}>{entry}</Typography>
-                ))}
-              </Stack>
+                <Stack spacing={0.5}>
+                  {group.map((entry, index) => (
+                    <Typography key={`${entry}-${index}`}>{entry}</Typography>
+                  ))}
+                </Stack>
+              </Box>
             ))
           )}
         </Stack>
