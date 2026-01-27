@@ -1,12 +1,15 @@
 import { Feature, Mode, Race, Spell } from './constants.js';
 import { Dungeon, Player, Room, createSpellCounts } from './model.js';
 
-export type RoomSave = {
-  feature: Feature;
-  monsterLevel: number;
-  treasureId: number;
-  seen: boolean;
-};
+export type RoomSavePacked = number;
+export type RoomSave =
+  | RoomSavePacked
+  | {
+      feature: Feature;
+      monsterLevel: number;
+      treasureId: number;
+      seen: boolean;
+    };
 
 export type DungeonSave = RoomSave[][][];
 
@@ -165,12 +168,7 @@ export function deserializeGame(save: GameSave): GameSaveState {
 export function serializeDungeon(dungeon: Dungeon): DungeonSave {
   return dungeon.rooms.map((floor) =>
     floor.map((row) =>
-      row.map((room) => ({
-        feature: room.feature,
-        monsterLevel: room.monsterLevel,
-        treasureId: room.treasureId,
-        seen: room.seen,
-      }))
+      row.map((room) => encodeRoom(room))
     )
   );
 }
@@ -178,15 +176,39 @@ export function serializeDungeon(dungeon: Dungeon): DungeonSave {
 export function deserializeDungeon(save: DungeonSave): Dungeon {
   const rooms = save.map((floor) =>
     floor.map((row) =>
-      row.map((savedRoom) => {
-        const room = new Room();
-        room.feature = savedRoom.feature ?? Feature.EMPTY;
-        room.monsterLevel = savedRoom.monsterLevel ?? 0;
-        room.treasureId = savedRoom.treasureId ?? 0;
-        room.seen = savedRoom.seen ?? false;
-        return room;
-      })
+      row.map((savedRoom) => decodeRoom(savedRoom))
     )
   );
   return new Dungeon(rooms);
+}
+
+const FEATURE_SHIFT = 0;
+const MONSTER_SHIFT = 4;
+const TREASURE_SHIFT = 8;
+const SEEN_SHIFT = 12;
+const NIBBLE_MASK = 0x0f;
+
+function encodeRoom(room: Room): RoomSavePacked {
+  return (
+    ((room.feature & NIBBLE_MASK) << FEATURE_SHIFT) |
+    ((room.monsterLevel & NIBBLE_MASK) << MONSTER_SHIFT) |
+    ((room.treasureId & NIBBLE_MASK) << TREASURE_SHIFT) |
+    ((room.seen ? 1 : 0) << SEEN_SHIFT)
+  );
+}
+
+function decodeRoom(savedRoom: RoomSave): Room {
+  const room = new Room();
+  if (typeof savedRoom === 'number') {
+    room.feature = (savedRoom >> FEATURE_SHIFT) & NIBBLE_MASK;
+    room.monsterLevel = (savedRoom >> MONSTER_SHIFT) & NIBBLE_MASK;
+    room.treasureId = (savedRoom >> TREASURE_SHIFT) & NIBBLE_MASK;
+    room.seen = ((savedRoom >> SEEN_SHIFT) & 1) === 1;
+    return room;
+  }
+  room.feature = savedRoom.feature ?? Feature.EMPTY;
+  room.monsterLevel = savedRoom.monsterLevel ?? 0;
+  room.treasureId = savedRoom.treasureId ?? 0;
+  room.seen = savedRoom.seen ?? false;
+  return room;
 }
