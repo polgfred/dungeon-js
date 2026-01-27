@@ -54,7 +54,7 @@ const roomCommands = [
   { id: 'open', key: 'O', label: 'Open Chest', disabled: false },
   { id: 'read', key: 'R', label: 'Read Scroll', disabled: false },
   { id: 'potion', key: 'P', label: 'Drink Potion', disabled: false },
-  { id: 'buy', key: 'B', label: 'Buy', disabled: false },
+  { id: 'buy', key: 'B', label: 'Buy Items', disabled: false },
   helpCommand,
 ];
 
@@ -142,9 +142,6 @@ function MapPanel({
   return (
     <Box sx={(theme) => panelStyle(theme)}>
       <Stack spacing={2}>
-        <Typography variant="h5" sx={{ letterSpacing: 2 }}>
-          Dungeon View
-        </Typography>
         <MapGridPanel
           mapGrid={mapGrid}
           onTrigger={onTrigger}
@@ -525,7 +522,7 @@ function PlayerReadoutPanel({
           <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
           <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
         </Stack>
-        <Stack spacing={1}>
+        <Stack spacing={0.5}>
           <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
           <Typography>ST {player.str}</Typography>
           <Typography>DX {player.dex}</Typography>
@@ -541,7 +538,7 @@ function PlayerReadoutPanel({
             HP {player.hp} / {player.mhp}
           </Typography>
         </Stack>
-        <Stack spacing={1}>
+        <Stack spacing={0.5}>
           <Typography sx={{ opacity: 0.7 }}>Inventory</Typography>
           <Typography>Gold: {player.gold}</Typography>
           <Typography>Weapon: {player.weaponName}</Typography>
@@ -552,7 +549,7 @@ function PlayerReadoutPanel({
           <Typography>Flares: {player.flares}</Typography>
           <Typography>Treasures: {player.treasuresFound.size}</Typography>
         </Stack>
-        <Stack spacing={1}>
+        <Stack spacing={0.5}>
           <Typography sx={{ opacity: 0.7 }}>Location</Typography>
           <Typography>
             Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
