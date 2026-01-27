@@ -7,6 +7,7 @@ import {
   WEAPON_NAMES,
   WEAPON_PRICES,
 } from './constants.js';
+import type { VendorSave } from './serialization.js';
 import type { Player } from './model.js';
 import { Event } from './types.js';
 import type { RandomSource } from './rng.js';
@@ -27,12 +28,45 @@ export class VendorSession {
     this.player = options.player;
   }
 
+  static resume(options: {
+    rng: RandomSource;
+    player: Player;
+    save: VendorSave;
+  }): VendorSession {
+    const session = new VendorSession({
+      rng: options.rng,
+      player: options.player,
+    });
+    session.phase = options.save.phase;
+    session.category = options.save.category;
+    return session;
+  }
+
   startEvents(): Event[] {
     return [this.categoryPrompt()];
   }
 
+  resumeEvents(): Event[] {
+    switch (this.phase) {
+      case 'item':
+        return [this.itemPrompt()];
+      case 'attribute':
+        return [this.attributePrompt()];
+      case 'category':
+      default:
+        return [this.categoryPrompt()];
+    }
+  }
+
   prompt(): string {
     return '?> ';
+  }
+
+  toSave(): VendorSave {
+    return {
+      phase: this.phase,
+      category: this.category,
+    };
   }
 
   step(raw: string): VendorResult {

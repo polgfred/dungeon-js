@@ -9,7 +9,8 @@ import {
 } from './constants.js';
 import { EncounterSession } from './encounter.js';
 import { generateDungeon } from './generation.js';
-import type { Player } from './model.js';
+import { Player } from './model.js';
+import { type GameSave, deserializeGame, serializeGame } from './serialization.js';
 import { Event, StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
 import { defaultRandomSource, type RandomSource } from './rng.js';
@@ -40,6 +41,53 @@ export class Game {
     this.encounterSession = null;
     this.shopSession = null;
     this.debug = options.debug ?? false;
+  }
+
+  static fromSave(
+    save: GameSave,
+    rng: RandomSource = defaultRandomSource
+  ): Game {
+    const state = deserializeGame(save);
+    const player = state.player;
+    const game = new Game({
+      seed: 0,
+      player,
+      rng,
+      debug: state.debug ?? false,
+    });
+    game.saveVersion = state.version ?? Game.SAVE_VERSION;
+    game.dungeon = state.dungeon;
+    game.mode = state.mode ?? Mode.EXPLORE;
+    const currentRoom = game.dungeon.rooms[player.z][player.y][player.x];
+    if (state.encounter) {
+      game.encounterSession = EncounterSession.resume({
+        rng,
+        player,
+        room: currentRoom,
+        debug: game.debug,
+        save: state.encounter,
+      });
+    }
+    if (state.vendor) {
+      game.shopSession = VendorSession.resume({
+        rng,
+        player,
+        save: state.vendor,
+      });
+    }
+    return game;
+  }
+
+  toSave(): GameSave {
+    return serializeGame({
+      version: this.saveVersion,
+      mode: this.mode,
+      player: this.player,
+      dungeon: this.dungeon,
+      encounter: this.encounterSession ? this.encounterSession.toSave() : null,
+      vendor: this.shopSession ? this.shopSession.toSave() : null,
+      debug: this.debug,
+    });
   }
 
   startEvents(): Event[] {
@@ -148,8 +196,10 @@ export class Game {
 
   resumeEvents(): Event[] {
     const events: Event[] = [];
-    if (this.encounterSession) {
-      events.push(...this.encounterSession.startEvents());
+    if (this.shopSession) {
+      events.push(...this.shopSession.resumeEvents());
+    } else if (this.encounterSession) {
+      events.push(...this.encounterSession.resumeEvents());
     }
     return events;
   }

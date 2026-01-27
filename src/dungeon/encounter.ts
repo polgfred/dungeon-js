@@ -1,4 +1,5 @@
 import { Mode, MONSTER_NAMES, Spell, TREASURE_NAMES } from './constants.js';
+import type { EncounterSave } from './serialization.js';
 import type { Player, Room } from './model.js';
 import { Event } from './types.js';
 import type { RandomSource } from './rng.js';
@@ -62,6 +63,27 @@ export class EncounterSession {
     });
   }
 
+  static resume(options: {
+    rng: RandomSource;
+    player: Player;
+    room: Room;
+    debug: boolean;
+    save: EncounterSave;
+  }): EncounterSession {
+    const { rng, player, room, debug, save } = options;
+    const session = new EncounterSession({
+      rng,
+      player,
+      room,
+      monsterLevel: save.monsterLevel,
+      monsterName: save.monsterName,
+      vitality: save.vitality,
+      debug,
+    });
+    session.awaitingSpell = save.awaitingSpell;
+    return session;
+  }
+
   startEvents(): Event[] {
     const events: Event[] = [
       Event.combat(`You are facing an angry ${this.monsterName}!`),
@@ -72,11 +94,27 @@ export class EncounterSession {
     return events;
   }
 
+  resumeEvents(): Event[] {
+    if (this.awaitingSpell) {
+      return [Event.prompt('Choose a spell:', this.spellMenu())];
+    }
+    return this.startEvents();
+  }
+
   prompt(): string {
     if (this.awaitingSpell) {
       return '?> ';
     }
     return 'F/R/S> ';
+  }
+
+  toSave(): EncounterSave {
+    return {
+      monsterLevel: this.monsterLevel,
+      monsterName: this.monsterName,
+      vitality: this.vitality,
+      awaitingSpell: this.awaitingSpell,
+    };
   }
 
   step(raw: string): EncounterResult {
