@@ -333,7 +333,9 @@ export class Game {
         this.player.gold -= stolen;
         room.feature = Feature.EMPTY;
         events.push(
-          Event.info(`A thief steals ${stolen} gold ${pluralize(stolen, 'piece')}.`)
+          Event.info(
+            `A thief steals ${stolen} gold ${pluralize(stolen, 'piece')}.`
+          )
         );
         break;
       }
@@ -603,18 +605,40 @@ export class Game {
     if (roll === 1) {
       const heal = 5 + this.rng.randint(1, 10);
       this.player.hp = Math.min(this.player.mhp, this.player.hp + heal);
-      return [Event.info('You drink the potion... healing results.')];
+      return [
+        Event.info('You drink the potion...'),
+        Event.info('Healing results.'),
+      ];
     }
 
     const effect = this.rng.choice(['ST', 'DX', 'IQ', 'MHP']);
+    let outcomeText = '';
     let change = this.rng.randint(1, 6);
     if (this.rng.random() > 0.5) {
       change = -change;
     }
-    this.player.applyAttributeChange({ target: effect, change });
-    return [
-      Event.info('You drink the potion... strange energies surge through you.'),
-    ];
+    switch (effect) {
+      case 'ST':
+        this.player.applyAttributeChange({ target: 'ST', change });
+        outcomeText = `The potion ${change >= 0 ? 'increases' : 'decreases'} your strength.`;
+        break;
+      case 'DX':
+        this.player.applyAttributeChange({ target: 'DX', change });
+        outcomeText = `The potion ${change >= 0 ? 'increases' : 'decreases'} your dexterity.`;
+        break;
+      case 'IQ':
+        this.player.applyAttributeChange({ target: 'IQ', change });
+        outcomeText = `The potion makes you ${change >= 0 ? 'smarter' : 'dumber'}.`;
+        break;
+      case 'MHP':
+        this.player.applyAttributeChange({ target: 'MHP', change });
+        outcomeText =
+          change >= 0
+            ? 'Strange energies surge through you.'
+            : 'You feel weaker.';
+        break;
+    }
+    return [Event.info('You drink the potion...'), Event.info(outcomeText)];
   }
 
   private openVendor(): Event[] {
