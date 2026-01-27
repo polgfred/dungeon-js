@@ -13,7 +13,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Feature, Mode } from '../dungeon/constants.js';
 import { Game } from '../dungeon/engine.js';
-import type { GameSave } from '../dungeon/serialization.js';
+import {
+  deserializePlayer,
+  serializePlayer,
+  type GameSave,
+  type PlayerSave,
+} from '../dungeon/serialization.js';
 import type { Player } from '../dungeon/model.js';
 import type { Event as GameEvent, PromptOption } from '../dungeon/types.js';
 import { storeSavedGame } from '../storage/gameSave.js';
@@ -70,6 +75,15 @@ const encounterCommands = [
   { id: 'run', key: 'R', label: 'Run', disabled: false },
   { id: 'spell', key: 'S', label: 'Spell', disabled: false },
 ];
+
+const ENDGAME_PROMPT = {
+  victoryText: 'Victory! Play again?',
+  gameOverText: 'Game over. Play again?',
+  options: [
+    { key: 'Y', label: 'Yes', disabled: false },
+    { key: 'N', label: 'No', disabled: false },
+  ],
+};
 
 function CommandButton({
   command,
@@ -712,6 +726,10 @@ export default function Gameplay({
 }) {
   const gameRef = useRef<Game | null>(null);
   const loadedFromSaveRef = useRef(false);
+  const initialPlayerSaveRef = useRef<PlayerSave | null>(null);
+  if (!initialPlayerSaveRef.current) {
+    initialPlayerSaveRef.current = serializePlayer(initialPlayer);
+  }
   if (!gameRef.current) {
     if (savedGame) {
       try {
@@ -742,6 +760,9 @@ export default function Gameplay({
   const initialized = useRef(false);
 
   const isEncounter = mode === Mode.ENCOUNTER;
+  const isGameOver = mode === Mode.GAME_OVER;
+  const isVictory = mode === Mode.VICTORY;
+  const isEndState = isGameOver || isVictory;
   const currentRoomFeature =
     game.dungeon.rooms[player.z][player.y][player.x].feature;
   const canCastSpell =
@@ -818,9 +839,20 @@ export default function Gameplay({
     () => (isEncounter ? encounterCommandList : exploreCommandList),
     [isEncounter, encounterCommandList, exploreCommandList]
   );
+  const effectivePromptOptions = isEndState
+    ? ENDGAME_PROMPT.options
+    : promptOptions;
+  const effectivePromptText = isEndState
+    ? isVictory
+      ? ENDGAME_PROMPT.victoryText
+      : ENDGAME_PROMPT.gameOverText
+    : promptText;
+
   const promptCommands = useMemo(() => {
-    if (!promptOptions || promptOptions.length === 0) return null;
-    return promptOptions
+    if (!effectivePromptOptions || effectivePromptOptions.length === 0) {
+      return null;
+    }
+    return effectivePromptOptions
       .filter((option) => !option.disabled)
       .map((option) => ({
         id: `prompt-${option.key}`,
@@ -828,7 +860,7 @@ export default function Gameplay({
         label: option.label,
         disabled: false,
       }));
-  }, [promptOptions]);
+  }, [effectivePromptOptions]);
 
   const commandMap = useMemo(() => {
     const map = new Map<string, Command>();
@@ -844,10 +876,38 @@ export default function Gameplay({
     return map;
   }, [activeCommands, promptCommands, isEncounter]);
 
+  const restartGame = useCallback(() => {
+    const saved = initialPlayerSaveRef.current;
+    if (!saved) return;
+    const nextGame = new Game({
+      seed: Date.now(),
+      player: deserializePlayer(saved),
+    });
+    gameRef.current = nextGame;
+    loadedFromSaveRef.current = false;
+    setSaveError(null);
+    setLastSavedAt(null);
+    const initialEvents = nextGame.startEvents();
+    const prompt = promptData(initialEvents);
+    setTurnEvents(() => appendEventFeed([], eventLines(initialEvents)));
+    setMode(nextGame.mode);
+    setMapGrid(nextGame.mapGrid());
+    setPromptOptions(prompt.promptOptions);
+    setPromptText(prompt.promptText);
+  }, []);
+
   const handleTrigger = useCallback(
     (command: Command) => {
       if (command.key === 'H') {
         setHelpOpen(true);
+        return;
+      }
+      if (isEndState) {
+        if (command.key === 'Y') {
+          restartGame();
+        } else if (command.key === 'N') {
+          onBack();
+        }
         return;
       }
       const result = game.step(command.key);
@@ -858,7 +918,7 @@ export default function Gameplay({
       setPromptOptions(prompt.promptOptions);
       setPromptText(prompt.promptText);
     },
-    [game]
+    [game, isEndState, onBack, restartGame]
   );
 
   const handleSave = useCallback(() => {
@@ -959,8 +1019,8 @@ export default function Gameplay({
           <CommandBarPanel
             encounterMode={isEncounter}
             onTrigger={handleTrigger}
-            promptOptions={promptOptions}
-            promptText={promptText}
+            promptOptions={effectivePromptOptions}
+            promptText={effectivePromptText}
             encounterCommandList={encounterCommandList}
             roomCommandList={roomCommandList}
           />
