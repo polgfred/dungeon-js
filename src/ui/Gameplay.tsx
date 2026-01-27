@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  IconButton,
   Stack,
   Tooltip,
   Typography,
@@ -591,19 +592,41 @@ function HelpDialog({
       onClose={onClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: {
-          height: '80vh',
-          maxHeight: '80vh',
+      slotProps={{
+        paper: {
+          sx: {
+            height: '80vh',
+            maxHeight: '80vh',
+          },
         },
       }}
       sx={(theme) => ({
         '& .MuiDialogTitle-root, & .MuiDialogContent-root': {
-          background: alpha(theme.palette.primary.dark, 0.35),
+          background: alpha(theme.palette.background.paper, 0.9),
         },
       })}
     >
-      <DialogTitle>Dungeon of Doom</DialogTitle>
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Typography component="span" variant="inherit">
+          Dungeon of Doom
+        </Typography>
+        <Typography
+          aria-label="Close help"
+          variant="inherit"
+          onClick={onClose}
+          sx={{
+            cursor: '',
+          }}
+        >
+          X
+        </Typography>
+      </DialogTitle>
       <DialogContent dividers>
         {html ? (
           <Box
@@ -613,7 +636,6 @@ function HelpDialog({
                 letterSpacing: 1.2,
                 textTransform: 'uppercase',
               },
-              '& ul, & ol': { paddingLeft: 0, listStylePosition: 'inside' },
               '& li': { marginBottom: 0.5 },
               '& ul li::marker': { content: '"- "' },
             }}
