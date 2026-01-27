@@ -792,14 +792,12 @@ export default function Gameplay({
     if (!effectivePromptOptions || effectivePromptOptions.length === 0) {
       return null;
     }
-    const commands = effectivePromptOptions
-      .filter((option) => !option.disabled)
-      .map((option) => ({
-        id: `prompt-${option.key}`,
-        key: option.key,
-        label: option.label,
-        disabled: false,
-      }));
+    const commands = effectivePromptOptions.map((option) => ({
+      id: `prompt-${option.key}`,
+      key: option.key,
+      label: option.label,
+      disabled: option.disabled,
+    }));
     if (effectivePromptHasCancel) {
       commands.push({
         id: 'prompt-cancel',
@@ -814,16 +812,9 @@ export default function Gameplay({
   const commandMap = useMemo(() => {
     const map = new Map<string, Command>();
     const commands = promptCommands ?? activeCommands;
-    commands
-      .filter((command) => {
-        if (!command.disabled) return true;
-        if (promptCommands) return false;
-        if (!isEncounter) return true;
-        return command.key === 'R';
-      })
-      .forEach((command) => map.set(command.key.toLowerCase(), command));
+    commands.forEach((command) => map.set(command.key.toLowerCase(), command));
     return map;
-  }, [activeCommands, promptCommands, isEncounter]);
+  }, [activeCommands, promptCommands]);
 
   const applyStepResult = useCallback(
     (result: StepResult) => {
