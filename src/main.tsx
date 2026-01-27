@@ -69,7 +69,7 @@ const theme = createTheme({
           color: theme.palette.text.primary,
           '&:hover': {
             borderColor: alpha(theme.palette.primary.light, 0.7),
-            backgroundColor: alpha(theme.palette.primary.light, 0.16),
+            backgroundColor: alpha(theme.palette.primary.light, 0.5),
           },
         }),
       },

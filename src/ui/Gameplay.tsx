@@ -81,18 +81,13 @@ function CommandButton({
       color="primary"
       size={stacked ? 'small' : 'medium'}
       disabled={Boolean(command.disabled)}
-      sx={(theme) => ({
+      sx={{
         textTransform: 'none',
         letterSpacing: stacked ? 0.8 : 0.6,
         paddingY: stacked ? 0.6 : 1,
         paddingX: stacked ? 1.5 : 2,
         minWidth: stacked ? 72 : 0,
-        borderColor: alpha(theme.palette.primary.light, 0.5),
-        '&:hover': {
-          borderColor: alpha(theme.palette.primary.light, 0.7),
-          backgroundColor: alpha(theme.palette.primary.light, 0.16),
-        },
-      })}
+      }}
     >
       {stacked ? (
         <Stack spacing={0.2} alignItems="center">
@@ -515,9 +510,6 @@ function PlayerReadoutPanel({
   return (
     <Box sx={(theme) => panelStyle(theme)}>
       <Stack spacing={2} sx={{ height: '100%' }}>
-        <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-          Player Readout
-        </Typography>
         <Stack spacing={0.5}>
           <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
           <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
