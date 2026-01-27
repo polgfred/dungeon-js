@@ -247,6 +247,9 @@ export class Game {
   resumeEvents(): Event[] {
     const events: Event[] = [];
     if (this.shopSession) {
+      events.push(
+        Event.info('There is a vendor here. Do you wish to purchase something?')
+      );
       events.push(...this.shopSession.resumeEvents());
     } else if (this.encounterSession) {
       events.push(...this.encounterSession.resumeEvents());

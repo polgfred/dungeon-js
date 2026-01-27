@@ -585,7 +585,7 @@ function eventLines(events: GameEvent[]): string[] {
 }
 
 function resumeLines(events: GameEvent[]): string[] {
-  return events.map((event) => event.text).filter(Boolean);
+  return eventLines(events);
 }
 
 const EVENT_FEED_LIMIT = 10;
