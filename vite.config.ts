@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import compression from "vite-plugin-compression";
 
 export default defineConfig({
+  base: "/dungeon-js/",
   plugins: [
     react(),
     // Enable if your host serves precompressed assets with Content-Encoding.

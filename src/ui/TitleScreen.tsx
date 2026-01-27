@@ -1,5 +1,7 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
 
+import titleImage from '../../public/DofDTitle.png';
+
 type TitleScreenProps = {
   onStart?: () => void;
   hasSave?: boolean;
@@ -46,7 +48,7 @@ export default function TitleScreen({
       >
         <Box
           component="img"
-          src="/DofDTitle.png"
+          src={titleImage}
           alt="Dungeon of Doom title screen"
           sx={{
             display: 'block',
