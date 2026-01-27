@@ -62,11 +62,7 @@ export default function TitleScreen({
           descend into the dungeon.
         </Typography>
         <Stack direction="column" spacing={2}>
-          <Button
-            variant="contained"
-            onClick={handleStart}
-            color="primary"
-          >
+          <Button variant="contained" onClick={handleStart} color="primary">
             Begin Setup
           </Button>
           {hasSave && (

@@ -432,8 +432,8 @@ function ReadyStage({
         Setup Complete
       </Typography>
       <Typography sx={{ opacity: 0.75 }}>
-        Brave adventurer, thy gear outfits thee well! But alas, victory is not
-        for the faint of heart. Are you ready?
+        Brave adventurer, thy gear outfits thee well! But alas, this quest is
+        not for the faint of heart. Are you ready to enter the dungeon?
       </Typography>
       <Stack spacing={1}>
         <Typography>Weapon: {player.weaponName}</Typography>
