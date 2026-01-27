@@ -89,9 +89,6 @@ function SetupCommandPanel({
             />
           ))}
         </Box>
-        <Typography variant="caption" sx={{ opacity: 0.6 }}>
-          Tip: press the letter keys shown on each command.
-        </Typography>
       </Stack>
     </Box>
   );
@@ -509,6 +506,10 @@ function StatusReadout({
           </Typography>
         </Stack>
       )}
+      <Typography variant="caption" sx={{ opacity: 0.6 }}>
+        Tip: press the letter keys shown on each command. Use the Shift
+        {'\uE01C'} key to decrease values.
+      </Typography>
     </Stack>
   );
 }
@@ -659,7 +660,7 @@ export default function SetupGame({
         {
           id: 'alloc-confirm',
           key: 'Enter',
-          label: 'Lock Stats',
+          label: 'Confirm',
           disabled: remainingPoints !== 0,
         },
         { id: 'alloc-back', key: 'Esc', label: 'Back', disabled: false },
@@ -939,7 +940,7 @@ export default function SetupGame({
             )}
           </Box>
           <SetupCommandPanel
-            title={`Setup Console: ${stage}`}
+            title={`Setup Commands: ${stage}`}
             commands={commandList}
             onTrigger={handleTrigger}
           />

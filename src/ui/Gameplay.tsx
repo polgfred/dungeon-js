@@ -471,7 +471,7 @@ function PlayerReadoutPanel({
             Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
           </Typography>
         </Stack>
-        <Typography sx={{ opacity: 0.6 }}>
+        <Typography variant="caption" sx={{ opacity: 0.6 }}>
           Tip: press the letter keys shown on each command.
         </Typography>
         <Box sx={{ flexGrow: 1 }} />

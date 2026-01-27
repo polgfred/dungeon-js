@@ -19,6 +19,11 @@ export function CommandButton({
   layout = 'inline',
 }: CommandButtonProps) {
   const stacked = layout === 'stacked';
+  const displayKey = command.key.startsWith('Shift+')
+    ? `\uE01C${command.key.slice(6)}`
+    : command.key === 'Esc'
+      ? `\uE11B`
+      : command.key;
   return (
     <Button
       variant="outlined"
@@ -38,7 +43,7 @@ export function CommandButton({
         <Stack spacing={0.2} alignItems="center">
           <Typography sx={{ fontSize: 11 }}>{command.label}</Typography>
           <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 10 }}>
-            {command.key}
+            {displayKey}
           </Typography>
         </Stack>
       ) : (
@@ -58,7 +63,7 @@ export function CommandButton({
             {command.label}
           </Typography>
           <Typography variant="caption" sx={{ opacity: 0.6 }}>
-            {command.key}
+            {displayKey}
           </Typography>
         </Stack>
       )}
