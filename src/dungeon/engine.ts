@@ -334,7 +334,8 @@ export class Game {
         room.feature = Feature.EMPTY;
         events.push(
           Event.info(
-            `A thief steals ${stolen} gold ${pluralize(stolen, 'piece')}.`
+            `A thief sneaks from the shadows and removes ${stolen} gold ${pluralize(stolen, 'piece')} ` +
+              `from your possession.`
           )
         );
         break;
