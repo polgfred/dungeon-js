@@ -2,6 +2,7 @@ import {
   ARMOR_NAMES,
   EXPLORE_COMMANDS,
   FEATURE_SYMBOLS,
+  MONSTER_NAMES,
   TREASURE_NAMES,
   Feature,
   Mode,
@@ -10,7 +11,11 @@ import {
 import { EncounterSession } from './encounter.js';
 import { generateDungeon } from './generation.js';
 import { Player } from './model.js';
-import { type GameSave, deserializeGame, serializeGame } from './serialization.js';
+import {
+  type GameSave,
+  deserializeGame,
+  serializeGame,
+} from './serialization.js';
 import { Event, StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
 import { defaultRandomSource, type RandomSource } from './rng.js';
@@ -200,6 +205,8 @@ export class Game {
       events.push(...this.shopSession.resumeEvents());
     } else if (this.encounterSession) {
       events.push(...this.encounterSession.resumeEvents());
+    } else {
+      events.push(...this.describeRoom(this.currentRoom()));
     }
     return events;
   }
@@ -310,17 +317,6 @@ export class Game {
     }
 
     switch (room.feature) {
-      case Feature.MIRROR:
-        events.push(
-          Event.info('There is a magic mirror mounted on the wall here.')
-        );
-        break;
-      case Feature.SCROLL:
-        events.push(Event.info('There is a spell scroll here.'));
-        break;
-      case Feature.CHEST:
-        events.push(Event.info('There is a chest here.'));
-        break;
       case Feature.FLARES: {
         const gained = this.rng.randint(1, 5);
         this.player.flares += gained;
@@ -328,12 +324,6 @@ export class Game {
         events.push(Event.info(`You pick up ${gained} flares.`));
         break;
       }
-      case Feature.POTION:
-        events.push(Event.info('There is a magic potion here.'));
-        break;
-      case Feature.VENDOR:
-        events.push(Event.info('There is a vendor here.'));
-        break;
       case Feature.THIEF: {
         const stolen = Math.min(this.rng.randint(1, 50), this.player.gold);
         this.player.gold -= stolen;
@@ -347,6 +337,47 @@ export class Game {
         );
         this.randomRelocate({ anyFloor: true });
         events.push(...this.enterRoom());
+        break;
+      default:
+        events.push(...this.describeRoom(room));
+        break;
+    }
+
+    return events;
+  }
+
+  private describeRoom(room: ReturnType<typeof this.currentRoom>): Event[] {
+    const events: Event[] = [];
+
+    if (room.monsterLevel > 0) {
+      const name = MONSTER_NAMES[room.monsterLevel - 1];
+      events.push(Event.combat(`You are facing an angry ${name}!`));
+      return events;
+    }
+
+    if (room.treasureId) {
+      events.push(
+        Event.loot(`You find the ${this.treasureName(room.treasureId)}!`)
+      );
+    }
+
+    switch (room.feature) {
+      case Feature.MIRROR:
+        events.push(
+          Event.info('There is a magic mirror mounted on the wall here.')
+        );
+        break;
+      case Feature.SCROLL:
+        events.push(Event.info('There is a spell scroll here.'));
+        break;
+      case Feature.CHEST:
+        events.push(Event.info('There is a chest here.'));
+        break;
+      case Feature.POTION:
+        events.push(Event.info('There is a magic potion here.'));
+        break;
+      case Feature.VENDOR:
+        events.push(Event.info('There is a vendor here.'));
         break;
       case Feature.STAIRS_UP:
         events.push(Event.info('There are stairs up here.'));
