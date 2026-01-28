@@ -10,7 +10,7 @@ export type Command = {
 type CommandButtonProps = {
   command: Command;
   onTrigger: (command: Command) => void;
-  layout?: 'inline' | 'stacked';
+  layout?: 'inline' | 'stacked' | 'compact';
 };
 
 export function CommandButton({
@@ -19,6 +19,7 @@ export function CommandButton({
   layout = 'inline',
 }: CommandButtonProps) {
   const stacked = layout === 'stacked';
+  const compact = layout === 'compact';
   const displayKey = command.key.startsWith('Shift+')
     ? `\uE01C${command.key.slice(6)}`
     : command.key === 'Esc'
@@ -29,17 +30,21 @@ export function CommandButton({
       variant="outlined"
       onClick={() => onTrigger(command)}
       color="primary"
-      size={stacked ? 'small' : 'medium'}
+      size={stacked || compact ? 'small' : 'medium'}
       disabled={Boolean(command.disabled)}
       sx={{
         textTransform: 'none',
-        letterSpacing: stacked ? 0.8 : 0.6,
-        paddingY: stacked ? 0.6 : 1,
-        paddingX: stacked ? 1.5 : 2,
-        minWidth: stacked ? 72 : 0,
+        letterSpacing: compact ? 1.2 : stacked ? 0.8 : 0.6,
+        paddingY: compact ? 0.6 : stacked ? 0.6 : 1,
+        paddingX: compact ? 1.2 : stacked ? 1.5 : 2,
+        minWidth: compact ? 44 : stacked ? 72 : 0,
       }}
     >
-      {stacked ? (
+      {compact ? (
+        <Typography sx={{ fontSize: 12, fontWeight: 600 }}>
+          {displayKey}
+        </Typography>
+      ) : stacked ? (
         <Stack spacing={0.2} alignItems="center">
           <Typography sx={{ fontSize: 11 }}>{command.label}</Typography>
           <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 10 }}>

@@ -7,22 +7,17 @@ import {
   Stack,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
-import { alpha, type Theme } from '@mui/material/styles';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { alpha, type Theme, useTheme } from '@mui/material/styles';
+import { useEffect, useRef, useState } from 'react';
 
-import { Feature, Mode } from '../dungeon/constants.js';
-import { Game } from '../dungeon/engine.js';
-import type { GameSave } from '../dungeon/serialization.js';
-import type { Player } from '../dungeon/model.js';
-import type {
-  Event as GameEvent,
-  PromptOption,
-  StepResult,
-} from '../dungeon/types.js';
-import { storeSavedGame } from '../storage/gameSave.js';
-import { CommandButton, type Command } from './CommandButton.js';
 import helpHtmlContent from '../assets/help.html?raw';
+import type { Player } from '../dungeon/model.js';
+import type { PromptOption } from '../dungeon/types.js';
+import { CommandButton, type Command } from './CommandButton.js';
+import type { GameplayModel, GameplayProps } from './GameplayModel.js';
+import { useGameplayModel } from './GameplayModel.js';
 
 const panelStyle = (theme: Theme) => ({
   background: alpha(theme.palette.background.paper, 0.9),
@@ -39,46 +34,6 @@ const subtleBoxStyle = (theme: Theme) => ({
   background: alpha(theme.palette.primary.dark, 0.18),
 });
 
-const movementCommands = [
-  { id: 'move-north', key: 'N', label: 'North', disabled: false },
-  { id: 'move-west', key: 'W', label: 'West', disabled: false },
-  { id: 'move-east', key: 'E', label: 'East', disabled: false },
-  { id: 'move-south', key: 'S', label: 'South', disabled: false },
-];
-
-const verticalCommands = [
-  { id: 'move-up', key: 'U', label: 'Up', disabled: false },
-  { id: 'move-down', key: 'D', label: 'Down', disabled: false },
-  { id: 'exit', key: 'X', label: 'Exit', disabled: false },
-];
-
-const helpCommand = { id: 'help', key: '?', label: 'Help', disabled: false };
-
-const roomCommands = [
-  { id: 'flare', key: 'F', label: 'Flare', disabled: false },
-  { id: 'look', key: 'L', label: 'Look', disabled: false },
-  { id: 'open', key: 'O', label: 'Open Chest', disabled: false },
-  { id: 'read', key: 'R', label: 'Read Scroll', disabled: false },
-  { id: 'potion', key: 'P', label: 'Drink Potion', disabled: false },
-  { id: 'buy', key: 'B', label: 'Buy Items', disabled: false },
-  helpCommand,
-];
-
-const encounterCommands = [
-  { id: 'fight', key: 'F', label: 'Fight', disabled: false },
-  { id: 'run', key: 'R', label: 'Run', disabled: false },
-  { id: 'spell', key: 'S', label: 'Spell', disabled: false },
-];
-
-const ENDGAME_PROMPT = {
-  victoryText: 'Victory! Play again?',
-  gameOverText: 'Game over. Play again?',
-  options: [
-    { key: 'Y', label: 'Yes', disabled: false },
-    { key: 'N', label: 'No', disabled: false },
-  ],
-};
-
 function MapPanel({
   onTrigger,
   mapGrid,
@@ -86,6 +41,7 @@ function MapPanel({
   playerY,
   movementCommandList,
   verticalCommandList,
+  buttonLayout = 'stacked',
 }: {
   onTrigger: (command: Command) => void;
   mapGrid: string[];
@@ -93,6 +49,7 @@ function MapPanel({
   playerY: number;
   movementCommandList: Command[];
   verticalCommandList: Command[];
+  buttonLayout?: 'inline' | 'stacked' | 'compact';
 }) {
   const rows: string[] =
     mapGrid.length > 0 ? mapGrid : Array(7).fill('? ? ? ? ? ? ?');
@@ -197,13 +154,13 @@ function MapPanel({
             <CommandButton
               command={movementCommandList[0]}
               onTrigger={onTrigger}
-              layout="stacked"
+              layout={buttonLayout}
             />
             <Box />
             <CommandButton
               command={movementCommandList[1]}
               onTrigger={onTrigger}
-              layout="stacked"
+              layout={buttonLayout}
             />
             <Box
               sx={{
@@ -215,13 +172,13 @@ function MapPanel({
             <CommandButton
               command={movementCommandList[2]}
               onTrigger={onTrigger}
-              layout="stacked"
+              layout={buttonLayout}
             />
             <Box />
             <CommandButton
               command={movementCommandList[3]}
               onTrigger={onTrigger}
-              layout="stacked"
+              layout={buttonLayout}
             />
             <Box />
           </Box>
@@ -236,7 +193,7 @@ function MapPanel({
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
-                layout="stacked"
+                layout={buttonLayout}
               />
             ))}
           </Stack>
@@ -305,6 +262,176 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
   );
 }
 
+function CompactReadoutPanel({
+  encounterMode,
+  player,
+  lastEventLines,
+}: {
+  encounterMode: boolean;
+  player: Player;
+  lastEventLines: string[];
+}) {
+  return (
+    <Box sx={(theme) => panelStyle(theme)}>
+      <Stack spacing={1.5}>
+        <Stack spacing={0.4}>
+          <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
+          <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
+        </Stack>
+        <Stack spacing={0.4}>
+          <Typography sx={{ opacity: 0.7 }}>Status</Typography>
+          <Typography>
+            HP {player.hp} / {player.mhp} · Gold {player.gold}
+          </Typography>
+          <Typography>
+            Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
+          </Typography>
+        </Stack>
+        <Stack spacing={0.4}>
+          <Typography sx={{ opacity: 0.7 }}>Last Event</Typography>
+          {lastEventLines.length === 0 ? (
+            <Typography sx={{ opacity: 0.6 }}>
+              You see nothing special.
+            </Typography>
+          ) : (
+            lastEventLines.map((entry, index) => (
+              <Typography key={`${entry}-${index}`}>{entry}</Typography>
+            ))
+          )}
+        </Stack>
+      </Stack>
+    </Box>
+  );
+}
+
+function formatCommandKey(key: string) {
+  if (key.startsWith('Shift+')) return `\uE01C${key.slice(6)}`;
+  if (key === 'Esc') return `\uE11B`;
+  return key;
+}
+
+function CommandLegendPanel({ commands }: { commands: Command[] }) {
+  if (commands.length === 0) return null;
+  return (
+    <Box sx={(theme) => panelStyle(theme)}>
+      <Stack spacing={1.5}>
+        <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
+          Command Key
+        </Typography>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+            gap: 1,
+          }}
+        >
+          {commands.map((command) => (
+            <Box
+              key={command.id}
+              sx={(theme) => ({
+                display: 'grid',
+                gridTemplateColumns: 'auto 1fr',
+                gap: 1,
+                alignItems: 'center',
+                padding: 1,
+                borderRadius: 1,
+                border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
+                background: alpha(theme.palette.primary.dark, 0.18),
+                opacity: command.disabled ? 0.45 : 1,
+              })}
+            >
+              <Typography sx={{ fontWeight: 700 }}>
+                {formatCommandKey(command.key)}
+              </Typography>
+              <Typography sx={{ fontSize: 13 }}>{command.label}</Typography>
+            </Box>
+          ))}
+        </Box>
+      </Stack>
+    </Box>
+  );
+}
+
+function StatsPanel({
+  encounterMode,
+  onBack,
+  player,
+  onSave,
+  lastSavedAt,
+  saveError,
+}: {
+  encounterMode: boolean;
+  onBack: () => void;
+  player: Player;
+  onSave: () => void;
+  lastSavedAt: string | null;
+  saveError: string | null;
+}) {
+  return (
+    <Box sx={(theme) => panelStyle(theme)}>
+      <Stack spacing={2}>
+        <Stack spacing={0.5}>
+          <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
+          <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
+        </Stack>
+        <Stack spacing={0.5}>
+          <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
+          <Typography>ST {player.str}</Typography>
+          <Typography>DX {player.dex}</Typography>
+          <Typography>IQ {player.iq}</Typography>
+          <Typography
+            sx={(theme) => ({
+              color:
+                player.hp < 10
+                  ? theme.palette.error.light
+                  : theme.palette.text.primary,
+            })}
+          >
+            HP {player.hp} / {player.mhp}
+          </Typography>
+        </Stack>
+        <Stack spacing={0.5}>
+          <Typography sx={{ opacity: 0.7 }}>Inventory</Typography>
+          <Typography>Gold: {player.gold}</Typography>
+          <Typography>Weapon: {player.weaponName}</Typography>
+          <Typography>
+            Armor: {player.armorName}
+            {player.armorDamaged ? '*' : ''}
+          </Typography>
+          <Typography>Flares: {player.flares}</Typography>
+          <Typography>Treasures: {player.treasuresFound.size}</Typography>
+        </Stack>
+        <Stack spacing={0.5}>
+          <Typography sx={{ opacity: 0.7 }}>Location</Typography>
+          <Typography>
+            Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
+          </Typography>
+        </Stack>
+        <Stack spacing={1}>
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            <Button variant="outlined" onClick={onSave}>
+              Save
+            </Button>
+            <Button variant="outlined" onClick={onBack}>
+              Exit
+            </Button>
+          </Stack>
+          {lastSavedAt && (
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              Saved {lastSavedAt}
+            </Typography>
+          )}
+          {saveError && (
+            <Typography variant="caption" color="error">
+              {saveError}
+            </Typography>
+          )}
+        </Stack>
+      </Stack>
+    </Box>
+  );
+}
+
 function CommandBarPanel({
   encounterMode,
   onTrigger,
@@ -313,6 +440,7 @@ function CommandBarPanel({
   promptHasCancel,
   encounterCommandList,
   roomCommandList,
+  buttonLayout = 'inline',
 }: {
   encounterMode: boolean;
   onTrigger: (command: Command) => void;
@@ -321,6 +449,7 @@ function CommandBarPanel({
   promptHasCancel: boolean;
   encounterCommandList: Command[];
   roomCommandList: Command[];
+  buttonLayout?: 'inline' | 'stacked' | 'compact';
 }) {
   if (promptOptions && promptOptions.length > 0) {
     const commands = promptOptions.map((option) => ({
@@ -360,6 +489,7 @@ function CommandBarPanel({
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
+                layout={buttonLayout}
               />
             ))}
           </Box>
@@ -386,6 +516,7 @@ function CommandBarPanel({
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
+                layout={buttonLayout}
               />
             ))}
           </Stack>
@@ -407,6 +538,7 @@ function CommandBarPanel({
                 key={command.id}
                 command={command}
                 onTrigger={onTrigger}
+                layout={buttonLayout}
               />
             ))}
           </Box>
@@ -418,15 +550,15 @@ function CommandBarPanel({
 
 function PlayerReadoutPanel({
   encounterMode,
-  onBack,
   player,
+  onBack,
   onSave,
   lastSavedAt,
   saveError,
 }: {
   encounterMode: boolean;
-  onBack: () => void;
   player: Player;
+  onBack: () => void;
   onSave: () => void;
   lastSavedAt: string | null;
   saveError: string | null;
@@ -500,15 +632,7 @@ function PlayerReadoutPanel({
   );
 }
 
-function HelpDialog({
-  open,
-  onClose,
-  html,
-}: {
-  open: boolean;
-  onClose: () => void;
-  html: string;
-}) {
+function HelpDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <Dialog
       open={open}
@@ -552,49 +676,21 @@ function HelpDialog({
         </Typography>
       </DialogTitle>
       <DialogContent dividers>
-        {html ? (
-          <Box
-            sx={{
-              '& h1': { marginTop: 0 },
-              '& h1, & h2, & h3': {
-                letterSpacing: 1.2,
-                textTransform: 'uppercase',
-              },
-              '& li': { marginBottom: 0.5 },
-              '& ul li::marker': { content: '"- "' },
-            }}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        ) : (
-          <Typography sx={{ opacity: 0.7 }}>
-            Help text is unavailable.
-          </Typography>
-        )}
+        <Box
+          sx={{
+            '& h1': { marginTop: 0 },
+            '& h1, & h2, & h3': {
+              letterSpacing: 1.2,
+              textTransform: 'uppercase',
+            },
+            '& li': { marginBottom: 0.5 },
+            '& ul li::marker': { content: '"- "' },
+          }}
+          dangerouslySetInnerHTML={{ __html: helpHtmlContent }}
+        />
       </DialogContent>
     </Dialog>
   );
-}
-
-function eventLines(events: GameEvent[]): string[] {
-  return events
-    .filter((event) =>
-      ['INFO', 'ERROR', 'COMBAT', 'LOOT', 'DEBUG'].includes(event.kind)
-    )
-    .map((event) => event.text)
-    .filter(Boolean);
-}
-
-function resumeLines(events: GameEvent[]): string[] {
-  return eventLines(events);
-}
-
-const EVENT_FEED_LIMIT = 10;
-
-function appendEventFeed(previous: string[][], next: string[]): string[][] {
-  if (next.length === 0) return previous;
-  const combined = [...previous, next];
-  if (combined.length <= EVENT_FEED_LIMIT) return combined;
-  return combined.slice(combined.length - EVENT_FEED_LIMIT);
 }
 
 function mapTooltip(cell: string): string {
@@ -637,273 +733,139 @@ function mapTooltip(cell: string): string {
   }
 }
 
-function promptData(events: GameEvent[]): {
-  promptOptions: PromptOption[] | null;
-  promptText: string | null;
-  promptHasCancel: boolean;
-} {
-  const promptEvent = [...events]
-    .reverse()
-    .find((event) => event.kind === 'PROMPT');
-  if (!promptEvent) {
-    return { promptOptions: null, promptText: null, promptHasCancel: false };
-  }
-  return {
-    promptOptions: promptEvent.data?.options ?? null,
-    promptText: promptEvent.text || null,
-    promptHasCancel: promptEvent.data?.hasCancel ?? false,
-  };
+function GameplayMobile({ model }: { model: GameplayModel }) {
+  const [mobileView, setMobileView] = useState<'play' | 'stats'>('play');
+
+  return (
+    <>
+      <Stack spacing={3}>
+        {mobileView === 'play' ? (
+          <Stack spacing={3}>
+            <MapPanel
+              onTrigger={model.handleTrigger}
+              mapGrid={model.mapGrid}
+              playerX={model.player.x}
+              playerY={model.player.y}
+              movementCommandList={model.movementCommandList}
+              verticalCommandList={model.verticalCommandList}
+              buttonLayout="compact"
+            />
+            <CommandBarPanel
+              encounterMode={model.isEncounter}
+              onTrigger={model.handleTrigger}
+              promptOptions={model.effectivePromptOptions}
+              promptText={model.effectivePromptText}
+              promptHasCancel={model.effectivePromptHasCancel}
+              encounterCommandList={model.encounterCommandList}
+              roomCommandList={model.roomCommandList}
+              buttonLayout="compact"
+            />
+            <CompactReadoutPanel
+              encounterMode={model.isEncounter}
+              player={model.player}
+              lastEventLines={model.lastEventLines}
+            />
+          </Stack>
+        ) : (
+          <Stack spacing={3}>
+            <StatsPanel
+              encounterMode={model.isEncounter}
+              onBack={model.onBack}
+              player={model.player}
+              onSave={model.handleSave}
+              lastSavedAt={model.lastSavedAt}
+              saveError={model.saveError}
+            />
+            <CommandLegendPanel commands={model.commandsForLegend} />
+          </Stack>
+        )}
+      </Stack>
+      <Box
+        sx={(theme) => ({
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 20,
+          padding: 1,
+          borderTop: `1px solid ${alpha(theme.palette.primary.light, 0.4)}`,
+          background: alpha(theme.palette.background.paper, 0.92),
+          backdropFilter: 'blur(8px)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: 1,
+        })}
+      >
+        <Button
+          variant={mobileView === 'play' ? 'contained' : 'outlined'}
+          onClick={() => setMobileView('play')}
+        >
+          Play
+        </Button>
+        <Button
+          variant={mobileView === 'stats' ? 'contained' : 'outlined'}
+          onClick={() => setMobileView('stats')}
+        >
+          Stats
+        </Button>
+      </Box>
+    </>
+  );
 }
 
-export default function Gameplay({
-  onBack,
-  onSetup,
-  player: initialPlayer,
-  savedGame,
-}: {
-  onBack: () => void;
-  onSetup: () => void;
-  player: Player;
-  savedGame?: GameSave | null;
-}) {
-  const gameRef = useRef<Game | null>(null);
-  const loadedFromSaveRef = useRef(false);
-  if (!gameRef.current) {
-    if (savedGame) {
-      try {
-        gameRef.current = Game.fromSave(savedGame);
-        loadedFromSaveRef.current = true;
-      } catch {
-        gameRef.current = new Game({ seed: Date.now(), player: initialPlayer });
-      }
-    } else {
-      gameRef.current = new Game({ seed: Date.now(), player: initialPlayer });
-    }
-  }
-  const game = gameRef.current;
-  const player = game.player;
-  const [mode, setMode] = useState<Mode>(game.mode);
-  const [mapGrid, setMapGrid] = useState<string[]>(game.mapGrid());
-  const [turnEvents, setTurnEvents] = useState<string[][]>([]);
-  const [promptOptions, setPromptOptions] = useState<PromptOption[] | null>(
-    null
-  );
-  const [promptText, setPromptText] = useState<string | null>(null);
-  const [promptHasCancel, setPromptHasCancel] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [helpHtml] = useState<string>(helpHtmlContent);
-  const [lastSavedAt, setLastSavedAt] = useState<string | null>(
-    savedGame?.savedAt ? new Date(savedGame.savedAt).toLocaleString() : null
-  );
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const initialized = useRef(false);
+function GameplayDesktop({ model }: { model: GameplayModel }) {
+  return (
+    <Box
+      sx={{
+        display: 'grid',
+        gap: 3,
+        gridTemplateColumns: '1fr',
+        alignItems: 'stretch',
+        '@container (min-width: 1280px)': {
+          gridTemplateColumns: '2fr 1fr',
+        },
+      }}
+    >
+      <Stack
+        spacing={3}
+        sx={{ height: '100%', justifyContent: 'space-between' }}
+      >
+        <MapPanel
+          onTrigger={model.handleTrigger}
+          mapGrid={model.mapGrid}
+          playerX={model.player.x}
+          playerY={model.player.y}
+          movementCommandList={model.movementCommandList}
+          verticalCommandList={model.verticalCommandList}
+        />
+        <EventFeedPanel turnEvents={model.turnEvents} />
+        <CommandBarPanel
+          encounterMode={model.isEncounter}
+          onTrigger={model.handleTrigger}
+          promptOptions={model.effectivePromptOptions}
+          promptText={model.effectivePromptText}
+          promptHasCancel={model.effectivePromptHasCancel}
+          encounterCommandList={model.encounterCommandList}
+          roomCommandList={model.roomCommandList}
+        />
+      </Stack>
 
-  const isEncounter = mode === Mode.ENCOUNTER;
-  const isGameOver = mode === Mode.GAME_OVER;
-  const isVictory = mode === Mode.VICTORY;
-  const isEndState = isGameOver || isVictory;
-  const currentRoomFeature =
-    game.dungeon.rooms[player.z][player.y][player.x].feature;
-  const canCastSpell =
-    player.iq >= 12 && Object.values(player.spells).some((count) => count > 0);
-  const canRun = !player.fatigued;
-  const atNorthWall = player.y <= 0;
-  const atSouthWall = player.y >= Game.SIZE - 1;
-  const atWestWall = player.x <= 0;
-  const atEastWall = player.x >= Game.SIZE - 1;
-  const movementDisabledByKey: Record<string, boolean> = {
-    N: atNorthWall,
-    S: atSouthWall,
-    W: atWestWall,
-    E: atEastWall,
-  };
-  const movementCommandList = useMemo(
-    () =>
-      movementCommands.map((command) =>
-        command.key in movementDisabledByKey
-          ? { ...command, disabled: movementDisabledByKey[command.key] }
-          : command
-      ),
-    [movementDisabledByKey]
+      <PlayerReadoutPanel
+        encounterMode={model.isEncounter}
+        onBack={model.onBack}
+        player={model.player}
+        onSave={model.handleSave}
+        lastSavedAt={model.lastSavedAt}
+        saveError={model.saveError}
+      />
+    </Box>
   );
-  const verticalDisabledByKey: Record<string, boolean> = {
-    U: currentRoomFeature !== Feature.STAIRS_UP,
-    D: currentRoomFeature !== Feature.STAIRS_DOWN,
-    X: currentRoomFeature !== Feature.EXIT,
-  };
-  const verticalCommandList = useMemo(
-    () =>
-      verticalCommands.map((command) =>
-        command.key in verticalDisabledByKey
-          ? { ...command, disabled: verticalDisabledByKey[command.key] }
-          : command
-      ),
-    [verticalDisabledByKey]
-  );
-  const roomDisabledByKey: Record<string, boolean> = {
-    F: player.flares < 1,
-    L: currentRoomFeature !== Feature.MIRROR,
-    O: currentRoomFeature !== Feature.CHEST,
-    R: currentRoomFeature !== Feature.SCROLL,
-    P: currentRoomFeature !== Feature.POTION,
-    B: currentRoomFeature !== Feature.VENDOR,
-    H: false,
-  };
-  const roomCommandList = useMemo(
-    () =>
-      roomCommands.map((command) =>
-        command.key in roomDisabledByKey
-          ? { ...command, disabled: roomDisabledByKey[command.key] }
-          : command
-      ),
-    [roomDisabledByKey]
-  );
-  const encounterCommandList = useMemo(() => {
-    const base = encounterCommands.map((command) => {
-      if (command.key === 'S') {
-        return { ...command, disabled: !canCastSpell };
-      }
-      if (command.key === 'R') {
-        return { ...command, disabled: !canRun };
-      }
-      return command;
-    });
-    return [...base, helpCommand];
-  }, [canCastSpell, canRun]);
-  const exploreCommandList = useMemo(
-    () => [...movementCommandList, ...verticalCommandList, ...roomCommandList],
-    [movementCommandList, verticalCommandList, roomCommandList]
-  );
-  const activeCommands = useMemo(
-    () => (isEncounter ? encounterCommandList : exploreCommandList),
-    [isEncounter, encounterCommandList, exploreCommandList]
-  );
-  const effectivePromptOptions = isEndState
-    ? ENDGAME_PROMPT.options
-    : promptOptions;
-  const effectivePromptHasCancel = isEndState ? false : promptHasCancel;
-  const effectivePromptText = isEndState
-    ? isVictory
-      ? ENDGAME_PROMPT.victoryText
-      : ENDGAME_PROMPT.gameOverText
-    : promptText;
+}
 
-  const promptCommands = useMemo(() => {
-    if (!effectivePromptOptions || effectivePromptOptions.length === 0) {
-      return null;
-    }
-    const commands = effectivePromptOptions.map((option) => ({
-      id: `prompt-${option.key}`,
-      key: option.key,
-      label: option.label,
-      disabled: option.disabled,
-    }));
-    if (effectivePromptHasCancel) {
-      commands.push({
-        id: 'prompt-cancel',
-        key: 'Esc',
-        label: 'Cancel',
-        disabled: false,
-      });
-    }
-    return commands;
-  }, [effectivePromptHasCancel, effectivePromptOptions]);
-
-  const commandMap = useMemo(() => {
-    const map = new Map<string, Command>();
-    const commands = promptCommands ?? activeCommands;
-    commands.forEach((command) => map.set(command.key.toLowerCase(), command));
-    return map;
-  }, [activeCommands, promptCommands]);
-
-  const applyStepResult = useCallback(
-    (result: StepResult) => {
-      const prompt = promptData(result.events);
-      setMode(result.mode);
-      setTurnEvents((prev) => appendEventFeed(prev, eventLines(result.events)));
-      setMapGrid(game.mapGrid());
-      setPromptOptions(prompt.promptOptions);
-      setPromptText(prompt.promptText);
-      setPromptHasCancel(prompt.promptHasCancel);
-    },
-    [game]
-  );
-
-  const handleTrigger = useCallback(
-    (command: Command) => {
-      if (command.key === '?') {
-        setHelpOpen(true);
-        return;
-      }
-      if (command.id === 'prompt-cancel') {
-        applyStepResult(game.attemptCancel());
-        return;
-      }
-      if (isEndState) {
-        if (command.key === 'Y') {
-          onSetup();
-        } else if (command.key === 'N') {
-          onBack();
-        }
-        return;
-      }
-      applyStepResult(game.step(command.key));
-    },
-    [applyStepResult, game, isEndState, onBack, onSetup]
-  );
-
-  const handleSave = useCallback(() => {
-    const save = game.toSave();
-    const stored = storeSavedGame(save);
-    if (stored.ok) {
-      setSaveError(null);
-      setLastSavedAt(new Date(save.savedAt).toLocaleString());
-    } else {
-      setSaveError(stored.error ?? 'Save failed.');
-    }
-  }, [game]);
-
-  useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-    const initialEvents = loadedFromSaveRef.current
-      ? game.resumeEvents()
-      : game.startEvents();
-    const prompt = promptData(initialEvents);
-    setTurnEvents((prev) =>
-      appendEventFeed(
-        prev,
-        loadedFromSaveRef.current
-          ? resumeLines(initialEvents)
-          : eventLines(initialEvents)
-      )
-    );
-    setMode(game.mode);
-    setMapGrid(game.mapGrid());
-    setPromptOptions(prompt.promptOptions);
-    setPromptText(prompt.promptText);
-    setPromptHasCancel(prompt.promptHasCancel);
-  }, [game]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat) return;
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      let key = event.key.toLowerCase();
-      if (key === 'escape') key = 'esc';
-      if (key === 'arrowup') key = 'n';
-      if (key === 'arrowdown') key = 's';
-      if (key === 'arrowleft') key = 'w';
-      if (key === 'arrowright') key = 'e';
-      const command = commandMap.get(key);
-      if (!command) return;
-      event.preventDefault();
-      handleTrigger(command);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [commandMap, handleTrigger]);
+export default function Gameplay(props: GameplayProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const model = useGameplayModel(props);
 
   return (
     <Box
@@ -913,6 +875,7 @@ export default function Gameplay({
         display: 'grid',
         gap: 3,
         containerType: 'inline-size',
+        paddingBottom: { xs: 10, md: 0 },
         '@keyframes boot': {
           from: { opacity: 0, transform: 'translateY(14px)' },
           to: { opacity: 1, transform: 'translateY(0)' },
@@ -920,54 +883,14 @@ export default function Gameplay({
         animation: 'boot 650ms ease-out',
       }}
     >
-      <Box
-        sx={{
-          display: 'grid',
-          gap: 3,
-          gridTemplateColumns: '1fr',
-          alignItems: 'stretch',
-          '@container (min-width: 1280px)': {
-            gridTemplateColumns: '2fr 1fr',
-          },
-        }}
-      >
-        <Stack
-          spacing={3}
-          sx={{ height: '100%', justifyContent: 'space-between' }}
-        >
-          <MapPanel
-            onTrigger={handleTrigger}
-            mapGrid={mapGrid}
-            playerX={player.x}
-            playerY={player.y}
-            movementCommandList={movementCommandList}
-            verticalCommandList={verticalCommandList}
-          />
-          <EventFeedPanel turnEvents={turnEvents} />
-          <CommandBarPanel
-            encounterMode={isEncounter}
-            onTrigger={handleTrigger}
-            promptOptions={effectivePromptOptions}
-            promptText={effectivePromptText}
-            promptHasCancel={effectivePromptHasCancel}
-            encounterCommandList={encounterCommandList}
-            roomCommandList={roomCommandList}
-          />
-        </Stack>
-
-        <PlayerReadoutPanel
-          encounterMode={isEncounter}
-          onBack={onBack}
-          player={player}
-          onSave={handleSave}
-          lastSavedAt={lastSavedAt}
-          saveError={saveError}
-        />
-      </Box>
+      {isMobile ? (
+        <GameplayMobile model={model} />
+      ) : (
+        <GameplayDesktop model={model} />
+      )}
       <HelpDialog
-        open={helpOpen}
-        onClose={() => setHelpOpen(false)}
-        html={helpHtml}
+        open={model.helpOpen}
+        onClose={() => model.setHelpOpen(false)}
       />
     </Box>
   );
