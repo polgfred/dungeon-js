@@ -152,10 +152,17 @@ export class EncounterSession {
   }
 
   attemptCancel(): EncounterResult {
-    if (this.awaitingSpell) {
-      return this.withDebug(this.handleSpellChoice('C'));
+    if (!this.awaitingSpell) {
+      return this.withDebug({
+        events: [Event.info("I don't understand that.")],
+        mode: Mode.ENCOUNTER,
+      });
     }
-    return this.withDebug({ events: [], mode: Mode.ENCOUNTER });
+    this.awaitingSpell = false;
+    return this.withDebug({
+      events: [Event.info('You ready yourself for the fight.')],
+      mode: Mode.ENCOUNTER,
+    });
   }
 
   private withDebug(result: EncounterResult): EncounterResult {
@@ -335,12 +342,6 @@ export class EncounterSession {
   private handleSpellChoice(raw: string): EncounterResult {
     this.awaitingSpell = false;
     const key = raw[0];
-    if (key === 'C') {
-      return {
-        events: [Event.info('You ready yourself for the fight.')],
-        mode: Mode.ENCOUNTER,
-      };
-    }
     const spellMap: Record<string, Spell> = {
       P: Spell.PROTECTION,
       F: Spell.FIREBALL,

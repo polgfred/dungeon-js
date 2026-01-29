@@ -196,7 +196,7 @@ export class Game {
     }
 
     return {
-      events,
+      events: [...events, Event.info("I don't understand that.")],
       mode: this.mode,
       needsInput: true,
     };

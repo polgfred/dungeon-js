@@ -120,8 +120,6 @@ export class VendorSession {
 
   private handleShopCategory(raw: string): VendorResult {
     switch (raw) {
-      case 'C':
-        return { events: [Event.info('Perhaps another time.')], done: true };
       case 'W':
       case 'A':
       case 'S':
@@ -140,14 +138,7 @@ export class VendorSession {
   }
 
   private handleShopItem(raw: string): VendorResult {
-    switch (raw) {
-      case 'C':
-        this.phase = 'category';
-        this.category = null;
-        return { events: [this.categoryPrompt()] };
-      default:
-        return this.handleShopItemChoice(raw);
-    }
+    return this.handleShopItemChoice(raw);
   }
 
   private handleShopItemChoice(raw: string): VendorResult {
