@@ -132,7 +132,6 @@ const theme = createTheme({
           },
         },
         '.ui-nav-button.MuiButton-root': {
-          '--cmd-nav-min-w': '48px',
           '--cmd-nav-label-size': '13px',
           '--cmd-nav-key-size': '12px',
           minWidth: '48px',

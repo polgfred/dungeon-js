@@ -228,8 +228,7 @@ function MapPanel({
             sx={{
               display: 'grid',
               gap: 0.5,
-              gridTemplateColumns:
-                'repeat(auto-fit, minmax(var(--cmd-nav-min-w, 64px), 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(64px, 1fr))',
               justifyItems: 'stretch',
               width: '100%',
               '& .MuiButton-root': {
@@ -352,9 +351,9 @@ function MobileMapPanel({
           spacing={0.75}
           justifyContent="center"
           sx={{
-            width: { xs: 'auto', md: 'var(--cmd-nav-min-w, 64px)' },
+            width: 'auto',
             '& .MuiButton-root': {
-              width: { xs: 'auto', md: '100%' },
+              width: 'auto',
             },
           }}
         >
