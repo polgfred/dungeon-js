@@ -16,6 +16,11 @@ function pluralize(count: number, singular: string, plural = `${singular}s`) {
   return count === 1 ? singular : plural;
 }
 
+function resetPlayerAfterEncounter(player: Player) {
+  player.fatigued = false;
+  player.tempArmorBonus = 0;
+}
+
 export class EncounterSession {
   private rng: RandomSource;
   private player: Player;
@@ -244,6 +249,7 @@ export class EncounterSession {
           `Suddenly, you realize that the ${this.monsterName} is no longer following you.`
         ),
       ];
+      resetPlayerAfterEncounter(this.player);
       return {
         events,
         mode: Mode.EXPLORE,
@@ -331,6 +337,7 @@ export class EncounterSession {
     this.monsterLevel = 0;
     this.monsterName = '';
     this.vitality = 0;
+    resetPlayerAfterEncounter(this.player);
     return { events, mode: Mode.EXPLORE };
   }
 
@@ -480,6 +487,7 @@ export class EncounterSession {
         this.monsterLevel = 0;
         this.monsterName = '';
         this.vitality = 0;
+        resetPlayerAfterEncounter(this.player);
         if (this.debug) {
           events.push(Event.debug('DEBUG SPELL: teleport'));
         }
