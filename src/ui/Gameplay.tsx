@@ -21,7 +21,7 @@ import { useGameplayModel } from './GameplayModel.js';
 
 const helpContentSx = {
   '& h1': { marginTop: 0, opacity: 0.75 },
-  '& h2, & h3': { opacity: 0.7 },
+  '& h2, & h3': { opacity: 0.75 },
   '& h1, & h2, & h3': {
     letterSpacing: 1.2,
     textTransform: 'uppercase',
@@ -166,7 +166,7 @@ function MapPanel({
   );
 
   return (
-    <Box sx={(theme) => panelStyle(theme)}>
+    <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
       <Box
         sx={{
           display: 'grid',
@@ -292,7 +292,7 @@ function MobileMapPanel({
   const mapCellWidth = safeWindowSize <= 3 ? 48 : 42;
 
   return (
-    <Box sx={(theme) => panelStyle(theme)}>
+    <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
       <Box
         sx={{
           display: 'grid',
@@ -390,9 +390,7 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
       >
         <Box sx={{ minHeight: 180, flexShrink: 0 }} />
         {turnEvents.length === 0 ? (
-          <Typography sx={{ opacity: 0.6 }}>
-            You see nothing special.
-          </Typography>
+          <Typography className="ui-tip">You see nothing special.</Typography>
         ) : (
           turnEvents.map((group, groupIndex) => {
             const isLatest = groupIndex === turnEvents.length - 1;
@@ -429,6 +427,7 @@ function CompactReadoutPanel({
 }) {
   return (
     <Box
+      className="ui-panel"
       sx={(theme) => ({
         ...panelStyle(theme),
         '& .MuiTypography-root': {
@@ -441,11 +440,11 @@ function CompactReadoutPanel({
     >
       <Stack spacing={1.5}>
         <Stack spacing={0.4}>
-          <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Mode</Typography>
           <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
         </Stack>
         <Stack spacing={0.4}>
-          <Typography sx={{ opacity: 0.7 }}>Status</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Status</Typography>
           <Typography>
             ST {player.str} · DX {player.dex} · IQ {player.iq}
           </Typography>
@@ -464,6 +463,7 @@ function CompactReadoutPanel({
 function MobileEventBubble({ lastEventLines }: { lastEventLines: string[] }) {
   return (
     <Box
+      className="ui-panel"
       sx={(theme) => ({
         ...panelStyle(theme),
         padding: 0,
@@ -486,9 +486,7 @@ function MobileEventBubble({ lastEventLines }: { lastEventLines: string[] }) {
         })}
       >
         {lastEventLines.length === 0 ? (
-          <Typography sx={{ opacity: 0.6 }}>
-            You see nothing special.
-          </Typography>
+          <Typography className="ui-tip">You see nothing special.</Typography>
         ) : (
           lastEventLines.map((entry, index) => (
             <Typography key={`${entry}-${index}`}>{entry}</Typography>
@@ -534,14 +532,14 @@ function StatsPanel({
     triggerReadoutCommand(command, { onSave, onBack });
 
   return (
-    <Box sx={(theme) => panelStyle(theme)}>
+    <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
       <Stack spacing={2}>
         <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Mode</Typography>
           <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
         </Stack>
         <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Stats</Typography>
           <Typography>ST {player.str}</Typography>
           <Typography>DX {player.dex}</Typography>
           <Typography>IQ {player.iq}</Typography>
@@ -557,7 +555,7 @@ function StatsPanel({
           </Typography>
         </Stack>
         <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.7 }}>Inventory</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Inventory</Typography>
           <Typography>Gold: {player.gold}</Typography>
           <Typography>Weapon: {player.weaponName}</Typography>
           <Typography>
@@ -568,7 +566,7 @@ function StatsPanel({
           <Typography>Treasures: {player.treasuresFound.size}</Typography>
         </Stack>
         <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.7 }}>Location</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Location</Typography>
           <Typography>
             Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
           </Typography>
@@ -585,9 +583,7 @@ function StatsPanel({
             ))}
           </Stack>
           {lastSavedAt && (
-            <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              Saved {lastSavedAt}
-            </Typography>
+            <Typography variant="caption">Saved {lastSavedAt}</Typography>
           )}
           {saveError && (
             <Typography variant="caption" color="error">
@@ -649,6 +645,7 @@ function CommandBarPanel({
     }
     return (
       <Box
+        className="ui-panel"
         sx={(theme) => ({
           ...panelStyle(theme),
           paddingY: { xs: 1.5, md: 2 },
@@ -679,6 +676,7 @@ function CommandBarPanel({
 
   return (
     <Box
+      className="ui-panel"
       sx={(theme) => ({
         ...panelStyle(theme),
         paddingY: { xs: 1.5, md: 2 },
@@ -754,14 +752,14 @@ function PlayerReadoutPanel({
     triggerReadoutCommand(command, { onSave, onBack });
 
   return (
-    <Box sx={(theme) => panelStyle(theme)}>
+    <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
       <Stack spacing={2} sx={{ height: '100%' }}>
         <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Mode</Typography>
           <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
         </Stack>
         <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Stats</Typography>
           <Typography>ST {player.str}</Typography>
           <Typography>DX {player.dex}</Typography>
           <Typography>IQ {player.iq}</Typography>
@@ -777,7 +775,7 @@ function PlayerReadoutPanel({
           </Typography>
         </Stack>
         <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.7 }}>Inventory</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Inventory</Typography>
           <Typography>Gold: {player.gold}</Typography>
           <Typography>Weapon: {player.weaponName}</Typography>
           <Typography>
@@ -788,12 +786,12 @@ function PlayerReadoutPanel({
           <Typography>Treasures: {player.treasuresFound.size}</Typography>
         </Stack>
         <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.7 }}>Location</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Location</Typography>
           <Typography>
             Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
           </Typography>
         </Stack>
-        <Typography variant="caption" sx={{ opacity: 0.6 }}>
+        <Typography variant="caption" className="ui-tip">
           Tip: press the letter keys shown on each command.
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
@@ -809,9 +807,7 @@ function PlayerReadoutPanel({
             ))}
           </Stack>
           {lastSavedAt && (
-            <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              Saved {lastSavedAt}
-            </Typography>
+            <Typography variant="caption">Saved {lastSavedAt}</Typography>
           )}
           {saveError && (
             <Typography variant="caption" color="error">
@@ -883,6 +879,7 @@ function HelpDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
 function MobileHelpPanel({ onClose }: { onClose: () => void }) {
   return (
     <Box
+      className="ui-panel"
       sx={(theme) => ({
         ...panelStyle(theme),
         padding: 0,
@@ -907,7 +904,7 @@ function MobileHelpPanel({ onClose }: { onClose: () => void }) {
         <Typography
           aria-label="Close help"
           onClick={onClose}
-          sx={{ cursor: 'pointer', opacity: 0.7 }}
+          sx={{ cursor: 'pointer', opacity: 0.75 }}
         >
           Close
         </Typography>

@@ -53,6 +53,46 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: (theme) => ({
+        '.ui-muted': {
+          opacity: 0.75,
+        },
+        '.ui-tip': {
+          opacity: 0.6,
+          fontSize: 11,
+          [theme.breakpoints.up('md')]: {
+            fontSize: 13,
+          },
+        },
+        '.ui-tip-compact': {
+          opacity: 0.6,
+          fontSize: 10,
+          [theme.breakpoints.up('md')]: {
+            fontSize: 11,
+          },
+        },
+        '.ui-panel .MuiTypography-root': {
+          fontSize: 13,
+          [theme.breakpoints.up('md')]: {
+            fontSize: 16,
+          },
+        },
+        '.ui-panel .MuiTypography-caption': {
+          fontSize: 11,
+          [theme.breakpoints.up('md')]: {
+            fontSize: 13,
+          },
+        },
+      }),
+    },
+    MuiTypography: {
+      styleOverrides: {
+        caption: {
+          opacity: 0.75,
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         containedPrimary: ({ theme }) => ({

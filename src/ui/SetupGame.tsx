@@ -44,9 +44,20 @@ const panelStyle = (theme: Theme) => ({
   padding: { xs: 2, md: 3 },
 });
 
+const setupTitleSx = {
+  letterSpacing: 2,
+  fontSize: { xs: 18, md: 'inherit' },
+};
+
+const setupBodySx = {
+  opacity: 0.75,
+  fontSize: { xs: 13, md: 16 },
+};
+
 function MobileHelpPanel({ onClose }: { onClose: () => void }) {
   return (
     <Box
+      className="ui-panel"
       sx={(theme) => ({
         ...panelStyle(theme),
         padding: 0,
@@ -71,7 +82,7 @@ function MobileHelpPanel({ onClose }: { onClose: () => void }) {
         <Typography
           aria-label="Close help"
           onClick={onClose}
-          sx={{ cursor: 'pointer', opacity: 0.7 }}
+          sx={{ cursor: 'pointer', opacity: 0.75 }}
         >
           Close
         </Typography>
@@ -86,7 +97,7 @@ function MobileHelpPanel({ onClose }: { onClose: () => void }) {
             fontSize: 'inherit',
           },
           '& h1': { marginTop: 0, opacity: 0.75 },
-          '& h2, & h3': { opacity: 0.7 },
+          '& h2, & h3': { opacity: 0.75 },
           '& h1, & h2, & h3': {
             letterSpacing: 1.2,
             textTransform: 'uppercase',
@@ -122,6 +133,7 @@ function SetupCommandPanel({
       : { letterSpacing: 2, textTransform: 'uppercase' };
   return (
     <Box
+      className="ui-panel"
       sx={(theme) => ({
         ...panelStyle(theme),
         paddingY: { xs: 1.5, md: 2 },
@@ -164,13 +176,10 @@ function RaceStage({
 }) {
   return (
     <Stack spacing={3}>
-      <Typography
-        variant="h5"
-        sx={{ letterSpacing: 2, fontSize: { xs: 18, md: 'inherit' } }}
-      >
+      <Typography variant="h5" sx={setupTitleSx}>
         Choose Thy Race
       </Typography>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
+      <Typography sx={setupBodySx}>
         Base player stats are rolled on selection. Confirm to lock in your
         numbers.
       </Typography>
@@ -209,7 +218,7 @@ function RaceStage({
               <Typography
                 variant="body2"
                 sx={{
-                  opacity: 0.7,
+                  opacity: 0.75,
                   textAlign: 'center',
                   width: '100%',
                   display: { xs: 'none', md: 'block' },
@@ -230,7 +239,7 @@ function RaceStage({
             background: alpha(theme.palette.primary.dark, 0.35),
           })}
         >
-          <Typography sx={{ opacity: 0.7 }}>Rolled Stats</Typography>
+          <Typography sx={{ opacity: 0.75 }}>Rolled Stats</Typography>
           <Typography sx={{ letterSpacing: 1.5 }}>
             ST {baseStats.ST} · DX {baseStats.DX} · IQ {baseStats.IQ} · HP{' '}
             {baseStats.HP}
@@ -273,13 +282,10 @@ function AllocationStage({
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   return (
     <Stack spacing={3}>
-      <Typography
-        variant="h5"
-        sx={{ letterSpacing: 2, fontSize: { xs: 18, md: 'inherit' } }}
-      >
+      <Typography variant="h5" sx={setupTitleSx}>
         Allocate Points
       </Typography>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
+      <Typography sx={setupBodySx}>
         Distribute five additional points across strength, dexterity, and
         intelligence. Attributes are capped at 18.
       </Typography>
@@ -303,7 +309,7 @@ function AllocationStage({
             >
               <Typography sx={{ letterSpacing: 2 }}>{key}</Typography>
               <Box>
-                <Typography sx={{ opacity: 0.7 }}>
+                <Typography sx={{ opacity: 0.75 }}>
                   {isMobile
                     ? totalValue
                     : `Base ${baseValue} + ${allocations[key]} → ${totalValue}`}
@@ -380,16 +386,13 @@ function ShopStage({
 }) {
   return (
     <Stack spacing={3}>
-      <Typography
-        variant="h5"
-        sx={{ letterSpacing: 2, fontSize: { xs: 18, md: 'inherit' } }}
-      >
+      <Typography variant="h5" sx={setupTitleSx}>
         Arm Thyself
       </Typography>
-      <Typography sx={{ opacity: 0.8, color: 'text.secondary' }}>
+      <Typography sx={{ opacity: 0.75, color: 'text.secondary' }}>
         Gold remaining: {goldRemaining !== null ? goldRemaining : '--'}
       </Typography>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
+      <Typography sx={setupBodySx}>
         Now, you must purchase a weapon, armor, and flares. Any remaining gold
         is kept for future exploits.
       </Typography>
@@ -517,13 +520,10 @@ function ReadyStage({
 }) {
   return (
     <Stack spacing={3}>
-      <Typography
-        variant="h5"
-        sx={{ letterSpacing: 2, fontSize: { xs: 18, md: 'inherit' } }}
-      >
+      <Typography variant="h5" sx={setupTitleSx}>
         Setup Complete
       </Typography>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
+      <Typography sx={setupBodySx}>
         Brave adventurer, thy gear outfits thee well! But alas, this quest is
         not for the faint of heart. Are you ready to enter the dungeon?
       </Typography>
@@ -533,9 +533,7 @@ function ReadyStage({
         <Typography>Flares: {player.flares}</Typography>
         <Typography>Gold Remaining: {player.gold}</Typography>
       </Stack>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
-        THE DUNGEON AWAITS YOU...
-      </Typography>
+      <Typography sx={setupBodySx}>THE DUNGEON AWAITS YOU...</Typography>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <Button variant="outlined" onClick={onReset} color="primary">
           Reset Setup
@@ -572,7 +570,7 @@ function StatusReadout({
   return (
     <Stack spacing={2}>
       <Stack spacing={0.5}>
-        <Typography sx={{ opacity: 0.7 }}>Race</Typography>
+        <Typography sx={{ opacity: 0.75 }}>Race</Typography>
         <Typography>
           {race
             ? raceOptions.find((option) => option.value === race)?.label
@@ -580,14 +578,14 @@ function StatusReadout({
         </Typography>
       </Stack>
       <Stack spacing={0.5}>
-        <Typography sx={{ opacity: 0.7 }}>Stats</Typography>
+        <Typography sx={{ opacity: 0.75 }}>Stats</Typography>
         <Typography>ST {derivedStats ? derivedStats.ST : '--'}</Typography>
         <Typography>DX {derivedStats ? derivedStats.DX : '--'}</Typography>
         <Typography>IQ {derivedStats ? derivedStats.IQ : '--'}</Typography>
         <Typography>HP {derivedStats ? derivedStats.HP : '--'}</Typography>
       </Stack>
       <Stack spacing={0.5}>
-        <Typography sx={{ opacity: 0.7 }}>Inventory</Typography>
+        <Typography sx={{ opacity: 0.75 }}>Inventory</Typography>
         <Typography>Gold: {gold !== null ? gold : '--'}</Typography>
         <Typography>Weapon: {WEAPON_NAMES[weaponTier]}</Typography>
         <Typography>Armor: {ARMOR_NAMES[armorTier]}</Typography>
@@ -600,7 +598,7 @@ function StatusReadout({
           </Typography>
         </Stack>
       )}
-      <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 11 }}>
+      <Typography variant="caption" className="ui-tip">
         Tip: press the letter keys shown on each command. Use the Shift
         {'\uE01C'} key to decrease values.
       </Typography>
@@ -704,7 +702,7 @@ function SetupPanel({
 }) {
   return (
     <Stack spacing={3}>
-      <Box sx={(theme) => panelStyle(theme)}>
+      <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
         {model.stage === 'race' && (
           <RaceStage
             race={model.race}
@@ -772,14 +770,9 @@ function StatsPanel({
 }) {
   return (
     <Box
+      className="ui-panel"
       sx={(theme) => ({
         ...panelStyle(theme),
-        '& .MuiTypography-root': {
-          fontSize: { xs: 13, md: 16 },
-        },
-        '& .MuiTypography-caption': {
-          fontSize: { xs: 11, md: 13 },
-        },
       })}
     >
       <StatusReadout

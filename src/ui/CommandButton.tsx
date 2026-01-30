@@ -59,7 +59,7 @@ export function CommandButton({
       ) : stacked ? (
         <Stack spacing={0.2} alignItems="center">
           <Typography sx={{ fontSize: 11 }}>{command.label}</Typography>
-          <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 10 }}>
+          <Typography variant="caption" className="ui-tip-compact">
             {displayKey}
           </Typography>
         </Stack>
@@ -81,7 +81,7 @@ export function CommandButton({
           </Typography>
           <Typography
             variant="caption"
-            sx={{ opacity: 0.6, fontSize: inlineCompact ? 10 : undefined }}
+            className="ui-tip-compact"
           >
             {displayKey}
           </Typography>
