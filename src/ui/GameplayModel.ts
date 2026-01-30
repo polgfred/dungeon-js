@@ -172,11 +172,13 @@ export function useGameplayModel({
   const atSouthWall = player.y >= Game.SIZE - 1;
   const atWestWall = player.x <= 0;
   const atEastWall = player.x >= Game.SIZE - 1;
+  const navigationLocked =
+    isEncounter || isEndState || Boolean(promptOptions && promptOptions.length);
   const movementDisabledByKey: Record<string, boolean> = {
-    N: atNorthWall,
-    S: atSouthWall,
-    W: atWestWall,
-    E: atEastWall,
+    N: atNorthWall || navigationLocked,
+    S: atSouthWall || navigationLocked,
+    W: atWestWall || navigationLocked,
+    E: atEastWall || navigationLocked,
   };
   const movementCommandList = useMemo(
     () =>
@@ -188,9 +190,9 @@ export function useGameplayModel({
     [movementDisabledByKey]
   );
   const verticalDisabledByKey: Record<string, boolean> = {
-    U: currentRoomFeature !== Feature.STAIRS_UP,
-    D: currentRoomFeature !== Feature.STAIRS_DOWN,
-    X: currentRoomFeature !== Feature.EXIT,
+    U: navigationLocked || currentRoomFeature !== Feature.STAIRS_UP,
+    D: navigationLocked || currentRoomFeature !== Feature.STAIRS_DOWN,
+    X: navigationLocked || currentRoomFeature !== Feature.EXIT,
   };
   const verticalCommandList = useMemo(
     () =>
