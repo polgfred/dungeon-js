@@ -229,11 +229,18 @@ function MapPanel({
             />
             <Box />
           </Box>
-          <Stack
-            spacing={0.5}
-            direction="row"
-            flexWrap="wrap"
-            justifyContent="center"
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 0.5,
+              gridTemplateColumns:
+                'repeat(auto-fit, minmax(var(--cmd-nav-min-w, 64px), 1fr))',
+              justifyItems: 'stretch',
+              width: '100%',
+              '& .MuiButton-root': {
+                width: '100%',
+              },
+            }}
           >
             {verticalCommandList.map((command) => (
               <CommandButton
@@ -243,7 +250,7 @@ function MapPanel({
                 layout={buttonLayout}
               />
             ))}
-          </Stack>
+          </Box>
         </Box>
       </Box>
     </Box>
@@ -346,7 +353,16 @@ function MobileMapPanel({
           />
           <Box />
         </Box>
-        <Stack spacing={0.75} justifyContent="center">
+        <Stack
+          spacing={0.75}
+          justifyContent="center"
+          sx={{
+            width: { xs: 'auto', md: 'var(--cmd-nav-min-w, 64px)' },
+            '& .MuiButton-root': {
+              width: { xs: 'auto', md: '100%' },
+            },
+          }}
+        >
           {verticalCommandList.map((command) => (
             <CommandButton
               key={command.id}

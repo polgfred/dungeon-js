@@ -37,7 +37,7 @@ export function CommandButton({
     : command.key === 'Esc'
       ? `\uE11B`
       : command.key;
-  const isNav = command.id.startsWith('move-');
+  const isNav = command.id.startsWith('move-') || command.id === 'exit';
   const layoutClass = compact
     ? 'ui-cmd-compact'
     : stacked
@@ -45,6 +45,15 @@ export function CommandButton({
       : inlineCompact
         ? 'ui-cmd-inline-compact'
         : 'ui-cmd-inline';
+  const minWidth = isNav
+    ? 'var(--cmd-nav-min-w, 64px)'
+    : compact
+      ? 'var(--cmd-min-w-compact, 44px)'
+      : stacked
+        ? 'var(--cmd-min-w-stacked, 72px)'
+        : inlineCompact
+          ? 'var(--cmd-min-w-inline-compact, 0)'
+          : 'var(--cmd-min-w, 0)';
   return (
     <Button
       variant="outlined"
@@ -72,13 +81,7 @@ export function CommandButton({
             : inlineCompact
               ? 'var(--cmd-pad-x-inline-compact, 11.2px)'
               : 'var(--cmd-pad-x, 16px)',
-        minWidth: compact
-          ? 'var(--cmd-min-w-compact, 44px)'
-          : stacked
-            ? 'var(--cmd-min-w-stacked, 72px)'
-            : inlineCompact
-              ? 'var(--cmd-min-w-inline-compact, 0)'
-              : 'var(--cmd-min-w, 0)',
+        minWidth,
       }}
     >
       {compact ? (

@@ -80,9 +80,6 @@ const theme = createTheme({
         },
         '.ui-cmd-inline': {
           '--cmd-label-size-inline': '13px',
-          [theme.breakpoints.up('md')]: {
-            '--cmd-label-size-inline': '13px',
-          },
         },
         '.ui-cmd-inline-compact': {
           '--cmd-label-size-inline-compact': '12px',
