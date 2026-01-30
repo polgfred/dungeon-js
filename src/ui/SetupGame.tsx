@@ -397,9 +397,6 @@ function ShopStage({
       <Typography variant="h5" sx={setupTitleSx}>
         Arm Thyself
       </Typography>
-      <Typography sx={{ opacity: 0.75, color: 'text.secondary' }}>
-        Gold remaining: {goldRemaining !== null ? goldRemaining : '--'}
-      </Typography>
       <Typography sx={setupBodySx}>
         Now, you must purchase a weapon, armor, and flares. Any remaining gold
         is kept for future exploits.
@@ -500,6 +497,9 @@ function ShopStage({
       {setupError && (
         <Typography sx={{ color: 'error.light' }}>{setupError}</Typography>
       )}
+      <Typography sx={{ opacity: 0.75, color: 'text.secondary' }}>
+        Gold remaining: {goldRemaining !== null ? goldRemaining : '--'}
+      </Typography>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <Button variant="outlined" onClick={onBack} color="primary">
           Back
