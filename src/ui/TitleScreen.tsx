@@ -58,11 +58,7 @@ export default function TitleScreen({
           }}
         />
       </Box>
-      <Stack
-        spacing={3}
-        alignItems={{ xs: 'center', md: 'flex-start' }}
-        sx={{ textAlign: { xs: 'center', md: 'left' } }}
-      >
+      <Stack spacing={3} alignItems="center" sx={{ textAlign: 'center' }}>
         <Typography sx={{ opacity: 0.75, maxWidth: 560 }}>
           Now, brave adventurer: prepare to choose thy race, arm thyself, and
           descend into the dungeon.
@@ -70,14 +66,25 @@ export default function TitleScreen({
         <Stack
           direction="column"
           spacing={2}
-          alignItems={{ xs: 'center', md: 'flex-start' }}
+          alignItems="center"
+          sx={{ width: '100%' }}
         >
-          <Button variant="contained" onClick={handleStart} color="primary">
+          <Button
+            variant="contained"
+            onClick={handleStart}
+            color="primary"
+            sx={{ width: '75%', maxWidth: 320 }}
+          >
             Begin Setup
           </Button>
           {hasSave && (
-            <Button variant="outlined" onClick={handleContinue} color="primary">
-              Continue Adventure
+            <Button
+              variant="outlined"
+              onClick={handleContinue}
+              color="primary"
+              sx={{ width: '75%', maxWidth: 320 }}
+            >
+              Continue Quest
             </Button>
           )}
         </Stack>
