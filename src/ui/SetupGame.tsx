@@ -9,7 +9,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { alpha, type Theme, useTheme } from '@mui/material/styles';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import helpHtmlContent from '../assets/help.html?raw';
 import {
@@ -620,6 +620,93 @@ function StatusReadout({
   );
 }
 
+function SetupGameMobile({
+  mobileView,
+  onSelectView,
+  setupPanel,
+  statsPanel,
+}: {
+  mobileView: 'setup' | 'stats' | 'help';
+  onSelectView: (view: 'setup' | 'stats' | 'help') => void;
+  setupPanel: ReactNode;
+  statsPanel: ReactNode;
+}) {
+  return (
+    <>
+      <Stack spacing={2} sx={{ minHeight: 'calc(100dvh - 96px)' }}>
+        {mobileView === 'setup' ? (
+          setupPanel
+        ) : mobileView === 'stats' ? (
+          statsPanel
+        ) : (
+          <Stack spacing={2} sx={{ minHeight: 0 }}>
+            <MobileHelpPanel onClose={() => onSelectView('setup')} />
+          </Stack>
+        )}
+      </Stack>
+      <Box
+        sx={(theme) => ({
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 20,
+          padding: 1,
+          borderTop: `1px solid ${alpha(theme.palette.primary.light, 0.4)}`,
+          background: alpha(theme.palette.background.paper, 0.92),
+          backdropFilter: 'blur(8px)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+          gap: 1,
+        })}
+      >
+        <Button
+          variant={mobileView === 'setup' ? 'contained' : 'outlined'}
+          onClick={() => onSelectView('setup')}
+        >
+          Setup
+        </Button>
+        <Button
+          variant={mobileView === 'stats' ? 'contained' : 'outlined'}
+          onClick={() => onSelectView('stats')}
+        >
+          Stats
+        </Button>
+        <Button
+          variant={mobileView === 'help' ? 'contained' : 'outlined'}
+          onClick={() => onSelectView('help')}
+        >
+          Help
+        </Button>
+      </Box>
+    </>
+  );
+}
+
+function SetupGameDesktop({
+  setupPanel,
+  statsPanel,
+}: {
+  setupPanel: ReactNode;
+  statsPanel: ReactNode;
+}) {
+  return (
+    <Box
+      sx={{
+        display: 'grid',
+        gap: 3,
+        gridTemplateColumns: '1fr',
+        '@container (min-width: 1280px)': {
+          gridTemplateColumns: '2fr 1fr',
+        },
+      }}
+    >
+      {setupPanel}
+      {statsPanel}
+    </Box>
+  );
+}
+
 export default function SetupGame({
   onComplete,
   onBack,
@@ -1079,68 +1166,14 @@ export default function SetupGame({
       }}
     >
       {isMobile ? (
-        <>
-          <Stack spacing={2} sx={{ minHeight: 'calc(100dvh - 96px)' }}>
-            {mobileView === 'setup' ? (
-              setupPanel
-            ) : mobileView === 'stats' ? (
-              statsPanel
-            ) : (
-              <Stack spacing={2} sx={{ minHeight: 0 }}>
-                <MobileHelpPanel onClose={() => setMobileView('setup')} />
-              </Stack>
-            )}
-          </Stack>
-          <Box
-            sx={(theme) => ({
-              position: 'fixed',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 20,
-              padding: 1,
-              borderTop: `1px solid ${alpha(theme.palette.primary.light, 0.4)}`,
-              background: alpha(theme.palette.background.paper, 0.92),
-              backdropFilter: 'blur(8px)',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-              gap: 1,
-            })}
-          >
-            <Button
-              variant={mobileView === 'setup' ? 'contained' : 'outlined'}
-              onClick={() => setMobileView('setup')}
-            >
-              Setup
-            </Button>
-            <Button
-              variant={mobileView === 'stats' ? 'contained' : 'outlined'}
-              onClick={() => setMobileView('stats')}
-            >
-              Stats
-            </Button>
-            <Button
-              variant={mobileView === 'help' ? 'contained' : 'outlined'}
-              onClick={() => setMobileView('help')}
-            >
-              Help
-            </Button>
-          </Box>
-        </>
+        <SetupGameMobile
+          mobileView={mobileView}
+          onSelectView={setMobileView}
+          setupPanel={setupPanel}
+          statsPanel={statsPanel}
+        />
       ) : (
-        <Box
-          sx={{
-            display: 'grid',
-            gap: 3,
-            gridTemplateColumns: '1fr',
-            '@container (min-width: 1280px)': {
-              gridTemplateColumns: '2fr 1fr',
-            },
-          }}
-        >
-          {setupPanel}
-          {statsPanel}
-        </Box>
+        <SetupGameDesktop setupPanel={setupPanel} statsPanel={statsPanel} />
       )}
     </Box>
   );
