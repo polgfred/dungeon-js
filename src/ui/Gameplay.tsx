@@ -19,6 +19,17 @@ import { CommandButton, type Command } from './CommandButton.js';
 import type { GameplayModel, GameplayProps } from './GameplayModel.js';
 import { useGameplayModel } from './GameplayModel.js';
 
+const helpContentSx = {
+  '& h1': { marginTop: 0, opacity: 0.75 },
+  '& h2, & h3': { opacity: 0.7 },
+  '& h1, & h2, & h3': {
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+  '& li': { marginBottom: 0.5 },
+  '& ul li::marker': { content: '"- "' },
+};
+
 const panelStyle = (theme: Theme) => ({
   background: alpha(theme.palette.background.paper, 0.9),
   border: `1px solid ${alpha(theme.palette.primary.light, 0.5)}`,
@@ -436,6 +447,9 @@ function CompactReadoutPanel({
         <Stack spacing={0.4}>
           <Typography sx={{ opacity: 0.7 }}>Status</Typography>
           <Typography>
+            ST {player.str} · DX {player.dex} · IQ {player.iq}
+          </Typography>
+          <Typography>
             HP {player.hp} / {player.mhp} · Gold {player.gold}
           </Typography>
           <Typography>
@@ -485,12 +499,6 @@ function MobileEventBubble({ lastEventLines }: { lastEventLines: string[] }) {
   );
 }
 
-function formatCommandKey(key: string) {
-  if (key.startsWith('Shift+')) return `\uE01C${key.slice(6)}`;
-  if (key === 'Esc') return `\uE11B`;
-  return key;
-}
-
 const readoutCommands: Command[] = [
   { id: 'readout-save', key: 'Shift+S', label: 'Save Game', disabled: false },
   { id: 'readout-quit', key: 'Shift+Q', label: 'Quit', disabled: false },
@@ -505,48 +513,6 @@ function triggerReadoutCommand(
   } else if (command.id === 'readout-quit') {
     handlers.onBack();
   }
-}
-
-function CommandLegendPanel({ commands }: { commands: Command[] }) {
-  if (commands.length === 0) return null;
-  return (
-    <Box sx={(theme) => panelStyle(theme)}>
-      <Stack spacing={1.5}>
-        <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-          Command Key
-        </Typography>
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-            gap: 1,
-          }}
-        >
-          {commands.map((command) => (
-            <Box
-              key={command.id}
-              sx={(theme) => ({
-                display: 'grid',
-                gridTemplateColumns: 'auto 1fr',
-                gap: 1,
-                alignItems: 'center',
-                padding: 1,
-                borderRadius: 1,
-                border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-                background: alpha(theme.palette.primary.dark, 0.18),
-                opacity: command.disabled ? 0.45 : 1,
-              })}
-            >
-              <Typography sx={{ fontWeight: 700 }}>
-                {formatCommandKey(command.key)}
-              </Typography>
-              <Typography sx={{ fontSize: 13 }}>{command.label}</Typography>
-            </Box>
-          ))}
-        </Box>
-      </Stack>
-    </Box>
-  );
 }
 
 function StatsPanel({
@@ -861,8 +827,9 @@ function HelpDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
       }}
       sx={(theme) => ({
         '& .MuiDialog-paper': {
-          background: theme.palette.grey[400],
-          color: theme.palette.common.black,
+          background: alpha(theme.palette.background.paper, 0.96),
+          color: theme.palette.text.primary,
+          border: `1px solid ${alpha(theme.palette.primary.light, 0.25)}`,
         },
       })}
     >
@@ -890,18 +857,61 @@ function HelpDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
       <DialogContent dividers>
         <Box
           sx={{
-            '& h1': { marginTop: 0 },
-            '& h1, & h2, & h3': {
-              letterSpacing: 1.2,
-              textTransform: 'uppercase',
-            },
-            '& li': { marginBottom: 0.5 },
-            '& ul li::marker': { content: '"- "' },
+            ...helpContentSx,
           }}
           dangerouslySetInnerHTML={{ __html: helpHtmlContent }}
         />
       </DialogContent>
     </Dialog>
+  );
+}
+
+function MobileHelpPanel({ onClose }: { onClose: () => void }) {
+  return (
+    <Box
+      sx={(theme) => ({
+        ...panelStyle(theme),
+        padding: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+      })}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingX: 1.5,
+          paddingY: 1,
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+        }}
+      >
+        <Typography sx={{ letterSpacing: 1.2, textTransform: 'uppercase' }}>
+          Help
+        </Typography>
+        <Typography
+          aria-label="Close help"
+          onClick={onClose}
+          sx={{ cursor: 'pointer', opacity: 0.7 }}
+        >
+          Close
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          padding: 1.5,
+          overflowY: 'auto',
+          fontSize: 13,
+          lineHeight: 1.5,
+          '& *': {
+            fontSize: 'inherit',
+          },
+          ...helpContentSx,
+        }}
+        dangerouslySetInnerHTML={{ __html: helpHtmlContent }}
+      />
+    </Box>
   );
 }
 
@@ -946,11 +956,30 @@ function mapTooltip(cell: string): string {
 }
 
 function GameplayMobile({ model }: { model: GameplayModel }) {
-  const [mobileView, setMobileView] = useState<'play' | 'stats'>('play');
+  const [mobileView, setMobileView] = useState<'play' | 'stats' | 'help'>(
+    'play'
+  );
+  const mobileRoomCommands = model.roomCommandList.filter(
+    (command) => command.id !== 'help'
+  );
+  const mobileEncounterCommands = model.encounterCommandList.filter(
+    (command) => command.id !== 'help'
+  );
 
   return (
     <>
-      <Stack spacing={2.5} sx={{ minHeight: 'calc(100dvh - 96px)' }}>
+      <Stack
+        spacing={2.5}
+        sx={{
+          minHeight: 'calc(100dvh - 96px)',
+          '& .MuiTypography-root': {
+            fontSize: 13,
+          },
+          '& .MuiTypography-caption': {
+            fontSize: 11,
+          },
+        }}
+      >
         {mobileView === 'play' ? (
           <Stack spacing={2.5} sx={{ flex: 1, minHeight: 0 }}>
             <MobileMapPanel
@@ -967,8 +996,8 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
               promptOptions={model.effectivePromptOptions}
               promptText={model.effectivePromptText}
               promptHasCancel={model.effectivePromptHasCancel}
-              encounterCommandList={model.encounterCommandList}
-              roomCommandList={model.roomCommandList}
+              encounterCommandList={mobileEncounterCommands}
+              roomCommandList={mobileRoomCommands}
               buttonLayout="compact"
               titleVariant="compact"
             />
@@ -978,7 +1007,7 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
             />
             <MobileEventBubble lastEventLines={model.lastEventLines} />
           </Stack>
-        ) : (
+        ) : mobileView === 'stats' ? (
           <Stack spacing={3} sx={{ flex: 1 }}>
             <StatsPanel
               encounterMode={model.isEncounter}
@@ -988,7 +1017,10 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
               lastSavedAt={model.lastSavedAt}
               saveError={model.saveError}
             />
-            <CommandLegendPanel commands={model.commandsForLegend} />
+          </Stack>
+        ) : (
+          <Stack spacing={2.5} sx={{ flex: 1, minHeight: 0 }}>
+            <MobileHelpPanel onClose={() => setMobileView('play')} />
           </Stack>
         )}
       </Stack>
@@ -1004,7 +1036,7 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
           background: alpha(theme.palette.background.paper, 0.92),
           backdropFilter: 'blur(8px)',
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
           gap: 1,
         })}
       >
@@ -1019,6 +1051,12 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
           onClick={() => setMobileView('stats')}
         >
           Stats
+        </Button>
+        <Button
+          variant={mobileView === 'help' ? 'contained' : 'outlined'}
+          onClick={() => setMobileView('help')}
+        >
+          Help
         </Button>
       </Box>
     </>
@@ -1100,10 +1138,12 @@ export default function Gameplay(props: GameplayProps) {
       ) : (
         <GameplayDesktop model={model} />
       )}
-      <HelpDialog
-        open={model.helpOpen}
-        onClose={() => model.setHelpOpen(false)}
-      />
+      {!isMobile && (
+        <HelpDialog
+          open={model.helpOpen}
+          onClose={() => model.setHelpOpen(false)}
+        />
+      )}
     </Box>
   );
 }

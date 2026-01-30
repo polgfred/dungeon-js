@@ -28,7 +28,7 @@ export function CommandButton({
   };
   const displayKey = command.key.startsWith('Shift+')
     ? `\uE01C${command.key.slice(6)}`
-    : command.key in arrowKeys
+    : command.id.startsWith('move-') && command.key in arrowKeys
       ? arrowKeys[command.key]
     : command.key === 'Esc'
       ? `\uE11B`
