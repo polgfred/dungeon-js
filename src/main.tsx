@@ -67,28 +67,28 @@ const theme = createTheme({
         },
         '.ui-tip-compact': {
           opacity: 0.6,
-          fontSize: 'var(--ui-tip-compact-size, 10px)',
+          fontSize: '10px',
           [theme.breakpoints.up('md')]: {
-            fontSize: 'var(--ui-tip-compact-size-md, 11px)',
+            fontSize: '11px',
           },
         },
         '.ui-tip-compact.MuiTypography-caption': {
-          fontSize: 'var(--ui-tip-compact-size, 10px)',
+          fontSize: '10px',
           [theme.breakpoints.up('md')]: {
-            fontSize: 'var(--ui-tip-compact-size-md, 11px)',
+            fontSize: '11px',
           },
         },
         '.ui-tip-compact-nav': {
           opacity: 0.6,
-          fontSize: 'var(--cmd-nav-tip-size, 10px)',
+          fontSize: '10px',
           [theme.breakpoints.up('md')]: {
-            fontSize: 'var(--cmd-nav-tip-size-md, 11px)',
+            fontSize: '11px',
           },
         },
         '.ui-tip-compact-nav.MuiTypography-caption': {
-          fontSize: 'var(--cmd-nav-tip-size, 10px)',
+          fontSize: '10px',
           [theme.breakpoints.up('md')]: {
-            fontSize: 'var(--cmd-nav-tip-size-md, 11px)',
+            fontSize: '11px',
           },
         },
         '.ui-cmd-inline.MuiButton-root': {
@@ -99,7 +99,7 @@ const theme = createTheme({
         },
         '.ui-cmd-inline-compact.MuiButton-root': {
           minWidth: 0,
-          padding: '4.8px 11.2px',
+          padding: '7.8px 11.2px',
           letterSpacing: 0.5,
           fontSize: '12px',
           [theme.breakpoints.up('md')]: {
@@ -128,8 +128,6 @@ const theme = createTheme({
           '--cmd-nav-min-w': '48px',
           '--cmd-nav-label-size': '13px',
           '--cmd-nav-key-size': '12px',
-          '--cmd-nav-tip-size': '10px',
-          '--cmd-nav-tip-size-md': '11px',
           minWidth: '48px',
         },
         '.ui-nav-button.ui-cmd-stacked.MuiButton-root': {
