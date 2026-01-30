@@ -977,7 +977,7 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
   return (
     <>
       <Stack
-        spacing={2.5}
+        spacing={2}
         sx={{
           minHeight: 'calc(100dvh - 96px)',
           '& .MuiTypography-root': {
@@ -989,7 +989,7 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
         }}
       >
         {mobileView === 'play' ? (
-          <Stack spacing={2.5} sx={{ flex: 1, minHeight: 0 }}>
+          <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
             <MobileMapPanel
               onTrigger={model.handleTrigger}
               mapGrid={model.mapGrid}
@@ -1017,7 +1017,7 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
             <MobileEventBubble lastEventLines={model.lastEventLines} />
           </Stack>
         ) : mobileView === 'stats' ? (
-          <Stack spacing={3} sx={{ flex: 1 }}>
+          <Stack spacing={2} sx={{ flex: 1 }}>
             <StatsPanel
               encounterMode={model.isEncounter}
               onBack={model.onBack}
@@ -1028,7 +1028,7 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
             />
           </Stack>
         ) : (
-          <Stack spacing={2.5} sx={{ flex: 1, minHeight: 0 }}>
+          <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
             <MobileHelpPanel onClose={() => setMobileView('play')} />
           </Stack>
         )}
