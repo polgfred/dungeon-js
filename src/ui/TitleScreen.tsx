@@ -28,7 +28,7 @@ export default function TitleScreen({
       sx={{
         maxWidth: 1100,
         margin: '0 auto',
-        paddingTop: { xs: 6, md: 10 },
+        paddingTop: { xs: 2, md: 10 },
         display: 'grid',
         gap: { xs: 4, md: 5 },
         gridTemplateColumns: { xs: '1fr', md: '.85fr 1.15fr' },
@@ -58,12 +58,20 @@ export default function TitleScreen({
           }}
         />
       </Box>
-      <Stack spacing={3} alignItems="flex-start">
+      <Stack
+        spacing={3}
+        alignItems={{ xs: 'center', md: 'flex-start' }}
+        sx={{ textAlign: { xs: 'center', md: 'left' } }}
+      >
         <Typography sx={{ opacity: 0.75, maxWidth: 560 }}>
           Now, brave adventurer: prepare to choose thy race, arm thyself, and
           descend into the dungeon.
         </Typography>
-        <Stack direction="column" spacing={2}>
+        <Stack
+          direction="column"
+          spacing={2}
+          alignItems={{ xs: 'center', md: 'flex-start' }}
+        >
           <Button variant="contained" onClick={handleStart} color="primary">
             Begin Setup
           </Button>
@@ -85,6 +93,9 @@ export default function TitleScreen({
           marginTop: 4,
           maxWidth: 1100,
           opacity: 0.6,
+          '& .MuiTypography-root': {
+            fontSize: { xs: 13, md: 16 },
+          },
         })}
       >
         <Typography>
