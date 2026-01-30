@@ -11,6 +11,18 @@ export type Command = {
 type CommandButtonProps = {
   command: Command;
   onTrigger: (command: Command) => void;
+  /**
+   * Layout variants:
+   * - inline: label + key hint on one row.
+   * - stacked: label above key hint (used for nav pad).
+   * - compact: key-only button (used for tight grids).
+   *
+   * Responsive behavior:
+   * - inline on mobile becomes "inlineCompact" (reduced sizing).
+   *
+   * Mixing:
+   * - Layout is chosen by the caller; this component only adapts sizing.
+   */
   layout?: 'inline' | 'stacked' | 'compact';
 };
 
@@ -34,9 +46,9 @@ export function CommandButton({
     ? `\uE01C${command.key.slice(6)}`
     : command.id.startsWith('move-') && command.key in arrowKeys
       ? arrowKeys[command.key]
-    : command.key === 'Esc'
-      ? `\uE11B`
-      : command.key;
+      : command.key === 'Esc'
+        ? `\uE11B`
+        : command.key;
   const isNav = command.id.startsWith('move-') || command.id === 'exit';
   const layoutClass = compact
     ? 'ui-cmd-compact'
@@ -45,15 +57,6 @@ export function CommandButton({
       : inlineCompact
         ? 'ui-cmd-inline-compact'
         : 'ui-cmd-inline';
-  const minWidth = isNav
-    ? 'var(--cmd-nav-min-w, 64px)'
-    : compact
-      ? 'var(--cmd-min-w-compact, 44px)'
-      : stacked
-        ? 'var(--cmd-min-w-stacked, 72px)'
-        : inlineCompact
-          ? 'var(--cmd-min-w-inline-compact, 0)'
-          : 'var(--cmd-min-w, 0)';
   return (
     <Button
       variant="outlined"
@@ -66,28 +69,14 @@ export function CommandButton({
         .join(' ')}
       sx={{
         textTransform: 'none',
-        letterSpacing: compact ? 1.2 : stacked ? 0.8 : inlineCompact ? 0.5 : 0.6,
-        paddingY: compact
-          ? 'var(--cmd-pad-y-compact, 4.8px)'
-          : stacked
-            ? 'var(--cmd-pad-y-stacked, 4.8px)'
-            : inlineCompact
-              ? 'var(--cmd-pad-y-inline-compact, 4.8px)'
-              : 'var(--cmd-pad-y, 8px)',
-        paddingX: compact
-          ? 'var(--cmd-pad-x-compact, 9.6px)'
-          : stacked
-            ? 'var(--cmd-pad-x-stacked, 12px)'
-            : inlineCompact
-              ? 'var(--cmd-pad-x-inline-compact, 11.2px)'
-              : 'var(--cmd-pad-x, 16px)',
-        minWidth,
       }}
     >
       {compact ? (
         <Typography
           sx={{
-            fontSize: 'var(--cmd-label-size-compact, 12px)',
+            fontSize: isNav
+              ? 'var(--cmd-nav-key-size, 12px)'
+              : 'var(--cmd-label-size-compact, 12px)',
             fontWeight: 600,
           }}
         >
@@ -95,10 +84,19 @@ export function CommandButton({
         </Typography>
       ) : stacked ? (
         <Stack spacing={0.2} alignItems="center">
-          <Typography sx={{ fontSize: 'var(--cmd-label-size-stacked, 11px)' }}>
+          <Typography
+            sx={{
+              fontSize: isNav
+                ? 'var(--cmd-nav-label-size, 11px)'
+                : 'var(--cmd-label-size-stacked, 11px)',
+            }}
+          >
             {command.label}
           </Typography>
-          <Typography variant="caption" className="ui-tip-compact">
+          <Typography
+            variant="caption"
+            className={isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'}
+          >
             {displayKey}
           </Typography>
         </Stack>
@@ -112,8 +110,12 @@ export function CommandButton({
           <Typography
             sx={{
               fontSize: inlineCompact
-                ? 'var(--cmd-label-size-inline-compact, 12px)'
-                : 'var(--cmd-label-size-inline, 13px)',
+                ? isNav
+                  ? 'var(--cmd-nav-label-size, 12px)'
+                  : 'var(--cmd-label-size-inline-compact, 12px)'
+                : isNav
+                  ? 'var(--cmd-nav-label-size, 13px)'
+                  : 'var(--cmd-label-size-inline, 13px)',
               lineHeight: 1.2,
               flex: 1,
             }}
@@ -122,7 +124,7 @@ export function CommandButton({
           </Typography>
           <Typography
             variant="caption"
-            className="ui-tip-compact"
+            className={isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'}
           >
             {displayKey}
           </Typography>

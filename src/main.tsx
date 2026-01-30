@@ -72,41 +72,69 @@ const theme = createTheme({
             fontSize: 'var(--ui-tip-compact-size-md, 11px)',
           },
         },
-        '.MuiTypography-caption.ui-tip-compact': {
+        '.ui-tip-compact.MuiTypography-caption': {
           fontSize: 'var(--ui-tip-compact-size, 10px)',
           [theme.breakpoints.up('md')]: {
             fontSize: 'var(--ui-tip-compact-size-md, 11px)',
           },
         },
-        '.ui-cmd-inline': {
-          '--cmd-label-size-inline': '13px',
+        '.ui-tip-compact-nav': {
+          opacity: 0.6,
+          fontSize: 'var(--cmd-nav-tip-size, 10px)',
+          [theme.breakpoints.up('md')]: {
+            fontSize: 'var(--cmd-nav-tip-size-md, 11px)',
+          },
         },
-        '.ui-cmd-inline-compact': {
+        '.ui-tip-compact-nav.MuiTypography-caption': {
+          fontSize: 'var(--cmd-nav-tip-size, 10px)',
+          [theme.breakpoints.up('md')]: {
+            fontSize: 'var(--cmd-nav-tip-size-md, 11px)',
+          },
+        },
+        '.ui-cmd-inline.MuiButton-root': {
+          '--cmd-label-size-inline': '13px',
+          minWidth: 0,
+          padding: '8px 16px',
+          letterSpacing: 0.6,
+        },
+        '.ui-cmd-inline-compact.MuiButton-root': {
           '--cmd-label-size-inline-compact': '12px',
+          minWidth: 0,
+          padding: '4.8px 11.2px',
+          letterSpacing: 0.5,
           [theme.breakpoints.up('md')]: {
             '--cmd-label-size-inline-compact': '11px',
           },
         },
-        '.ui-cmd-stacked': {
+        '.ui-cmd-stacked.MuiButton-root': {
           '--cmd-label-size-stacked': '11px',
+          minWidth: '72px',
+          padding: '4.8px 12px',
+          letterSpacing: 0.8,
           [theme.breakpoints.up('md')]: {
             '--cmd-label-size-stacked': '10px',
           },
         },
-        '.ui-cmd-compact': {
+        '.ui-cmd-compact.MuiButton-root': {
           '--cmd-label-size-compact': '12px',
+          minWidth: '44px',
+          padding: '4.8px 9.6px',
+          letterSpacing: 1.2,
           [theme.breakpoints.up('md')]: {
             '--cmd-label-size-compact': '11px',
           },
         },
-        '.ui-nav-button': {
+        '.ui-nav-button.MuiButton-root': {
+          '--cmd-nav-min-w': '48px',
+          '--cmd-nav-label-size': '13px',
+          '--cmd-nav-key-size': '12px',
+          '--cmd-nav-tip-size': '10px',
+          '--cmd-nav-tip-size-md': '11px',
+          minWidth: '48px',
+        },
+        '.ui-nav-button.ui-cmd-stacked.MuiButton-root': {
           [theme.breakpoints.up('md')]: {
-            '--cmd-pad-y-stacked': '3px',
-            '--cmd-pad-x-stacked': '8px',
-            '--cmd-min-w-stacked': '56px',
-            '--cmd-label-size-stacked': '13px',
-            '--ui-tip-compact-size': '11px',
-            '--ui-tip-compact-size-md': '11px',
+            padding: '3px 8px',
           },
         },
         '.ui-panel-title': {

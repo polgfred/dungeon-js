@@ -101,6 +101,7 @@ function MapGrid({
                     ? alpha(theme.palette.primary.dark, 0.32)
                     : alpha(theme.palette.primary.dark, 0.26),
                   display: 'grid',
+                  padding: 0.25,
                   placeItems: 'center',
                   width: mapCellWidth,
                   fontSize: 14,
@@ -161,9 +162,6 @@ function MapPanel({
   buttonLayout?: 'inline' | 'stacked' | 'compact';
 }) {
   const mapMatrix = mapMatrixFromGrid(mapGrid);
-  const mapGridView = (
-    <MapGrid rows={mapMatrix} playerX={playerX} playerY={playerY} />
-  );
 
   return (
     <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
@@ -174,13 +172,10 @@ function MapPanel({
           columnGap: 10,
           rowGap: 2,
           paddingX: { xs: 0, md: 5 },
-          width: '100%',
-          height: '100%',
           alignItems: 'center',
         }}
       >
-        {mapGridView}
-
+        <MapGrid rows={mapMatrix} playerX={playerX} playerY={playerY} />
         <Box
           sx={{
             display: 'grid',
