@@ -286,7 +286,7 @@ function MobileMapPanel({
         sx={{
           display: 'grid',
           gridTemplateColumns: 'auto auto',
-          gap: 1.5,
+          gap: 2,
           alignItems: 'center',
           justifyContent: 'center',
         }}
@@ -412,11 +412,9 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
 function CompactReadoutPanel({
   encounterMode,
   player,
-  lastEventLines,
 }: {
   encounterMode: boolean;
   player: Player;
-  lastEventLines: string[];
 }) {
   return (
     <Box
@@ -444,19 +442,45 @@ function CompactReadoutPanel({
             Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
           </Typography>
         </Stack>
-        <Stack spacing={0.4}>
-          <Typography sx={{ opacity: 0.7 }}>Last Event</Typography>
-          {lastEventLines.length === 0 ? (
-            <Typography sx={{ opacity: 0.6 }}>
-              You see nothing special.
-            </Typography>
-          ) : (
-            lastEventLines.map((entry, index) => (
-              <Typography key={`${entry}-${index}`}>{entry}</Typography>
-            ))
-          )}
-        </Stack>
       </Stack>
+    </Box>
+  );
+}
+
+function MobileEventBubble({ lastEventLines }: { lastEventLines: string[] }) {
+  return (
+    <Box
+      sx={(theme) => ({
+        ...panelStyle(theme),
+        padding: 0,
+        background: alpha(theme.palette.primary.dark, 0.28),
+        flex: 1,
+        minHeight: 0,
+        '& .MuiTypography-root': {
+          fontSize: 13,
+        },
+      })}
+    >
+      <Box
+        sx={(theme) => ({
+          padding: 1.25,
+          borderRadius: 1.5,
+          border: `1px solid ${alpha(theme.palette.primary.light, 0.3)}`,
+          background: alpha(theme.palette.primary.dark, 0.38),
+          height: '100%',
+          overflowY: 'auto',
+        })}
+      >
+        {lastEventLines.length === 0 ? (
+          <Typography sx={{ opacity: 0.6 }}>
+            You see nothing special.
+          </Typography>
+        ) : (
+          lastEventLines.map((entry, index) => (
+            <Typography key={`${entry}-${index}`}>{entry}</Typography>
+          ))
+        )}
+      </Box>
     </Box>
   );
 }
@@ -926,9 +950,9 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
 
   return (
     <>
-      <Stack spacing={2.5}>
+      <Stack spacing={2.5} sx={{ minHeight: 'calc(100dvh - 96px)' }}>
         {mobileView === 'play' ? (
-          <Stack spacing={2.5}>
+          <Stack spacing={2.5} sx={{ flex: 1, minHeight: 0 }}>
             <MobileMapPanel
               onTrigger={model.handleTrigger}
               mapGrid={model.mapGrid}
@@ -951,11 +975,11 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
             <CompactReadoutPanel
               encounterMode={model.isEncounter}
               player={model.player}
-              lastEventLines={model.lastEventLines}
             />
+            <MobileEventBubble lastEventLines={model.lastEventLines} />
           </Stack>
         ) : (
-          <Stack spacing={3}>
+          <Stack spacing={3} sx={{ flex: 1 }}>
             <StatsPanel
               encounterMode={model.isEncounter}
               onBack={model.onBack}
