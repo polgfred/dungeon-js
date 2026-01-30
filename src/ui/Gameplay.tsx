@@ -610,6 +610,7 @@ function CommandBarPanel({
   roomCommandList,
   buttonLayout = 'inline',
   titleVariant = 'default',
+  enabledOnly = false,
 }: {
   encounterMode: boolean;
   onTrigger: (command: Command) => void;
@@ -620,6 +621,7 @@ function CommandBarPanel({
   roomCommandList: Command[];
   buttonLayout?: 'inline' | 'stacked' | 'compact';
   titleVariant?: 'default' | 'compact';
+  enabledOnly?: boolean;
 }) {
   const titleSx =
     titleVariant === 'compact'
@@ -686,7 +688,10 @@ function CommandBarPanel({
         <Stack spacing={2}>
           <Typography sx={titleSx}>Encounter Commands</Typography>
           <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
-            {encounterCommandList.map((command) => (
+            {(enabledOnly
+              ? encounterCommandList.filter((command) => !command.disabled)
+              : encounterCommandList
+            ).map((command) => (
               <CommandButton
                 key={command.id}
                 command={command}
@@ -706,7 +711,10 @@ function CommandBarPanel({
               gap: 0.75,
             }}
           >
-            {roomCommandList.map((command) => (
+            {(enabledOnly
+              ? roomCommandList.filter((command) => !command.disabled)
+              : roomCommandList
+            ).map((command) => (
               <CommandButton
                 key={command.id}
                 command={command}
@@ -998,8 +1006,9 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
               promptHasCancel={model.effectivePromptHasCancel}
               encounterCommandList={mobileEncounterCommands}
               roomCommandList={mobileRoomCommands}
-              buttonLayout="compact"
+              buttonLayout="inline"
               titleVariant="compact"
+              enabledOnly
             />
             <CompactReadoutPanel
               encounterMode={model.isEncounter}
