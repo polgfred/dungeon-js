@@ -92,36 +92,36 @@ const theme = createTheme({
           },
         },
         '.ui-cmd-inline.MuiButton-root': {
-          '--cmd-label-size-inline': '13px',
           minWidth: 0,
           padding: '8px 16px',
           letterSpacing: 0.6,
+          fontSize: '13px',
         },
         '.ui-cmd-inline-compact.MuiButton-root': {
-          '--cmd-label-size-inline-compact': '12px',
           minWidth: 0,
           padding: '4.8px 11.2px',
           letterSpacing: 0.5,
+          fontSize: '12px',
           [theme.breakpoints.up('md')]: {
-            '--cmd-label-size-inline-compact': '11px',
+            fontSize: '11px',
           },
         },
         '.ui-cmd-stacked.MuiButton-root': {
-          '--cmd-label-size-stacked': '11px',
           minWidth: '72px',
           padding: '4.8px 12px',
           letterSpacing: 0.8,
+          fontSize: '11px',
           [theme.breakpoints.up('md')]: {
-            '--cmd-label-size-stacked': '10px',
+            fontSize: '10px',
           },
         },
         '.ui-cmd-compact.MuiButton-root': {
-          '--cmd-label-size-compact': '12px',
           minWidth: '44px',
           padding: '4.8px 9.6px',
           letterSpacing: 1.2,
+          fontSize: '12px',
           [theme.breakpoints.up('md')]: {
-            '--cmd-label-size-compact': '11px',
+            fontSize: '11px',
           },
         },
         '.ui-nav-button.MuiButton-root': {

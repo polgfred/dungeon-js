@@ -74,9 +74,7 @@ export function CommandButton({
       {compact ? (
         <Typography
           sx={{
-            fontSize: isNav
-              ? 'var(--cmd-nav-key-size, 12px)'
-              : 'var(--cmd-label-size-compact, 12px)',
+            fontSize: isNav ? 'var(--cmd-nav-key-size, 12px)' : 'inherit',
             fontWeight: 600,
           }}
         >
@@ -86,9 +84,7 @@ export function CommandButton({
         <Stack spacing={0.2} alignItems="center">
           <Typography
             sx={{
-              fontSize: isNav
-                ? 'var(--cmd-nav-label-size, 11px)'
-                : 'var(--cmd-label-size-stacked, 11px)',
+              fontSize: isNav ? 'var(--cmd-nav-label-size, 11px)' : 'inherit',
             }}
           >
             {command.label}
@@ -112,10 +108,10 @@ export function CommandButton({
               fontSize: inlineCompact
                 ? isNav
                   ? 'var(--cmd-nav-label-size, 12px)'
-                  : 'var(--cmd-label-size-inline-compact, 12px)'
+                  : 'inherit'
                 : isNav
                   ? 'var(--cmd-nav-label-size, 13px)'
-                  : 'var(--cmd-label-size-inline, 13px)',
+                  : 'inherit',
               lineHeight: 1.2,
               flex: 1,
             }}
