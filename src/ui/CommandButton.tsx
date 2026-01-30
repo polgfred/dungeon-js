@@ -50,6 +50,7 @@ export function CommandButton({
         ? `\uE11B`
         : command.key;
   const isNav = command.id.startsWith('move-') || command.id === 'exit';
+  const showKeyHint = !isMobile || compact;
   const layoutClass = compact
     ? 'ui-cmd-compact'
     : stacked
@@ -89,12 +90,14 @@ export function CommandButton({
           >
             {command.label}
           </Typography>
-          <Typography
-            variant="caption"
-            className={isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'}
-          >
-            {displayKey}
-          </Typography>
+          {showKeyHint && (
+            <Typography
+              variant="caption"
+              className={isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'}
+            >
+              {displayKey}
+            </Typography>
+          )}
         </Stack>
       ) : (
         <Stack
@@ -118,12 +121,14 @@ export function CommandButton({
           >
             {command.label}
           </Typography>
-          <Typography
-            variant="caption"
-            className={isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'}
-          >
-            {displayKey}
-          </Typography>
+          {showKeyHint && (
+            <Typography
+              variant="caption"
+              className={isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'}
+            >
+              {displayKey}
+            </Typography>
+          )}
         </Stack>
       )}
     </Button>
