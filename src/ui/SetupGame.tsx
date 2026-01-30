@@ -182,7 +182,7 @@ function RaceStage({
       >
         Choose Thy Race
       </Typography>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
         Base player stats are rolled on selection. Confirm to lock in your
         numbers.
       </Typography>
@@ -291,7 +291,7 @@ function AllocationStage({
       >
         Allocate Points
       </Typography>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
         Distribute five additional points across strength, dexterity, and
         intelligence. Attributes are capped at 18.
       </Typography>
@@ -401,7 +401,7 @@ function ShopStage({
       <Typography sx={{ opacity: 0.8, color: 'text.secondary' }}>
         Gold remaining: {goldRemaining !== null ? goldRemaining : '--'}
       </Typography>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
         Now, you must purchase a weapon, armor, and flares. Any remaining gold
         is kept for future exploits.
       </Typography>
@@ -535,7 +535,7 @@ function ReadyStage({
       >
         Setup Complete
       </Typography>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
         Brave adventurer, thy gear outfits thee well! But alas, this quest is
         not for the faint of heart. Are you ready to enter the dungeon?
       </Typography>
@@ -545,7 +545,7 @@ function ReadyStage({
         <Typography>Flares: {player.flares}</Typography>
         <Typography>Gold Remaining: {player.gold}</Typography>
       </Stack>
-      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 16 } }}>
         THE DUNGEON AWAITS YOU...
       </Typography>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -612,7 +612,7 @@ function StatusReadout({
           </Typography>
         </Stack>
       )}
-      <Typography variant="caption" sx={{ opacity: 0.6 }}>
+      <Typography variant="caption" sx={{ opacity: 0.6, fontSize: 11 }}>
         Tip: press the letter keys shown on each command. Use the Shift
         {'\uE01C'} key to decrease values.
       </Typography>
@@ -1043,7 +1043,10 @@ export default function SetupGame({
       sx={(theme) => ({
         ...panelStyle(theme),
         '& .MuiTypography-root': {
-          fontSize: { xs: 13, md: 'inherit' },
+          fontSize: { xs: 13, md: 16 },
+        },
+        '& .MuiTypography-caption': {
+          fontSize: { xs: 11, md: 13 },
         },
       })}
     >
