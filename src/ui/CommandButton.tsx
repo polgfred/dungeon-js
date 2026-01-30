@@ -1,4 +1,5 @@
-import { Button, Stack, Typography } from '@mui/material';
+import { Button, Stack, Typography, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 export type Command = {
   id: string;
@@ -18,8 +19,11 @@ export function CommandButton({
   onTrigger,
   layout = 'inline',
 }: CommandButtonProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const stacked = layout === 'stacked';
   const compact = layout === 'compact';
+  const inlineCompact = layout === 'inline' && isMobile;
   const arrowKeys: Record<string, string> = {
     N: '\uE01C',
     S: '\uE01D',
@@ -38,14 +42,14 @@ export function CommandButton({
       variant="outlined"
       onClick={() => onTrigger(command)}
       color="primary"
-      size={stacked || compact ? 'small' : 'medium'}
+      size={stacked || compact || inlineCompact ? 'small' : 'medium'}
       disabled={Boolean(command.disabled)}
       sx={{
         textTransform: 'none',
-        letterSpacing: compact ? 1.2 : stacked ? 0.8 : 0.6,
-        paddingY: compact ? 0.6 : stacked ? 0.6 : 1,
-        paddingX: compact ? 1.2 : stacked ? 1.5 : 2,
-        minWidth: compact ? 44 : stacked ? 72 : 0,
+        letterSpacing: compact ? 1.2 : stacked ? 0.8 : inlineCompact ? 0.5 : 0.6,
+        paddingY: compact ? 0.6 : stacked ? 0.6 : inlineCompact ? 0.6 : 1,
+        paddingX: compact ? 1.2 : stacked ? 1.5 : inlineCompact ? 1.4 : 2,
+        minWidth: compact ? 44 : stacked ? 72 : inlineCompact ? 0 : 0,
       }}
     >
       {compact ? (
@@ -68,14 +72,17 @@ export function CommandButton({
         >
           <Typography
             sx={{
-              fontSize: 13,
+              fontSize: inlineCompact ? 12 : 13,
               lineHeight: 1.2,
               flex: 1,
             }}
           >
             {command.label}
           </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.6 }}>
+          <Typography
+            variant="caption"
+            sx={{ opacity: 0.6, fontSize: inlineCompact ? 10 : undefined }}
+          >
             {displayKey}
           </Typography>
         </Stack>

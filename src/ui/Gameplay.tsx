@@ -687,7 +687,13 @@ function CommandBarPanel({
       {encounterMode ? (
         <Stack spacing={2}>
           <Typography sx={titleSx}>Encounter Commands</Typography>
-          <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 0.75,
+            }}
+          >
             {(enabledOnly
               ? encounterCommandList.filter((command) => !command.disabled)
               : encounterCommandList
@@ -699,7 +705,7 @@ function CommandBarPanel({
                 layout={buttonLayout}
               />
             ))}
-          </Stack>
+          </Box>
         </Stack>
       ) : (
         <Stack spacing={2}>
