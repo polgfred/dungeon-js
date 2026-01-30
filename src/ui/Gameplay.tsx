@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  IconButton,
   Stack,
   Tooltip,
   Typography,
@@ -45,6 +46,24 @@ const subtleBoxStyle = (theme: Theme) => ({
   border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
   background: alpha(theme.palette.primary.dark, 0.18),
 });
+
+function CopyIcon() {
+  return (
+    <Box
+      component="svg"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      sx={{
+        width: 18,
+        height: 18,
+        display: 'block',
+        fill: 'currentColor',
+      }}
+    >
+      <path d="M16 1H6C4.9 1 4 1.9 4 3v12h2V3h10V1zm3 4H10c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h9c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16h-9V7h9v14z" />
+    </Box>
+  );
+}
 
 function MapGrid({
   rows,
@@ -1174,6 +1193,12 @@ function DebugDialog({
     return null;
   }
 
+  const copyToClipboard = (text: string) => {
+    if (navigator?.clipboard?.writeText) {
+      void navigator.clipboard.writeText(text);
+    }
+  };
+
   const playerJson = JSON.stringify(snapshot.player, null, 2);
   const encounterJson = snapshot.encounter
     ? JSON.stringify(snapshot.encounter, null, 2)
@@ -1197,9 +1222,19 @@ function DebugDialog({
       <DialogContent dividers>
         <Stack spacing={2}>
           <Stack spacing={1}>
-            <Typography variant="overline" sx={{ opacity: 0.7 }}>
-              Player
-            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="overline" sx={{ opacity: 0.7 }}>
+                Player
+              </Typography>
+              <Tooltip title="Copy player JSON">
+                <IconButton
+                  size="small"
+                  onClick={() => copyToClipboard(playerJson)}
+                >
+                  <CopyIcon />
+                </IconButton>
+              </Tooltip>
+            </Stack>
             <Box
               component="pre"
               sx={(theme) => ({
@@ -1218,9 +1253,19 @@ function DebugDialog({
             </Box>
           </Stack>
           <Stack spacing={1}>
-            <Typography variant="overline" sx={{ opacity: 0.7 }}>
-              Encounter
-            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="overline" sx={{ opacity: 0.7 }}>
+                Encounter
+              </Typography>
+              <Tooltip title="Copy encounter JSON">
+                <IconButton
+                  size="small"
+                  onClick={() => copyToClipboard(encounterJson)}
+                >
+                  <CopyIcon />
+                </IconButton>
+              </Tooltip>
+            </Stack>
             <Box
               component="pre"
               sx={(theme) => ({
