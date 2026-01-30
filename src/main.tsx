@@ -96,12 +96,19 @@ const theme = createTheme({
           padding: '8px 16px',
           letterSpacing: 0.6,
           fontSize: '13px',
+          textAlign: 'left',
+          '& .MuiTypography-root': {
+            textAlign: 'left',
+          },
         },
         '.ui-cmd-inline-compact.MuiButton-root': {
           minWidth: 0,
           padding: '7.8px 11.2px',
           letterSpacing: 0.5,
           fontSize: '12px',
+          '& .MuiTypography-root': {
+            textAlign: 'left',
+          },
           [theme.breakpoints.up('md')]: {
             fontSize: '11px',
           },
