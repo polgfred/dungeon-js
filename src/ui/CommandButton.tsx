@@ -20,8 +20,16 @@ export function CommandButton({
 }: CommandButtonProps) {
   const stacked = layout === 'stacked';
   const compact = layout === 'compact';
+  const arrowKeys: Record<string, string> = {
+    N: '\uE01C',
+    S: '\uE01D',
+    W: '\uE01E',
+    E: '\uE01F',
+  };
   const displayKey = command.key.startsWith('Shift+')
     ? `\uE01C${command.key.slice(6)}`
+    : command.key in arrowKeys
+      ? arrowKeys[command.key]
     : command.key === 'Esc'
       ? `\uE11B`
       : command.key;

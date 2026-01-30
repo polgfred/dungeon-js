@@ -34,6 +34,104 @@ const subtleBoxStyle = (theme: Theme) => ({
   background: alpha(theme.palette.primary.dark, 0.18),
 });
 
+function MapGrid({
+  rows,
+  playerX,
+  playerY,
+  rowOffset = 0,
+  colOffset = 0,
+  showTooltips = true,
+  mapCellWidth = 42,
+}: {
+  rows: string[][];
+  playerX: number;
+  playerY: number;
+  rowOffset?: number;
+  colOffset?: number;
+  showTooltips?: boolean;
+  mapCellWidth?: number;
+}) {
+  return (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateRows: `repeat(${rows.length}, 1fr)`,
+        gap: 0.5,
+        width: 'fit-content',
+        maxWidth: '100%',
+        alignContent: 'center',
+        justifyItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {rows.map((row, rowIndex) => (
+        <Box
+          key={`row-${rowIndex}`}
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${row.length}, minmax(0, ${mapCellWidth}px))`,
+            gap: 0.5,
+            width: 'fit-content',
+            maxWidth: '100%',
+          }}
+        >
+          {row.map((cell, colIndex) => {
+            const isPlayerCell =
+              rowOffset + rowIndex === playerY &&
+              colOffset + colIndex === playerX;
+            const cellBox = (
+              <Box
+                sx={(theme) => ({
+                  borderRadius: 0.5,
+                  border: isPlayerCell
+                    ? `2px solid ${alpha(theme.palette.primary.light, 0.9)}`
+                    : `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
+                  background: isPlayerCell
+                    ? alpha(theme.palette.primary.dark, 0.32)
+                    : alpha(theme.palette.primary.dark, 0.26),
+                  display: 'grid',
+                  placeItems: 'center',
+                  width: mapCellWidth,
+                  fontSize: 14,
+                  color:
+                    cell === '·'
+                      ? alpha(theme.palette.text.primary, 0.35)
+                      : theme.palette.text.primary,
+                  transition: 'background-color 150ms ease',
+                  '&:hover': {
+                    background: alpha(theme.palette.primary.light, 0.18),
+                  },
+                })}
+              >
+                {cell}
+              </Box>
+            );
+            return showTooltips ? (
+              <Tooltip
+                key={`${rowIndex}-${colIndex}`}
+                title={mapTooltip(cell)}
+                arrow
+                placement="top"
+              >
+                {cellBox}
+              </Tooltip>
+            ) : (
+              <Box key={`${rowIndex}-${colIndex}`}>{cellBox}</Box>
+            );
+          })}
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
+function mapMatrixFromGrid(mapGrid: string[]): string[][] {
+  const defaultRow = '? ? ? ? ? ? ?'.split(' ');
+  return mapGrid.length > 0
+    ? mapGrid.map((row) => row.split(' '))
+    : Array.from({ length: 7 }, () => [...defaultRow]);
+}
+
 function MapPanel({
   onTrigger,
   mapGrid,
@@ -51,9 +149,10 @@ function MapPanel({
   verticalCommandList: Command[];
   buttonLayout?: 'inline' | 'stacked' | 'compact';
 }) {
-  const rows: string[] =
-    mapGrid.length > 0 ? mapGrid : Array(7).fill('? ? ? ? ? ? ?');
-  const mapCellWidth = 42;
+  const mapMatrix = mapMatrixFromGrid(mapGrid);
+  const mapGridView = (
+    <MapGrid rows={mapMatrix} playerX={playerX} playerY={playerY} />
+  );
 
   return (
     <Box sx={(theme) => panelStyle(theme)}>
@@ -69,70 +168,7 @@ function MapPanel({
           alignItems: 'center',
         }}
       >
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateRows: `repeat(${rows.length}, 1fr)`,
-            gap: 0.5,
-            width: 'fit-content',
-            maxWidth: '100%',
-            alignContent: 'center',
-            justifyItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {rows.map((row, rowIndex) => (
-            <Box
-              key={`row-${rowIndex}`}
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${row.split(' ').length}, minmax(0, ${mapCellWidth}px))`,
-                gap: 0.5,
-                width: 'fit-content',
-                maxWidth: '100%',
-              }}
-            >
-              {row.split(' ').map((cell, colIndex) => {
-                const isPlayerCell =
-                  rowIndex === playerY && colIndex === playerX;
-                return (
-                  <Tooltip
-                    key={`${rowIndex}-${colIndex}`}
-                    title={mapTooltip(cell)}
-                    arrow
-                    placement="top"
-                  >
-                    <Box
-                      sx={(theme) => ({
-                        borderRadius: 0.5,
-                        border: isPlayerCell
-                          ? `2px solid ${alpha(theme.palette.primary.light, 0.9)}`
-                          : `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-                        background: isPlayerCell
-                          ? alpha(theme.palette.primary.dark, 0.32)
-                          : alpha(theme.palette.primary.dark, 0.26),
-                        display: 'grid',
-                        placeItems: 'center',
-                        width: mapCellWidth,
-                        fontSize: 14,
-                        color:
-                          cell === '·'
-                            ? alpha(theme.palette.text.primary, 0.35)
-                            : theme.palette.text.primary,
-                        transition: 'background-color 150ms ease',
-                        '&:hover': {
-                          background: alpha(theme.palette.primary.light, 0.18),
-                        },
-                      })}
-                    >
-                      {cell}
-                    </Box>
-                  </Tooltip>
-                );
-              })}
-            </Box>
-          ))}
-        </Box>
+        {mapGridView}
 
         <Box
           sx={{
@@ -198,6 +234,117 @@ function MapPanel({
             ))}
           </Stack>
         </Box>
+      </Box>
+    </Box>
+  );
+}
+
+function MobileMapPanel({
+  onTrigger,
+  mapGrid,
+  playerX,
+  playerY,
+  movementCommandList,
+  verticalCommandList,
+  buttonLayout = 'compact',
+  windowSize = 3,
+}: {
+  onTrigger: (command: Command) => void;
+  mapGrid: string[];
+  playerX: number;
+  playerY: number;
+  movementCommandList: Command[];
+  verticalCommandList: Command[];
+  buttonLayout?: 'inline' | 'stacked' | 'compact';
+  windowSize?: number;
+}) {
+  const mapMatrix = mapMatrixFromGrid(mapGrid);
+  const totalRows = mapMatrix.length;
+  const totalCols = mapMatrix[0]?.length ?? 0;
+  const safeWindowSize = Math.min(
+    Math.max(windowSize, 1),
+    totalRows,
+    totalCols
+  );
+  const halfWindow = Math.floor(safeWindowSize / 2);
+  const rowStart = Math.max(
+    0,
+    Math.min(playerY - halfWindow, totalRows - safeWindowSize)
+  );
+  const colStart = Math.max(
+    0,
+    Math.min(playerX - halfWindow, totalCols - safeWindowSize)
+  );
+  const visibleRows = mapMatrix
+    .slice(rowStart, rowStart + safeWindowSize)
+    .map((row) => row.slice(colStart, colStart + safeWindowSize));
+  const mapCellWidth = safeWindowSize <= 3 ? 48 : 42;
+
+  return (
+    <Box sx={(theme) => panelStyle(theme)}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'auto auto',
+          gap: 1.5,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'auto auto auto',
+            gridTemplateRows: 'auto auto auto',
+            gap: 0.5,
+            alignItems: 'center',
+            justifyItems: 'center',
+          }}
+        >
+          <Box />
+          <CommandButton
+            command={movementCommandList[0]}
+            onTrigger={onTrigger}
+            layout={buttonLayout}
+          />
+          <Box />
+          <CommandButton
+            command={movementCommandList[1]}
+            onTrigger={onTrigger}
+            layout={buttonLayout}
+          />
+          <MapGrid
+            rows={visibleRows}
+            playerX={playerX}
+            playerY={playerY}
+            rowOffset={rowStart}
+            colOffset={colStart}
+            showTooltips={false}
+            mapCellWidth={mapCellWidth}
+          />
+          <CommandButton
+            command={movementCommandList[2]}
+            onTrigger={onTrigger}
+            layout={buttonLayout}
+          />
+          <Box />
+          <CommandButton
+            command={movementCommandList[3]}
+            onTrigger={onTrigger}
+            layout={buttonLayout}
+          />
+          <Box />
+        </Box>
+        <Stack spacing={0.75} justifyContent="center">
+          {verticalCommandList.map((command) => (
+            <CommandButton
+              key={command.id}
+              command={command}
+              onTrigger={onTrigger}
+              layout={buttonLayout}
+            />
+          ))}
+        </Stack>
       </Box>
     </Box>
   );
@@ -272,7 +419,17 @@ function CompactReadoutPanel({
   lastEventLines: string[];
 }) {
   return (
-    <Box sx={(theme) => panelStyle(theme)}>
+    <Box
+      sx={(theme) => ({
+        ...panelStyle(theme),
+        '& .MuiTypography-root': {
+          fontSize: 13,
+        },
+        '& .MuiTypography-caption': {
+          fontSize: 12,
+        },
+      })}
+    >
       <Stack spacing={1.5}>
         <Stack spacing={0.4}>
           <Typography sx={{ opacity: 0.7 }}>Mode</Typography>
@@ -462,6 +619,7 @@ function CommandBarPanel({
   encounterCommandList,
   roomCommandList,
   buttonLayout = 'inline',
+  titleVariant = 'default',
 }: {
   encounterMode: boolean;
   onTrigger: (command: Command) => void;
@@ -471,7 +629,17 @@ function CommandBarPanel({
   encounterCommandList: Command[];
   roomCommandList: Command[];
   buttonLayout?: 'inline' | 'stacked' | 'compact';
+  titleVariant?: 'default' | 'compact';
 }) {
+  const titleSx =
+    titleVariant === 'compact'
+      ? {
+          letterSpacing: 1.4,
+          textTransform: 'uppercase',
+          opacity: 0.6,
+          fontSize: 12,
+        }
+      : { letterSpacing: 2, textTransform: 'uppercase' };
   if (promptOptions && promptOptions.length > 0) {
     const commands = promptOptions.map((option) => ({
       id: `prompt-${option.key}`,
@@ -495,9 +663,7 @@ function CommandBarPanel({
         })}
       >
         <Stack spacing={2}>
-          <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-            {promptText || 'Choose'}
-          </Typography>
+          <Typography sx={titleSx}>{promptText || 'Choose'}</Typography>
           <Box
             sx={{
               display: 'flex',
@@ -528,9 +694,7 @@ function CommandBarPanel({
     >
       {encounterMode ? (
         <Stack spacing={2}>
-          <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-            Encounter Commands
-          </Typography>
+          <Typography sx={titleSx}>Encounter Commands</Typography>
           <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
             {encounterCommandList.map((command) => (
               <CommandButton
@@ -544,9 +708,7 @@ function CommandBarPanel({
         </Stack>
       ) : (
         <Stack spacing={2}>
-          <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-            Explore Commands
-          </Typography>
+          <Typography sx={titleSx}>Explore Commands</Typography>
           <Box
             sx={{
               display: 'flex',
@@ -764,17 +926,16 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
 
   return (
     <>
-      <Stack spacing={3}>
+      <Stack spacing={2.5}>
         {mobileView === 'play' ? (
-          <Stack spacing={3}>
-            <MapPanel
+          <Stack spacing={2.5}>
+            <MobileMapPanel
               onTrigger={model.handleTrigger}
               mapGrid={model.mapGrid}
               playerX={model.player.x}
               playerY={model.player.y}
               movementCommandList={model.movementCommandList}
               verticalCommandList={model.verticalCommandList}
-              buttonLayout="compact"
             />
             <CommandBarPanel
               encounterMode={model.isEncounter}
@@ -785,6 +946,7 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
               encounterCommandList={model.encounterCommandList}
               roomCommandList={model.roomCommandList}
               buttonLayout="compact"
+              titleVariant="compact"
             />
             <CompactReadoutPanel
               encounterMode={model.isEncounter}
