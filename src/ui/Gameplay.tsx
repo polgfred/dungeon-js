@@ -310,6 +310,22 @@ function formatCommandKey(key: string) {
   return key;
 }
 
+const readoutCommands: Command[] = [
+  { id: 'readout-save', key: 'Shift+S', label: 'Save Game', disabled: false },
+  { id: 'readout-quit', key: 'Shift+Q', label: 'Quit', disabled: false },
+];
+
+function triggerReadoutCommand(
+  command: Command,
+  handlers: { onSave: () => void; onBack: () => void }
+) {
+  if (command.id === 'readout-save') {
+    handlers.onSave();
+  } else if (command.id === 'readout-quit') {
+    handlers.onBack();
+  }
+}
+
 function CommandLegendPanel({ commands }: { commands: Command[] }) {
   if (commands.length === 0) return null;
   return (
@@ -367,6 +383,9 @@ function StatsPanel({
   lastSavedAt: string | null;
   saveError: string | null;
 }) {
+  const handleReadoutTrigger = (command: Command) =>
+    triggerReadoutCommand(command, { onSave, onBack });
+
   return (
     <Box sx={(theme) => panelStyle(theme)}>
       <Stack spacing={2}>
@@ -409,12 +428,14 @@ function StatsPanel({
         </Stack>
         <Stack spacing={1}>
           <Stack direction="row" spacing={1} flexWrap="wrap">
-            <Button variant="outlined" onClick={onSave}>
-              Save
-            </Button>
-            <Button variant="outlined" onClick={onBack}>
-              Exit
-            </Button>
+            {readoutCommands.map((command) => (
+              <CommandButton
+                key={command.id}
+                command={command}
+                onTrigger={handleReadoutTrigger}
+                layout="inline"
+              />
+            ))}
           </Stack>
           {lastSavedAt && (
             <Typography variant="caption" sx={{ opacity: 0.7 }}>
@@ -563,6 +584,9 @@ function PlayerReadoutPanel({
   lastSavedAt: string | null;
   saveError: string | null;
 }) {
+  const handleReadoutTrigger = (command: Command) =>
+    triggerReadoutCommand(command, { onSave, onBack });
+
   return (
     <Box sx={(theme) => panelStyle(theme)}>
       <Stack spacing={2} sx={{ height: '100%' }}>
@@ -609,12 +633,14 @@ function PlayerReadoutPanel({
         <Box sx={{ flexGrow: 1 }} />
         <Stack spacing={1}>
           <Stack direction="row" spacing={1} flexWrap="wrap">
-            <Button variant="outlined" onClick={onSave}>
-              Save
-            </Button>
-            <Button variant="outlined" onClick={onBack}>
-              Exit
-            </Button>
+            {readoutCommands.map((command) => (
+              <CommandButton
+                key={command.id}
+                command={command}
+                onTrigger={handleReadoutTrigger}
+                layout="inline"
+              />
+            ))}
           </Stack>
           {lastSavedAt && (
             <Typography variant="caption" sx={{ opacity: 0.7 }}>

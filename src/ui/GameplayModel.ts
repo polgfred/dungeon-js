@@ -368,6 +368,25 @@ export function useGameplayModel({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [commandMap, handleTrigger]);
 
+  useEffect(() => {
+    const handleHotkeys = (event: KeyboardEvent) => {
+      if (event.repeat) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const key = event.key.toLowerCase();
+      if (!event.shiftKey) return;
+      if (key === 's') {
+        event.preventDefault();
+        handleSave();
+      } else if (key === 'q') {
+        event.preventDefault();
+        onBack();
+      }
+    };
+
+    window.addEventListener('keydown', handleHotkeys);
+    return () => window.removeEventListener('keydown', handleHotkeys);
+  }, [handleSave, onBack]);
+
   const commandsForLegend = promptCommands ?? activeCommands;
 
   return {
