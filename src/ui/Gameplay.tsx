@@ -625,7 +625,6 @@ function CommandBarPanel({
           letterSpacing: 1.4,
           textTransform: 'uppercase',
           opacity: 0.6,
-          fontSize: 12,
         }
       : { letterSpacing: 2, textTransform: 'uppercase' };
   if (promptOptions && promptOptions.length > 0) {
@@ -652,7 +651,16 @@ function CommandBarPanel({
         })}
       >
         <Stack spacing={2}>
-          <Typography sx={titleSx}>{promptText || 'Choose'}</Typography>
+          <Typography
+            className={
+              titleVariant === 'compact'
+                ? 'ui-panel-title-compact'
+                : 'ui-panel-title'
+            }
+            sx={titleSx}
+          >
+            {promptText || 'Choose'}
+          </Typography>
           <Box
             sx={{
               display: 'flex',
@@ -684,7 +692,16 @@ function CommandBarPanel({
     >
       {encounterMode ? (
         <Stack spacing={2}>
-          <Typography sx={titleSx}>Encounter Commands</Typography>
+          <Typography
+            className={
+              titleVariant === 'compact'
+                ? 'ui-panel-title-compact'
+                : 'ui-panel-title'
+            }
+            sx={titleSx}
+          >
+            Encounter Commands
+          </Typography>
           <Box
             sx={{
               display: 'flex',
@@ -707,7 +724,16 @@ function CommandBarPanel({
         </Stack>
       ) : (
         <Stack spacing={2}>
-          <Typography sx={titleSx}>Explore Commands</Typography>
+          <Typography
+            className={
+              titleVariant === 'compact'
+                ? 'ui-panel-title-compact'
+                : 'ui-panel-title'
+            }
+            sx={titleSx}
+          >
+            Explore Commands
+          </Typography>
           <Box
             sx={{
               display: 'flex',

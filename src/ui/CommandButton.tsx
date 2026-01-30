@@ -37,6 +37,14 @@ export function CommandButton({
     : command.key === 'Esc'
       ? `\uE11B`
       : command.key;
+  const isNav = command.id.startsWith('move-');
+  const layoutClass = compact
+    ? 'ui-cmd-compact'
+    : stacked
+      ? 'ui-cmd-stacked'
+      : inlineCompact
+        ? 'ui-cmd-inline-compact'
+        : 'ui-cmd-inline';
   return (
     <Button
       variant="outlined"
@@ -44,21 +52,49 @@ export function CommandButton({
       color="primary"
       size={stacked || compact || inlineCompact ? 'small' : 'medium'}
       disabled={Boolean(command.disabled)}
+      className={[isNav ? 'ui-nav-button' : '', layoutClass]
+        .filter(Boolean)
+        .join(' ')}
       sx={{
         textTransform: 'none',
         letterSpacing: compact ? 1.2 : stacked ? 0.8 : inlineCompact ? 0.5 : 0.6,
-        paddingY: compact ? 0.6 : stacked ? 0.6 : inlineCompact ? 0.6 : 1,
-        paddingX: compact ? 1.2 : stacked ? 1.5 : inlineCompact ? 1.4 : 2,
-        minWidth: compact ? 44 : stacked ? 72 : inlineCompact ? 0 : 0,
+        paddingY: compact
+          ? 'var(--cmd-pad-y-compact, 4.8px)'
+          : stacked
+            ? 'var(--cmd-pad-y-stacked, 4.8px)'
+            : inlineCompact
+              ? 'var(--cmd-pad-y-inline-compact, 4.8px)'
+              : 'var(--cmd-pad-y, 8px)',
+        paddingX: compact
+          ? 'var(--cmd-pad-x-compact, 9.6px)'
+          : stacked
+            ? 'var(--cmd-pad-x-stacked, 12px)'
+            : inlineCompact
+              ? 'var(--cmd-pad-x-inline-compact, 11.2px)'
+              : 'var(--cmd-pad-x, 16px)',
+        minWidth: compact
+          ? 'var(--cmd-min-w-compact, 44px)'
+          : stacked
+            ? 'var(--cmd-min-w-stacked, 72px)'
+            : inlineCompact
+              ? 'var(--cmd-min-w-inline-compact, 0)'
+              : 'var(--cmd-min-w, 0)',
       }}
     >
       {compact ? (
-        <Typography sx={{ fontSize: 12, fontWeight: 600 }}>
+        <Typography
+          sx={{
+            fontSize: 'var(--cmd-label-size-compact, 12px)',
+            fontWeight: 600,
+          }}
+        >
           {displayKey}
         </Typography>
       ) : stacked ? (
         <Stack spacing={0.2} alignItems="center">
-          <Typography sx={{ fontSize: 11 }}>{command.label}</Typography>
+          <Typography sx={{ fontSize: 'var(--cmd-label-size-stacked, 11px)' }}>
+            {command.label}
+          </Typography>
           <Typography variant="caption" className="ui-tip-compact">
             {displayKey}
           </Typography>
@@ -72,7 +108,9 @@ export function CommandButton({
         >
           <Typography
             sx={{
-              fontSize: inlineCompact ? 12 : 13,
+              fontSize: inlineCompact
+                ? 'var(--cmd-label-size-inline-compact, 12px)'
+                : 'var(--cmd-label-size-inline, 13px)',
               lineHeight: 1.2,
               flex: 1,
             }}

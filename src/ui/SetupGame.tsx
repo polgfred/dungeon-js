@@ -128,7 +128,6 @@ function SetupCommandPanel({
           letterSpacing: 1.4,
           textTransform: 'uppercase',
           opacity: 0.6,
-          fontSize: 12,
         }
       : { letterSpacing: 2, textTransform: 'uppercase' };
   return (
@@ -140,7 +139,16 @@ function SetupCommandPanel({
       })}
     >
       <Stack spacing={2}>
-        <Typography sx={titleSx}>{title}</Typography>
+        <Typography
+          className={
+            titleVariant === 'compact'
+              ? 'ui-panel-title-compact'
+              : 'ui-panel-title'
+          }
+          sx={titleSx}
+        >
+          {title}
+        </Typography>
         <Box
           sx={{
             display: 'flex',

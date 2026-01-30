@@ -67,18 +67,70 @@ const theme = createTheme({
         },
         '.ui-tip-compact': {
           opacity: 0.6,
-          fontSize: 10,
+          fontSize: 'var(--ui-tip-compact-size, 10px)',
           [theme.breakpoints.up('md')]: {
-            fontSize: 11,
+            fontSize: 'var(--ui-tip-compact-size-md, 11px)',
           },
         },
-        '.ui-panel .MuiTypography-root': {
+        '.MuiTypography-caption.ui-tip-compact': {
+          fontSize: 'var(--ui-tip-compact-size, 10px)',
+          [theme.breakpoints.up('md')]: {
+            fontSize: 'var(--ui-tip-compact-size-md, 11px)',
+          },
+        },
+        '.ui-cmd-inline': {
+          '--cmd-label-size-inline': '13px',
+          [theme.breakpoints.up('md')]: {
+            '--cmd-label-size-inline': '13px',
+          },
+        },
+        '.ui-cmd-inline-compact': {
+          '--cmd-label-size-inline-compact': '12px',
+          [theme.breakpoints.up('md')]: {
+            '--cmd-label-size-inline-compact': '11px',
+          },
+        },
+        '.ui-cmd-stacked': {
+          '--cmd-label-size-stacked': '11px',
+          [theme.breakpoints.up('md')]: {
+            '--cmd-label-size-stacked': '10px',
+          },
+        },
+        '.ui-cmd-compact': {
+          '--cmd-label-size-compact': '12px',
+          [theme.breakpoints.up('md')]: {
+            '--cmd-label-size-compact': '11px',
+          },
+        },
+        '.ui-nav-button': {
+          [theme.breakpoints.up('md')]: {
+            '--cmd-pad-y-stacked': '3px',
+            '--cmd-pad-x-stacked': '8px',
+            '--cmd-min-w-stacked': '56px',
+            '--cmd-label-size-stacked': '13px',
+            '--ui-tip-compact-size': '11px',
+            '--ui-tip-compact-size-md': '11px',
+          },
+        },
+        '.ui-panel-title': {
+          fontSize: 14,
+          [theme.breakpoints.up('md')]: {
+            fontSize: 18,
+          },
+        },
+        '.ui-panel-title-compact': {
+          fontSize: 12,
+          [theme.breakpoints.up('md')]: {
+            fontSize: 13,
+          },
+        },
+        '.ui-panel :where(.MuiTypography-root)': {
           fontSize: 13,
           [theme.breakpoints.up('md')]: {
             fontSize: 16,
           },
         },
-        '.ui-panel .MuiTypography-caption': {
+        '.ui-panel :where(.MuiTypography-caption)': {
           fontSize: 11,
           [theme.breakpoints.up('md')]: {
             fontSize: 13,
