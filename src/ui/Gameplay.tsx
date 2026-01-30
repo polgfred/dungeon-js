@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import helpHtmlContent from '../assets/help.html?raw';
 import type { Player } from '../dungeon/model.js';
+import type { EncounterSave, PlayerSave } from '../dungeon/serialization.js';
 import type { PromptOption } from '../dungeon/types.js';
 import { CommandButton, type Command } from './CommandButton.js';
 import type { GameplayModel, GameplayProps } from './GameplayModel.js';
@@ -1160,6 +1161,89 @@ function GameplayDesktop({ model }: { model: GameplayModel }) {
   );
 }
 
+function DebugDialog({
+  open,
+  onClose,
+  snapshot,
+}: {
+  open: boolean;
+  onClose: () => void;
+  snapshot: { player: PlayerSave; encounter: EncounterSave | null } | null;
+}) {
+  if (!snapshot) {
+    return null;
+  }
+
+  const playerJson = JSON.stringify(snapshot.player, null, 2);
+  const encounterJson = snapshot.encounter
+    ? JSON.stringify(snapshot.encounter, null, 2)
+    : 'No active encounter.';
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="debug-dialog-title"
+      sx={{
+        '& .MuiDialog-paper': {
+          background: 'rgba(10, 10, 10, 0.92)',
+          backdropFilter: 'blur(12px)',
+        },
+      }}
+    >
+      <DialogTitle id="debug-dialog-title">Debug Snapshot</DialogTitle>
+      <DialogContent dividers>
+        <Stack spacing={2}>
+          <Stack spacing={1}>
+            <Typography variant="overline" sx={{ opacity: 0.7 }}>
+              Player
+            </Typography>
+            <Box
+              component="pre"
+              sx={(theme) => ({
+                margin: 0,
+                padding: 1.5,
+                borderRadius: 1.5,
+                border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
+                background: alpha(theme.palette.primary.dark, 0.2),
+                fontSize: 12,
+                overflowX: 'auto',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+              })}
+            >
+              {playerJson}
+            </Box>
+          </Stack>
+          <Stack spacing={1}>
+            <Typography variant="overline" sx={{ opacity: 0.7 }}>
+              Encounter
+            </Typography>
+            <Box
+              component="pre"
+              sx={(theme) => ({
+                margin: 0,
+                padding: 1.5,
+                borderRadius: 1.5,
+                border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
+                background: alpha(theme.palette.primary.dark, 0.2),
+                fontSize: 12,
+                overflowX: 'auto',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+              })}
+            >
+              {encounterJson}
+            </Box>
+          </Stack>
+        </Stack>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Gameplay(props: GameplayProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -1186,6 +1270,11 @@ export default function Gameplay(props: GameplayProps) {
       ) : (
         <GameplayDesktop model={model} />
       )}
+      <DebugDialog
+        open={model.debugOpen}
+        onClose={() => model.setDebugOpen(false)}
+        snapshot={model.debugSnapshot}
+      />
       {!isMobile && (
         <HelpDialog
           open={model.helpOpen}

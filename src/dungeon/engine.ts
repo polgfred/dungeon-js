@@ -13,6 +13,7 @@ import { generateDungeon } from './generation.js';
 import { Player } from './model.js';
 import {
   type GameSave,
+  type EncounterSave,
   deserializeGame,
   serializeGame,
 } from './serialization.js';
@@ -97,6 +98,10 @@ export class Game {
       vendor: this.shopSession ? this.shopSession.toSave() : null,
       debug: this.debug,
     });
+  }
+
+  getEncounterSave(): EncounterSave | null {
+    return this.encounterSession ? this.encounterSession.toSave() : null;
   }
 
   startEvents(): Event[] {

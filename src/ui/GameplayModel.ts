@@ -3,7 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Feature, Mode } from '../dungeon/constants.js';
 import { Game } from '../dungeon/engine.js';
 import type { Player } from '../dungeon/model.js';
-import type { GameSave } from '../dungeon/serialization.js';
+import {
+  serializePlayer,
+  type EncounterSave,
+  type GameSave,
+  type PlayerSave,
+} from '../dungeon/serialization.js';
 import type {
   Event as GameEvent,
   PromptOption,
@@ -120,6 +125,9 @@ export type GameplayModel = {
   helpOpen: boolean;
   setHelpOpen: (open: boolean) => void;
   onBack: () => void;
+  debugSnapshot: { player: PlayerSave; encounter: EncounterSave | null } | null;
+  debugOpen: boolean;
+  setDebugOpen: (open: boolean) => void;
 };
 
 export function useGameplayModel({
@@ -153,6 +161,11 @@ export function useGameplayModel({
   const [promptText, setPromptText] = useState<string | null>(null);
   const [promptHasCancel, setPromptHasCancel] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [debugOpen, setDebugOpen] = useState(false);
+  const [debugSnapshot, setDebugSnapshot] = useState<{
+    player: PlayerSave;
+    encounter: EncounterSave | null;
+  } | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(
     savedGame?.savedAt ? new Date(savedGame.savedAt).toLocaleString() : null
   );
@@ -221,6 +234,12 @@ export function useGameplayModel({
       ),
     [roomDisabledByKey]
   );
+  const captureDebugSnapshot = useCallback(() => {
+    setDebugSnapshot({
+      player: serializePlayer(player),
+      encounter: game.getEncounterSave(),
+    });
+  }, [game, player]);
   const encounterCommandList = useMemo(() => {
     const base = encounterCommands.map((command) => {
       if (command.key === 'S') {
@@ -382,12 +401,16 @@ export function useGameplayModel({
       } else if (key === 'q') {
         event.preventDefault();
         onBack();
+      } else if (key === 'z') {
+        event.preventDefault();
+        captureDebugSnapshot();
+        setDebugOpen(true);
       }
     };
 
     window.addEventListener('keydown', handleHotkeys);
     return () => window.removeEventListener('keydown', handleHotkeys);
-  }, [handleSave, onBack]);
+  }, [captureDebugSnapshot, handleSave, onBack]);
 
   const commandsForLegend = promptCommands ?? activeCommands;
 
@@ -412,5 +435,8 @@ export function useGameplayModel({
     helpOpen,
     setHelpOpen,
     onBack,
+    debugSnapshot,
+    debugOpen,
+    setDebugOpen,
   };
 }
