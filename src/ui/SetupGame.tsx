@@ -6,10 +6,12 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
-import { alpha, type Theme } from '@mui/material/styles';
+import { alpha, type Theme, useTheme } from '@mui/material/styles';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import helpHtmlContent from '../assets/help.html?raw';
 import {
   ARMOR_NAMES,
   ARMOR_PRICES,
@@ -54,15 +56,82 @@ const panelStyle = (theme: Theme) => ({
   padding: { xs: 2, md: 3 },
 });
 
+function MobileHelpPanel({ onClose }: { onClose: () => void }) {
+  return (
+    <Box
+      sx={(theme) => ({
+        ...panelStyle(theme),
+        padding: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+      })}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingX: 1.5,
+          paddingY: 1,
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+        }}
+      >
+        <Typography sx={{ letterSpacing: 1.2, textTransform: 'uppercase' }}>
+          Help
+        </Typography>
+        <Typography
+          aria-label="Close help"
+          onClick={onClose}
+          sx={{ cursor: 'pointer', opacity: 0.7 }}
+        >
+          Close
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          padding: 1.5,
+          overflowY: 'auto',
+          fontSize: 13,
+          lineHeight: 1.5,
+          '& *': {
+            fontSize: 'inherit',
+          },
+          '& h1': { marginTop: 0, opacity: 0.75 },
+          '& h2, & h3': { opacity: 0.7 },
+          '& h1, & h2, & h3': {
+            letterSpacing: 1.2,
+            textTransform: 'uppercase',
+          },
+          '& li': { marginBottom: 0.5 },
+          '& ul li::marker': { content: '"- "' },
+        }}
+        dangerouslySetInnerHTML={{ __html: helpHtmlContent }}
+      />
+    </Box>
+  );
+}
+
 function SetupCommandPanel({
   title,
   commands,
   onTrigger,
+  titleVariant = 'default',
 }: {
   title: string;
   commands: Command[];
   onTrigger: (command: Command) => void;
+  titleVariant?: 'default' | 'compact';
 }) {
+  const titleSx =
+    titleVariant === 'compact'
+      ? {
+          letterSpacing: 1.4,
+          textTransform: 'uppercase',
+          opacity: 0.6,
+          fontSize: 12,
+        }
+      : { letterSpacing: 2, textTransform: 'uppercase' };
   return (
     <Box
       sx={(theme) => ({
@@ -71,9 +140,7 @@ function SetupCommandPanel({
       })}
     >
       <Stack spacing={2}>
-        <Typography sx={{ letterSpacing: 2, textTransform: 'uppercase' }}>
-          {title}
-        </Typography>
+        <Typography sx={titleSx}>{title}</Typography>
         <Box
           sx={{
             display: 'flex',
@@ -109,18 +176,21 @@ function RaceStage({
 }) {
   return (
     <Stack spacing={3}>
-      <Typography variant="h5" sx={{ letterSpacing: 2 }}>
+      <Typography
+        variant="h5"
+        sx={{ letterSpacing: 2, fontSize: { xs: 18, md: 'inherit' } }}
+      >
         Choose Thy Race
       </Typography>
-      <Typography sx={{ opacity: 0.75 }}>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
         Base player stats are rolled on selection. Confirm to lock in your
         numbers.
       </Typography>
       <Box
         sx={{
           display: 'grid',
-          gap: 2,
-          gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+          gap: { xs: 1, md: 2 },
+          gridTemplateColumns: { xs: '1fr 1fr', md: '1fr 1fr' },
         }}
       >
         {raceOptions.map((option) => {
@@ -131,8 +201,8 @@ function RaceStage({
               onClick={() => onSelect(option.value)}
               sx={(theme) => ({
                 borderRadius: 2,
-                padding: 2,
-                textAlign: 'left',
+                padding: { xs: 1.5, md: 2 },
+                textAlign: 'center',
                 border: active
                   ? `1px solid ${alpha(theme.palette.primary.light, 0.9)}`
                   : `1px solid ${alpha(theme.palette.primary.light, 0.5)}`,
@@ -144,11 +214,19 @@ function RaceStage({
                   : 'none',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 1,
+                gap: { xs: 0.5, md: 1 },
               })}
             >
               <Typography sx={{ letterSpacing: 2 }}>{option.label}</Typography>
-              <Typography variant="body2" sx={{ opacity: 0.7 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  opacity: 0.7,
+                  textAlign: 'center',
+                  width: '100%',
+                  display: { xs: 'none', md: 'block' },
+                }}
+              >
                 {option.tagline}
               </Typography>
             </ButtonBase>
@@ -203,12 +281,17 @@ function AllocationStage({
   onBack: () => void;
   onConfirm: () => void;
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   return (
     <Stack spacing={3}>
-      <Typography variant="h5" sx={{ letterSpacing: 2 }}>
+      <Typography
+        variant="h5"
+        sx={{ letterSpacing: 2, fontSize: { xs: 18, md: 'inherit' } }}
+      >
         Allocate Points
       </Typography>
-      <Typography sx={{ opacity: 0.75 }}>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
         Distribute five additional points across strength, dexterity, and
         intelligence. Attributes are capped at 18.
       </Typography>
@@ -233,7 +316,9 @@ function AllocationStage({
               <Typography sx={{ letterSpacing: 2 }}>{key}</Typography>
               <Box>
                 <Typography sx={{ opacity: 0.7 }}>
-                  Base {baseValue} + {allocations[key]} → {totalValue}
+                  {isMobile
+                    ? totalValue
+                    : `Base ${baseValue} + ${allocations[key]} → ${totalValue}`}
                 </Typography>
               </Box>
               <Stack direction="row" spacing={1}>
@@ -283,6 +368,7 @@ function ShopStage({
   armorTier,
   flares,
   maxFlares,
+  goldRemaining,
   setupError,
   onWeaponTier,
   onArmorTier,
@@ -295,6 +381,7 @@ function ShopStage({
   armorTier: number;
   flares: number;
   maxFlares: number;
+  goldRemaining: number | null;
   setupError: string | null;
   onWeaponTier: (value: number) => void;
   onArmorTier: (value: number) => void;
@@ -305,10 +392,16 @@ function ShopStage({
 }) {
   return (
     <Stack spacing={3}>
-      <Typography variant="h5" sx={{ letterSpacing: 2 }}>
+      <Typography
+        variant="h5"
+        sx={{ letterSpacing: 2, fontSize: { xs: 18, md: 'inherit' } }}
+      >
         Arm Thyself
       </Typography>
-      <Typography sx={{ opacity: 0.75 }}>
+      <Typography sx={{ opacity: 0.8, color: 'text.secondary' }}>
+        Gold remaining: {goldRemaining !== null ? goldRemaining : '--'}
+      </Typography>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
         Now, you must purchase a weapon, armor, and flares. Any remaining gold
         is kept for future exploits.
       </Typography>
@@ -322,11 +415,15 @@ function ShopStage({
             value={weaponTier}
             onChange={(_, value) => value && onWeaponTier(value)}
             sx={(theme) => ({
+              flexDirection: { xs: 'column', md: 'row' },
+              alignItems: { xs: 'stretch', md: 'center' },
+              width: { xs: '100%', md: 'auto' },
               '& .MuiToggleButton-root': {
                 borderColor: alpha(theme.palette.primary.light, 0.5),
                 color: theme.palette.text.primary,
                 textTransform: 'none',
                 letterSpacing: 1,
+                width: { xs: '100%', md: 'auto' },
               },
               '& .MuiToggleButton-root.Mui-selected': {
                 background: alpha(theme.palette.primary.light, 0.7),
@@ -350,11 +447,15 @@ function ShopStage({
             value={armorTier}
             onChange={(_, value) => value && onArmorTier(value)}
             sx={(theme) => ({
+              flexDirection: { xs: 'column', md: 'row' },
+              alignItems: { xs: 'stretch', md: 'center' },
+              width: { xs: '100%', md: 'auto' },
               '& .MuiToggleButton-root': {
                 borderColor: alpha(theme.palette.primary.light, 0.5),
                 color: theme.palette.text.primary,
                 textTransform: 'none',
                 letterSpacing: 1,
+                width: { xs: '100%', md: 'auto' },
               },
               '& .MuiToggleButton-root.Mui-selected': {
                 background: alpha(theme.palette.primary.light, 0.6),
@@ -428,10 +529,13 @@ function ReadyStage({
 }) {
   return (
     <Stack spacing={3}>
-      <Typography variant="h5" sx={{ letterSpacing: 2 }}>
+      <Typography
+        variant="h5"
+        sx={{ letterSpacing: 2, fontSize: { xs: 18, md: 'inherit' } }}
+      >
         Setup Complete
       </Typography>
-      <Typography sx={{ opacity: 0.75 }}>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
         Brave adventurer, thy gear outfits thee well! But alas, this quest is
         not for the faint of heart. Are you ready to enter the dungeon?
       </Typography>
@@ -441,7 +545,9 @@ function ReadyStage({
         <Typography>Flares: {player.flares}</Typography>
         <Typography>Gold Remaining: {player.gold}</Typography>
       </Stack>
-      <Typography sx={{ opacity: 0.75 }}>THE DUNGEON AWAITS YOU...</Typography>
+      <Typography sx={{ opacity: 0.75, fontSize: { xs: 13, md: 'inherit' } }}>
+        THE DUNGEON AWAITS YOU...
+      </Typography>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         <Button variant="outlined" onClick={onReset} color="primary">
           Reset Setup
@@ -521,6 +627,8 @@ export default function SetupGame({
   onComplete: (player: Player) => void;
   onBack: () => void;
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const rng = useMemo(() => defaultRandomSource, []);
   const [stage, setStage] = useState<SetupStage>('race');
   const [race, setRace] = useState<Race | null>(null);
@@ -536,6 +644,9 @@ export default function SetupGame({
   const [flares, setFlares] = useState(0);
   const [setupError, setSetupError] = useState<string | null>(null);
   const [player, setPlayer] = useState<Player | null>(null);
+  const [mobileView, setMobileView] = useState<'setup' | 'stats' | 'help'>(
+    'setup'
+  );
 
   const totalAllocated = allocations.ST + allocations.DX + allocations.IQ;
   const remainingPoints = 5 - totalAllocated;
@@ -867,6 +978,87 @@ export default function SetupGame({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [commandMap, handleTrigger]);
 
+  const setupPanel = (
+    <Stack spacing={3}>
+      <Box sx={(theme) => panelStyle(theme)}>
+        {stage === 'race' && (
+          <RaceStage
+            race={race}
+            baseStats={baseStats}
+            onSelect={handleRaceSelect}
+            onBack={onBack}
+            onConfirm={() => setStage('allocate')}
+          />
+        )}
+
+        {stage === 'allocate' && (
+          <AllocationStage
+            baseStats={baseStats}
+            allocations={allocations}
+            remainingPoints={remainingPoints}
+            onAdjust={handleAdjust}
+            onBack={() => setStage('race')}
+            onConfirm={handleAdvanceToShop}
+          />
+        )}
+
+        {stage === 'shop' && (
+          <ShopStage
+            weaponTier={weaponTier}
+            armorTier={armorTier}
+            flares={flares}
+            maxFlares={maxFlares}
+            goldRemaining={gold !== null ? gold - totalCost : null}
+            setupError={setupError}
+            onWeaponTier={setWeaponTier}
+            onArmorTier={setArmorTier}
+            onFlaresChange={setFlares}
+            onBack={() => setStage('allocate')}
+            onConfirm={handleFinish}
+            disableConfirm={gold === null || totalCost > gold}
+          />
+        )}
+
+        {stage === 'ready' && player && (
+          <ReadyStage
+            player={player}
+            onReset={() => setStage('race')}
+            onComplete={onComplete}
+          />
+        )}
+      </Box>
+      {!isMobile && (
+        <SetupCommandPanel
+          title={`Setup Commands: ${stage}`}
+          commands={commandList}
+          onTrigger={handleTrigger}
+          titleVariant="default"
+        />
+      )}
+    </Stack>
+  );
+
+  const statsPanel = (
+    <Box
+      sx={(theme) => ({
+        ...panelStyle(theme),
+        '& .MuiTypography-root': {
+          fontSize: { xs: 13, md: 'inherit' },
+        },
+      })}
+    >
+      <StatusReadout
+        race={race}
+        derivedStats={derivedStats}
+        gold={gold}
+        weaponTier={weaponTier}
+        armorTier={armorTier}
+        flares={flares}
+        totalCost={totalCost}
+      />
+    </Box>
+  );
+
   return (
     <Box
       sx={{
@@ -875,6 +1067,7 @@ export default function SetupGame({
         display: 'grid',
         gap: 3,
         containerType: 'inline-size',
+        paddingBottom: { xs: 10, md: 0 },
         '@keyframes boot': {
           from: { opacity: 0, transform: 'translateY(14px)' },
           to: { opacity: 1, transform: 'translateY(0)' },
@@ -882,82 +1075,70 @@ export default function SetupGame({
         animation: 'boot 650ms ease-out',
       }}
     >
-      <Box
-        sx={{
-          display: 'grid',
-          gap: 3,
-          gridTemplateColumns: '1fr',
-          '@container (min-width: 1280px)': {
-            gridTemplateColumns: '2fr 1fr',
-          },
-        }}
-      >
-        <Stack spacing={3}>
-          <Box sx={(theme) => panelStyle(theme)}>
-            {stage === 'race' && (
-              <RaceStage
-                race={race}
-                baseStats={baseStats}
-                onSelect={handleRaceSelect}
-                onBack={onBack}
-                onConfirm={() => setStage('allocate')}
-              />
+      {isMobile ? (
+        <>
+          <Stack spacing={2} sx={{ minHeight: 'calc(100dvh - 96px)' }}>
+            {mobileView === 'setup' ? (
+              setupPanel
+            ) : mobileView === 'stats' ? (
+              statsPanel
+            ) : (
+              <Stack spacing={2} sx={{ minHeight: 0 }}>
+                <MobileHelpPanel onClose={() => setMobileView('setup')} />
+              </Stack>
             )}
-
-            {stage === 'allocate' && (
-              <AllocationStage
-                baseStats={baseStats}
-                allocations={allocations}
-                remainingPoints={remainingPoints}
-                onAdjust={handleAdjust}
-                onBack={() => setStage('race')}
-                onConfirm={handleAdvanceToShop}
-              />
-            )}
-
-            {stage === 'shop' && (
-              <ShopStage
-                weaponTier={weaponTier}
-                armorTier={armorTier}
-                flares={flares}
-                maxFlares={maxFlares}
-                setupError={setupError}
-                onWeaponTier={setWeaponTier}
-                onArmorTier={setArmorTier}
-                onFlaresChange={setFlares}
-                onBack={() => setStage('allocate')}
-                onConfirm={handleFinish}
-                disableConfirm={gold === null || totalCost > gold}
-              />
-            )}
-
-            {stage === 'ready' && player && (
-              <ReadyStage
-                player={player}
-                onReset={() => setStage('race')}
-                onComplete={onComplete}
-              />
-            )}
+          </Stack>
+          <Box
+            sx={(theme) => ({
+              position: 'fixed',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 20,
+              padding: 1,
+              borderTop: `1px solid ${alpha(theme.palette.primary.light, 0.4)}`,
+              background: alpha(theme.palette.background.paper, 0.92),
+              backdropFilter: 'blur(8px)',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+              gap: 1,
+            })}
+          >
+            <Button
+              variant={mobileView === 'setup' ? 'contained' : 'outlined'}
+              onClick={() => setMobileView('setup')}
+            >
+              Setup
+            </Button>
+            <Button
+              variant={mobileView === 'stats' ? 'contained' : 'outlined'}
+              onClick={() => setMobileView('stats')}
+            >
+              Stats
+            </Button>
+            <Button
+              variant={mobileView === 'help' ? 'contained' : 'outlined'}
+              onClick={() => setMobileView('help')}
+            >
+              Help
+            </Button>
           </Box>
-          <SetupCommandPanel
-            title={`Setup Commands: ${stage}`}
-            commands={commandList}
-            onTrigger={handleTrigger}
-          />
-        </Stack>
-
-        <Box sx={(theme) => panelStyle(theme)}>
-          <StatusReadout
-            race={race}
-            derivedStats={derivedStats}
-            gold={gold}
-            weaponTier={weaponTier}
-            armorTier={armorTier}
-            flares={flares}
-            totalCost={totalCost}
-          />
+        </>
+      ) : (
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 3,
+            gridTemplateColumns: '1fr',
+            '@container (min-width: 1280px)': {
+              gridTemplateColumns: '2fr 1fr',
+            },
+          }}
+        >
+          {setupPanel}
+          {statsPanel}
         </Box>
-      </Box>
+      )}
     </Box>
   );
 }
