@@ -169,13 +169,8 @@ export class EncounterSession {
     if (!this.debug) {
       return result;
     }
-    return {
-      events: [this.debugMonsterEvent(), ...result.events],
-      mode: result.mode,
-      relocate: result.relocate,
-      relocateAnyFloor: result.relocateAnyFloor,
-      enterRoom: result.enterRoom,
-    };
+    result.events.unshift(this.debugMonsterEvent());
+    return result;
   }
 
   private debugMonsterEvent(): Event {

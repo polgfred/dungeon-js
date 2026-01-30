@@ -104,7 +104,6 @@ export class Game {
   }
 
   step(command: string): StepResult {
-    const events: Event[] = [];
     const raw = command.trim().toUpperCase();
     if (!raw) {
       return {
@@ -115,25 +114,32 @@ export class Game {
     }
 
     if (this.mode === Mode.GAME_OVER || this.mode === Mode.VICTORY) {
-      return { events: [], mode: this.mode, needsInput: false };
+      return {
+        events: [Event.error("I don't understand that.")],
+        mode: this.mode,
+        needsInput: false,
+      };
     }
 
     if (this.shopSession) {
       const result = this.shopSession.step(raw);
-      events.push(...result.events);
       if (result.done) {
         this.shopSession = null;
       }
-      return { events, mode: this.mode, needsInput: true };
+      return {
+        events: result.events,
+        mode: this.mode,
+        needsInput: true,
+      };
     }
 
     if (this.encounterSession) {
       const result = this.encounterSession.step(raw);
-      events.push(...result.events);
       if (result.mode !== Mode.ENCOUNTER) {
         this.encounterSession = null;
       }
       this.mode = result.mode;
+      const events = result.events;
       if (result.relocate) {
         this.randomRelocate({ anyFloor: Boolean(result.relocateAnyFloor) });
         if (result.enterRoom) {
@@ -155,33 +161,41 @@ export class Game {
         needsInput: true,
       };
     }
-    events.push(...this.handleExplore(key));
-    return { events, mode: this.mode, needsInput: true };
+    return {
+      events: this.handleExplore(key),
+      mode: this.mode,
+      needsInput: true,
+    };
   }
 
   attemptCancel(): StepResult {
-    const events: Event[] = [];
-
     if (this.mode === Mode.GAME_OVER || this.mode === Mode.VICTORY) {
-      return { events, mode: this.mode, needsInput: false };
+      return {
+        events: [],
+        mode: this.mode,
+        needsInput: false,
+      };
     }
 
     if (this.shopSession) {
       const result = this.shopSession.attemptCancel();
-      events.push(...result.events);
       if (result.done) {
         this.shopSession = null;
       }
-      return { events, mode: this.mode, needsInput: true };
+      return {
+        events: result.events,
+        mode: this.mode,
+        needsInput: true,
+      };
     }
 
     if (this.encounterSession) {
       const result = this.encounterSession.attemptCancel();
-      events.push(...result.events);
       if (result.mode !== Mode.ENCOUNTER) {
         this.encounterSession = null;
       }
       this.mode = result.mode;
+      const events = result.events;
       if (result.relocate) {
         this.randomRelocate({ anyFloor: Boolean(result.relocateAnyFloor) });
         if (result.enterRoom) {
@@ -196,7 +210,7 @@ export class Game {
     }
 
     return {
-      events: [...events, Event.info("I don't understand that.")],
+      events: [Event.info("I don't understand that.")],
       mode: this.mode,
       needsInput: true,
     };
@@ -245,18 +259,18 @@ export class Game {
   }
 
   resumeEvents(): Event[] {
-    const events: Event[] = [];
     if (this.shopSession) {
-      events.push(
-        Event.info('There is a vendor here. Do you wish to purchase something?')
-      );
-      events.push(...this.shopSession.resumeEvents());
-    } else if (this.encounterSession) {
-      events.push(...this.encounterSession.resumeEvents());
-    } else {
-      events.push(...this.describeRoom(this.currentRoom()));
+      return [
+        Event.info(
+          'There is a vendor here. Do you wish to purchase something?'
+        ),
+        ...this.shopSession.resumeEvents(),
+      ];
     }
-    return events;
+    if (this.encounterSession) {
+      return this.encounterSession.resumeEvents();
+    }
+    return this.describeRoom(this.currentRoom());
   }
 
   private nextPrompt(events: Event[]): string {
