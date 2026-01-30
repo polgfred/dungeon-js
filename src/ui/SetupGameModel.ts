@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import {
-  ARMOR_PRICES,
-  WEAPON_PRICES,
-  Race,
-} from '../dungeon/constants.js';
+import { ARMOR_PRICES, WEAPON_PRICES, Race } from '../dungeon/constants.js';
 import { Player } from '../dungeon/model.js';
 import { defaultRandomSource } from '../dungeon/rng.js';
 import type { Command } from './CommandButton.js';
@@ -264,8 +260,13 @@ export function useSetupGameModel({
     }
 
     return [
+      {
+        id: 'ready-enter',
+        key: 'Enter',
+        label: 'Enter Dungeon',
+        disabled: false,
+      },
       { id: 'ready-reset', key: 'R', label: 'Reset', disabled: false },
-      { id: 'ready-enter', key: 'Enter', label: 'Enter', disabled: false },
     ];
   }, [
     stage,

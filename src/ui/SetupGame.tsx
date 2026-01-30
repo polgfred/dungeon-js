@@ -116,11 +116,13 @@ function SetupCommandPanel({
   commands,
   onTrigger,
   titleVariant = 'default',
+  primaryCommandIds = [],
 }: {
   title: string;
   commands: Command[];
   onTrigger: (command: Command) => void;
   titleVariant?: 'default' | 'compact';
+  primaryCommandIds?: string[];
 }) {
   const titleSx =
     titleVariant === 'compact'
@@ -161,6 +163,11 @@ function SetupCommandPanel({
               key={command.id}
               command={command}
               onTrigger={onTrigger}
+              variant={
+                primaryCommandIds.includes(command.id)
+                  ? 'contained'
+                  : 'outlined'
+              }
             />
           ))}
         </Box>
@@ -173,14 +180,10 @@ function RaceStage({
   race,
   baseStats,
   onSelect,
-  onBack,
-  onConfirm,
 }: {
   race: Race | null;
   baseStats: Stats | null;
   onSelect: (value: Race) => void;
-  onBack: () => void;
-  onConfirm: () => void;
 }) {
   return (
     <Stack spacing={3}>
@@ -222,7 +225,9 @@ function RaceStage({
                 gap: { xs: 0.5, md: 1 },
               })}
             >
-              <Typography sx={{ letterSpacing: 2 }}>{option.label}</Typography>
+              <Typography sx={{ letterSpacing: 1.25 }}>
+                {option.label}
+              </Typography>
               <Typography
                 variant="body2"
                 sx={{
@@ -254,19 +259,6 @@ function RaceStage({
           </Typography>
         </Box>
       )}
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-        <Button variant="outlined" onClick={onBack} color="primary">
-          Back
-        </Button>
-        <Button
-          variant="contained"
-          disabled={!race || !baseStats}
-          onClick={onConfirm}
-          color="primary"
-        >
-          Confirm Race
-        </Button>
-      </Stack>
     </Stack>
   );
 }
@@ -276,15 +268,11 @@ function AllocationStage({
   allocations,
   remainingPoints,
   onAdjust,
-  onBack,
-  onConfirm,
 }: {
   baseStats: Stats | null;
   allocations: AllocationState;
   remainingPoints: number;
   onAdjust: (key: AllocationKey, delta: number) => void;
-  onBack: () => void;
-  onConfirm: () => void;
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -348,19 +336,6 @@ function AllocationStage({
       <Typography sx={{ color: 'text.secondary' }}>
         Points remaining: {remainingPoints}
       </Typography>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-        <Button variant="outlined" onClick={onBack} color="primary">
-          Back
-        </Button>
-        <Button
-          variant="contained"
-          disabled={remainingPoints !== 0}
-          onClick={onConfirm}
-          color="primary"
-        >
-          Lock Stats
-        </Button>
-      </Stack>
     </Stack>
   );
 }
@@ -375,9 +350,6 @@ function ShopStage({
   onWeaponTier,
   onArmorTier,
   onFlaresChange,
-  onBack,
-  onConfirm,
-  disableConfirm,
 }: {
   weaponTier: number;
   armorTier: number;
@@ -388,9 +360,6 @@ function ShopStage({
   onWeaponTier: (value: number) => void;
   onArmorTier: (value: number) => void;
   onFlaresChange: (value: number) => void;
-  onBack: () => void;
-  onConfirm: () => void;
-  disableConfirm: boolean;
 }) {
   return (
     <Stack spacing={3}>
@@ -500,32 +469,11 @@ function ShopStage({
       <Typography sx={{ opacity: 0.75, color: 'text.secondary' }}>
         Gold remaining: {goldRemaining !== null ? goldRemaining : '--'}
       </Typography>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-        <Button variant="outlined" onClick={onBack} color="primary">
-          Back
-        </Button>
-        <Button
-          variant="contained"
-          disabled={disableConfirm}
-          onClick={onConfirm}
-          color="primary"
-        >
-          Finalize Gear
-        </Button>
-      </Stack>
     </Stack>
   );
 }
 
-function ReadyStage({
-  player,
-  onReset,
-  onComplete,
-}: {
-  player: Player;
-  onReset: () => void;
-  onComplete: (player: Player) => void;
-}) {
+function ReadyStage({ player }: { player: Player }) {
   return (
     <Stack spacing={3}>
       <Typography variant="h5" sx={setupTitleSx}>
@@ -542,18 +490,6 @@ function ReadyStage({
         <Typography>Gold Remaining: {player.gold}</Typography>
       </Stack>
       <Typography sx={setupBodySx}>THE DUNGEON AWAITS YOU...</Typography>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-        <Button variant="outlined" onClick={onReset} color="primary">
-          Reset Setup
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => onComplete(player)}
-          color="primary"
-        >
-          Enter Dungeon
-        </Button>
-      </Stack>
     </Stack>
   );
 }
@@ -708,6 +644,17 @@ function SetupPanel({
   isMobile: boolean;
   model: SetupGameModel;
 }) {
+  const actionCommandIds: Record<SetupGameModel['stage'], string[]> = {
+    race: ['race-confirm', 'race-back'],
+    allocate: ['alloc-confirm', 'alloc-back'],
+    shop: ['shop-confirm', 'shop-back'],
+    ready: ['ready-enter', 'ready-reset'],
+  };
+  const actionCommands = model.commandList.filter((command) =>
+    actionCommandIds[model.stage].includes(command.id)
+  );
+  const primaryActionIds = model.stage === 'ready' ? ['ready-enter'] : [];
+
   return (
     <Stack spacing={3}>
       <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
@@ -716,8 +663,6 @@ function SetupPanel({
             race={model.race}
             baseStats={model.baseStats}
             onSelect={model.handleRaceSelect}
-            onBack={model.onBack}
-            onConfirm={() => model.setStage('allocate')}
           />
         )}
 
@@ -727,8 +672,6 @@ function SetupPanel({
             allocations={model.allocations}
             remainingPoints={model.remainingPoints}
             onAdjust={model.handleAdjust}
-            onBack={() => model.setStage('race')}
-            onConfirm={model.handleAdvanceToShop}
           />
         )}
 
@@ -745,44 +688,38 @@ function SetupPanel({
             onWeaponTier={model.setWeaponTier}
             onArmorTier={model.setArmorTier}
             onFlaresChange={model.setFlares}
-            onBack={() => model.setStage('allocate')}
-            onConfirm={model.handleFinish}
-            disableConfirm={model.gold === null || model.totalCost > model.gold}
           />
         )}
 
         {model.stage === 'ready' && model.player && (
-          <ReadyStage
-            player={model.player}
-            onReset={() => model.setStage('race')}
-            onComplete={model.onComplete}
-          />
+          <ReadyStage player={model.player} />
         )}
       </Box>
+      {isMobile && actionCommands.length > 0 && (
+        <SetupCommandPanel
+          title="Setup Actions"
+          commands={actionCommands}
+          onTrigger={model.handleTrigger}
+          titleVariant="compact"
+          primaryCommandIds={primaryActionIds}
+        />
+      )}
       {!isMobile && (
         <SetupCommandPanel
           title={`Setup Commands: ${model.stage}`}
           commands={model.commandList}
           onTrigger={model.handleTrigger}
           titleVariant="default"
+          primaryCommandIds={primaryActionIds}
         />
       )}
     </Stack>
   );
 }
 
-function StatsPanel({
-  model,
-}: {
-  model: SetupGameModel;
-}) {
+function StatsPanel({ model }: { model: SetupGameModel }) {
   return (
-    <Box
-      className="ui-panel"
-      sx={(theme) => ({
-        ...panelStyle(theme),
-      })}
-    >
+    <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
       <StatusReadout
         race={model.race}
         derivedStats={model.derivedStats}
@@ -827,16 +764,12 @@ export default function SetupGame({
         <SetupGameMobile
           mobileView={model.mobileView}
           onSelectView={model.setMobileView}
-          setupPanel={
-            <SetupPanel isMobile={isMobile} model={model} />
-          }
+          setupPanel={<SetupPanel isMobile={isMobile} model={model} />}
           statsPanel={<StatsPanel model={model} />}
         />
       ) : (
         <SetupGameDesktop
-          setupPanel={
-            <SetupPanel isMobile={isMobile} model={model} />
-          }
+          setupPanel={<SetupPanel isMobile={isMobile} model={model} />}
           statsPanel={<StatsPanel model={model} />}
         />
       )}
