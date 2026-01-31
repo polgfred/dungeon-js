@@ -419,7 +419,11 @@ export class EncounterSession {
       case Spell.PROTECTION: {
         this.player.tempArmorBonus += 3;
         events.push(
-          Event.info('Your armour glows briefly in response to your spell.')
+          this.player.armorTier > 0
+            ? Event.info('Your armour glows briefly in response to your spell.')
+            : Event.info(
+                'Your clothes glow briefly, becoming, temporarily, armour.'
+              )
         );
         if (this.debug) {
           events.push(
@@ -434,7 +438,7 @@ export class EncounterSession {
       }
       case Spell.FIREBALL: {
         const roll = this.rng.randint(1, 5);
-        const damage = Math.max(roll - Math.floor(this.player.iq / 3), 0);
+        const damage = roll + Math.floor(this.player.iq / 3);
         this.vitality -= damage;
         if (this.debug) {
           events.push(
@@ -452,7 +456,7 @@ export class EncounterSession {
       }
       case Spell.LIGHTNING: {
         const roll = this.rng.randint(1, 10);
-        const damage = Math.max(roll - Math.floor(this.player.iq / 2), 0);
+        const damage = roll + Math.floor(this.player.iq / 2);
         this.vitality -= damage;
         if (this.debug) {
           events.push(
