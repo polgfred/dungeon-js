@@ -316,35 +316,19 @@ function MobileMapPanel({
     <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
       <Box
         sx={{
-          display: 'grid',
-          gridTemplateColumns: 'auto auto',
-          gap: 2,
+          display: 'flex',
+          flexWrap: 'nowrap',
+          gap: 1,
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
         <Box
           sx={{
-            display: 'grid',
-            gridTemplateColumns: 'auto auto auto',
-            gridTemplateRows: 'auto auto auto',
-            gap: 0.5,
-            alignItems: 'center',
-            justifyItems: 'center',
+            display: 'flex',
+            justifyContent: 'center',
           }}
         >
-          <Box />
-          <CommandButton
-            command={movementCommandList[0]}
-            onTrigger={onTrigger}
-            layout={buttonLayout}
-          />
-          <Box />
-          <CommandButton
-            command={movementCommandList[1]}
-            onTrigger={onTrigger}
-            layout={buttonLayout}
-          />
           <MapGrid
             rows={visibleRows}
             playerX={playerX}
@@ -354,24 +338,45 @@ function MobileMapPanel({
             showTooltips={false}
             mapCellWidth={mapCellWidth}
           />
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0.5,
+            alignItems: 'center',
+            marginLeft: 0.5,
+          }}
+        >
           <CommandButton
-            command={movementCommandList[2]}
+            command={movementCommandList[0]}
             onTrigger={onTrigger}
             layout={buttonLayout}
           />
-          <Box />
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <CommandButton
+              command={movementCommandList[1]}
+              onTrigger={onTrigger}
+              layout={buttonLayout}
+            />
+            <CommandButton
+              command={movementCommandList[2]}
+              onTrigger={onTrigger}
+              layout={buttonLayout}
+            />
+          </Box>
           <CommandButton
             command={movementCommandList[3]}
             onTrigger={onTrigger}
             layout={buttonLayout}
           />
-          <Box />
         </Box>
         <Stack
-          spacing={0.75}
+          spacing={0.5}
           justifyContent="center"
           sx={{
             width: 'auto',
+            flexShrink: 0,
             '& .MuiButton-root': {
               width: 'auto',
             },
