@@ -265,6 +265,7 @@ export function useSetupGameModel({
         key: 'Enter',
         label: 'Enter Dungeon',
         disabled: false,
+        primary: true,
       },
       { id: 'ready-reset', key: 'R', label: 'Reset', disabled: false },
     ];

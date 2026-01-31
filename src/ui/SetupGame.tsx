@@ -116,13 +116,11 @@ function SetupCommandPanel({
   commands,
   onTrigger,
   titleVariant = 'default',
-  primaryCommandIds = [],
 }: {
   title: string;
   commands: Command[];
   onTrigger: (command: Command) => void;
   titleVariant?: 'default' | 'compact';
-  primaryCommandIds?: string[];
 }) {
   const titleSx =
     titleVariant === 'compact'
@@ -163,11 +161,6 @@ function SetupCommandPanel({
               key={command.id}
               command={command}
               onTrigger={onTrigger}
-              variant={
-                primaryCommandIds.includes(command.id)
-                  ? 'contained'
-                  : 'outlined'
-              }
             />
           ))}
         </Box>
@@ -653,7 +646,6 @@ function SetupPanel({
   const actionCommands = model.commandList.filter((command) =>
     actionCommandIds[model.stage].includes(command.id)
   );
-  const primaryActionIds = model.stage === 'ready' ? ['ready-enter'] : [];
 
   return (
     <Stack spacing={3}>
@@ -701,7 +693,6 @@ function SetupPanel({
           commands={actionCommands}
           onTrigger={model.handleTrigger}
           titleVariant="compact"
-          primaryCommandIds={primaryActionIds}
         />
       )}
       {!isMobile && (
@@ -710,7 +701,6 @@ function SetupPanel({
           commands={model.commandList}
           onTrigger={model.handleTrigger}
           titleVariant="default"
-          primaryCommandIds={primaryActionIds}
         />
       )}
     </Stack>

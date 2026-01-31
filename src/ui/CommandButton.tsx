@@ -6,12 +6,12 @@ export type Command = {
   key: string;
   label: string;
   disabled: boolean;
+  primary?: boolean;
 };
 
 type CommandButtonProps = {
   command: Command;
   onTrigger: (command: Command) => void;
-  variant?: 'text' | 'outlined' | 'contained';
   /**
    * Layout variants:
    * - inline: label + key hint on one row.
@@ -30,7 +30,6 @@ type CommandButtonProps = {
 export function CommandButton({
   command,
   onTrigger,
-  variant = 'outlined',
   layout = 'inline',
 }: CommandButtonProps) {
   const theme = useTheme();
@@ -62,7 +61,7 @@ export function CommandButton({
         : 'ui-cmd-inline';
   return (
     <Button
-      variant={variant}
+      variant={command.primary ? 'contained' : 'outlined'}
       onClick={() => onTrigger(command)}
       color="primary"
       size={stacked || compact || inlineCompact ? 'small' : 'medium'}
