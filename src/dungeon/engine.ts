@@ -140,10 +140,12 @@ export class Game {
 
     if (this.encounterSession) {
       const result = this.encounterSession.step(raw);
-      if (result.mode !== Mode.ENCOUNTER) {
+      if (result.done) {
         this.encounterSession = null;
+        this.mode = this.player.hp <= 0 ? Mode.GAME_OVER : Mode.EXPLORE;
+      } else {
+        this.mode = Mode.ENCOUNTER;
       }
-      this.mode = result.mode;
       const events = result.events;
       if (result.relocate) {
         this.randomRelocate({ anyFloor: Boolean(result.relocateAnyFloor) });
@@ -154,7 +156,7 @@ export class Game {
       return {
         events,
         mode: this.mode,
-        needsInput: this.mode !== Mode.GAME_OVER && this.mode !== Mode.VICTORY,
+        needsInput: this.mode !== Mode.GAME_OVER,
       };
     }
 
@@ -196,10 +198,12 @@ export class Game {
 
     if (this.encounterSession) {
       const result = this.encounterSession.attemptCancel();
-      if (result.mode !== Mode.ENCOUNTER) {
+      if (result.done) {
         this.encounterSession = null;
+        this.mode = this.player.hp <= 0 ? Mode.GAME_OVER : Mode.EXPLORE;
+      } else {
+        this.mode = Mode.ENCOUNTER;
       }
-      this.mode = result.mode;
       const events = result.events;
       if (result.relocate) {
         this.randomRelocate({ anyFloor: Boolean(result.relocateAnyFloor) });
@@ -210,7 +214,7 @@ export class Game {
       return {
         events,
         mode: this.mode,
-        needsInput: this.mode !== Mode.GAME_OVER && this.mode !== Mode.VICTORY,
+        needsInput: this.mode !== Mode.GAME_OVER,
       };
     }
 

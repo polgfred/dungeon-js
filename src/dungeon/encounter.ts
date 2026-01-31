@@ -1,4 +1,4 @@
-import { Mode, MONSTER_NAMES, Spell, TREASURE_NAMES } from './constants.js';
+import { MONSTER_NAMES, Spell, TREASURE_NAMES } from './constants.js';
 import type { EncounterSave } from './serialization.js';
 import type { Player, Room } from './model.js';
 import { Event, PromptData } from './types.js';
@@ -6,7 +6,7 @@ import type { RandomSource } from './rng.js';
 
 export interface EncounterResult {
   events: Event[];
-  mode: Mode;
+  done?: boolean;
   relocate?: boolean;
   relocateAnyFloor?: boolean;
   enterRoom?: boolean;
@@ -133,7 +133,6 @@ export class EncounterSession {
     if (!raw) {
       return this.withDebug({
         events: [Event.error("I don't understand that.")],
-        mode: Mode.ENCOUNTER,
       });
     }
     const key = raw[0];
@@ -146,12 +145,10 @@ export class EncounterSession {
         this.awaitingSpell = true;
         return this.withDebug({
           events: [Event.prompt('Choose a spell:', this.spellMenu())],
-          mode: Mode.ENCOUNTER,
         });
       default:
         return this.withDebug({
           events: [Event.error("I don't understand that.")],
-          mode: Mode.ENCOUNTER,
         });
     }
   }
@@ -160,13 +157,11 @@ export class EncounterSession {
     if (!this.awaitingSpell) {
       return this.withDebug({
         events: [Event.info("I don't understand that.")],
-        mode: Mode.ENCOUNTER,
       });
     }
     this.awaitingSpell = false;
     return this.withDebug({
       events: [Event.info('You ready yourself for the fight.')],
-      mode: Mode.ENCOUNTER,
     });
   }
 
@@ -226,9 +221,9 @@ export class EncounterSession {
       }
     }
 
-    const [attackEvents, mode] = this.monsterAttack();
-    events.push(...attackEvents);
-    return { events, mode };
+    const attackResult = this.monsterAttack();
+    events.push(...attackResult.events);
+    return { events, done: attackResult.done };
   }
 
   private runAttempt(): EncounterResult {
@@ -237,7 +232,6 @@ export class EncounterSession {
         events: [
           Event.info('You are quite fatigued after your previous efforts.'),
         ],
-        mode: Mode.ENCOUNTER,
       };
     }
     if (this.rng.random() < 0.4) {
@@ -252,7 +246,7 @@ export class EncounterSession {
       resetPlayerAfterEncounter(this.player);
       return {
         events,
-        mode: Mode.EXPLORE,
+        done: true,
         relocate: true,
         relocateAnyFloor: false,
         enterRoom: true,
@@ -265,11 +259,10 @@ export class EncounterSession {
           'Although you run your hardest, your efforts to escape are made in vain.'
         ),
       ],
-      mode: Mode.ENCOUNTER,
     };
   }
 
-  private monsterAttack(): [Event[], Mode] {
+  private monsterAttack(): { events: Event[]; done?: boolean } {
     const events: Event[] = [];
     const level = this.monsterLevel;
     const dodgeScore = 20 + 5 * (11 - level) + 2 * this.player.dex;
@@ -284,7 +277,7 @@ export class EncounterSession {
     }
     if (roll <= dodgeScore) {
       events.push(Event.combat('You deftly dodge the blow!'));
-      return [events, Mode.ENCOUNTER];
+      return { events };
     }
 
     const armor = this.player.armorTier + this.player.tempArmorBonus;
@@ -298,9 +291,9 @@ export class EncounterSession {
     }
     if (this.player.hp <= 0) {
       events.push(Event.info('YOU HAVE DIED.'));
-      return [events, Mode.GAME_OVER];
+      return { events, done: true };
     }
-    return [events, Mode.ENCOUNTER];
+    return { events };
   }
 
   private handleMonsterDeath(events: Event[]): EncounterResult {
@@ -311,14 +304,14 @@ export class EncounterSession {
           `As he dies, though, he launches one final desperate attack.`
         )
       );
-      const [attackEvents, mode] = this.monsterAttack();
-      events.push(...attackEvents);
-      if (mode === Mode.GAME_OVER) {
+      const attackResult = this.monsterAttack();
+      events.push(...attackResult.events);
+      if (attackResult.done) {
         this.room.monsterLevel = 0;
         this.monsterLevel = 0;
         this.monsterName = '';
         this.vitality = 0;
-        return { events, mode };
+        return { events, done: true };
       }
     }
 
@@ -338,7 +331,7 @@ export class EncounterSession {
     this.monsterName = '';
     this.vitality = 0;
     resetPlayerAfterEncounter(this.player);
-    return { events, mode: Mode.EXPLORE };
+    return { events, done: true };
   }
 
   private handleSpellChoice(raw: string): EncounterResult {
@@ -355,20 +348,17 @@ export class EncounterSession {
     if (!spell) {
       return {
         events: [Event.error('Choose P/F/L/W/T or Esc to cancel.')],
-        mode: Mode.ENCOUNTER,
       };
     }
     const charges = this.player.spells[spell] ?? 0;
     if (this.player.iq < 12) {
       return {
         events: [Event.info('You have insufficient intelligence.')],
-        mode: Mode.ENCOUNTER,
       };
     }
     if (charges <= 0) {
       return {
         events: [Event.info('You know not that spell.')],
-        mode: Mode.ENCOUNTER,
       };
     }
 
@@ -432,9 +422,9 @@ export class EncounterSession {
             )
           );
         }
-        const [attackEvents, mode] = this.monsterAttack();
-        events.push(...attackEvents);
-        return { events, mode };
+        const attackResult = this.monsterAttack();
+        events.push(...attackResult.events);
+        return { events, done: attackResult.done };
       }
       case Spell.FIREBALL: {
         const roll = this.rng.randint(1, 5);
@@ -497,7 +487,7 @@ export class EncounterSession {
         }
         return {
           events,
-          mode: Mode.EXPLORE,
+          done: true,
           relocate: true,
           relocateAnyFloor: false,
           enterRoom: true,
@@ -510,9 +500,9 @@ export class EncounterSession {
     if (this.vitality <= 0) {
       return this.handleMonsterDeath(events);
     }
-    const [attackEvents, mode] = this.monsterAttack();
-    events.push(...attackEvents);
-    return { events, mode };
+    const attackResult = this.monsterAttack();
+    events.push(...attackResult.events);
+    return { events, done: attackResult.done };
   }
 
   private awardTreasure(treasureId: number): Event[] {
