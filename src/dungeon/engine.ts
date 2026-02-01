@@ -714,7 +714,7 @@ export class Game {
 
     const effect = this.rng.choice(['ST', 'DX', 'IQ', 'MHP']);
     let outcomeText = '';
-    let change = this.rng.randint(1, 6);
+    let change = this.rng.randint(1, 3);
     if (this.rng.random() > 0.5) {
       change = -change;
     }
