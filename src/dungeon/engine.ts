@@ -566,7 +566,11 @@ export class Game {
     if (room.feature !== Feature.MIRROR) {
       return [Event.info('There is no mirror here.')];
     }
-    if (this.rng.randint(1, 50) > this.player.iq) {
+
+    const events: Event[] = [];
+    if (this.player.treasuresFound.size === 10) {
+      events.push(Event.info('The mirror is cloudy and yields no vision.'));
+    } else if (this.rng.randint(1, 50) > this.player.iq) {
       const visions = [
         'The mirror is cloudy and yields no vision.',
         'You see yourself dead and lying in a black coffin.',
@@ -575,44 +579,48 @@ export class Game {
         'You see the exit on the 7th floor, big and friendly-looking.',
       ];
       if (this.rng.randint(1, 10) <= 5) {
-        return [Event.info(this.rng.choice(visions))];
+        events.push(Event.info(this.rng.choice(visions)));
+      } else {
+        const treasure = this.rng.randint(1, 10);
+        const tx = this.rng.randint(1, Game.SIZE);
+        const ty = this.rng.randint(1, Game.SIZE);
+        const tz = this.rng.randint(1, Game.SIZE);
+        events.push(
+          Event.info(
+            `You see the ${this.treasureName(treasure)} at ${tz},${ty},${tx}!`
+          )
+        );
       }
-      const treasure = this.rng.randint(1, 10);
-      const tx = this.rng.randint(1, Game.SIZE);
-      const ty = this.rng.randint(1, Game.SIZE);
-      const tz = this.rng.randint(1, Game.SIZE);
-      return [
-        Event.info(
-          `You see the ${this.treasureName(treasure)} at ${tz},${ty},${tx}!`
-        ),
-      ];
-    }
-
-    const locations: Array<[number, number, number, number]> = [];
-    for (let z = 0; z < this.dungeon.rooms.length; z += 1) {
-      const floor = this.dungeon.rooms[z];
-      for (let y = 0; y < floor.length; y += 1) {
-        const row = floor[y];
-        for (let x = 0; x < row.length; x += 1) {
-          const candidate = row[x];
-          if (
-            candidate.treasureId &&
-            !this.player.treasuresFound.has(candidate.treasureId)
-          ) {
-            locations.push([candidate.treasureId, z, y, x]);
+    } else {
+      const locations: Array<[number, number, number, number]> = [];
+      for (let z = 0; z < this.dungeon.rooms.length; z += 1) {
+        const floor = this.dungeon.rooms[z];
+        for (let y = 0; y < floor.length; y += 1) {
+          const row = floor[y];
+          for (let x = 0; x < row.length; x += 1) {
+            const candidate = row[x];
+            if (
+              candidate.treasureId &&
+              !this.player.treasuresFound.has(candidate.treasureId)
+            ) {
+              locations.push([candidate.treasureId, z, y, x]);
+            }
           }
         }
       }
+      if (locations.length === 0) {
+        events.push(Event.info('The mirror is cloudy and yields no vision.'));
+      } else {
+        const [treasure, z, y, x] = this.rng.choice(locations);
+        events.push(
+          Event.info(
+            `You see the ${this.treasureName(treasure)} at ${z + 1},${y + 1},${x + 1}!`
+          )
+        );
+      }
     }
-    if (locations.length === 0) {
-      return [Event.info('The mirror is cloudy and yields no vision.')];
-    }
-    const [treasure, z, y, x] = this.rng.choice(locations);
-    return [
-      Event.info(
-        `You see the ${this.treasureName(treasure)} at ${z + 1},${y + 1},${x + 1}!`
-      ),
-    ];
+    room.feature = Feature.EMPTY;
+    return events;
   }
 
   private openChest(): Event[] {
