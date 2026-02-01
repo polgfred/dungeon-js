@@ -127,10 +127,12 @@ export class VendorSession {
         this.category = raw;
         this.phase = 'item';
         return { events: [this.itemPrompt()] };
+      case 'F':
+        return this.purchaseFlares();
       default:
         return {
           events: [
-            Event.error('Choose W/A/S/P or Esc.'),
+            Event.error('Choose W/A/S/P/F or Esc.'),
             this.categoryPrompt(),
           ],
         };
@@ -138,10 +140,6 @@ export class VendorSession {
   }
 
   private handleShopItem(raw: string): VendorResult {
-    return this.handleShopItemChoice(raw);
-  }
-
-  private handleShopItemChoice(raw: string): VendorResult {
     switch (this.category) {
       case 'W':
         return this.handleShopWeapons(raw);
@@ -154,7 +152,7 @@ export class VendorSession {
       default:
         return {
           events: [
-            Event.error('Choose W/A/S/P or Esc.'),
+            Event.error('Choose W/A/S/P/F or Esc.'),
             this.categoryPrompt(),
           ],
         };
@@ -281,6 +279,23 @@ export class VendorSession {
     }
   }
 
+  private purchaseFlares(): VendorResult {
+    const price = 10;
+    if (this.player.gold < price) {
+      return {
+        events: [
+          Event.info(
+            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
+          ),
+          this.categoryPrompt(),
+        ],
+      };
+    }
+    this.player.gold -= price;
+    this.player.flares += 10;
+    return { events: [Event.info('Ten flares, as promised.')], done: true };
+  }
+
   private handleShopAttribute(raw: string): VendorResult {
     if (raw === 'C') {
       this.phase = 'item';
@@ -322,6 +337,7 @@ export class VendorSession {
         { key: 'A', label: 'Armor', disabled: false },
         { key: 'S', label: 'Scrolls', disabled: false },
         { key: 'P', label: 'Potions', disabled: false },
+        { key: 'F', label: 'Flares', disabled: this.player.gold < 10 },
       ],
     });
   }
