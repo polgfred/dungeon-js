@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { EncounterSession } from '../src/dungeon/encounter.js';
-import { MONSTER_NAMES, Spell } from '../src/dungeon/constants.js';
+import {
+  ARMOR_NAMES,
+  MONSTER_NAMES,
+  Spell,
+  WEAPON_NAMES,
+} from '../src/dungeon/constants.js';
 import type { Event } from '../src/dungeon/types.js';
 import { buildPlayer, buildRoom } from './helpers/factories.js';
 import { ScriptedRng } from './helpers/rng.js';
+import { defaultRandomSource } from '../src/dungeon/rng.js';
 
 function eventTexts(events: Event[]): string[] {
   return events.map((event) => event.text);
@@ -212,5 +218,124 @@ describe('EncounterSession spells', () => {
     expect(result.enterRoom).toBe(true);
     expect(player.fatigued).toBe(false);
     expect(player.tempArmorBonus).toBe(0);
+  });
+});
+
+describe('EncounterSession real RNG bounds', () => {
+  it('player damage stays within expected bounds across many hits', () => {
+    const targetSamples = 500;
+    const rng = defaultRandomSource;
+    let samples = 0;
+    let iterations = 0;
+
+    while (samples < targetSamples) {
+      iterations += 1;
+      const str = rng.randint(1, 18);
+      const dex = rng.randint(1, 18);
+      const weaponTier = rng.randint(0, 3);
+      const monsterLevel = rng.randint(1, 10);
+      const minDamage = Math.max(weaponTier + Math.floor(str / 3) - 2, 1);
+      const maxDamage = weaponTier + Math.floor(str / 3) + 2;
+      const room = buildRoom({ monsterLevel, treasureId: 0 });
+      const session = EncounterSession.resume({
+        room,
+        rng,
+        player: buildPlayer({
+          str,
+          dex,
+          weaponTier,
+          weaponName: WEAPON_NAMES[weaponTier],
+        }),
+        debug: true,
+        save: {
+          monsterLevel,
+          monsterName: MONSTER_NAMES[monsterLevel - 1],
+          vitality: 999,
+          awaitingSpell: false,
+        },
+      });
+
+      const result = session.step('F');
+      const damageEvent = result.events.find(
+        (event) =>
+          event.kind === 'DEBUG' &&
+          event.text.startsWith('DEBUG FIGHT: damage=')
+      );
+      if (!damageEvent) {
+        continue;
+      }
+      const match = damageEvent.text.match(/damage=(\d+)/);
+      if (!match) {
+        continue;
+      }
+      const damage = Number(match[1]);
+      expect(damage).toBeGreaterThanOrEqual(minDamage);
+      expect(damage).toBeLessThanOrEqual(maxDamage);
+      samples += 1;
+    }
+
+    expect(samples).toBe(targetSamples);
+  });
+
+  it('monster damage stays within expected bounds across many hits', () => {
+    const targetSamples = 500;
+    const rng = defaultRandomSource;
+    let samples = 0;
+    let iterations = 0;
+
+    while (samples < targetSamples) {
+      iterations += 1;
+      const level = rng.randint(1, 10);
+      const armor = rng.randint(0, 3);
+      const tempArmorBonus = rng.randint(0, 3);
+      const totalArmor = armor + tempArmorBonus;
+      const minDamage = Math.max(Math.floor(2.5 + level / 3) - totalArmor, 0);
+      const maxDamage = Math.max(
+        level - 1 + Math.floor(2.5 + level / 3) - totalArmor,
+        0
+      );
+      const room = buildRoom({ monsterLevel: level, treasureId: 0 });
+      const session = EncounterSession.resume({
+        room,
+        rng: rng,
+        player: buildPlayer({
+          dex: rng.randint(1, 18),
+          armorTier: armor,
+          armorName: ARMOR_NAMES[armor],
+          tempArmorBonus,
+          hp: 999,
+          mhp: 999,
+          weaponTier: 0,
+          weaponName: '(None)',
+        }),
+        debug: true,
+        save: {
+          monsterLevel: level,
+          monsterName: MONSTER_NAMES[level - 1],
+          vitality: 999,
+          awaitingSpell: false,
+        },
+      });
+
+      const result = session.step('F');
+      const damageEvent = result.events.find(
+        (event) =>
+          event.kind === 'DEBUG' &&
+          event.text.startsWith('DEBUG MONSTER: damage=')
+      );
+      if (!damageEvent) {
+        continue;
+      }
+      const match = damageEvent.text.match(/damage=(\d+)/);
+      if (!match) {
+        continue;
+      }
+      const damage = Number(match[1]);
+      expect(damage).toBeGreaterThanOrEqual(minDamage);
+      expect(damage).toBeLessThanOrEqual(maxDamage);
+      samples += 1;
+    }
+
+    expect(samples).toBe(targetSamples);
   });
 });
