@@ -281,7 +281,10 @@ export class EncounterSession {
     }
 
     const armor = this.player.armorTier + this.player.tempArmorBonus;
-    const damage = Math.max(this.rng.randint(0, level - 1) + 3 - armor, 0);
+    const damage = Math.max(
+      this.rng.randint(0, level - 1) + Math.floor(2.5 + level / 3) - armor,
+      0
+    );
     this.player.hp -= damage;
     events.push(Event.combat(`The ${this.monsterName} hits you!`));
     if (this.debug) {
