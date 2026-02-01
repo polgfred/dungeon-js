@@ -629,11 +629,9 @@ export class Game {
       return [Event.info('There is no chest here.')];
     }
     room.feature = Feature.EMPTY;
-    const roll = this.rng.randint(1, 5);
+    const roll = this.rng.randint(1, 10);
     switch (roll) {
       case 1:
-        return [Event.info('It containeth naught.')];
-      case 2:
         if (this.player.armorTier > 0) {
           this.player.armorTier -= 1;
           if (this.player.armorTier === 0) {
@@ -669,6 +667,10 @@ export class Game {
             'The perverse thing explodes as you open it, wounding you!'
           ),
         ];
+      case 2:
+      case 3:
+      case 4:
+        return [Event.info('It containeth naught.')];
       default: {
         const gold = 10 + this.rng.randint(0, 20);
         this.player.gold += gold;
