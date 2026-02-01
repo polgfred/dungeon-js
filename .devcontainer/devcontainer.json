@@ -6,7 +6,8 @@
 		"vscode": {
 			"extensions": [
 				"esbenp.prettier-vscode",
-				"openai.chatgpt"
+				"openai.chatgpt",
+				"vitest.explorer"
 			]
 		}
 	}

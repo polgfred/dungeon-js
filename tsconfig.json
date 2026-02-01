@@ -4,13 +4,13 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "noEmit": true,
-    "rootDir": ".",
+    "rootDir": "src",
     "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["src", "test"],
-  "exclude": ["dist"]
+  "include": ["src"],
+  "exclude": ["dist", "test"]
 }

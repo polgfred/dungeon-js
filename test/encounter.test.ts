@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { EncounterSession } from './encounter.js';
-import { MONSTER_NAMES, Spell } from './constants.js';
-import type { Event } from './types.js';
-import { buildPlayer, buildRoom } from '../../test/helpers/factories.js';
-import { ScriptedRng } from '../../test/helpers/rng.js';
+import { EncounterSession } from '../src/dungeon/encounter.js';
+import { MONSTER_NAMES, Spell } from '../src/dungeon/constants.js';
+import type { Event } from '../src/dungeon/types.js';
+import { buildPlayer, buildRoom } from './helpers/factories.js';
+import { ScriptedRng } from './helpers/rng.js';
 
 function eventTexts(events: Event[]): string[] {
   return events.map((event) => event.text);
