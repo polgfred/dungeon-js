@@ -43,6 +43,9 @@ function placeTreasures(rng: RandomSource, rooms: Room[][][]): void {
     if (room.treasureId !== 0) {
       continue;
     }
+    if (room.feature !== Feature.EMPTY) {
+      continue;
+    }
     placed += 1;
     room.treasureId = placed;
   }
