@@ -20,6 +20,10 @@ import {
 import { Event, StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
 import { defaultRandomSource, type RandomSource } from './rng.js';
+import {
+  drinkAttributePotionEvents,
+  drinkHealingPotionEvents,
+} from './potions.js';
 
 function pluralize(count: number, singular: string, plural = `${singular}s`) {
   return count === 1 ? singular : plural;
@@ -730,40 +734,16 @@ export class Game {
     if (roll === 1) {
       const heal = 5 + this.rng.randint(1, 10);
       this.player.hp = Math.min(this.player.mhp, this.player.hp + heal);
-      return [
-        Event.info('You drink the potion...'),
-        Event.info('Healing results.'),
-      ];
+      return drinkHealingPotionEvents();
     }
 
-    const effect = this.rng.choice(['ST', 'DX', 'IQ', 'MHP']);
-    let outcomeText = '';
+    const effect = this.rng.choice(['ST', 'DX', 'IQ', 'MHP'] as const);
     let change = this.rng.randint(1, 3);
     if (this.rng.random() > 0.5) {
       change = -change;
     }
-    switch (effect) {
-      case 'ST':
-        this.player.applyAttributeChange({ target: 'ST', change });
-        outcomeText = `The potion ${change >= 0 ? 'increases' : 'decreases'} your strength.`;
-        break;
-      case 'DX':
-        this.player.applyAttributeChange({ target: 'DX', change });
-        outcomeText = `The potion ${change >= 0 ? 'increases' : 'decreases'} your dexterity.`;
-        break;
-      case 'IQ':
-        this.player.applyAttributeChange({ target: 'IQ', change });
-        outcomeText = `The potion makes you ${change >= 0 ? 'smarter' : 'dumber'}.`;
-        break;
-      case 'MHP':
-        this.player.applyAttributeChange({ target: 'MHP', change });
-        outcomeText =
-          change >= 0
-            ? 'Strange energies surge through you.'
-            : 'You feel weaker.';
-        break;
-    }
-    return [Event.info('You drink the potion...'), Event.info(outcomeText)];
+    this.player.applyAttributeChange({ target: effect, change });
+    return drinkAttributePotionEvents({ target: effect, change });
   }
 
   private openVendor(): Event[] {

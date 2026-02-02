@@ -12,6 +12,11 @@ import type { VendorSave } from './serialization.js';
 import type { Player } from './model.js';
 import { Event } from './types.js';
 import type { RandomSource } from './rng.js';
+import {
+  drinkAttributePotionEvents,
+  drinkHealingPotionEvents,
+  type PotionAttributeTarget,
+} from './potions.js';
 
 export interface VendorResult {
   events: Event[];
@@ -253,7 +258,7 @@ export class VendorSession {
         this.player.gold -= price;
         this.player.hp = Math.min(this.player.mhp, this.player.hp + 10);
         return {
-          events: [Event.info('You quaff a healing potion.')],
+          events: drinkHealingPotionEvents(),
           done: true,
         };
       }
@@ -297,14 +302,27 @@ export class VendorSession {
   }
 
   private handleShopAttribute(raw: string): VendorResult {
-    if (raw === 'C') {
-      this.phase = 'item';
-      return { events: [this.itemPrompt()] };
-    }
-    if (!['S', 'D', 'I', 'M'].includes(raw)) {
-      return {
-        events: [Event.error('Choose S/D/I/M or Esc.'), this.attributePrompt()],
-      };
+    let target: PotionAttributeTarget;
+    switch (raw) {
+      case 'S':
+        target = 'ST';
+        break;
+      case 'D':
+        target = 'DX';
+        break;
+      case 'I':
+        target = 'IQ';
+        break;
+      case 'M':
+        target = 'MHP';
+        break;
+      default:
+        return {
+          events: [
+            Event.error('Choose S/D/I/M or Esc.'),
+            this.attributePrompt(),
+          ],
+        };
     }
     const price = POTION_PRICES['ATTRIBUTE'];
     if (this.player.gold < price) {
@@ -319,14 +337,11 @@ export class VendorSession {
     }
     this.player.gold -= price;
     const change = this.rng.randint(1, 6);
-    const targets: Record<string, string> = {
-      S: 'ST',
-      D: 'DX',
-      I: 'IQ',
-      M: 'MHP',
+    this.player.applyAttributeChange({ target, change });
+    return {
+      events: drinkAttributePotionEvents({ target, change }),
+      done: true,
     };
-    this.player.applyAttributeChange({ target: targets[raw], change });
-    return { events: [Event.info('The potion takes effect.')], done: true };
   }
 
   private categoryPrompt(): Event {
@@ -343,97 +358,98 @@ export class VendorSession {
   }
 
   private itemPrompt(): Event {
-    if (this.category === 'W') {
-      return Event.prompt('Choose a weapon:', {
-        hasCancel: true,
-        options: [
-          {
-            key: 'D',
-            label: `Dagger (${WEAPON_PRICES[1]}g)`,
-            disabled: this.player.gold < WEAPON_PRICES[1],
-          },
-          {
-            key: 'S',
-            label: `Short sword (${WEAPON_PRICES[2]}g)`,
-            disabled: this.player.gold < WEAPON_PRICES[2],
-          },
-          {
-            key: 'B',
-            label: `Broadsword (${WEAPON_PRICES[3]}g)`,
-            disabled: this.player.gold < WEAPON_PRICES[3],
-          },
-        ],
-      });
+    switch (this.category) {
+      case 'W':
+        return Event.prompt('Choose a weapon:', {
+          hasCancel: true,
+          options: [
+            {
+              key: 'D',
+              label: `Dagger (${WEAPON_PRICES[1]}g)`,
+              disabled: this.player.gold < WEAPON_PRICES[1],
+            },
+            {
+              key: 'S',
+              label: `Short sword (${WEAPON_PRICES[2]}g)`,
+              disabled: this.player.gold < WEAPON_PRICES[2],
+            },
+            {
+              key: 'B',
+              label: `Broadsword (${WEAPON_PRICES[3]}g)`,
+              disabled: this.player.gold < WEAPON_PRICES[3],
+            },
+          ],
+        });
+      case 'A':
+        return Event.prompt('Choose armor:', {
+          hasCancel: true,
+          options: [
+            {
+              key: 'L',
+              label: `Leather (${ARMOR_PRICES[1]}g)`,
+              disabled: this.player.gold < ARMOR_PRICES[1],
+            },
+            {
+              key: 'W',
+              label: `Wooden (${ARMOR_PRICES[2]}g)`,
+              disabled: this.player.gold < ARMOR_PRICES[2],
+            },
+            {
+              key: 'C',
+              label: `Chain mail (${ARMOR_PRICES[3]}g)`,
+              disabled: this.player.gold < ARMOR_PRICES[3],
+            },
+          ],
+        });
+      case 'S':
+        return Event.prompt('Choose a scroll:', {
+          hasCancel: true,
+          options: [
+            {
+              key: 'P',
+              label: `Protection (${SPELL_PRICES[Spell.PROTECTION]}g)`,
+              disabled: this.player.gold < SPELL_PRICES[Spell.PROTECTION],
+            },
+            {
+              key: 'F',
+              label: `Fireball (${SPELL_PRICES[Spell.FIREBALL]}g)`,
+              disabled: this.player.gold < SPELL_PRICES[Spell.FIREBALL],
+            },
+            {
+              key: 'L',
+              label: `Lightning (${SPELL_PRICES[Spell.LIGHTNING]}g)`,
+              disabled: this.player.gold < SPELL_PRICES[Spell.LIGHTNING],
+            },
+            {
+              key: 'W',
+              label: `Weaken (${SPELL_PRICES[Spell.WEAKEN]}g)`,
+              disabled: this.player.gold < SPELL_PRICES[Spell.WEAKEN],
+            },
+            {
+              key: 'T',
+              label: `Teleport (${SPELL_PRICES[Spell.TELEPORT]}g)`,
+              disabled: this.player.gold < SPELL_PRICES[Spell.TELEPORT],
+            },
+          ],
+        });
+      case 'P':
+      default:
+        return Event.prompt('Choose a potion:', {
+          hasCancel: true,
+          options: [
+            {
+              key: 'H',
+              label: `Healing (${POTION_PRICES['HEALING']}g)`,
+              disabled: this.player.gold < POTION_PRICES['HEALING'],
+            },
+            {
+              key: 'A',
+              label: `Attribute enhancer (${POTION_PRICES['ATTRIBUTE']}g)`,
+              disabled: this.player.gold < POTION_PRICES['ATTRIBUTE'],
+            },
+          ],
+        });
     }
-    if (this.category === 'A') {
-      return Event.prompt('Choose armor:', {
-        hasCancel: true,
-        options: [
-          {
-            key: 'L',
-            label: `Leather (${ARMOR_PRICES[1]}g)`,
-            disabled: this.player.gold < ARMOR_PRICES[1],
-          },
-          {
-            key: 'W',
-            label: `Wooden (${ARMOR_PRICES[2]}g)`,
-            disabled: this.player.gold < ARMOR_PRICES[2],
-          },
-          {
-            key: 'C',
-            label: `Chain mail (${ARMOR_PRICES[3]}g)`,
-            disabled: this.player.gold < ARMOR_PRICES[3],
-          },
-        ],
-      });
-    }
-    if (this.category === 'S') {
-      return Event.prompt('Choose a scroll:', {
-        hasCancel: true,
-        options: [
-          {
-            key: 'P',
-            label: `Protection (${SPELL_PRICES[Spell.PROTECTION]}g)`,
-            disabled: this.player.gold < SPELL_PRICES[Spell.PROTECTION],
-          },
-          {
-            key: 'F',
-            label: `Fireball (${SPELL_PRICES[Spell.FIREBALL]}g)`,
-            disabled: this.player.gold < SPELL_PRICES[Spell.FIREBALL],
-          },
-          {
-            key: 'L',
-            label: `Lightning (${SPELL_PRICES[Spell.LIGHTNING]}g)`,
-            disabled: this.player.gold < SPELL_PRICES[Spell.LIGHTNING],
-          },
-          {
-            key: 'W',
-            label: `Weaken (${SPELL_PRICES[Spell.WEAKEN]}g)`,
-            disabled: this.player.gold < SPELL_PRICES[Spell.WEAKEN],
-          },
-          {
-            key: 'T',
-            label: `Teleport (${SPELL_PRICES[Spell.TELEPORT]}g)`,
-            disabled: this.player.gold < SPELL_PRICES[Spell.TELEPORT],
-          },
-        ],
-      });
-    }
-    return Event.prompt('Choose a potion:', {
-      hasCancel: true,
-      options: [
-        {
-          key: 'H',
-          label: `Healing (${POTION_PRICES['HEALING']}g)`,
-          disabled: this.player.gold < POTION_PRICES['HEALING'],
-        },
-        {
-          key: 'A',
-          label: `Attribute enhancer (${POTION_PRICES['ATTRIBUTE']}g)`,
-          disabled: this.player.gold < POTION_PRICES['ATTRIBUTE'],
-        },
-      ],
-    });
   }
 
   private attributePrompt(): Event {
