@@ -88,5 +88,4 @@ export const Event = {
 export interface StepResult {
   events: Event[];
   mode: Mode;
-  needsInput: boolean;
 }

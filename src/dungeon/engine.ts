@@ -33,10 +33,20 @@ export class Game {
   rng: RandomSource;
   player: Player;
   dungeon: ReturnType<typeof generateDungeon>;
-  mode = Mode.EXPLORE;
+  private endMode: Mode.GAME_OVER | Mode.VICTORY | null = null;
   private encounterSession: EncounterSession | null = null;
   private shopSession: VendorSession | null = null;
   private debug: boolean;
+
+  get mode(): Mode {
+    if (this.endMode) {
+      return this.endMode;
+    }
+    if (this.encounterSession) {
+      return Mode.ENCOUNTER;
+    }
+    return Mode.EXPLORE;
+  }
 
   constructor(options: {
     seed: number;
@@ -48,7 +58,6 @@ export class Game {
     this.rng = options.rng ?? defaultRandomSource;
     this.player = options.player;
     this.dungeon = options.dungeon ?? generateDungeon(this.rng);
-    this.mode = Mode.EXPLORE;
     this.encounterSession = null;
     this.shopSession = null;
     this.debug = options.debug ?? false;
@@ -68,7 +77,9 @@ export class Game {
       debug: state.debug,
     });
     game.saveVersion = state.version ?? Game.SAVE_VERSION;
-    game.mode = state.mode ?? Mode.EXPLORE;
+    if (state.mode === Mode.GAME_OVER || state.mode === Mode.VICTORY) {
+      game.endMode = state.mode;
+    }
     if (state.encounter) {
       game.encounterSession = EncounterSession.resume({
         rng,
@@ -113,7 +124,6 @@ export class Game {
       return {
         events: [Event.error("I don't understand that.")],
         mode: this.mode,
-        needsInput: true,
       };
     }
 
@@ -121,7 +131,6 @@ export class Game {
       return {
         events: [Event.error("I don't understand that.")],
         mode: this.mode,
-        needsInput: false,
       };
     }
 
@@ -133,7 +142,6 @@ export class Game {
       return {
         events: result.events,
         mode: this.mode,
-        needsInput: true,
       };
     }
 
@@ -165,14 +173,13 @@ export class Game {
             events.push(...this.enterRoom());
           }
         }
-        this.mode = this.player.hp > 0 ? Mode.EXPLORE : Mode.GAME_OVER;
-      } else {
-        this.mode = Mode.ENCOUNTER;
+        if (this.player.hp <= 0) {
+          this.endMode = Mode.GAME_OVER;
+        }
       }
       return {
         events,
         mode: this.mode,
-        needsInput: this.mode !== Mode.GAME_OVER,
       };
     }
 
@@ -181,13 +188,11 @@ export class Game {
       return {
         events: [Event.error("I don't understand that.")],
         mode: this.mode,
-        needsInput: true,
       };
     }
     return {
       events: this.handleExplore(key),
       mode: this.mode,
-      needsInput: true,
     };
   }
 
@@ -196,7 +201,6 @@ export class Game {
       return {
         events: [],
         mode: this.mode,
-        needsInput: false,
       };
     }
 
@@ -208,7 +212,6 @@ export class Game {
       return {
         events: result.events,
         mode: this.mode,
-        needsInput: true,
       };
     }
 
@@ -216,9 +219,9 @@ export class Game {
       const result = this.encounterSession.attemptCancel();
       if (result.done) {
         this.encounterSession = null;
-        this.mode = this.player.hp <= 0 ? Mode.GAME_OVER : Mode.EXPLORE;
-      } else {
-        this.mode = Mode.ENCOUNTER;
+        if (this.player.hp <= 0) {
+          this.endMode = Mode.GAME_OVER;
+        }
       }
       const events = result.events;
       if (result.relocate) {
@@ -230,14 +233,12 @@ export class Game {
       return {
         events,
         mode: this.mode,
-        needsInput: this.mode !== Mode.GAME_OVER,
       };
     }
 
     return {
       events: [Event.info("I don't understand that.")],
       mode: this.mode,
-      needsInput: true,
     };
   }
 
@@ -398,7 +399,6 @@ export class Game {
         debug: this.debug,
       });
       events.push(...this.encounterSession.startEvents());
-      this.mode = Mode.ENCOUNTER;
       return events;
     }
 
@@ -506,7 +506,7 @@ export class Game {
       return [Event.info('There is no exit here.')];
     }
     if (this.player.treasuresFound.size < 10) {
-      this.mode = Mode.GAME_OVER;
+      this.endMode = Mode.GAME_OVER;
       const remaining = 10 - this.player.treasuresFound.size;
       return [
         Event.info(
@@ -517,7 +517,7 @@ export class Game {
         ),
       ];
     }
-    this.mode = Mode.VICTORY;
+    this.endMode = Mode.VICTORY;
     return [Event.info('ALL HAIL THE VICTOR!')];
   }
 
@@ -670,7 +670,7 @@ export class Game {
         this.player.armorDamaged = false;
         this.player.hp -= this.rng.randint(0, 4) + 3;
         if (this.player.hp <= 0) {
-          this.mode = Mode.GAME_OVER;
+          this.endMode = Mode.GAME_OVER;
           return [
             Event.info(
               'The perverse thing explodes as you open it, wounding you!'

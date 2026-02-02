@@ -196,7 +196,6 @@ describe('Game interactions', () => {
       const result = game.step('F');
 
       expect(result.mode).toBe(Mode.GAME_OVER);
-      expect(result.needsInput).toBe(false);
       expect(dungeon.rooms[0][0][0].monsterLevel).toBe(1);
     });
 
@@ -236,6 +235,23 @@ describe('Game interactions', () => {
       expect(player.x).toBe(2);
     });
 
+    it('stays in encounter mode when relocation lands in another monster room', () => {
+      const rng = new ScriptedRng({
+        randint: [0, 1, 1, 0],
+        random: [0.1],
+      });
+      const { game, dungeon } = setupEncounter({
+        monsterLevel: 1,
+        rng,
+      });
+      dungeon.rooms[0][1][1].monsterLevel = 2;
+
+      const result = game.step('R');
+
+      expect(result.mode).toBe(Mode.ENCOUNTER);
+      expect(result.events.some((event) => event.kind === 'COMBAT')).toBe(true);
+    });
+
     it('relocates on teleport without clearing monster room', () => {
       const rng = new ScriptedRng({ randint: [0, 3, 4] });
       const { game, player, dungeon } = setupEncounter({
@@ -250,6 +266,51 @@ describe('Game interactions', () => {
       expect(player.y).toBe(3);
       expect(player.x).toBe(4);
       expect(dungeon.rooms[0][0][0].monsterLevel).toBe(1);
+    });
+  });
+
+  describe('save rehydration mode', () => {
+    it('restores GAME_OVER and VICTORY from serialized mode', () => {
+      const losePlayer = buildPlayer({ z: 0, y: 0, x: 0 });
+      const loseGame = new Game({ seed: 0, player: losePlayer });
+      const loseDungeon = createEmptyDungeon();
+      loseDungeon.rooms[0][0][0].feature = Feature.EXIT;
+      loseGame.dungeon = loseDungeon;
+      expect(loseGame.step('X').mode).toBe(Mode.GAME_OVER);
+
+      const winPlayer = buildPlayer({ z: 0, y: 0, x: 0 });
+      winPlayer.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      const winGame = new Game({ seed: 0, player: winPlayer });
+      const winDungeon = createEmptyDungeon();
+      winDungeon.rooms[0][0][0].feature = Feature.EXIT;
+      winGame.dungeon = winDungeon;
+      expect(winGame.step('X').mode).toBe(Mode.VICTORY);
+
+      const resumedLose = Game.fromSave(loseGame.toSave());
+      const resumedWin = Game.fromSave(winGame.toSave());
+      expect(resumedLose.mode).toBe(Mode.GAME_OVER);
+      expect(resumedWin.mode).toBe(Mode.VICTORY);
+    });
+
+    it('ignores stale non-terminal mode and derives from session state', () => {
+      const player = buildPlayer({ z: 0, y: 0, x: 0 });
+      const game = new Game({ seed: 0, player });
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][0].monsterLevel = 1;
+      game.dungeon = dungeon;
+      game.startEvents();
+
+      const encounterSave = game.toSave();
+      encounterSave.mode = Mode.EXPLORE;
+      expect(encounterSave.encounter).not.toBeNull();
+      const resumedEncounter = Game.fromSave(encounterSave);
+      expect(resumedEncounter.mode).toBe(Mode.ENCOUNTER);
+
+      const exploreSave = game.toSave();
+      exploreSave.mode = Mode.ENCOUNTER;
+      exploreSave.encounter = null;
+      const resumedExplore = Game.fromSave(exploreSave);
+      expect(resumedExplore.mode).toBe(Mode.EXPLORE);
     });
   });
 });
