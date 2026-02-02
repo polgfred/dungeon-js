@@ -193,6 +193,7 @@ export class VendorSession {
     }
     this.player.weaponTier = tier;
     this.player.weaponName = WEAPON_NAMES[tier];
+    this.player.weaponBroken = false;
     this.player.gold -= price;
     return {
       events: [Event.info('A fine weapon for your quest.')],

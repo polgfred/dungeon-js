@@ -29,6 +29,7 @@ export type PlayerSave = {
   weaponTier: number;
   armorTier: number;
   weaponName: string;
+  weaponBroken: boolean;
   armorName: string;
   armorDamaged: boolean;
   spells: Record<number, number>;
@@ -96,6 +97,7 @@ export function serializePlayer(player: Player): PlayerSave {
     weaponTier: player.weaponTier,
     armorTier: player.armorTier,
     weaponName: player.weaponName,
+    weaponBroken: player.weaponBroken,
     armorName: player.armorName,
     armorDamaged: player.armorDamaged,
     spells: player.spells,
@@ -129,6 +131,7 @@ export function deserializePlayer(save: PlayerSave): Player {
     weaponTier: save.weaponTier ?? 0,
     armorTier: save.armorTier ?? 0,
     weaponName: save.weaponName ?? '(None)',
+    weaponBroken: save.weaponBroken ?? false,
     armorName: save.armorName ?? '(None)',
     armorDamaged: save.armorDamaged ?? false,
     spells,

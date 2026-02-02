@@ -1,11 +1,11 @@
 import {
   ARMOR_NAMES,
   ARMOR_PRICES,
+  WEAPON_NAMES,
+  WEAPON_PRICES,
   Feature,
   Race,
   Spell,
-  WEAPON_NAMES,
-  WEAPON_PRICES,
 } from './constants.js';
 import type { RandomSource } from './rng.js';
 
@@ -61,6 +61,7 @@ export class Player {
   weaponTier = 0;
   armorTier = 0;
   weaponName = 'none';
+  weaponBroken = false;
   armorName = 'none';
   armorDamaged = false;
 
@@ -85,6 +86,7 @@ export class Player {
     weaponTier?: number;
     armorTier?: number;
     weaponName?: string;
+    weaponBroken?: boolean;
     armorName?: string;
     armorDamaged?: boolean;
     spells?: SpellCounts;
@@ -106,6 +108,7 @@ export class Player {
     this.weaponTier = options.weaponTier ?? 0;
     this.armorTier = options.armorTier ?? 0;
     this.weaponName = options.weaponName ?? 'none';
+    this.weaponBroken = options.weaponBroken ?? false;
     this.armorName = options.armorName ?? 'none';
     this.armorDamaged = options.armorDamaged ?? false;
     this.spells = options.spells ?? createSpellCounts();
@@ -202,6 +205,7 @@ export class Player {
       weaponTier,
       armorTier,
       weaponName: WEAPON_NAMES[weaponTier],
+      weaponBroken: false,
       armorName: ARMOR_NAMES[armorTier],
       armorDamaged: false,
       spells,

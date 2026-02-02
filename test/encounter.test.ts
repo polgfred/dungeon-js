@@ -101,7 +101,8 @@ describe('EncounterSession fight loop', () => {
 
     expectEvent(result.events, 'Your weapon breaks with the impact!');
     expect(player.weaponTier).toBe(0);
-    expect(player.weaponName).toBe('(Broken)');
+    expect(player.weaponBroken).toBe(true);
+    expect(player.weaponName).toBe('Short sword');
   });
 
   it('monster attack is dodged', () => {

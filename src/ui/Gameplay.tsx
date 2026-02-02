@@ -548,6 +548,24 @@ function triggerReadoutCommand(
   }
 }
 
+function statusMarkerTooltip(title: string) {
+  return (
+    <Tooltip title={title} arrow>
+      <Box
+        component="span"
+        aria-label={title}
+        sx={{
+          display: 'inline-block',
+          marginLeft: 0.25,
+          cursor: 'help',
+        }}
+      >
+        *
+      </Box>
+    </Tooltip>
+  );
+}
+
 function StatsPanel({
   encounterMode,
   onBack,
@@ -592,10 +610,17 @@ function StatsPanel({
         <Stack spacing={0.5}>
           <Typography sx={{ opacity: 0.75 }}>Inventory</Typography>
           <Typography>Gold: {player.gold}</Typography>
-          <Typography>Weapon: {player.weaponName}</Typography>
+          <Typography>
+            Weapon: {player.weaponName}
+            {player.weaponBroken
+              ? statusMarkerTooltip('Weapon is broken')
+              : null}
+          </Typography>
           <Typography>
             Armor: {player.armorName}
-            {player.armorDamaged ? '*' : ''}
+            {player.armorDamaged
+              ? statusMarkerTooltip('Armour is damaged')
+              : null}
           </Typography>
           <Typography>Flares: {player.flares}</Typography>
           <Typography>Treasures: {player.treasuresFound.size}</Typography>
@@ -838,10 +863,17 @@ function PlayerReadoutPanel({
         <Stack spacing={0.5}>
           <Typography sx={{ opacity: 0.75 }}>Inventory</Typography>
           <Typography>Gold: {player.gold}</Typography>
-          <Typography>Weapon: {player.weaponName}</Typography>
+          <Typography>
+            Weapon: {player.weaponName}
+            {player.weaponBroken
+              ? statusMarkerTooltip('Weapon is broken')
+              : null}
+          </Typography>
           <Typography>
             Armor: {player.armorName}
-            {player.armorDamaged ? '*' : ''}
+            {player.armorDamaged
+              ? statusMarkerTooltip('Armour is damaged')
+              : null}
           </Typography>
           <Typography>Flares: {player.flares}</Typography>
           <Typography>Treasures: {player.treasuresFound.size}</Typography>

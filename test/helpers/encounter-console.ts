@@ -171,6 +171,7 @@ function runEncounter(options: RunOptions): void {
         hp: player.hp,
         gold: player.gold,
         weaponTier: player.weaponTier,
+        weaponBroken: player.weaponBroken,
         armorTier: player.armorTier,
         fatigued: player.fatigued,
         tempArmorBonus: player.tempArmorBonus,

@@ -31,7 +31,7 @@ function pluralize(count: number, singular: string, plural = `${singular}s`) {
 
 export class Game {
   static readonly SIZE = 7;
-  static readonly SAVE_VERSION = 1;
+  static readonly SAVE_VERSION = 2;
 
   saveVersion = Game.SAVE_VERSION;
   rng: RandomSource;
