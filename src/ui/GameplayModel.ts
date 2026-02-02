@@ -14,7 +14,7 @@ import type {
   PromptOption,
   StepResult,
 } from '../dungeon/types.js';
-import { storeSavedGame } from '../storage/gameSave.js';
+import { storeSavedGame } from './gameSave.js';
 import type { Command } from './CommandButton.js';
 
 const movementCommands = [
