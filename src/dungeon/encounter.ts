@@ -443,12 +443,7 @@ export class EncounterSession {
             })
           );
         }
-        const attackResult = this.monsterAttack();
-        events.push(...attackResult.events);
-        return {
-          events,
-          done: attackResult.done,
-        };
+        break;
       }
       case Spell.FIREBALL: {
         const roll = this.rng.randint(1, 5);
