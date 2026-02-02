@@ -160,7 +160,7 @@ export class EncounterSession {
     if (!this.debug) {
       return result;
     }
-    result.events.unshift(this.debugMonsterEvent());
+    result.events.push(this.debugMonsterEvent());
     return result;
   }
 
