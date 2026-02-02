@@ -62,7 +62,9 @@ function eventLines(events: GameEvent[]): string[] {
     .filter((event) =>
       ['INFO', 'ERROR', 'COMBAT', 'LOOT', 'DEBUG'].includes(event.kind)
     )
-    .map((event) => event.text)
+    .map((event) =>
+      event.kind === 'DEBUG' ? JSON.stringify(event.data) : event.text
+    )
     .filter(Boolean);
 }
 

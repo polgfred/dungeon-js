@@ -14,7 +14,9 @@ export type InfoEvent = { kind: 'INFO'; text: string };
 export type ErrorEvent = { kind: 'ERROR'; text: string };
 export type CombatEvent = { kind: 'COMBAT'; text: string };
 export type LootEvent = { kind: 'LOOT'; text: string };
-export type DebugEvent = { kind: 'DEBUG'; text: string };
+export type DebugValue = string | number | boolean | null;
+export type DebugData = Record<string, DebugValue>;
+export type DebugEvent = { kind: 'DEBUG'; text: ''; data: DebugData };
 
 export type PromptOption = {
   key: string;
@@ -80,8 +82,8 @@ export const Event = {
   map(grid: string[]): MapEvent {
     return { kind: 'MAP', text: '', data: { grid } };
   },
-  debug(text: string): DebugEvent {
-    return { kind: 'DEBUG', text };
+  debug(data: DebugData): DebugEvent {
+    return { kind: 'DEBUG', text: '', data };
   },
 };
 

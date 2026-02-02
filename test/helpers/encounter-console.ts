@@ -106,6 +106,10 @@ function printEvents(events: Event[]): void {
       console.log(`[${event.kind}] ${JSON.stringify(event.data)}`);
       continue;
     }
+    if (event.kind === 'DEBUG') {
+      console.log(`[${event.kind}] ${JSON.stringify(event.data)}`);
+      continue;
+    }
     console.log(`[${event.kind}] ${event.text}`);
   }
 }

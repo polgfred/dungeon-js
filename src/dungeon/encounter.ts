@@ -165,9 +165,13 @@ export class EncounterSession {
   }
 
   private debugMonsterEvent(): Event {
-    return Event.debug(
-      `DEBUG MONSTER: name=${this.monsterName} level=${this.monsterLevel} vitality=${this.vitality}`
-    );
+    return Event.debug({
+      scope: 'monster',
+      action: 'state',
+      name: this.monsterName,
+      level: this.monsterLevel,
+      vitality: this.vitality,
+    });
   }
 
   private fightRound(): EncounterResult {
@@ -179,10 +183,15 @@ export class EncounterSession {
     const roll = this.rng.randint(1, 100);
     if (this.debug) {
       events.push(
-        Event.debug(
-          `DEBUG FIGHT: attack_score=${attackScore} roll=${roll} ` +
-            `weapon_tier=${this.player.weaponTier} st=${this.player.str} dx=${this.player.dex}`
-        )
+        Event.debug({
+          scope: 'fight',
+          action: 'attack_roll',
+          attackScore,
+          roll,
+          weaponTier: this.player.weaponTier,
+          st: this.player.str,
+          dx: this.player.dex,
+        })
       );
     }
     if (roll > attackScore) {
@@ -199,7 +208,12 @@ export class EncounterSession {
       events.push(Event.combat(`You hit the ${this.monsterName}!`));
       if (this.debug) {
         events.push(
-          Event.debug(`DEBUG FIGHT: damage=${damage} vitality=${this.vitality}`)
+          Event.debug({
+            scope: 'fight',
+            action: 'damage',
+            damage,
+            vitality: this.vitality,
+          })
         );
       }
       if (this.vitality <= 0) {
@@ -260,10 +274,14 @@ export class EncounterSession {
     const roll = this.rng.randint(1, 100);
     if (this.debug) {
       events.push(
-        Event.debug(
-          `DEBUG MONSTER: dodge_score=${dodgeScore} roll=${roll} ` +
-            `armor_tier=${this.player.armorTier} temp_armor_bonus=${this.player.tempArmorBonus}`
-        )
+        Event.debug({
+          scope: 'monster',
+          action: 'dodge_roll',
+          dodgeScore,
+          roll,
+          armorTier: this.player.armorTier,
+          tempArmorBonus: this.player.tempArmorBonus,
+        })
       );
     }
     if (roll <= dodgeScore) {
@@ -280,7 +298,12 @@ export class EncounterSession {
     events.push(Event.combat(`The ${this.monsterName} hits you!`));
     if (this.debug) {
       events.push(
-        Event.debug(`DEBUG MONSTER: damage=${damage} hp=${this.player.hp}`)
+        Event.debug({
+          scope: 'monster',
+          action: 'damage',
+          damage,
+          hp: this.player.hp,
+        })
       );
     }
     if (this.player.hp <= 0) {
@@ -398,9 +421,12 @@ export class EncounterSession {
         );
         if (this.debug) {
           events.push(
-            Event.debug(
-              `DEBUG SPELL: protection_bonus=3 temp_armor_bonus=${this.player.tempArmorBonus}`
-            )
+            Event.debug({
+              scope: 'spell',
+              spell: 'protection',
+              protectionBonus: 3,
+              tempArmorBonus: this.player.tempArmorBonus,
+            })
           );
         }
         const attackResult = this.monsterAttack();
@@ -413,9 +439,14 @@ export class EncounterSession {
         this.vitality -= damage;
         if (this.debug) {
           events.push(
-            Event.debug(
-              `DEBUG SPELL: fireball_roll=${roll} iq=${this.player.iq} damage=${damage} vitality=${this.vitality}`
-            )
+            Event.debug({
+              scope: 'spell',
+              spell: 'fireball',
+              roll,
+              damage,
+              iq: this.player.iq,
+              vitality: this.vitality,
+            })
           );
         }
         events.push(
@@ -431,9 +462,14 @@ export class EncounterSession {
         this.vitality -= damage;
         if (this.debug) {
           events.push(
-            Event.debug(
-              `DEBUG SPELL: lightning_roll=${roll} iq=${this.player.iq} damage=${damage} vitality=${this.vitality}`
-            )
+            Event.debug({
+              scope: 'spell',
+              spell: 'lightning',
+              roll,
+              damage,
+              iq: this.player.iq,
+              vitality: this.vitality,
+            })
           );
         }
         events.push(Event.combat(`The ${this.monsterName} is thunderstruck!`));
@@ -443,7 +479,11 @@ export class EncounterSession {
         this.vitality = Math.floor(this.vitality / 2);
         if (this.debug) {
           events.push(
-            Event.debug(`DEBUG SPELL: weakened_vitality=${this.vitality}`)
+            Event.debug({
+              scope: 'spell',
+              spell: 'weaken',
+              vitality: this.vitality,
+            })
           );
         }
         events.push(
@@ -464,7 +504,12 @@ export class EncounterSession {
         this.vitality = 0;
         resetPlayerAfterEncounter(this.player);
         if (this.debug) {
-          events.push(Event.debug('DEBUG SPELL: teleport'));
+          events.push(
+            Event.debug({
+              scope: 'spell',
+              spell: 'teleport',
+            })
+          );
         }
         return {
           events,

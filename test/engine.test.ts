@@ -104,9 +104,7 @@ describe('Game interactions', () => {
 
       const result = game.step('L');
 
-      expect(result.events[0].text).toBe(
-        'You see the Gold Fleece at 1,1,2!'
-      );
+      expect(result.events[0].text).toBe('You see the Gold Fleece at 1,1,2!');
       expect(player.treasuresFound.size).toBe(0);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });

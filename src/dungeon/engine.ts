@@ -262,14 +262,14 @@ export class Game {
     const events: Event[] = [Event.status(this.statusData())];
     if (this.debug) {
       events.push(
-        Event.debug(
-          'DEBUG STATS: ' +
-            `weapon_tier=${this.player.weaponTier} ` +
-            `armor_tier=${this.player.armorTier} ` +
-            `armor_damaged=${this.player.armorDamaged} ` +
-            `temp_armor_bonus=${this.player.tempArmorBonus} ` +
-            `fatigued=${this.player.fatigued}`
-        )
+        Event.debug({
+          scope: 'stats',
+          weaponTier: this.player.weaponTier,
+          armorTier: this.player.armorTier,
+          armorDamaged: this.player.armorDamaged,
+          tempArmorBonus: this.player.tempArmorBonus,
+          fatigued: this.player.fatigued,
+        })
       );
     }
     return events;

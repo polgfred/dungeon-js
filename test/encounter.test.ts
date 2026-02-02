@@ -6,7 +6,7 @@ import {
   Spell,
   WEAPON_NAMES,
 } from '../src/dungeon/constants.js';
-import type { Event } from '../src/dungeon/types.js';
+import type { DebugEvent, Event } from '../src/dungeon/types.js';
 import { buildPlayer } from './helpers/factories.js';
 import { ScriptedRng } from './helpers/rng.js';
 import { defaultRandomSource } from '../src/dungeon/rng.js';
@@ -17,6 +17,16 @@ function eventTexts(events: Event[]): string[] {
 
 function expectEvent(events: Event[], text: string): void {
   expect(eventTexts(events)).toContain(text);
+}
+
+function findDebugEvent(
+  events: Event[],
+  predicate: (data: DebugEvent['data']) => boolean
+): DebugEvent | undefined {
+  return events.find(
+    (event): event is DebugEvent =>
+      event.kind === 'DEBUG' && predicate(event.data)
+  );
 }
 
 function createSession(options: {
@@ -170,10 +180,18 @@ describe('EncounterSession spells', () => {
     session.step('S');
     const result = session.step('F');
 
-    expectEvent(
+    const debugEvent = findDebugEvent(
       result.events,
-      'DEBUG SPELL: fireball_roll=3 iq=14 damage=7 vitality=13'
+      (data) => data.scope === 'spell' && data.spell === 'fireball'
     );
+    expect(debugEvent?.data).toMatchObject({
+      scope: 'spell',
+      spell: 'fireball',
+      roll: 3,
+      iq: 14,
+      damage: 7,
+      vitality: 13,
+    });
   });
 
   it('casts lightning and applies damage formula', () => {
@@ -183,10 +201,18 @@ describe('EncounterSession spells', () => {
     session.step('S');
     const result = session.step('L');
 
-    expectEvent(
+    const debugEvent = findDebugEvent(
       result.events,
-      'DEBUG SPELL: lightning_roll=6 iq=14 damage=13 vitality=7'
+      (data) => data.scope === 'spell' && data.spell === 'lightning'
     );
+    expect(debugEvent?.data).toMatchObject({
+      scope: 'spell',
+      spell: 'lightning',
+      roll: 6,
+      iq: 14,
+      damage: 13,
+      vitality: 7,
+    });
   });
 
   it('casts weaken and halves vitality', () => {
@@ -196,7 +222,15 @@ describe('EncounterSession spells', () => {
     session.step('S');
     const result = session.step('W');
 
-    expectEvent(result.events, 'DEBUG SPELL: weakened_vitality=5');
+    const debugEvent = findDebugEvent(
+      result.events,
+      (data) => data.scope === 'spell' && data.spell === 'weaken'
+    );
+    expect(debugEvent?.data).toMatchObject({
+      scope: 'spell',
+      spell: 'weaken',
+      vitality: 5,
+    });
   });
 
   it('casts teleport and ends encounter', () => {
@@ -247,19 +281,17 @@ describe('EncounterSession real RNG bounds', () => {
       });
 
       const result = session.step('F');
-      const damageEvent = result.events.find(
-        (event) =>
-          event.kind === 'DEBUG' &&
-          event.text.startsWith('DEBUG FIGHT: damage=')
+      const damageEvent = findDebugEvent(
+        result.events,
+        (data) => data.scope === 'fight' && data.action === 'damage'
       );
       if (!damageEvent) {
         continue;
       }
-      const match = damageEvent.text.match(/damage=(\d+)/);
-      if (!match) {
+      const { damage } = damageEvent.data;
+      if (typeof damage !== 'number') {
         continue;
       }
-      const damage = Number(match[1]);
       expect(damage).toBeGreaterThanOrEqual(minDamage);
       expect(damage).toBeLessThanOrEqual(maxDamage);
       samples += 1;
@@ -307,19 +339,17 @@ describe('EncounterSession real RNG bounds', () => {
       });
 
       const result = session.step('F');
-      const damageEvent = result.events.find(
-        (event) =>
-          event.kind === 'DEBUG' &&
-          event.text.startsWith('DEBUG MONSTER: damage=')
+      const damageEvent = findDebugEvent(
+        result.events,
+        (data) => data.scope === 'monster' && data.action === 'damage'
       );
       if (!damageEvent) {
         continue;
       }
-      const match = damageEvent.text.match(/damage=(\d+)/);
-      if (!match) {
+      const { damage } = damageEvent.data;
+      if (typeof damage !== 'number') {
         continue;
       }
-      const damage = Number(match[1]);
       expect(damage).toBeGreaterThanOrEqual(minDamage);
       expect(damage).toBeLessThanOrEqual(maxDamage);
       samples += 1;
