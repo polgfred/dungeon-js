@@ -618,9 +618,11 @@ function StatsPanel({
           </Typography>
           <Typography>
             Armor: {player.armorName}
-            {player.armorDamaged
-              ? statusMarkerTooltip('Armour is damaged')
-              : null}
+            {player.armorTier === 0
+              ? statusMarkerTooltip('Armour is destroyed')
+              : player.armorDamaged
+                ? statusMarkerTooltip('Armour is damaged')
+                : null}
           </Typography>
           <Typography>Flares: {player.flares}</Typography>
           <Typography>Treasures: {player.treasuresFound.size}</Typography>
@@ -871,9 +873,11 @@ function PlayerReadoutPanel({
           </Typography>
           <Typography>
             Armor: {player.armorName}
-            {player.armorDamaged
-              ? statusMarkerTooltip('Armour is damaged')
-              : null}
+            {player.armorTier === 0
+              ? statusMarkerTooltip('Armour is destroyed')
+              : player.armorDamaged
+                ? statusMarkerTooltip('Armour is damaged')
+                : null}
           </Typography>
           <Typography>Flares: {player.flares}</Typography>
           <Typography>Treasures: {player.treasuresFound.size}</Typography>
