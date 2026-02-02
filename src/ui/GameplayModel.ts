@@ -45,7 +45,7 @@ const roomCommands = [
 const encounterCommands = [
   { id: 'fight', key: 'F', label: 'Fight', disabled: false },
   { id: 'run', key: 'R', label: 'Run', disabled: false },
-  { id: 'spell', key: 'S', label: 'Spell', disabled: false },
+  { id: 'spell', key: 'S', label: 'Cast Spell', disabled: false },
 ];
 
 const ENDGAME_PROMPT = {
