@@ -67,6 +67,14 @@ export class Game {
     save: GameSave,
     rng: RandomSource = defaultRandomSource
   ): Game {
+    if (typeof save.version !== 'number' || !Number.isInteger(save.version)) {
+      throw new Error('Save file is missing a valid version.');
+    }
+    if (save.version !== Game.SAVE_VERSION) {
+      throw new Error(
+        `Unsupported save version ${save.version}. Expected ${Game.SAVE_VERSION}.`
+      );
+    }
     const state = deserializeGame(save);
     const player = state.player;
     const game = new Game({
@@ -76,7 +84,7 @@ export class Game {
       dungeon: state.dungeon,
       debug: state.debug,
     });
-    game.saveVersion = state.version ?? Game.SAVE_VERSION;
+    game.saveVersion = state.version;
     if (state.mode === Mode.GAME_OVER || state.mode === Mode.VICTORY) {
       game.endMode = state.mode;
     }

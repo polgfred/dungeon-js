@@ -5,16 +5,21 @@ const STORAGE_KEY = 'dungeon-js-save';
 
 export function loadSavedGame(): GameSave | null {
   if (typeof window === 'undefined') return null;
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+  let parsed: unknown;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as GameSave;
-    if (!parsed || typeof parsed !== 'object') return null;
-    if (parsed.version !== Game.SAVE_VERSION) return null;
-    return parsed;
+    parsed = JSON.parse(raw);
   } catch {
-    return null;
+    throw new Error('Saved game data is corrupted.');
   }
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('Saved game data is invalid.');
+  }
+  const save = parsed as GameSave;
+  // Rehydrate once to validate the save payload against current engine rules.
+  Game.fromSave(save);
+  return save;
 }
 
 export function storeSavedGame(save: GameSave): {
@@ -45,7 +50,12 @@ export function clearSavedGame(): void {
 }
 
 export function hasSavedGame(): boolean {
-  return loadSavedGame() !== null;
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
 }
 
 export function getStorageKey(): string {

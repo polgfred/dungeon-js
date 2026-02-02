@@ -46,6 +46,7 @@ export default function App() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [savedGame, setSavedGame] = useState<GameSave | null>(null);
   const [saveAvailable, setSaveAvailable] = useState(false);
+  const [continueError, setContinueError] = useState<string | null>(null);
 
   const navigate = useCallback((nextView: View) => {
     setView(nextView);
@@ -71,14 +72,27 @@ export default function App() {
     <Box component="main" sx={(theme) => screenStyle(theme)}>
       {view === 'home' && (
         <TitleScreen
-          onStart={() => navigate('setup')}
+          onStart={() => {
+            setContinueError(null);
+            navigate('setup');
+          }}
           hasSave={saveAvailable}
+          continueError={continueError}
           onContinue={() => {
-            const save = loadSavedGame();
-            if (!save) return;
-            setSavedGame(save);
-            setPlayer(deserializePlayer(save.player));
-            navigate('gameplay');
+            try {
+              const save = loadSavedGame();
+              if (!save) return;
+              setContinueError(null);
+              setSavedGame(save);
+              setPlayer(deserializePlayer(save.player));
+              navigate('gameplay');
+            } catch (error) {
+              const details =
+                error instanceof Error && error.message
+                  ? ` (${error.message})`
+                  : '';
+              setContinueError(`Unable to restore saved game.${details}`);
+            }
           }}
         />
       )}
@@ -88,6 +102,7 @@ export default function App() {
           onComplete={(created) => {
             setPlayer(created);
             setSavedGame(null);
+            setContinueError(null);
             navigate('gameplay');
           }}
           onBack={() => navigate('home')}
@@ -101,11 +116,13 @@ export default function App() {
           onBack={() => {
             setPlayer(null);
             setSavedGame(null);
+            setContinueError(null);
             navigate('home');
           }}
           onSetup={() => {
             setPlayer(null);
             setSavedGame(null);
+            setContinueError(null);
             navigate('setup');
           }}
         />

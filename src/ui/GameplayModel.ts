@@ -140,12 +140,8 @@ export function useGameplayModel({
   const loadedFromSaveRef = useRef(false);
   if (!gameRef.current) {
     if (savedGame) {
-      try {
-        gameRef.current = Game.fromSave(savedGame);
-        loadedFromSaveRef.current = true;
-      } catch {
-        gameRef.current = new Game({ seed: Date.now(), player: initialPlayer });
-      }
+      gameRef.current = Game.fromSave(savedGame);
+      loadedFromSaveRef.current = true;
     } else {
       gameRef.current = new Game({ seed: Date.now(), player: initialPlayer });
     }

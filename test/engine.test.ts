@@ -312,5 +312,23 @@ describe('Game interactions', () => {
       const resumedExplore = Game.fromSave(exploreSave);
       expect(resumedExplore.mode).toBe(Mode.EXPLORE);
     });
+
+    it('throws when save version is missing', () => {
+      const game = new Game({ seed: 0, player: buildPlayer() });
+      const save = game.toSave() as Record<string, unknown>;
+      delete save.version;
+
+      expect(() => Game.fromSave(save as never)).toThrow(
+        'Save file is missing a valid version.'
+      );
+    });
+
+    it('throws when save version does not match', () => {
+      const game = new Game({ seed: 0, player: buildPlayer() });
+      const save = game.toSave();
+      save.version = Game.SAVE_VERSION + 1;
+
+      expect(() => Game.fromSave(save)).toThrow('Unsupported save version');
+    });
   });
 });

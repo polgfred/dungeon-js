@@ -6,12 +6,14 @@ type TitleScreenProps = {
   onStart?: () => void;
   hasSave?: boolean;
   onContinue?: () => void;
+  continueError?: string | null;
 };
 
 export default function TitleScreen({
   onStart,
   hasSave = false,
   onContinue,
+  continueError = null,
 }: TitleScreenProps) {
   const handleStart = () => {
     if (!onStart) return;
@@ -88,6 +90,11 @@ export default function TitleScreen({
             </Button>
           )}
         </Stack>
+        {continueError && (
+          <Typography color="error" sx={{ maxWidth: 560 }}>
+            {continueError}
+          </Typography>
+        )}
       </Stack>
       <Stack
         spacing={2}
