@@ -1,5 +1,5 @@
 import { EncounterSession } from '../../src/dungeon/encounter.js';
-import { createSpellCounts, Player, Room } from '../../src/dungeon/model.js';
+import { createSpellCounts, Player } from '../../src/dungeon/model.js';
 import { Race, Spell } from '../../src/dungeon/constants.js';
 import type { Event, PromptData } from '../../src/dungeon/types.js';
 import type { RandomSource } from '../../src/dungeon/rng.js';
@@ -136,21 +136,14 @@ function buildTestPlayer(): Player {
   });
 }
 
-function buildTestRoom(): Room {
-  const room = new Room();
-  room.monsterLevel = 3;
-  room.treasureId = 0;
-  return room;
-}
-
 function runEncounter(options: RunOptions): void {
   const rng = new SeededRng(options.seed);
   const player = buildTestPlayer();
-  const room = buildTestRoom();
+  const monsterLevel = 3;
   const session = EncounterSession.start({
     rng,
     player,
-    room,
+    monsterLevel,
     debug: options.debug,
   });
 

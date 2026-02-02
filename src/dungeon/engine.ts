@@ -73,7 +73,6 @@ export class Game {
       game.encounterSession = EncounterSession.resume({
         rng,
         player,
-        room: currentRoom,
         debug: game.debug,
         save: state.encounter,
       });
@@ -140,18 +139,35 @@ export class Game {
 
     if (this.encounterSession) {
       const result = this.encounterSession.step(raw);
+      const events = result.events;
       if (result.done) {
         this.encounterSession = null;
-        this.mode = this.player.hp <= 0 ? Mode.GAME_OVER : Mode.EXPLORE;
+        if (result.defeatedMonster) {
+          const room = this.currentRoom();
+          const monsterLevel = room.monsterLevel;
+          room.monsterLevel = 0;
+          if (this.player.hp > 0) {
+            if (room.treasureId) {
+              events.push(...this.awardTreasure(room.treasureId));
+              room.treasureId = 0;
+            } else {
+              const gold = 5 * monsterLevel + this.rng.randint(0, 20);
+              this.player.gold += gold;
+              events.push(
+                Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}.`)
+              );
+            }
+          }
+        }
+        if (result.relocate) {
+          this.randomRelocate({ anyFloor: Boolean(result.relocateAnyFloor) });
+          if (result.enterRoom) {
+            events.push(...this.enterRoom());
+          }
+        }
+        this.mode = this.player.hp > 0 ? Mode.EXPLORE : Mode.GAME_OVER;
       } else {
         this.mode = Mode.ENCOUNTER;
-      }
-      const events = result.events;
-      if (result.relocate) {
-        this.randomRelocate({ anyFloor: Boolean(result.relocateAnyFloor) });
-        if (result.enterRoom) {
-          events.push(...this.enterRoom());
-        }
       }
       return {
         events,
@@ -378,7 +394,7 @@ export class Game {
       this.encounterSession = EncounterSession.start({
         rng: this.rng,
         player: this.player,
-        room,
+        monsterLevel: room.monsterLevel,
         debug: this.debug,
       });
       events.push(...this.encounterSession.startEvents());

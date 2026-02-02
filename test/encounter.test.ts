@@ -7,7 +7,7 @@ import {
   WEAPON_NAMES,
 } from '../src/dungeon/constants.js';
 import type { Event } from '../src/dungeon/types.js';
-import { buildPlayer, buildRoom } from './helpers/factories.js';
+import { buildPlayer } from './helpers/factories.js';
 import { ScriptedRng } from './helpers/rng.js';
 import { defaultRandomSource } from '../src/dungeon/rng.js';
 
@@ -22,7 +22,6 @@ function expectEvent(events: Event[], text: string): void {
 function createSession(options: {
   rng: ScriptedRng;
   playerOverrides?: Parameters<typeof buildPlayer>[0];
-  roomOverrides?: Partial<ReturnType<typeof buildRoom>>;
   vitality?: number;
   awaitingSpell?: boolean;
   debug?: boolean;
@@ -30,15 +29,9 @@ function createSession(options: {
   const monsterLevel = 5;
   const monsterName = MONSTER_NAMES[monsterLevel - 1];
   const player = buildPlayer(options.playerOverrides);
-  const room = buildRoom({
-    monsterLevel,
-    treasureId: 0,
-    ...options.roomOverrides,
-  });
   const session = EncounterSession.resume({
     rng: options.rng,
     player,
-    room,
     debug: options.debug ?? false,
     save: {
       monsterLevel,
@@ -48,7 +41,7 @@ function createSession(options: {
     },
   });
 
-  return { session, player, room };
+  return { session, player };
 }
 
 describe('EncounterSession fight loop', () => {
@@ -76,16 +69,16 @@ describe('EncounterSession fight loop', () => {
     expect(result.done).toBeUndefined();
   });
 
-  it('player hits and kills monster, awards gold', () => {
+  it('player hits and kills monster, marks defeated', () => {
     const rng = new ScriptedRng({ randint: [10, 1, 7], random: [0.1, 0.1] });
-    const { session, player, room } = createSession({ rng, vitality: 3 });
+    const { session, player } = createSession({ rng, vitality: 3 });
 
     const result = session.step('F');
 
     expectEvent(result.events, 'The foul Troll expires.');
     expect(result.done).toBe(true);
-    expect(room.monsterLevel).toBe(0);
-    expect(player.gold).toBe(32);
+    expect(result.defeatedMonster).toBe(true);
+    expect(player.gold).toBe(0);
     expect(player.fatigued).toBe(false);
     expect(player.tempArmorBonus).toBe(0);
   });
@@ -236,9 +229,7 @@ describe('EncounterSession real RNG bounds', () => {
       const monsterLevel = rng.randint(1, 10);
       const minDamage = Math.max(weaponTier + Math.floor(str / 3) - 2, 1);
       const maxDamage = weaponTier + Math.floor(str / 3) + 2;
-      const room = buildRoom({ monsterLevel, treasureId: 0 });
       const session = EncounterSession.resume({
-        room,
         rng,
         player: buildPlayer({
           str,
@@ -294,9 +285,7 @@ describe('EncounterSession real RNG bounds', () => {
         level - 1 + Math.floor(2.5 + level / 3) - totalArmor,
         0
       );
-      const room = buildRoom({ monsterLevel: level, treasureId: 0 });
       const session = EncounterSession.resume({
-        room,
         rng: rng,
         player: buildPlayer({
           dex: rng.randint(1, 18),

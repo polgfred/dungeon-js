@@ -1,19 +1,16 @@
-import { MONSTER_NAMES, Spell, TREASURE_NAMES } from './constants.js';
+import { MONSTER_NAMES, Spell } from './constants.js';
 import type { EncounterSave } from './serialization.js';
-import type { Player, Room } from './model.js';
+import type { Player } from './model.js';
 import { Event, PromptData } from './types.js';
 import type { RandomSource } from './rng.js';
 
 export interface EncounterResult {
   events: Event[];
   done?: boolean;
+  defeatedMonster?: boolean;
   relocate?: boolean;
   relocateAnyFloor?: boolean;
   enterRoom?: boolean;
-}
-
-function pluralize(count: number, singular: string, plural = `${singular}s`) {
-  return count === 1 ? singular : plural;
 }
 
 function resetPlayerAfterEncounter(player: Player) {
@@ -24,7 +21,6 @@ function resetPlayerAfterEncounter(player: Player) {
 export class EncounterSession {
   private rng: RandomSource;
   private player: Player;
-  private room: Room;
   private monsterLevel: number;
   private monsterName: string;
   private vitality: number;
@@ -34,7 +30,6 @@ export class EncounterSession {
   private constructor(options: {
     rng: RandomSource;
     player: Player;
-    room: Room;
     monsterLevel: number;
     monsterName: string;
     vitality: number;
@@ -42,7 +37,6 @@ export class EncounterSession {
   }) {
     this.rng = options.rng;
     this.player = options.player;
-    this.room = options.room;
     this.monsterLevel = options.monsterLevel;
     this.monsterName = options.monsterName;
     this.vitality = options.vitality;
@@ -52,11 +46,11 @@ export class EncounterSession {
   static start(options: {
     rng: RandomSource;
     player: Player;
-    room: Room;
+    monsterLevel: number;
     debug: boolean;
   }): EncounterSession {
-    const { rng, player, room, debug } = options;
-    const level = room.monsterLevel;
+    const { rng, player, monsterLevel, debug } = options;
+    const level = monsterLevel;
     const name = MONSTER_NAMES[level - 1];
     const vitality = 3 * level + rng.randint(0, 3);
     player.fatigued = false;
@@ -64,7 +58,6 @@ export class EncounterSession {
     return new EncounterSession({
       rng,
       player,
-      room,
       monsterLevel: level,
       monsterName: name,
       vitality,
@@ -75,15 +68,13 @@ export class EncounterSession {
   static resume(options: {
     rng: RandomSource;
     player: Player;
-    room: Room;
     debug: boolean;
     save: EncounterSave;
   }): EncounterSession {
-    const { rng, player, room, debug, save } = options;
+    const { rng, player, debug, save } = options;
     const session = new EncounterSession({
       rng,
       player,
-      room,
       monsterLevel: save.monsterLevel,
       monsterName: save.monsterName,
       vitality: save.vitality,
@@ -310,31 +301,18 @@ export class EncounterSession {
       const attackResult = this.monsterAttack();
       events.push(...attackResult.events);
       if (attackResult.done) {
-        this.room.monsterLevel = 0;
         this.monsterLevel = 0;
         this.monsterName = '';
         this.vitality = 0;
-        return { events, done: true };
+        return { events, done: true, defeatedMonster: true };
       }
     }
 
-    if (this.room.treasureId) {
-      events.push(...this.awardTreasure(this.room.treasureId));
-      this.room.treasureId = 0;
-    } else {
-      const gold = 5 * this.monsterLevel + this.rng.randint(0, 20);
-      this.player.gold += gold;
-      events.push(
-        Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}.`)
-      );
-    }
-
-    this.room.monsterLevel = 0;
     this.monsterLevel = 0;
     this.monsterName = '';
     this.vitality = 0;
     resetPlayerAfterEncounter(this.player);
-    return { events, done: true };
+    return { events, done: true, defeatedMonster: true };
   }
 
   private handleSpellChoice(raw: string): EncounterResult {
@@ -506,13 +484,5 @@ export class EncounterSession {
     const attackResult = this.monsterAttack();
     events.push(...attackResult.events);
     return { events, done: attackResult.done };
-  }
-
-  private awardTreasure(treasureId: number): Event[] {
-    if (this.player.treasuresFound.has(treasureId)) {
-      return [];
-    }
-    this.player.treasuresFound.add(treasureId);
-    return [Event.loot(`You find the ${TREASURE_NAMES[treasureId - 1]}!`)];
   }
 }
