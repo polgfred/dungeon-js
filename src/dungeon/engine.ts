@@ -43,10 +43,11 @@ export class Game {
     player: Player;
     rng?: RandomSource | null;
     debug?: boolean;
+    dungeon?: ReturnType<typeof generateDungeon>;
   }) {
     this.rng = options.rng ?? defaultRandomSource;
     this.player = options.player;
-    this.dungeon = generateDungeon(this.rng);
+    this.dungeon = options.dungeon ?? generateDungeon(this.rng);
     this.mode = Mode.EXPLORE;
     this.encounterSession = null;
     this.shopSession = null;
@@ -63,12 +64,11 @@ export class Game {
       seed: 0,
       player,
       rng,
-      debug: state.debug ?? false,
+      dungeon: state.dungeon,
+      debug: state.debug,
     });
     game.saveVersion = state.version ?? Game.SAVE_VERSION;
-    game.dungeon = state.dungeon;
     game.mode = state.mode ?? Mode.EXPLORE;
-    const currentRoom = game.dungeon.rooms[player.z][player.y][player.x];
     if (state.encounter) {
       game.encounterSession = EncounterSession.resume({
         rng,
