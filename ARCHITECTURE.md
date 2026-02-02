@@ -1,6 +1,7 @@
 # Architecture Notes
 
 ## UI Theming Conventions
+
 - Prefer theme-scoped utilities and classes over one-off `sx` for shared styling.
 - Use `sx` for structural layout (grids, flow, positioning); use theme for visual styling (typography, spacing, color).
 - Use `.ui-panel` to opt into panel-wide typography sizing.
@@ -18,8 +19,10 @@
 - Key hints are hidden on mobile for inline/stacked layouts; compact buttons still show the key since it's the button label.
 
 ## Composition Preferences
+
 - Keep view logic in a model hook (e.g., `useSetupGameModel`), and keep UI components mostly presentational.
 - When a shared pattern emerges, extract it once and reuse it (avoid duplicating `sx` blocks).
 
 ## One-off Styling
+
 - Default to theming; confirm before introducing screen-specific tweaks that could spread.

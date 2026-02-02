@@ -4,12 +4,14 @@ This document defines the **idiomatic Python architecture** for implementing the
 It is intended to be used as the scaffold contract for an IDE agent (e.g., Codex in VS Code).
 
 Scope:
+
 - Clean, maintainable Python implementation
 - Engine/UI separation
 - Unit-testable core logic
 - Deterministic behavior **per environment** via `random.Random(seed)`
 
 Non-goals:
+
 - Cross-language RNG parity with a future C/6502 port
 - Performance optimization
 
@@ -38,6 +40,7 @@ dungeon/
 ```
 
 ### Module responsibilities
+
 - `constants.py`: enums, command sets, display symbols/tables
 - `types.py`: `Event`, `StepResult`, and other shared types
 - `model.py`: dataclasses (`Room`, `Dungeon`, `Player`, etc.)
@@ -57,6 +60,7 @@ Use `Enum` for the following:
 - `Mode`: `EXPLORE, ENCOUNTER, GAME_OVER, VICTORY`
 
 Also define:
+
 - single-letter command sets (explore vs encounter)
 - monster name table by level
 - treasure name list (10)
@@ -123,6 +127,7 @@ class Player:
 ```
 
 ### Encounter state
+
 Keep encounter state separate from `Room`:
 
 ```python
@@ -164,6 +169,7 @@ Rule: **engine never prints**.
 ## 5. Dungeon Generation (`generation.py`)
 
 ### API
+
 ```python
 import random
 from dungeon.model import Dungeon
@@ -173,9 +179,11 @@ def generate_dungeon(rng: random.Random) -> Dungeon:
 ```
 
 ### Representation
+
 Use a 7×7×7 nested list of `Room` objects: `rooms[z][y][x]`.
 
 ### Generation rules (derived from the game spec)
+
 - Initialize all rooms empty/unseen.
 - Populate base distribution (features/monsters) per the rules spec.
 - Place aligned stairs up/down for floors 1..6.
@@ -183,6 +191,7 @@ Use a 7×7×7 nested list of `Room` objects: `rooms[z][y][x]`.
 - Place exactly 10 treasures (allow treasure+monster co-location).
 
 ### Invariant validation helper
+
 ```python
 def validate_dungeon(d: Dungeon) -> list[str]:
     """Return a list of invariant violations (empty list means OK)."""
@@ -193,6 +202,7 @@ def validate_dungeon(d: Dungeon) -> list[str]:
 ## 6. Game Engine (`engine.py`)
 
 ### Public API
+
 ```python
 import random
 from dungeon.constants import Mode
@@ -214,13 +224,16 @@ class Game:
 ```
 
 ### Parsing
+
 - commands are **single-letter**, **case-insensitive**
 - ignore leading/trailing whitespace
 - in EXPLORE mode: interpret by explore command set
 - in ENCOUNTER mode: interpret by encounter command set
 
 ### Room entry effects
+
 On entering a cell:
+
 - mark it `seen`
 - if warp: relocate immediately (random floor + random cell) and then resolve new cell
 - if thief: steal gold and clear feature
@@ -229,15 +242,18 @@ On entering a cell:
 - chest damage marks armor as damaged for display; tier/defense stays the same
 
 ### Vendor modernization
+
 - entering vendor does **not** prompt
 - `B` opens shop only if in vendor room
 - `0` exits shop at any stage (category/item/attribute)
 
 ### Exit logic
+
 - `X` only works on EXIT room
 - win only if all treasures found
 
 ### Encounter loop
+
 - Fight / Run / Spell
 - Run:
   - 40% success: relocate to random different cell on same floor; end encounter
@@ -247,6 +263,7 @@ On entering a cell:
   - charge > 0
 
 ### Spell clamping (agreed fix)
+
 - Fireball damage: `d = max(rand(1..5) - (iq // 3), 0)`
 - Lightning damage: `d = max(rand(1..10) - (iq // 2), 0)`
 
@@ -275,6 +292,7 @@ def create_player(
 ```
 
 UI responsibilities:
+
 - ask race
 - show rolled stats
 - allocate +5 points with cap 18
@@ -285,12 +303,14 @@ UI responsibilities:
 ## 8. Terminal UI (`terminal.py`)
 
 ### API
+
 ```python
 def run() -> None:
     ...
 ```
 
 Responsibilities:
+
 - prompt for seed
 - run main loop
 - render `Event`s
@@ -304,6 +324,7 @@ Responsibilities:
 ## 9. Tests (`tests/`)
 
 Minimum tests:
+
 - generation invariants: exit count, stair alignment, 10 treasures
 - flare reveal: corner/edge/center
 - run behavior: fatigued blocks run; success relocates; fail sets fatigued
@@ -317,6 +338,7 @@ Minimum tests:
 ## 10. Tooling
 
 Recommended:
+
 - `pytest`
 - `ruff` (lint + format)
 - type hints throughout
