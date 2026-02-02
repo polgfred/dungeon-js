@@ -34,7 +34,6 @@ export type PlayerSave = {
   spells: Record<number, number>;
   fatigued: boolean;
   tempArmorBonus: number;
-  attrPotionTarget: string | null;
 };
 
 export type EncounterSave = {
@@ -102,7 +101,6 @@ export function serializePlayer(player: Player): PlayerSave {
     spells: player.spells,
     fatigued: player.fatigued,
     tempArmorBonus: player.tempArmorBonus,
-    attrPotionTarget: player.attrPotionTarget,
   };
 }
 
@@ -136,7 +134,6 @@ export function deserializePlayer(save: PlayerSave): Player {
     spells,
     fatigued: save.fatigued ?? false,
     tempArmorBonus: save.tempArmorBonus ?? 0,
-    attrPotionTarget: save.attrPotionTarget ?? null,
   });
 }
 

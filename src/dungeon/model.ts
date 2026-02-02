@@ -69,8 +69,6 @@ export class Player {
   fatigued = false;
   tempArmorBonus = 0;
 
-  attrPotionTarget: string | null = null;
-
   constructor(options: {
     z: number;
     y: number;
@@ -92,7 +90,6 @@ export class Player {
     spells?: SpellCounts;
     fatigued?: boolean;
     tempArmorBonus?: number;
-    attrPotionTarget?: string | null;
   }) {
     this.z = options.z;
     this.y = options.y;
@@ -114,7 +111,6 @@ export class Player {
     this.spells = options.spells ?? createSpellCounts();
     this.fatigued = options.fatigued ?? false;
     this.tempArmorBonus = options.tempArmorBonus ?? 0;
-    this.attrPotionTarget = options.attrPotionTarget ?? null;
   }
 
   static rollBaseStats(
