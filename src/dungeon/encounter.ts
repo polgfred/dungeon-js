@@ -228,7 +228,10 @@ export class EncounterSession {
 
     const attackResult = this.monsterAttack();
     events.push(...attackResult.events);
-    return { events, done: attackResult.done };
+    return {
+      events,
+      done: attackResult.done,
+    };
   }
 
   private runAttempt(): EncounterResult {
@@ -308,7 +311,10 @@ export class EncounterSession {
     }
     if (this.player.hp <= 0) {
       events.push(Event.info('YOU HAVE DIED.'));
-      return { events, done: true };
+      return {
+        events,
+        done: true,
+      };
     }
     return { events };
   }
@@ -327,7 +333,11 @@ export class EncounterSession {
         this.monsterLevel = 0;
         this.monsterName = '';
         this.vitality = 0;
-        return { events, done: true, defeatedMonster: true };
+        return {
+          events,
+          done: true,
+          defeatedMonster: true,
+        };
       }
     }
 
@@ -335,7 +345,11 @@ export class EncounterSession {
     this.monsterName = '';
     this.vitality = 0;
     resetPlayerAfterEncounter(this.player);
-    return { events, done: true, defeatedMonster: true };
+    return {
+      events,
+      done: true,
+      defeatedMonster: true,
+    };
   }
 
   private handleSpellChoice(raw: string): EncounterResult {
@@ -431,7 +445,10 @@ export class EncounterSession {
         }
         const attackResult = this.monsterAttack();
         events.push(...attackResult.events);
-        return { events, done: attackResult.done };
+        return {
+          events,
+          done: attackResult.done,
+        };
       }
       case Spell.FIREBALL: {
         const roll = this.rng.randint(1, 5);
@@ -528,6 +545,9 @@ export class EncounterSession {
     }
     const attackResult = this.monsterAttack();
     events.push(...attackResult.events);
-    return { events, done: attackResult.done };
+    return {
+      events,
+      done: attackResult.done,
+    };
   }
 }

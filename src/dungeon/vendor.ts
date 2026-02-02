@@ -112,14 +112,21 @@ export class VendorSession {
     switch (this.phase) {
       case 'attribute':
         this.phase = 'item';
-        return { events: [this.itemPrompt()] };
+        return {
+          events: [this.itemPrompt()],
+        };
       case 'item':
         this.phase = 'category';
         this.category = null;
-        return { events: [this.categoryPrompt()] };
+        return {
+          events: [this.categoryPrompt()],
+        };
       case 'category':
       default:
-        return { events: [Event.info('Perhaps another time.')], done: true };
+        return {
+          events: [Event.info('Perhaps another time.')],
+          done: true,
+        };
     }
   }
 
@@ -131,7 +138,9 @@ export class VendorSession {
       case 'P':
         this.category = raw;
         this.phase = 'item';
-        return { events: [this.itemPrompt()] };
+        return {
+          events: [this.itemPrompt()],
+        };
       case 'F':
         return this.purchaseFlares();
       default:
@@ -167,7 +176,9 @@ export class VendorSession {
   private handleShopWeapons(raw: string): VendorResult {
     const tier = ({ D: 1, S: 2, B: 3 } as const)[raw as 'D' | 'S' | 'B'];
     if (!tier) {
-      return { events: [Event.error('Choose D/S/B.'), this.itemPrompt()] };
+      return {
+        events: [Event.error('Choose D/S/B.'), this.itemPrompt()],
+      };
     }
     const price = WEAPON_PRICES[tier];
     if (this.player.gold < price) {
@@ -192,7 +203,9 @@ export class VendorSession {
   private handleShopArmor(raw: string): VendorResult {
     const tier = ({ L: 1, W: 2, C: 3 } as const)[raw as 'L' | 'W' | 'C'];
     if (!tier) {
-      return { events: [Event.error('Choose L/W/C.'), this.itemPrompt()] };
+      return {
+        events: [Event.error('Choose L/W/C.'), this.itemPrompt()],
+      };
     }
     const price = ARMOR_PRICES[tier];
     if (this.player.gold < price) {
@@ -209,7 +222,10 @@ export class VendorSession {
     this.player.armorName = ARMOR_NAMES[tier];
     this.player.armorDamaged = false;
     this.player.gold -= price;
-    return { events: [Event.info('Armor fitted and ready.')], done: true };
+    return {
+      events: [Event.info('Armor fitted and ready.')],
+      done: true,
+    };
   }
 
   private handleShopScrolls(raw: string): VendorResult {
@@ -223,7 +239,9 @@ export class VendorSession {
       } as const
     )[raw as 'P' | 'F' | 'L' | 'W' | 'T'];
     if (!spell) {
-      return { events: [Event.error('Choose P/F/L/W/T.'), this.itemPrompt()] };
+      return {
+        events: [Event.error('Choose P/F/L/W/T.'), this.itemPrompt()],
+      };
     }
     const price = SPELL_PRICES[spell];
     if (this.player.gold < price) {
@@ -238,7 +256,10 @@ export class VendorSession {
     }
     this.player.gold -= price;
     this.player.spells[spell] = (this.player.spells[spell] ?? 0) + 1;
-    return { events: [Event.info('A scroll is yours.')], done: true };
+    return {
+      events: [Event.info('A scroll is yours.')],
+      done: true,
+    };
   }
 
   private handleShopPotions(raw: string): VendorResult {
@@ -280,7 +301,9 @@ export class VendorSession {
         };
       }
       default:
-        return { events: [Event.error('Choose H or A.'), this.itemPrompt()] };
+        return {
+          events: [Event.error('Choose H or A.'), this.itemPrompt()],
+        };
     }
   }
 
@@ -298,7 +321,10 @@ export class VendorSession {
     }
     this.player.gold -= price;
     this.player.flares += 10;
-    return { events: [Event.info('Ten flares, as promised.')], done: true };
+    return {
+      events: [Event.info('Ten flares, as promised.')],
+      done: true,
+    };
   }
 
   private handleShopAttribute(raw: string): VendorResult {
