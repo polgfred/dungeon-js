@@ -207,7 +207,7 @@ export class EncounterSession {
       }
       if (this.rng.random() < 0.05 && this.player.weaponTier > 0) {
         this.player.weaponTier = 0;
-        this.player.weaponName = '(None)';
+        this.player.weaponName = '(Broken)';
         events.push(Event.info('Your weapon breaks with the impact!'));
       }
     }
