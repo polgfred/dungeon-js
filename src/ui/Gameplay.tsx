@@ -1208,6 +1208,22 @@ function DebugDialog({
   const encounterJson = snapshot.encounter
     ? JSON.stringify(snapshot.encounter, null, 2)
     : 'No active encounter.';
+  const buildInfo = [
+    `Commit: ${import.meta.env.VITE_BUILD_COMMIT_HASH}`,
+    `Built (UTC): ${import.meta.env.VITE_BUILD_TIMESTAMP}`,
+  ].join('\n');
+
+  const debugBlockSx = (theme: Theme) => ({
+    margin: 0,
+    padding: 1.5,
+    borderRadius: 1.5,
+    border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
+    background: alpha(theme.palette.primary.dark, 0.2),
+    fontSize: 12,
+    overflowX: 'auto',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+  });
 
   return (
     <Dialog
@@ -1227,6 +1243,14 @@ function DebugDialog({
       <DialogContent dividers>
         <Stack spacing={2}>
           <Stack spacing={1}>
+            <Typography variant="overline" sx={{ opacity: 0.7 }}>
+              Build
+            </Typography>
+            <Box component="pre" sx={debugBlockSx}>
+              {buildInfo}
+            </Box>
+          </Stack>
+          <Stack spacing={1}>
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography variant="overline" sx={{ opacity: 0.7 }}>
                 Player
@@ -1240,20 +1264,7 @@ function DebugDialog({
                 </IconButton>
               </Tooltip>
             </Stack>
-            <Box
-              component="pre"
-              sx={(theme) => ({
-                margin: 0,
-                padding: 1.5,
-                borderRadius: 1.5,
-                border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-                background: alpha(theme.palette.primary.dark, 0.2),
-                fontSize: 12,
-                overflowX: 'auto',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-              })}
-            >
+            <Box component="pre" sx={debugBlockSx}>
               {playerJson}
             </Box>
           </Stack>
@@ -1271,20 +1282,7 @@ function DebugDialog({
                 </IconButton>
               </Tooltip>
             </Stack>
-            <Box
-              component="pre"
-              sx={(theme) => ({
-                margin: 0,
-                padding: 1.5,
-                borderRadius: 1.5,
-                border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-                background: alpha(theme.palette.primary.dark, 0.2),
-                fontSize: 12,
-                overflowX: 'auto',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-              })}
-            >
+            <Box component="pre" sx={debugBlockSx}>
               {encounterJson}
             </Box>
           </Stack>
