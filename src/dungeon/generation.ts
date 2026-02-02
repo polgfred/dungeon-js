@@ -104,6 +104,8 @@ export function validateDungeon(dungeon: Dungeon): string[] {
 
   let exitCount = 0;
   let treasureCount = 0;
+  const stairsUpCounts = Array.from({ length: SIZE }, () => 0);
+  const stairsDownCounts = Array.from({ length: SIZE }, () => 0);
   for (let z = 0; z < SIZE; z += 1) {
     for (let y = 0; y < SIZE; y += 1) {
       if (dungeon.rooms[z][y].length !== SIZE) {
@@ -119,8 +121,17 @@ export function validateDungeon(dungeon: Dungeon): string[] {
         }
         if (room.treasureId) {
           treasureCount += 1;
+          if (room.feature !== Feature.EMPTY) {
+            errors.push('Treasure placed in non-empty room.');
+          }
+        }
+        if (room.monsterLevel > 0) {
+          if (room.feature !== Feature.EMPTY) {
+            errors.push('Monster placed in room with feature.');
+          }
         }
         if (room.feature === Feature.STAIRS_UP) {
+          stairsUpCounts[z] += 1;
           if (z === SIZE - 1) {
             errors.push('Stairs up on final floor.');
           } else {
@@ -130,7 +141,41 @@ export function validateDungeon(dungeon: Dungeon): string[] {
             }
           }
         }
+        if (room.feature === Feature.STAIRS_DOWN) {
+          stairsDownCounts[z] += 1;
+          if (z === 0) {
+            errors.push('Stairs down on first floor.');
+          } else {
+            const above = dungeon.rooms[z - 1][y][x];
+            if (above.feature !== Feature.STAIRS_UP) {
+              errors.push('Stair alignment mismatch.');
+            }
+          }
+        }
+        if (
+          (room.feature === Feature.EXIT ||
+            room.feature === Feature.STAIRS_UP ||
+            room.feature === Feature.STAIRS_DOWN) &&
+          (room.monsterLevel > 0 || room.treasureId > 0)
+        ) {
+          errors.push('Feature placed in room with monster or treasure.');
+        }
       }
+    }
+  }
+
+  for (let z = 0; z < SIZE; z += 1) {
+    if (z < SIZE - 1 && stairsUpCounts[z] !== 1) {
+      errors.push('Floor must contain exactly one staircase up.');
+    }
+    if (z === SIZE - 1 && stairsUpCounts[z] !== 0) {
+      errors.push('Final floor must not contain staircase up.');
+    }
+    if (z > 0 && stairsDownCounts[z] !== 1) {
+      errors.push('Floor must contain exactly one staircase down.');
+    }
+    if (z === 0 && stairsDownCounts[z] !== 0) {
+      errors.push('First floor must not contain staircase down.');
     }
   }
 
