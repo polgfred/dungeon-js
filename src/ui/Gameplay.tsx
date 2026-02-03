@@ -157,13 +157,6 @@ function MapGrid({
   );
 }
 
-function mapMatrixFromGrid(mapGrid: string[]): string[][] {
-  const defaultRow = '? ? ? ? ? ? ?'.split(' ');
-  return mapGrid.length > 0
-    ? mapGrid.map((row) => row.split(' '))
-    : Array.from({ length: 7 }, () => [...defaultRow]);
-}
-
 function MapPanel({
   onTrigger,
   mapGrid,
@@ -174,15 +167,13 @@ function MapPanel({
   buttonLayout = 'stacked',
 }: {
   onTrigger: (command: Command) => void;
-  mapGrid: string[];
+  mapGrid: string[][];
   playerX: number;
   playerY: number;
   movementCommandList: Command[];
   verticalCommandList: Command[];
   buttonLayout?: 'inline' | 'stacked' | 'compact';
 }) {
-  const mapMatrix = mapMatrixFromGrid(mapGrid);
-
   return (
     <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
       <Box
@@ -195,7 +186,7 @@ function MapPanel({
           alignItems: 'center',
         }}
       >
-        <MapGrid rows={mapMatrix} playerX={playerX} playerY={playerY} />
+        <MapGrid rows={mapGrid} playerX={playerX} playerY={playerY} />
         <Box
           sx={{
             display: 'grid',
@@ -282,7 +273,7 @@ function MobileMapPanel({
   windowSize = 3,
 }: {
   onTrigger: (command: Command) => void;
-  mapGrid: string[];
+  mapGrid: string[][];
   playerX: number;
   playerY: number;
   movementCommandList: Command[];
@@ -290,9 +281,8 @@ function MobileMapPanel({
   buttonLayout?: 'inline' | 'stacked' | 'compact';
   windowSize?: number;
 }) {
-  const mapMatrix = mapMatrixFromGrid(mapGrid);
-  const totalRows = mapMatrix.length;
-  const totalCols = mapMatrix[0]?.length ?? 0;
+  const totalRows = mapGrid.length;
+  const totalCols = mapGrid[0]?.length ?? 0;
   const safeWindowSize = Math.min(
     Math.max(windowSize, 1),
     totalRows,
@@ -307,7 +297,7 @@ function MobileMapPanel({
     0,
     Math.min(playerX - halfWindow, totalCols - safeWindowSize)
   );
-  const visibleRows = mapMatrix
+  const visibleRows = mapGrid
     .slice(rowStart, rowStart + safeWindowSize)
     .map((row) => row.slice(colStart, colStart + safeWindowSize));
   const mapCellWidth = safeWindowSize <= 3 ? 48 : 42;

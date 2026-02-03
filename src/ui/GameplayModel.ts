@@ -108,7 +108,7 @@ export type GameplayProps = {
 
 export type GameplayModel = {
   player: Player;
-  mapGrid: string[];
+  mapGrid: string[][];
   turnEvents: string[][];
   isEncounter: boolean;
   lastEventLines: string[];
@@ -151,7 +151,7 @@ export function useGameplayModel({
   const game = gameRef.current;
   const player = game.player;
   const [mode, setMode] = useState<Mode>(game.mode);
-  const [mapGrid, setMapGrid] = useState<string[]>(game.mapGrid());
+  const [mapGrid, setMapGrid] = useState<string[][]>(game.mapGrid());
   const [turnEvents, setTurnEvents] = useState<string[][]>([]);
   const [promptOptions, setPromptOptions] = useState<PromptOption[] | null>(
     null

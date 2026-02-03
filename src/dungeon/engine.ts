@@ -275,8 +275,8 @@ export class Game {
     return events;
   }
 
-  mapGrid(): string[] {
-    const grid: string[] = [];
+  mapGrid(): string[][] {
+    const grid: string[][] = [];
     for (let y = 0; y < Game.SIZE; y += 1) {
       const row: string[] = [];
       for (let x = 0; x < Game.SIZE; x += 1) {
@@ -291,7 +291,7 @@ export class Game {
           row.push(FEATURE_SYMBOLS[room.feature] ?? '-');
         }
       }
-      grid.push(row.join(' '));
+      grid.push(row);
     }
     return grid;
   }
