@@ -363,7 +363,7 @@ export class VendorSession {
       };
     }
     this.player.gold -= price;
-    const change = this.rng.randint(1, 6);
+    const change = this.rng.randint(1, 3);
     this.player.applyAttributeChange({ target, change });
     return {
       events: drinkAttributePotionEvents({ target, change }),
