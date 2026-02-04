@@ -573,56 +573,49 @@ export class Game {
       return [Event.info('There is no chest here.')];
     }
     room.feature = Feature.EMPTY;
-    const roll = this.rng.randint(1, 10);
-    switch (roll) {
-      case 1:
-        if (this.player.armorTier > 0) {
-          this.player.armorTier -= 1;
-          if (this.player.armorTier === 0) {
-            this.player.armorName = ARMOR_NAMES[0];
-            this.player.armorDamaged = false;
-            return [
-              Event.info(
-                'The perverse thing explodes as you open it, destroying your armour!'
-              ),
-            ];
-          }
-          this.player.armorDamaged = true;
+    const rand = this.rng.random();
+    if (rand < 0.1) {
+      if (this.player.armorTier > 0) {
+        this.player.armorTier -= 1;
+        if (this.player.armorTier === 0) {
+          this.player.armorName = ARMOR_NAMES[0];
+          this.player.armorDamaged = false;
           return [
             Event.info(
-              'The perverse thing explodes as you open it, damaging your armour!'
+              'The perverse thing explodes as you open it, destroying your armour!'
             ),
           ];
         }
-        this.player.armorName = ARMOR_NAMES[0];
-        this.player.armorDamaged = false;
-        this.player.hp -= this.rng.randint(0, 4) + 3;
-        if (this.player.hp <= 0) {
-          this.endMode = Mode.GAME_OVER;
-          return [
-            Event.info(
-              'The perverse thing explodes as you open it, wounding you!'
-            ),
-            Event.info('YOU HAVE DIED.'),
-          ];
-        }
+        this.player.armorDamaged = true;
+        return [
+          Event.info(
+            'The perverse thing explodes as you open it, damaging your armour!'
+          ),
+        ];
+      }
+      this.player.armorName = ARMOR_NAMES[0];
+      this.player.armorDamaged = false;
+      this.player.hp -= this.rng.randint(0, 4) + 3;
+      if (this.player.hp <= 0) {
+        this.endMode = Mode.GAME_OVER;
         return [
           Event.info(
             'The perverse thing explodes as you open it, wounding you!'
           ),
-        ];
-      case 2:
-      case 3:
-      case 4:
-        return [Event.info('It containeth naught.')];
-      default: {
-        const gold = 10 + this.rng.randint(0, 20);
-        this.player.gold += gold;
-        return [
-          Event.info(`You find ${gold} gold ${pluralize(gold, 'piece')}!`),
+          Event.info('YOU HAVE DIED.'),
         ];
       }
+      return [
+        Event.info('The perverse thing explodes as you open it, wounding you!'),
+      ];
     }
+    if (rand < 0.4) {
+      return [Event.info('It containeth naught.')];
+    }
+
+    const gold = 10 + this.rng.randint(0, 20);
+    this.player.gold += gold;
+    return [Event.info(`You find ${gold} gold ${pluralize(gold, 'piece')}!`)];
   }
 
   private readScroll(): Event[] {

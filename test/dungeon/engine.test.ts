@@ -42,7 +42,7 @@ describe('Game interactions', () => {
 
   describe('chests', () => {
     it('opens a chest and finds gold', () => {
-      const rng = new ScriptedRng({ randint: [5, 7] });
+      const rng = new ScriptedRng({ random: [0.5], randint: [7] });
       const { game, player, dungeon } = setupGame({
         feature: Feature.CHEST,
         rng,
@@ -56,7 +56,7 @@ describe('Game interactions', () => {
     });
 
     it('opens a chest and destroys armor when the trap triggers', () => {
-      const rng = new ScriptedRng({ randint: [1] });
+      const rng = new ScriptedRng({ random: [0.05] });
       const { game, player, dungeon } = setupGame({
         feature: Feature.CHEST,
         rng,
@@ -73,7 +73,7 @@ describe('Game interactions', () => {
     });
 
     it('opens a chest and dies from the explosion when unarmored', () => {
-      const rng = new ScriptedRng({ randint: [1, 2] });
+      const rng = new ScriptedRng({ random: [0.05], randint: [2] });
       const { game, player, dungeon } = setupGame({
         feature: Feature.CHEST,
         rng,
