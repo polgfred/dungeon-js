@@ -371,6 +371,7 @@ export function useGameplayModel({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.shiftKey && event.key !== '?') return;
       let key = event.key.toLowerCase();
       if (key === 'escape') key = 'esc';
       if (key === 'arrowup') key = 'n';
