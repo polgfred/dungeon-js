@@ -22,15 +22,20 @@ const movementCommands = [
   { id: 'move-west', key: 'W', label: 'West', disabled: false },
   { id: 'move-east', key: 'E', label: 'East', disabled: false },
   { id: 'move-south', key: 'S', label: 'South', disabled: false },
-];
+] satisfies readonly Command[];
 
 const verticalCommands = [
   { id: 'move-up', key: 'U', label: 'Up', disabled: false },
   { id: 'move-down', key: 'D', label: 'Down', disabled: false },
   { id: 'exit', key: 'X', label: 'Exit', disabled: false },
-];
+] satisfies readonly Command[];
 
-const helpCommand = { id: 'help', key: '?', label: 'Help', disabled: false };
+const helpCommand = {
+  id: 'help',
+  key: '?',
+  label: 'Help',
+  disabled: false,
+} satisfies Command;
 
 const roomCommands = [
   { id: 'flare', key: 'F', label: 'Flare', disabled: false },
@@ -40,13 +45,13 @@ const roomCommands = [
   { id: 'potion', key: 'P', label: 'Drink Potion', disabled: false },
   { id: 'buy', key: 'B', label: 'Buy Items', disabled: false },
   helpCommand,
-];
+] satisfies readonly Command[];
 
 const encounterCommands = [
   { id: 'fight', key: 'F', label: 'Fight', disabled: false },
   { id: 'run', key: 'R', label: 'Run', disabled: false },
   { id: 'spell', key: 'S', label: 'Cast Spell', disabled: false },
-];
+] satisfies readonly Command[];
 
 const ENDGAME_PROMPT = {
   victoryText: 'Victory! Play again?',
