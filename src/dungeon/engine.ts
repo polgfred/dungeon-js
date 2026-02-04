@@ -511,17 +511,17 @@ export class Game {
       return [Event.info('There is no mirror here.')];
     }
 
+    const visions = [
+      'The mirror is cloudy and yields no vision.',
+      'You see yourself dead and lying in a black coffin.',
+      'You see a dragon beckoning to you.',
+      'You see the three heads of a chimaera grinning at you.',
+      'You see the exit on the 7th floor, big and friendly-looking.',
+    ];
     const events: Event[] = [];
     if (this.player.treasuresFound.size === 10) {
-      events.push(Event.info('The mirror is cloudy and yields no vision.'));
+      events.push(Event.info(this.rng.choice(visions)));
     } else if (this.rng.randint(1, 50) > this.player.iq) {
-      const visions = [
-        'The mirror is cloudy and yields no vision.',
-        'You see yourself dead and lying in a black coffin.',
-        'You see a dragon beckoning to you.',
-        'You see the three heads of a chimaera grinning at you.',
-        'You see the exit on the 7th floor, big and friendly-looking.',
-      ];
       if (this.rng.randint(1, 10) <= 5) {
         events.push(Event.info(this.rng.choice(visions)));
       } else {
@@ -553,7 +553,7 @@ export class Game {
         }
       }
       if (locations.length === 0) {
-        events.push(Event.info('The mirror is cloudy and yields no vision.'));
+        events.push(Event.info(this.rng.choice(visions)));
       } else {
         const [treasure, z, y, x] = this.rng.choice(locations);
         events.push(

@@ -109,8 +109,8 @@ describe('Game interactions', () => {
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
 
-    it('looks in a mirror and gets a cloudy vision when all treasures are found', () => {
-      const rng = new ScriptedRng();
+    it('looks in a mirror and gets a random vision when all treasures are found', () => {
+      const rng = new ScriptedRng({ randint: [0] });
       const { game, dungeon } = setupGame({
         feature: Feature.MIRROR,
         rng,
