@@ -88,7 +88,10 @@ export class EncounterSession {
     return session;
   }
 
-  startEvents(): Event[] {
+  viewEvents(): Event[] {
+    if (this.awaitingSpell) {
+      return [Event.prompt('Choose a spell:', this.spellMenu())];
+    }
     const events: Event[] = [
       Event.combat(`You are facing an angry ${this.monsterName}!`),
     ];
@@ -96,20 +99,6 @@ export class EncounterSession {
       events.push(this.debugMonsterEvent());
     }
     return events;
-  }
-
-  resumeEvents(): Event[] {
-    if (this.awaitingSpell) {
-      return [Event.prompt('Choose a spell:', this.spellMenu())];
-    }
-    return this.startEvents();
-  }
-
-  prompt(): string {
-    if (this.awaitingSpell) {
-      return '?> ';
-    }
-    return 'F/R/S> ';
   }
 
   toSave(): EncounterSave {

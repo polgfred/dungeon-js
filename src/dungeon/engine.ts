@@ -241,10 +241,6 @@ export class Game {
     };
   }
 
-  prompt(): string {
-    return this.nextPrompt([]);
-  }
-
   statusEvents(): Event[] {
     const events: Event[] = [Event.status(this.statusData())];
     if (this.debug) {
@@ -289,26 +285,13 @@ export class Game {
         Event.info(
           'There is a vendor here. Do you wish to purchase something?'
         ),
-        ...this.shopSession.resumeEvents(),
+        ...this.shopSession.viewEvents(),
       ];
     }
     if (this.encounterSession) {
-      return this.encounterSession.resumeEvents();
+      return this.encounterSession.viewEvents();
     }
     return this.describeRoom(this.currentRoom());
-  }
-
-  private nextPrompt(events: Event[]): string {
-    if (this.shopSession) {
-      return this.shopSession.prompt();
-    }
-    if (this.encounterSession) {
-      return this.encounterSession.prompt();
-    }
-    if (events.some((event) => event.kind === 'PROMPT')) {
-      return '?> ';
-    }
-    return '--> ';
   }
 
   private currentRoom() {
@@ -397,7 +380,7 @@ export class Game {
         monsterLevel: room.monsterLevel,
         debug: this.debug,
       });
-      events.push(...this.encounterSession.startEvents());
+      events.push(...this.encounterSession.viewEvents());
       return events;
     }
 
@@ -742,7 +725,7 @@ export class Game {
       rng: this.rng,
       player: this.player,
     });
-    return this.shopSession.startEvents();
+    return this.shopSession.viewEvents();
   }
 
   private armorDisplayName(): string {

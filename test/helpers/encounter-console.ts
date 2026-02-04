@@ -152,7 +152,7 @@ function runEncounter(options: RunOptions): void {
   });
 
   console.log('=== Encounter start ===');
-  printEvents(session.startEvents());
+  printEvents(session.viewEvents());
 
   for (const command of options.commands) {
     console.log(`\n> ${command}`);

@@ -63,11 +63,7 @@ export class VendorSession {
     return session;
   }
 
-  startEvents(): Event[] {
-    return [this.categoryPrompt()];
-  }
-
-  resumeEvents(): Event[] {
+  viewEvents(): Event[] {
     switch (this.phase) {
       case 'item':
         return [this.itemPrompt()];
@@ -77,10 +73,6 @@ export class VendorSession {
       default:
         return [this.categoryPrompt()];
     }
-  }
-
-  prompt(): string {
-    return '?> ';
   }
 
   toSave(): VendorSave {
