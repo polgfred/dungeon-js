@@ -476,7 +476,8 @@ export class Game {
           'What? And hast thou abandoned thy quest before it was accomplished?'
         ),
         Event.info(
-          `The DUNGEON of DOOM still holds ${remaining} treasures that thine eyes shall never behold! Verily thy triumph is incomplete!`
+          `The DUNGEON of DOOM still holds ${remaining} ${pluralize(remaining, 'treasure')} ` +
+            `that thine eyes shall never behold! Verily thy triumph is incomplete!`
         ),
       ];
     }
