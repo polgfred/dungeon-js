@@ -13,6 +13,10 @@ export interface EncounterResult {
   enterRoom?: boolean;
 }
 
+export interface EncounterCancelResult {
+  events: Event[];
+}
+
 function resetPlayerAfterEncounter(player: Player) {
   player.fatigued = false;
   player.tempArmorBonus = 0;
@@ -144,7 +148,7 @@ export class EncounterSession {
     }
   }
 
-  attemptCancel(): EncounterResult {
+  attemptCancel(): EncounterCancelResult {
     if (!this.awaitingSpell) {
       return this.withDebug({
         events: [Event.info("I don't understand that.")],

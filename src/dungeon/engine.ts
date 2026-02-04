@@ -229,21 +229,8 @@ export class Game {
 
     if (this.encounterSession) {
       const result = this.encounterSession.attemptCancel();
-      if (result.done) {
-        this.encounterSession = null;
-        if (this.player.hp <= 0) {
-          this.endMode = Mode.GAME_OVER;
-        }
-      }
-      const events = result.events;
-      if (result.relocate) {
-        this.randomRelocate({ anyFloor: Boolean(result.relocateAnyFloor) });
-        if (result.enterRoom) {
-          events.push(...this.enterRoom());
-        }
-      }
       return {
-        events,
+        events: result.events,
         mode: this.mode,
       };
     }
