@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { EncounterSession } from '../src/dungeon/encounter.js';
+import { EncounterSession } from '../../src/dungeon/encounter.js';
 import {
   ARMOR_NAMES,
   MONSTER_NAMES,
   Spell,
   WEAPON_NAMES,
-} from '../src/dungeon/constants.js';
-import type { DebugEvent, Event } from '../src/dungeon/types.js';
-import { buildPlayer } from './helpers/factories.js';
-import { ScriptedRng } from './helpers/rng.js';
-import { defaultRandomSource } from '../src/dungeon/rng.js';
+} from '../../src/dungeon/constants.js';
+import type { DebugEvent, Event } from '../../src/dungeon/types.js';
+import { buildPlayer } from '../helpers/factories.js';
+import { ScriptedRng } from '../helpers/rng.js';
+import { defaultRandomSource } from '../../src/dungeon/rng.js';
 
 function eventTexts(events: Event[]): string[] {
   return events.map((event) => event.text);

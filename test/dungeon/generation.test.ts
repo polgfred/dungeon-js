@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { generateDungeon, validateDungeon } from '../src/dungeon/generation.js';
-import { defaultRandomSource } from '../src/dungeon/rng.js';
+import {
+  generateDungeon,
+  validateDungeon,
+} from '../../src/dungeon/generation.js';
+import { defaultRandomSource } from '../../src/dungeon/rng.js';
 
 describe('Dungeon generation invariants', () => {
   it('passes validation across many generations', () => {
