@@ -241,23 +241,6 @@ export class Game {
     };
   }
 
-  statusEvents(): Event[] {
-    const events: Event[] = [Event.status(this.statusData())];
-    if (this.debug) {
-      events.push(
-        Event.debug({
-          scope: 'stats',
-          weaponTier: this.player.weaponTier,
-          armorTier: this.player.armorTier,
-          armorDamaged: this.player.armorDamaged,
-          tempArmorBonus: this.player.tempArmorBonus,
-          fatigued: this.player.fatigued,
-        })
-      );
-    }
-    return events;
-  }
-
   mapGrid(): string[][] {
     const grid: string[][] = [];
     for (let y = 0; y < Game.SIZE; y += 1) {
@@ -521,26 +504,6 @@ export class Game {
       }
     }
     return [Event.info('The flare illuminates nearby rooms.')];
-  }
-
-  private statusData(): Record<string, number | string> {
-    return {
-      gold: this.player.gold,
-      treasures: this.player.treasuresFound.size,
-      flares: this.player.flares,
-      protection: this.player.spells[Spell.PROTECTION] ?? 0,
-      fireball: this.player.spells[Spell.FIREBALL] ?? 0,
-      lightning: this.player.spells[Spell.LIGHTNING] ?? 0,
-      weaken: this.player.spells[Spell.WEAKEN] ?? 0,
-      teleport: this.player.spells[Spell.TELEPORT] ?? 0,
-      armor: this.armorDisplayName(),
-      weapon: this.player.weaponName,
-      st: this.player.str,
-      dx: this.player.dex,
-      iq: this.player.iq,
-      hp: this.player.hp,
-      mhp: this.player.mhp,
-    };
   }
 
   private helpText(): string {

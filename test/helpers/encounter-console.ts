@@ -102,10 +102,6 @@ function printEvents(events: Event[]): void {
       }
       continue;
     }
-    if (event.kind === 'STATUS' || event.kind === 'MAP') {
-      console.log(`[${event.kind}] ${JSON.stringify(event.data)}`);
-      continue;
-    }
     if (event.kind === 'DEBUG') {
       console.log(`[${event.kind}] ${JSON.stringify(event.data)}`);
       continue;

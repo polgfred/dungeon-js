@@ -6,8 +6,6 @@ export type EventKind =
   | 'COMBAT'
   | 'LOOT'
   | 'PROMPT'
-  | 'STATUS'
-  | 'MAP'
   | 'DEBUG';
 
 export type InfoEvent = { kind: 'INFO'; text: string };
@@ -36,29 +34,13 @@ export type PromptEvent = {
   data?: PromptData;
 };
 
-export type StatusEvent = {
-  kind: 'STATUS';
-  text: '';
-  data: Record<string, number | string>;
-};
-
-export type MapEvent = {
-  kind: 'MAP';
-  text: '';
-  data: {
-    grid: string[];
-  };
-};
-
 export type Event =
   | InfoEvent
   | ErrorEvent
   | CombatEvent
   | LootEvent
   | DebugEvent
-  | PromptEvent
-  | StatusEvent
-  | MapEvent;
+  | PromptEvent;
 
 export const Event = {
   info(text: string): InfoEvent {
@@ -75,12 +57,6 @@ export const Event = {
   },
   prompt(text: string, data?: PromptData): PromptEvent {
     return data ? { kind: 'PROMPT', text, data } : { kind: 'PROMPT', text };
-  },
-  status(data: Record<string, number | string>): StatusEvent {
-    return { kind: 'STATUS', text: '', data };
-  },
-  map(grid: string[]): MapEvent {
-    return { kind: 'MAP', text: '', data: { grid } };
   },
   debug(data: DebugData): DebugEvent {
     return { kind: 'DEBUG', text: '', data };
