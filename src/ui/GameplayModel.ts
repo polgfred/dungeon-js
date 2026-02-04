@@ -182,8 +182,7 @@ export function useGameplayModel({
   const isGameOver = mode === Mode.GAME_OVER;
   const isVictory = mode === Mode.VICTORY;
   const isEndState = isGameOver || isVictory;
-  const currentRoomFeature =
-    game.dungeon.rooms[player.z][player.y][player.x].feature;
+  const roomFeature = game.dungeon.rooms[player.z][player.y][player.x].feature;
   const canCastSpell =
     player.iq >= 12 && Object.values(player.spells).some((count) => count > 0);
   const canRun = !player.fatigued;
@@ -191,72 +190,95 @@ export function useGameplayModel({
   const atSouthWall = player.y >= Game.SIZE - 1;
   const atWestWall = player.x <= 0;
   const atEastWall = player.x >= Game.SIZE - 1;
-  const navigationLocked =
+  const navLocked =
     isEncounter || isEndState || Boolean(promptOptions && promptOptions.length);
-  const movementCommandList = useMemo(
-    () => {
-      const movementDisabledByKey: Record<string, boolean> = {
-        N: atNorthWall || navigationLocked,
-        S: atSouthWall || navigationLocked,
-        W: atWestWall || navigationLocked,
-        E: atEastWall || navigationLocked,
-      };
-      return movementCommands.map((command) =>
-        command.key in movementDisabledByKey
-          ? { ...command, disabled: movementDisabledByKey[command.key] }
-          : command
-      );
-    },
-    [atNorthWall, atSouthWall, atWestWall, atEastWall, navigationLocked]
-  );
-  const verticalCommandList = useMemo(
-    () => {
-      const verticalDisabledByKey: Record<string, boolean> = {
-        U: navigationLocked || currentRoomFeature !== Feature.STAIRS_UP,
-        D: navigationLocked || currentRoomFeature !== Feature.STAIRS_DOWN,
-        X: navigationLocked || currentRoomFeature !== Feature.EXIT,
-      };
-      return verticalCommands.map((command) =>
-        command.key in verticalDisabledByKey
-          ? { ...command, disabled: verticalDisabledByKey[command.key] }
-          : command
-      );
-    },
-    [currentRoomFeature, navigationLocked]
-  );
-  const roomCommandList = useMemo(
-    () => {
-      const roomDisabledByKey: Record<string, boolean> = {
-        F: player.flares < 1,
-        L: currentRoomFeature !== Feature.MIRROR,
-        O: currentRoomFeature !== Feature.CHEST,
-        R: currentRoomFeature !== Feature.SCROLL,
-        P: currentRoomFeature !== Feature.POTION,
-        B: currentRoomFeature !== Feature.VENDOR,
-      };
-      return roomCommands.map((command) =>
-        command.key in roomDisabledByKey
-          ? { ...command, disabled: roomDisabledByKey[command.key] }
-          : command
-      );
-    },
-    [currentRoomFeature, player.flares]
-  );
-  const captureDebugSnapshot = useCallback(() => {
-    setDebugSnapshot({
-      player: serializePlayer(player),
-      encounter: game.getEncounterSave(),
+  const movementCommandList = useMemo(() => {
+    return movementCommands.map((command) => {
+      switch (command.key) {
+        case 'N':
+          return { ...command, disabled: atNorthWall || navLocked };
+        case 'S':
+          return { ...command, disabled: atSouthWall || navLocked };
+        case 'W':
+          return { ...command, disabled: atWestWall || navLocked };
+        case 'E':
+          return { ...command, disabled: atEastWall || navLocked };
+        default:
+          return command;
+      }
     });
-  }, [game, player]);
+  }, [atNorthWall, atSouthWall, atWestWall, atEastWall, navLocked]);
+  const verticalCommandList = useMemo(() => {
+    return verticalCommands.map((command) => {
+      switch (command.key) {
+        case 'U':
+          return {
+            ...command,
+            disabled: navLocked || roomFeature !== Feature.STAIRS_UP,
+          };
+        case 'D':
+          return {
+            ...command,
+            disabled: navLocked || roomFeature !== Feature.STAIRS_DOWN,
+          };
+        case 'X':
+          return {
+            ...command,
+            disabled: navLocked || roomFeature !== Feature.EXIT,
+          };
+        default:
+          return command;
+      }
+    });
+  }, [roomFeature, navLocked]);
+  const roomCommandList = useMemo(() => {
+    return roomCommands.map((command) => {
+      switch (command.key) {
+        case 'F':
+          return {
+            ...command,
+            disabled: player.flares < 1,
+          };
+        case 'L':
+          return {
+            ...command,
+            disabled: roomFeature !== Feature.MIRROR,
+          };
+        case 'O':
+          return {
+            ...command,
+            disabled: roomFeature !== Feature.CHEST,
+          };
+        case 'R':
+          return {
+            ...command,
+            disabled: roomFeature !== Feature.SCROLL,
+          };
+        case 'P':
+          return {
+            ...command,
+            disabled: roomFeature !== Feature.POTION,
+          };
+        case 'B':
+          return {
+            ...command,
+            disabled: roomFeature !== Feature.VENDOR,
+          };
+        default:
+          return command;
+      }
+    });
+  }, [roomFeature, player.flares]);
   const encounterCommandList = useMemo(() => {
     const base = encounterCommands.map((command) => {
-      if (command.key === 'S') {
-        return { ...command, disabled: !canCastSpell };
+      switch (command.key) {
+        case 'S':
+          return { ...command, disabled: !canCastSpell };
+        case 'R':
+          return { ...command, disabled: !canRun };
+        default:
+          return command;
       }
-      if (command.key === 'R') {
-        return { ...command, disabled: !canRun };
-      }
-      return command;
     });
     return [...base, helpCommand];
   }, [canCastSpell, canRun]);
@@ -307,6 +329,13 @@ export function useGameplayModel({
     commands.forEach((command) => map.set(command.key.toLowerCase(), command));
     return map;
   }, [activeCommands, promptCommands]);
+
+  const captureDebugSnapshot = useCallback(() => {
+    setDebugSnapshot({
+      player: serializePlayer(player),
+      encounter: game.getEncounterSave(),
+    });
+  }, [game, player]);
 
   const applyStepResult = useCallback(
     (result: StepResult) => {
