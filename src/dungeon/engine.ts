@@ -309,8 +309,6 @@ export class Game {
         return this.drinkPotion();
       case 'B':
         return this.openVendor();
-      case 'H':
-        return [Event.info(this.helpText())];
       default:
         return [];
     }
@@ -504,22 +502,6 @@ export class Game {
       }
     }
     return [Event.info('The flare illuminates nearby rooms.')];
-  }
-
-  private helpText(): string {
-    return (
-      'COMMAND SUMMARY:\n' +
-      'Move: N=North  S=South  E=East  W=West  U=Up  D=Down\n' +
-      'Act:  L=Look  O=Open chest  R=Read scroll  P=Potion  F=Flare  B=Buy\n' +
-      'Info: H=Help  X=eXit\n' +
-      '\n' +
-      'Encounter: F=Fight  R=Run  S=Spell\n' +
-      '\n' +
-      'MAP LEGEND:\n' +
-      '-=Empty  m=Mirror  s=Scroll  c=Chest  f=Flares  p=Potion\n' +
-      'v=Vendor  t=Thief  w=Warp  U=Up  D=Down  X=eXit\n' +
-      'T=Treasure  M=Monster  *=You  ·=Unknown'
-    );
   }
 
   private useMirror(): Event[] {

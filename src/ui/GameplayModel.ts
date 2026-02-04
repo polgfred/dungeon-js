@@ -224,7 +224,6 @@ export function useGameplayModel({
     R: currentRoomFeature !== Feature.SCROLL,
     P: currentRoomFeature !== Feature.POTION,
     B: currentRoomFeature !== Feature.VENDOR,
-    H: false,
   };
   const roomCommandList = useMemo(
     () =>

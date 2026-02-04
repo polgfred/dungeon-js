@@ -49,7 +49,6 @@ export const EXPLORE_COMMANDS = new Set([
   'R',
   'P',
   'B',
-  'H',
 ]);
 
 export const ENCOUNTER_COMMANDS = new Set(['F', 'R', 'S']);
