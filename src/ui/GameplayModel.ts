@@ -193,51 +193,54 @@ export function useGameplayModel({
   const atEastWall = player.x >= Game.SIZE - 1;
   const navigationLocked =
     isEncounter || isEndState || Boolean(promptOptions && promptOptions.length);
-  const movementDisabledByKey: Record<string, boolean> = {
-    N: atNorthWall || navigationLocked,
-    S: atSouthWall || navigationLocked,
-    W: atWestWall || navigationLocked,
-    E: atEastWall || navigationLocked,
-  };
   const movementCommandList = useMemo(
-    () =>
-      movementCommands.map((command) =>
+    () => {
+      const movementDisabledByKey: Record<string, boolean> = {
+        N: atNorthWall || navigationLocked,
+        S: atSouthWall || navigationLocked,
+        W: atWestWall || navigationLocked,
+        E: atEastWall || navigationLocked,
+      };
+      return movementCommands.map((command) =>
         command.key in movementDisabledByKey
           ? { ...command, disabled: movementDisabledByKey[command.key] }
           : command
-      ),
-    [movementDisabledByKey]
+      );
+    },
+    [atNorthWall, atSouthWall, atWestWall, atEastWall, navigationLocked]
   );
-  const verticalDisabledByKey: Record<string, boolean> = {
-    U: navigationLocked || currentRoomFeature !== Feature.STAIRS_UP,
-    D: navigationLocked || currentRoomFeature !== Feature.STAIRS_DOWN,
-    X: navigationLocked || currentRoomFeature !== Feature.EXIT,
-  };
   const verticalCommandList = useMemo(
-    () =>
-      verticalCommands.map((command) =>
+    () => {
+      const verticalDisabledByKey: Record<string, boolean> = {
+        U: navigationLocked || currentRoomFeature !== Feature.STAIRS_UP,
+        D: navigationLocked || currentRoomFeature !== Feature.STAIRS_DOWN,
+        X: navigationLocked || currentRoomFeature !== Feature.EXIT,
+      };
+      return verticalCommands.map((command) =>
         command.key in verticalDisabledByKey
           ? { ...command, disabled: verticalDisabledByKey[command.key] }
           : command
-      ),
-    [verticalDisabledByKey]
+      );
+    },
+    [currentRoomFeature, navigationLocked]
   );
-  const roomDisabledByKey: Record<string, boolean> = {
-    F: player.flares < 1,
-    L: currentRoomFeature !== Feature.MIRROR,
-    O: currentRoomFeature !== Feature.CHEST,
-    R: currentRoomFeature !== Feature.SCROLL,
-    P: currentRoomFeature !== Feature.POTION,
-    B: currentRoomFeature !== Feature.VENDOR,
-  };
   const roomCommandList = useMemo(
-    () =>
-      roomCommands.map((command) =>
+    () => {
+      const roomDisabledByKey: Record<string, boolean> = {
+        F: player.flares < 1,
+        L: currentRoomFeature !== Feature.MIRROR,
+        O: currentRoomFeature !== Feature.CHEST,
+        R: currentRoomFeature !== Feature.SCROLL,
+        P: currentRoomFeature !== Feature.POTION,
+        B: currentRoomFeature !== Feature.VENDOR,
+      };
+      return roomCommands.map((command) =>
         command.key in roomDisabledByKey
           ? { ...command, disabled: roomDisabledByKey[command.key] }
           : command
-      ),
-    [roomDisabledByKey]
+      );
+    },
+    [currentRoomFeature, player.flares]
   );
   const captureDebugSnapshot = useCallback(() => {
     setDebugSnapshot({
