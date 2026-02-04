@@ -673,13 +673,6 @@ export class Game {
     return this.shopSession.viewEvents();
   }
 
-  private armorDisplayName(): string {
-    if (this.player.armorDamaged) {
-      return `${this.player.armorName} (damaged)`;
-    }
-    return this.player.armorName;
-  }
-
   private randomRelocate(options: { anyFloor: boolean }): void {
     if (options.anyFloor) {
       this.player.z = this.rng.randrange(Game.SIZE);
