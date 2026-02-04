@@ -311,6 +311,50 @@ describe('Game interactions', () => {
       expect(resumedExplore.mode).toBe(Mode.EXPLORE);
     });
 
+    it('resumes in encounter spell selection with spell prompt events', () => {
+      const player = buildPlayer({ z: 0, y: 0, x: 0 });
+      const game = new Game({ seed: 0, player });
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][0].monsterLevel = 1;
+      game.dungeon = dungeon;
+      game.rng = new ScriptedRng({ randint: [0] });
+      game.startEvents();
+      game.step('S');
+
+      const resumed = Game.fromSave(game.toSave());
+      const events = resumed.resumeEvents();
+      const promptEvent = events.find((event) => event.kind === 'PROMPT');
+
+      expect(resumed.mode).toBe(Mode.ENCOUNTER);
+      expect(events).toHaveLength(1);
+      expect(promptEvent?.text).toBe('Choose a spell:');
+      expect(promptEvent?.data?.hasCancel).toBe(true);
+      expect(promptEvent?.data?.options).toHaveLength(5);
+    });
+
+    it('resumes in vendor item selection with vendor intro and item prompt', () => {
+      const player = buildPlayer({ z: 0, y: 0, x: 0, gold: 100 });
+      const game = new Game({ seed: 0, player });
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][0].feature = Feature.VENDOR;
+      game.dungeon = dungeon;
+      game.step('B');
+      game.step('W');
+
+      const resumed = Game.fromSave(game.toSave());
+      const events = resumed.resumeEvents();
+      const promptEvent = events.find((event) => event.kind === 'PROMPT');
+
+      expect(events).toHaveLength(2);
+      expect(events[0]).toMatchObject({
+        kind: 'INFO',
+        text: 'There is a vendor here. Do you wish to purchase something?',
+      });
+      expect(promptEvent?.text).toBe('Choose a weapon:');
+      expect(promptEvent?.data?.hasCancel).toBe(true);
+      expect(promptEvent?.data?.options).toHaveLength(3);
+    });
+
     it('throws when save version is missing', () => {
       const game = new Game({ seed: 0, player: buildPlayer() });
       const save = game.toSave() as Record<string, unknown>;
