@@ -42,6 +42,15 @@ type LogEntry = {
   dim?: boolean;
 };
 
+type PanelProps = {
+  children: React.ReactNode;
+  height?: number;
+  width?: number | string;
+  backgroundColor?: string;
+  borderColor?: string;
+  paddingX?: number;
+};
+
 type PromptState = {
   text: string;
   options: PromptOption[];
@@ -53,6 +62,164 @@ type InitState = {
   events: Event[];
   savePath: string;
 };
+
+function Panel({
+  children,
+  height,
+  width,
+  backgroundColor,
+  borderColor = COLORS.border,
+  paddingX = 1,
+}: PanelProps) {
+  return (
+    <Box
+      borderStyle="round"
+      borderColor={borderColor}
+      paddingX={paddingX}
+      height={height}
+      width={width}
+      backgroundColor={backgroundColor}
+    >
+      {children}
+    </Box>
+  );
+}
+
+function MapPanel({
+  mapRows,
+  mapBoxHeight,
+}: {
+  mapRows: ReturnType<typeof renderMap>;
+  mapBoxHeight: number;
+}) {
+  return (
+    <Panel height={mapBoxHeight} backgroundColor={COLORS.mapBg}>
+      <Box flexDirection="column">
+        {mapRows.map((row) => (
+          <Box key={row.key} gap={1}>
+            {row.cells.map((cell, index) => (
+              <Text
+                key={`${row.key}-${index}`}
+                color={cell.color}
+                inverse={cell.inverse}
+              >
+                {cell.text}
+              </Text>
+            ))}
+          </Box>
+        ))}
+      </Box>
+    </Panel>
+  );
+}
+
+const LogPanel = React.forwardRef<
+  ScrollViewRef,
+  {
+    logEntries: LogEntry[];
+    logHeight: number;
+    logViewportHeight: number;
+  }
+>(function LogPanel({ logEntries, logHeight, logViewportHeight }, scrollRef) {
+  return (
+    <Panel height={logHeight + 2} backgroundColor={COLORS.logBg}>
+      <ScrollView
+        ref={scrollRef}
+        height={logViewportHeight}
+        width="100%"
+        overflow="hidden"
+      >
+        {logEntries.map((entry, index) => (
+          <Text
+            key={`log-${index}`}
+            color={entry.color ?? COLORS.logInfo}
+            dimColor={entry.dim}
+          >
+            {entry.text || ' '}
+          </Text>
+        ))}
+      </ScrollView>
+    </Panel>
+  );
+});
+
+function PromptPanel({
+  promptLine,
+  promptBoxHeight,
+}: {
+  promptLine: string;
+  promptBoxHeight: number;
+}) {
+  return (
+    <Panel height={promptBoxHeight} backgroundColor={COLORS.promptBg}>
+      <Text color={COLORS.panelText}>{promptLine}</Text>
+    </Panel>
+  );
+}
+
+function StatsPanel({ game, hpLine }: { game: Game; hpLine: string }) {
+  const player = game.player;
+  return (
+    <Panel backgroundColor={COLORS.panelBg}>
+      <Box flexDirection="column">
+        <Text bold color={COLORS.panelText}>
+          Mode
+        </Text>
+        <Text color={COLORS.panelText}>{Mode[game.mode]}</Text>
+        <Text></Text>
+        <Text bold color={COLORS.panelText}>
+          Stats
+        </Text>
+        <Text color={COLORS.panelText}>STR {player.str}</Text>
+        <Text color={COLORS.panelText}>DEX {player.dex}</Text>
+        <Text color={COLORS.panelText}>IQ {player.iq}</Text>
+        <Text color={player.hp < 10 ? COLORS.logError : COLORS.panelText}>
+          HP {hpLine}
+        </Text>
+      </Box>
+    </Panel>
+  );
+}
+
+function InventoryPanel({ player }: { player: Game['player'] }) {
+  return (
+    <Panel backgroundColor={COLORS.panelBg}>
+      <Box flexDirection="column">
+        <Text bold color={COLORS.panelText}>
+          Inventory
+        </Text>
+        <Text color={COLORS.panelText}>Gold: {player.gold}</Text>
+        <Text color={COLORS.panelText}>
+          Weapon: {player.weaponName}
+          {player.weaponBroken ? ' *' : ''}
+        </Text>
+        <Text color={COLORS.panelText}>
+          Armor: {player.armorName}
+          {player.armorDamaged ? ' *' : ''}
+        </Text>
+        <Text color={COLORS.panelText}>Flares: {player.flares}</Text>
+        <Text color={COLORS.panelText}>
+          Treasures: {player.treasuresFound.size}/10
+        </Text>
+      </Box>
+    </Panel>
+  );
+}
+
+function LocationPanel({ player }: { player: Game['player'] }) {
+  return (
+    <Panel backgroundColor={COLORS.panelBg}>
+      <Box flexDirection="column">
+        <Text bold color={COLORS.panelText}>
+          Location
+        </Text>
+        <Text color={COLORS.panelText}>
+          Floor {player.z + 1} - Room {player.y + 1},{player.x + 1}
+        </Text>
+      </Box>
+    </Panel>
+  );
+}
 
 function createDefaultGame(options: { seed: number; debug: boolean }): Game {
   const rng = defaultRandomSource;
@@ -262,7 +429,7 @@ function useEventLog(initialEvents: Event[]) {
   return { logEntries, prompt, applyEvents };
 }
 
-function DungeonApp(props: InitState) {
+function App(props: InitState) {
   const { exit } = useApp();
   const [game, setGame] = useState(props.game);
   const [tick, setTick] = useState(0);
@@ -445,127 +612,22 @@ function DungeonApp(props: InitState) {
       <Box height={gapHeight} />
       <Box flexDirection="row" flexGrow={1} height={contentHeight}>
         <Box flexDirection="column" flexGrow={1} marginRight={1}>
-          <Box
-            borderStyle="round"
-            borderColor={COLORS.border}
-            paddingX={1}
-            height={mapBoxHeight}
-            backgroundColor={COLORS.mapBg}
-          >
-            <Box flexDirection="column">
-              {mapRows.map((row) => (
-                <Box key={row.key} gap={1}>
-                  {row.cells.map((cell, index) => (
-                    <Text
-                      key={`${row.key}-${index}`}
-                      color={cell.color}
-                      inverse={cell.inverse}
-                    >
-                      {cell.text}
-                    </Text>
-                  ))}
-                </Box>
-              ))}
-            </Box>
-          </Box>
-          <Box
-            borderStyle="round"
-            borderColor={COLORS.border}
-            paddingX={1}
-            height={logHeight + 2}
-            backgroundColor={COLORS.logBg}
-          >
-            <ScrollView
-              ref={logScrollRef}
-              height={logViewportHeight}
-              width="100%"
-              overflow="hidden"
-            >
-              {logEntries.map((entry, index) => (
-                <Text
-                  key={`log-${index}`}
-                  color={entry.color ?? COLORS.logInfo}
-                  dimColor={entry.dim}
-                >
-                  {entry.text || ' '}
-                </Text>
-              ))}
-            </ScrollView>
-          </Box>
-          <Box
-            borderStyle="round"
-            borderColor={COLORS.border}
-            paddingX={1}
-            height={promptBoxHeight}
-            backgroundColor={COLORS.promptBg}
-          >
-            <Text color={COLORS.panelText}>{promptLine}</Text>
-          </Box>
+          <MapPanel mapRows={mapRows} mapBoxHeight={mapBoxHeight} />
+          <LogPanel
+            logEntries={logEntries}
+            logHeight={logHeight}
+            logViewportHeight={logViewportHeight}
+            ref={logScrollRef}
+          />
+          <PromptPanel
+            promptLine={promptLine}
+            promptBoxHeight={promptBoxHeight}
+          />
         </Box>
         <Box flexDirection="column" width={rightPaneWidth}>
-          <Box
-            borderStyle="round"
-            borderColor={COLORS.border}
-            paddingX={1}
-            backgroundColor={COLORS.panelBg}
-          >
-            <Box flexDirection="column">
-              <Text bold color={COLORS.panelText}>
-                Mode
-              </Text>
-              <Text color={COLORS.panelText}>{Mode[game.mode]}</Text>
-              <Text></Text>
-              <Text bold color={COLORS.panelText}>
-                Stats
-              </Text>
-              <Text color={COLORS.panelText}>STR {player.str}</Text>
-              <Text color={COLORS.panelText}>DEX {player.dex}</Text>
-              <Text color={COLORS.panelText}>IQ {player.iq}</Text>
-              <Text color={player.hp < 10 ? COLORS.logError : COLORS.panelText}>
-                HP {hpLine}
-              </Text>
-            </Box>
-          </Box>
-          <Box
-            borderStyle="round"
-            borderColor={COLORS.border}
-            paddingX={1}
-            backgroundColor={COLORS.panelBg}
-          >
-            <Box flexDirection="column">
-              <Text bold color={COLORS.panelText}>
-                Inventory
-              </Text>
-              <Text color={COLORS.panelText}>Gold: {player.gold}</Text>
-              <Text color={COLORS.panelText}>
-                Weapon: {player.weaponName}
-                {player.weaponBroken ? ' *' : ''}
-              </Text>
-              <Text color={COLORS.panelText}>
-                Armor: {player.armorName}
-                {player.armorDamaged ? ' *' : ''}
-              </Text>
-              <Text color={COLORS.panelText}>Flares: {player.flares}</Text>
-              <Text color={COLORS.panelText}>
-                Treasures: {player.treasuresFound.size}/10
-              </Text>
-            </Box>
-          </Box>
-          <Box
-            borderStyle="round"
-            borderColor={COLORS.border}
-            paddingX={1}
-            backgroundColor={COLORS.panelBg}
-          >
-            <Box flexDirection="column">
-              <Text bold color={COLORS.panelText}>
-                Location
-              </Text>
-              <Text color={COLORS.panelText}>
-                Floor {player.z + 1} - Room {player.y + 1},{player.x + 1}
-              </Text>
-            </Box>
-          </Box>
+          <StatsPanel game={game} hpLine={hpLine} />
+          <InventoryPanel player={player} />
+          <LocationPanel player={player} />
         </Box>
       </Box>
       <Box height={gapHeight} />
@@ -647,4 +709,4 @@ async function init(): Promise<InitState> {
 }
 
 const state = await init();
-render(<DungeonApp {...state} />);
+render(<App {...state} />);
