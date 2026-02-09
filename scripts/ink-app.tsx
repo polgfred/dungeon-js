@@ -1,8 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Text, render, useApp, useInput, useStdout } from 'ink';
+import { ScrollView, type ScrollViewRef } from 'ink-scroll-view';
 
 import { Game } from '../src/dungeon/engine.js';
 import { Player } from '../src/dungeon/model.js';
@@ -268,8 +269,13 @@ function DungeonApp(props: InitState) {
   const [savePath] = useState(props.savePath);
   const { logEntries, prompt, applyEvents } = useEventLog(props.events);
   const { stdout } = useStdout();
-  const columns = stdout?.columns ?? process.stdout.columns ?? 80;
-  const rows = stdout?.rows ?? process.stdout.rows ?? 24;
+  const logScrollRef = useRef<ScrollViewRef>(null);
+  const [stickToBottom, setStickToBottom] = useState(true);
+  const [terminalSize, setTerminalSize] = useState(() => ({
+    columns: stdout.columns,
+    rows: stdout.rows,
+  }));
+  const { columns, rows } = terminalSize;
 
   const mapRows = useMemo(() => renderMap(game), [game, tick]);
   const defaultHelp = useMemo(() => buildDefaultHelp(game), [game, tick]);
@@ -288,12 +294,18 @@ function DungeonApp(props: InitState) {
   const mapHeight = Game.SIZE + 1;
   const mapBoxHeight = mapHeight + 3;
   const promptBoxHeight = 3;
+  const usableRows = Math.max(0, rows - 1);
   const contentHeight = Math.max(
     0,
-    rows - screenPadding * 2 - headerHeight - footerHeight - gapHeight * 2
+    usableRows - screenPadding * 2 - headerHeight - footerHeight - gapHeight * 2
   );
-  const logHeight = Math.max(4, contentHeight - mapBoxHeight - promptBoxHeight);
-  
+  const logGutter = 1;
+  const logHeight = Math.max(
+    4,
+    contentHeight - mapBoxHeight - promptBoxHeight - logGutter
+  );
+  const logViewportHeight = Math.max(1, logHeight - 1);
+
   const refresh = () => setTick((value) => value + 1);
 
   const handleStep = (command: string) => {
@@ -327,6 +339,37 @@ function DungeonApp(props: InitState) {
       ...loaded.resumeEvents(),
     ]);
     refresh();
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setTerminalSize({
+        columns: stdout.columns,
+        rows: stdout.rows,
+      });
+      logScrollRef.current?.remeasure();
+    };
+    stdout.on('resize', handleResize);
+    return () => {
+      stdout.off('resize', handleResize);
+    };
+  }, [stdout]);
+
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      logScrollRef.current?.remeasure();
+      if (stickToBottom) {
+        logScrollRef.current?.scrollToBottom();
+      }
+    }, 0);
+    return () => clearTimeout(handle);
+  }, [logEntries.length, stickToBottom]);
+
+  const scrollLogBy = (delta: number) => {
+    logScrollRef.current?.scrollBy(delta);
+    const offset = logScrollRef.current?.getScrollOffset() ?? 0;
+    const bottom = logScrollRef.current?.getBottomOffset() ?? 0;
+    setStickToBottom(offset >= bottom);
   };
 
   useInput((input, key) => {
@@ -366,6 +409,16 @@ function DungeonApp(props: InitState) {
       handleCancel();
       return;
     }
+    if (key.pageUp) {
+      const height = logScrollRef.current?.getViewportHeight() ?? 1;
+      scrollLogBy(-height);
+      return;
+    }
+    if (key.pageDown) {
+      const height = logScrollRef.current?.getViewportHeight() ?? 1;
+      scrollLogBy(height);
+      return;
+    }
     if (!input || input.length !== 1) {
       return;
     }
@@ -381,7 +434,7 @@ function DungeonApp(props: InitState) {
     <Box
       flexDirection="column"
       backgroundColor={COLORS.screenBg}
-      height={rows}
+      height={usableRows}
       padding={screenPadding}
     >
       <Box backgroundColor={COLORS.headerBg} paddingX={1} height={headerHeight}>
@@ -422,7 +475,12 @@ function DungeonApp(props: InitState) {
             height={logHeight + 2}
             backgroundColor={COLORS.logBg}
           >
-            <Box flexDirection="column" height={logHeight}>
+            <ScrollView
+              ref={logScrollRef}
+              height={logViewportHeight}
+              width="100%"
+              overflow="hidden"
+            >
               {logEntries.map((entry, index) => (
                 <Text
                   key={`log-${index}`}
@@ -432,7 +490,7 @@ function DungeonApp(props: InitState) {
                   {entry.text || ' '}
                 </Text>
               ))}
-            </Box>
+            </ScrollView>
           </Box>
           <Box
             borderStyle="round"
