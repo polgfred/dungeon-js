@@ -293,13 +293,7 @@ function DungeonApp(props: InitState) {
     rows - screenPadding * 2 - headerHeight - footerHeight - gapHeight * 2
   );
   const logHeight = Math.max(4, contentHeight - mapBoxHeight - promptBoxHeight);
-  const visibleLog = logEntries.slice(-logHeight);
-  const logPad = Math.max(0, logHeight - visibleLog.length);
-  const paddedLog: LogEntry[] = [
-    ...Array.from({ length: logPad }, () => ({ text: '' })),
-    ...visibleLog,
-  ];
-
+  
   const refresh = () => setTick((value) => value + 1);
 
   const handleStep = (command: string) => {
@@ -429,7 +423,7 @@ function DungeonApp(props: InitState) {
             backgroundColor={COLORS.logBg}
           >
             <Box flexDirection="column" height={logHeight}>
-              {paddedLog.map((entry, index) => (
+              {logEntries.map((entry, index) => (
                 <Text
                   key={`log-${index}`}
                   color={entry.color ?? COLORS.logInfo}
