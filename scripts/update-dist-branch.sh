@@ -1,26 +1,17 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_WORKTREE="${DIST_WORKTREE:-/workspaces/dungeon-js-dist}"
 
 usage() {
-  echo "Usage: $(basename "$0") [--push]"
+  echo "Usage: $(basename "$0")"
   echo "  DIST_WORKTREE=/path/to/worktree can override the default"
 }
 
 if [[ "${1-}" == "-h" || "${1-}" == "--help" ]]; then
   usage
   exit 0
-fi
-
-PUSH=false
-if [[ "${1-}" == "--push" ]]; then
-  PUSH=true
-elif [[ -n "${1-}" ]]; then
-  echo "Unknown arg: $1" >&2
-  usage
-  exit 1
 fi
 
 if [[ ! -e "$DIST_WORKTREE/.git" ]]; then
@@ -36,19 +27,16 @@ if [[ "$BRANCH" != "dist" ]]; then
 fi
 
 echo "Building app..."
-(cd "$ROOT_DIR" && npm run build)
+BUILD_COMMIT_HASH="$(git rev-parse --short HEAD)"
+VITE_BUILD_COMMIT_HASH="$BUILD_COMMIT_HASH" npm run build -- --base=/dungeon-js/
 
 echo "Syncing dist/ to dist worktree..."
 git -C "$DIST_WORKTREE" rm -r --quiet .
-rsync -a "$ROOT_DIR/dist/" "$DIST_WORKTREE/"
+rsync -a ./dist/ "$DIST_WORKTREE/"
 git -C "$DIST_WORKTREE" add -A
 
 if git -C "$DIST_WORKTREE" diff --cached --quiet; then
   echo "No changes to commit."
 else
   git -C "$DIST_WORKTREE" commit -m "Update dist build"
-fi
-
-if [[ "$PUSH" == "true" ]]; then
-  git -C "$DIST_WORKTREE" push origin dist
 fi
