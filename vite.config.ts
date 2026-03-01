@@ -9,15 +9,7 @@ export default defineConfig(({ mode }) => {
   const enableCompression = mode === 'server';
 
   return {
-    plugins: [
-      react(),
-      ...(enableCompression
-        ? [
-            // Enable if your host serves precompressed assets with Content-Encoding.
-            compression(),
-          ]
-        : []),
-    ],
+    plugins: [react(), ...(enableCompression ? [compression()] : [])],
     server: {
       host: true,
     },
