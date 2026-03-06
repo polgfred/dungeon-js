@@ -156,6 +156,38 @@ describe('Game interactions', () => {
       expect(player.iq).toBe(11);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
+
+    it('drinks an MHP potion and increases max HP by double', () => {
+      const rng = new ScriptedRng({ randint: [2, 3, 3], random: [0.4] });
+      const { game, player, dungeon } = setupGame({
+        feature: Feature.POTION,
+        rng,
+      });
+
+      const result = game.step('P');
+
+      expect(result.events[0].text).toBe('You drink the potion...');
+      expect(result.events[1].text).toBe('Strange energies surge through you.');
+      expect(player.mhp).toBe(26);
+      expect(player.hp).toBe(16);
+      expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
+    });
+
+    it('drinks an MHP potion and decreases max HP by double', () => {
+      const rng = new ScriptedRng({ randint: [2, 3, 3], random: [0.6] });
+      const { game, player, dungeon } = setupGame({
+        feature: Feature.POTION,
+        rng,
+      });
+
+      const result = game.step('P');
+
+      expect(result.events[0].text).toBe('You drink the potion...');
+      expect(result.events[1].text).toBe('You feel weaker.');
+      expect(player.mhp).toBe(14);
+      expect(player.hp).toBe(4);
+      expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
+    });
   });
 
   describe('encounter handoff', () => {
