@@ -190,6 +190,46 @@ describe('Game interactions', () => {
     });
   });
 
+  describe('thief', () => {
+    it('damages a player with no gold and kills him', () => {
+      const rng = new ScriptedRng({ randint: [4] });
+      const { game, player, dungeon } = setupGame({
+        feature: Feature.THIEF,
+        rng,
+      });
+
+      player.hp = 4;
+      const result = game.startEvents();
+
+      expect(result[0].text).toBe(
+        'A thief sneaks from the shadows and attacks you!'
+      );
+      expect(player.hp).toBe(0);
+      expect(result[1].text).toBe('YOU HAVE DIED.');
+      expect(game.mode).toBe(Mode.GAME_OVER);
+      expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
+    });
+
+    it('steals gold if player has gold', () => {
+      const rng = new ScriptedRng({ randint: [3] });
+      const { game, player, dungeon } = setupGame({
+        feature: Feature.THIEF,
+        rng,
+      });
+
+      player.gold = 10;
+      const result = game.startEvents();
+
+      expect(result[0].text).toBe(
+        'A thief sneaks from the shadows and removes 3 gold pieces from your possession.'
+      );
+      expect(player.gold).toBe(7);
+      expect(player.hp).toBe(10);
+      expect(game.mode).toBe(Mode.EXPLORE);
+      expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
+    });
+  });
+
   describe('encounter handoff', () => {
     function setupEncounter(options: {
       monsterLevel: number;

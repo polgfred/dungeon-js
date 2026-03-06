@@ -379,9 +379,21 @@ export class Game {
         break;
       }
       case Feature.THIEF: {
+        room.feature = Feature.EMPTY;
+        if (this.player.gold === 0) {
+          const damage = this.rng.randint(2, 4);
+          this.player.hp = Math.max(0, this.player.hp - damage);
+          events.push(
+            Event.info('A thief sneaks from the shadows and attacks you!')
+          );
+          if (this.player.hp <= 0) {
+            events.push(Event.info('YOU HAVE DIED.'));
+            this.endMode = Mode.GAME_OVER;
+          }
+          break;
+        }
         const stolen = Math.min(this.rng.randint(1, 50), this.player.gold);
         this.player.gold -= stolen;
-        room.feature = Feature.EMPTY;
         events.push(
           Event.info(
             `A thief sneaks from the shadows and removes ${stolen} gold ${pluralize(stolen, 'piece')} ` +
