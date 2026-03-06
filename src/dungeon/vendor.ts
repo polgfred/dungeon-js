@@ -355,7 +355,10 @@ export class VendorSession {
       };
     }
     this.player.gold -= price;
-    const change = this.rng.randint(1, 3);
+    let change = this.rng.randint(1, 3);
+    if (target === 'MHP') {
+      change *= 2;
+    }
     this.player.applyAttributeChange({ target, change });
     return {
       events: drinkAttributePotionEvents({ target, change }),
