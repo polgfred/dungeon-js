@@ -406,6 +406,7 @@ export class Game {
         break;
       }
       case Feature.WARP:
+        room.feature = Feature.EMPTY;
         events.push(
           Event.info(
             'This room contains a warp. Before you realize what is going on, you appear elsewhere...'
