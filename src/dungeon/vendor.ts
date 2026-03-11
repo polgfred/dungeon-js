@@ -23,7 +23,7 @@ export interface VendorResult {
   done?: boolean;
 }
 
-const raceLabel = (race: Race): string => {
+function raceLabel(race: Race): string {
   switch (race) {
     case Race.HUMAN:
       return 'Human';
@@ -36,7 +36,7 @@ const raceLabel = (race: Race): string => {
     default:
       return 'Adventurer';
   }
-};
+}
 
 export class VendorSession {
   private rng: RandomSource;
