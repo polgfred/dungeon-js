@@ -10,14 +10,14 @@ import {
 } from './constants.js';
 import { EncounterSession } from './encounter.js';
 import { generateDungeon } from './generation.js';
-import { Player } from './model.js';
+import type { Dungeon, Player, Room } from './model.js';
 import {
   type GameSave,
   type EncounterSave,
   deserializeGame,
   serializeGame,
 } from './serialization.js';
-import { Event, StepResult } from './types.js';
+import { Event, type StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
 import { defaultRandomSource, type RandomSource } from './rng.js';
 import {
@@ -36,7 +36,7 @@ export class Game {
   saveVersion = Game.SAVE_VERSION;
   rng: RandomSource;
   player: Player;
-  dungeon: ReturnType<typeof generateDungeon>;
+  dungeon: Dungeon;
   private endMode: Mode.GAME_OVER | Mode.VICTORY | null = null;
   private encounterSession: EncounterSession | null = null;
   private shopSession: VendorSession | null = null;
@@ -57,7 +57,7 @@ export class Game {
     player: Player;
     rng?: RandomSource | null;
     debug?: boolean;
-    dungeon?: ReturnType<typeof generateDungeon>;
+    dungeon?: Dungeon;
   }) {
     this.rng = options.rng ?? defaultRandomSource;
     this.player = options.player;
@@ -426,7 +426,7 @@ export class Game {
     return events;
   }
 
-  private describeRoom(room: ReturnType<typeof this.currentRoom>): Event[] {
+  private describeRoom(room: Room): Event[] {
     const events: Event[] = [];
 
     if (room.monsterLevel > 0) {

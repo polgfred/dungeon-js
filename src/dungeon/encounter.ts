@@ -1,7 +1,7 @@
 import { MONSTER_NAMES, Spell } from './constants.js';
 import type { EncounterSave } from './serialization.js';
 import type { Player } from './model.js';
-import { Event, PromptData } from './types.js';
+import { Event, type PromptData } from './types.js';
 import type { RandomSource } from './rng.js';
 
 export interface EncounterResult {
