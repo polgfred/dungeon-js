@@ -180,7 +180,10 @@ export class Game {
           }
         }
         if (result.relocate) {
-          this.randomRelocate({ anyFloor: Boolean(result.relocateAnyFloor) });
+          this.randomRelocate({
+            anyFloor: Boolean(result.relocateAnyFloor),
+            avoidMonsters: Boolean(result.relocateAvoidMonsters),
+          });
           if (result.enterRoom) {
             events.push(...this.enterRoom());
           }
@@ -408,7 +411,10 @@ export class Game {
             'This room contains a warp. Before you realize what is going on, you appear elsewhere...'
           )
         );
-        this.randomRelocate({ anyFloor: true });
+        this.randomRelocate({
+          anyFloor: true,
+          avoidMonsters: false,
+        });
         events.push(...this.enterRoom());
         break;
       default:
@@ -682,7 +688,10 @@ export class Game {
     return this.shopSession.viewEvents();
   }
 
-  private randomRelocate(options: { anyFloor: boolean }): void {
+  private randomRelocate(options: {
+    anyFloor: boolean;
+    avoidMonsters: boolean;
+  }): void {
     if (options.anyFloor) {
       this.player.z = this.rng.randrange(Game.SIZE);
     }
@@ -690,6 +699,12 @@ export class Game {
       const ny = this.rng.randrange(Game.SIZE);
       const nx = this.rng.randrange(Game.SIZE);
       if (ny === this.player.y && nx === this.player.x) {
+        continue;
+      }
+      if (
+        options.avoidMonsters &&
+        this.dungeon.rooms[this.player.z][ny][nx].monsterLevel > 0
+      ) {
         continue;
       }
       this.player.y = ny;

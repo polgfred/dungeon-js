@@ -10,6 +10,7 @@ export interface EncounterResult {
   defeatedMonster?: boolean;
   relocate?: boolean;
   relocateAnyFloor?: boolean;
+  relocateAvoidMonsters?: boolean;
   enterRoom?: boolean;
 }
 
@@ -521,6 +522,7 @@ export class EncounterSession {
           done: true,
           relocate: true,
           relocateAnyFloor: false,
+          relocateAvoidMonsters: true,
           enterRoom: true,
         };
       }
