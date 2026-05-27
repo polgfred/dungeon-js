@@ -4,8 +4,6 @@ import { createRoot } from 'react-dom/client';
 
 import App from './App.js';
 
-import './fonts.css';
-
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
@@ -13,21 +11,13 @@ if (!rootElement) {
 }
 
 const docEl = document.documentElement;
-if ('fonts' in document) {
-  docEl.classList.add('fonts-loading');
-  try {
-    await Promise.all([
-      document.fonts.load('16px "EightBit Atari"'),
-      document.fonts.ready,
-    ]);
-    docEl.classList.remove('fonts-loading');
-    docEl.classList.add('fonts-loaded');
-  } catch {
-    docEl.classList.remove('fonts-loading');
-    docEl.classList.add('fonts-failed');
-  }
-} else {
+try {
+  await document.fonts.ready;
+  docEl.classList.remove('fonts-loading');
   docEl.classList.add('fonts-loaded');
+} catch {
+  docEl.classList.remove('fonts-loading');
+  docEl.classList.add('fonts-failed');
 }
 
 const theme = createTheme({

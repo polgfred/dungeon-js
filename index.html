@@ -1,8 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="fonts-loading">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="preload"
+      href="/src/assets/fonts/EightBitAtari-Regular.woff"
+      as="font"
+      type="font/woff"
+      crossorigin
+    />
+    <style>
+      @font-face {
+        font-family: 'EightBit Atari';
+        src: url('/src/assets/fonts/EightBitAtari-Regular.woff') format('woff');
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+      }
+
+      html.fonts-loading body {
+        visibility: hidden;
+      }
+    </style>
     <title>Dungeon JS</title>
   </head>
   <body>
