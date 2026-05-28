@@ -1,0 +1,24 @@
+:root {
+  --primary-main: #235082;
+  --primary-light: #3b6a9a;
+  --primary-light-rgb: 59, 106, 154;
+  --primary-dark: #183a5e;
+  --primary-dark-rgb: 24, 58, 94;
+
+  --bg-default: #000000;
+  --bg-default-rgb: 0, 0, 0;
+  --bg-paper: #235082;
+  --bg-paper-rgb: 35, 80, 130;
+
+  --text-primary: #d0d0d0;
+  --text-primary-rgb: 208, 208, 208;
+  --text-secondary: #9ed9ff;
+  --text-disabled: rgba(255, 255, 255, 0.5);
+
+  --error-light: #e57373;
+  --error-main: #f44336;
+
+  --grey-200: #eeeeee;
+
+  --font-family: 'EightBit Atari';
+}

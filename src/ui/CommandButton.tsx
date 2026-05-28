@@ -1,5 +1,7 @@
-import { Button, Stack, Typography, useMediaQuery } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import clsx from 'clsx';
+
+import styles from './CommandButton.module.css';
+import { useMediaQuery } from './useMediaQuery.js';
 
 export type Command = {
   id: string;
@@ -32,23 +34,22 @@ export function CommandButton({
   onTrigger,
   layout = 'inline',
 }: CommandButtonProps) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery('(max-width: 899px)');
   const stacked = layout === 'stacked';
   const compact = layout === 'compact';
   const inlineCompact = layout === 'inline' && isMobile;
   const arrowKeys: Record<string, string> = {
-    N: '\uE01C',
-    S: '\uE01D',
-    W: '\uE01E',
-    E: '\uE01F',
+    N: '',
+    S: '',
+    W: '',
+    E: '',
   };
   const displayKey = command.key.startsWith('Shift+')
-    ? `\uE01C${command.key.slice(6)}`
+    ? `${command.key.slice(6)}`
     : command.id.startsWith('move-') && command.key in arrowKeys
       ? arrowKeys[command.key]
       : command.key === 'Esc'
-        ? `\uE11B`
+        ? ``
         : command.key;
   const isNav = command.id.startsWith('move-') || command.id === 'exit';
   const showKeyHint = !isMobile || compact;
@@ -59,79 +60,64 @@ export function CommandButton({
       : inlineCompact
         ? 'ui-cmd-inline-compact'
         : 'ui-cmd-inline';
+  const small = stacked || compact || inlineCompact;
   return (
-    <Button
-      variant={command.primary ? 'contained' : 'outlined'}
+    <button
+      type="button"
       onClick={() => onTrigger(command)}
-      color="primary"
-      size={stacked || compact || inlineCompact ? 'small' : 'medium'}
       disabled={Boolean(command.disabled)}
-      className={[isNav ? 'ui-nav-button' : '', layoutClass]
-        .filter(Boolean)
-        .join(' ')}
-      sx={{
-        textTransform: 'none',
-      }}
+      className={clsx(
+        'btn',
+        command.primary ? 'btn-contained' : 'btn-outlined',
+        small && 'btn-small',
+        isNav && 'ui-nav-button',
+        layoutClass,
+        styles.button
+      )}
     >
       {compact ? (
-        <Typography
-          sx={{
-            fontSize: isNav ? 'var(--cmd-nav-key-size, 12px)' : 'inherit',
-            fontWeight: 600,
-          }}
-        >
+        <span className={clsx(styles.compactKey, isNav && styles.navKey)}>
           {displayKey}
-        </Typography>
+        </span>
       ) : stacked ? (
-        <Stack spacing={0.2} alignItems="center">
-          <Typography
-            sx={{
-              fontSize: isNav ? 'var(--cmd-nav-label-size, 11px)' : 'inherit',
-            }}
-          >
+        <span className={styles.stackedInner}>
+          <span className={clsx(isNav && styles.navLabelStacked)}>
             {command.label}
-          </Typography>
+          </span>
           {showKeyHint && (
-            <Typography
-              variant="caption"
-              className={isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'}
+            <span
+              className={clsx(
+                'txt-caption',
+                isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'
+              )}
             >
               {displayKey}
-            </Typography>
+            </span>
           )}
-        </Stack>
+        </span>
       ) : (
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          sx={{ width: '100%' }}
-        >
-          <Typography
-            sx={{
-              fontSize: inlineCompact
-                ? isNav
-                  ? 'var(--cmd-nav-label-size, 12px)'
-                  : 'inherit'
-                : isNav
-                  ? 'var(--cmd-nav-label-size, 13px)'
-                  : 'inherit',
-              lineHeight: 1.2,
-              flex: 1,
-            }}
+        <span className={styles.inlineInner}>
+          <span
+            className={clsx(
+              styles.label,
+              isNav &&
+                (inlineCompact ? styles.navLabelInlineCompact : styles.navLabel)
+            )}
           >
             {command.label}
-          </Typography>
+          </span>
           {showKeyHint && (
-            <Typography
-              variant="caption"
-              className={isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'}
+            <span
+              className={clsx(
+                'txt-caption',
+                isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'
+              )}
             >
               {displayKey}
-            </Typography>
+            </span>
           )}
-        </Stack>
+        </span>
       )}
-    </Button>
+    </button>
   );
 }

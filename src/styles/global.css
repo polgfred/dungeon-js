@@ -1,0 +1,262 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-default);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+button {
+  font-family: inherit;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 16px;
+  min-width: 64px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.75;
+  letter-spacing: 0.02857em;
+  text-transform: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background-color 200ms,
+    border-color 200ms,
+    color 200ms;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+.btn-contained {
+  background-color: var(--text-primary);
+  color: var(--primary-main);
+  border-color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+.btn-contained:hover {
+  background-color: var(--grey-200);
+  border-color: var(--grey-200);
+}
+
+.btn-outlined {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: rgba(var(--primary-light-rgb), 0.5);
+}
+.btn-outlined:hover {
+  border-color: rgba(var(--primary-light-rgb), 0.7);
+  background-color: rgba(var(--primary-light-rgb), 0.5);
+}
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  min-width: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.btn-icon:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+.btn-icon:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+p {
+  margin: 0;
+}
+
+.txt-h5 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.334;
+  letter-spacing: 0em;
+}
+
+.txt-body2 {
+  font-size: 0.875rem;
+  line-height: 1.43;
+}
+
+.txt-caption {
+  font-size: 0.75rem;
+  line-height: 1.66;
+  opacity: 0.75;
+}
+
+.txt-overline {
+  font-size: 0.75rem;
+  line-height: 2.66;
+  letter-spacing: 0.08333em;
+  text-transform: uppercase;
+}
+
+.ui-muted {
+  opacity: 0.75;
+}
+
+.ui-tip {
+  opacity: 0.6;
+  font-size: 11px;
+}
+@media (min-width: 900px) {
+  .ui-tip {
+    font-size: 13px;
+  }
+}
+
+.ui-tip-compact {
+  opacity: 0.6;
+  font-size: 10px;
+}
+@media (min-width: 900px) {
+  .ui-tip-compact {
+    font-size: 11px;
+  }
+}
+
+.ui-tip-compact-nav {
+  opacity: 0.6;
+  font-size: 10px;
+}
+@media (min-width: 900px) {
+  .ui-tip-compact-nav {
+    font-size: 11px;
+  }
+}
+
+.btn.ui-cmd-inline {
+  min-width: 0;
+  padding: 8px 16px;
+  letter-spacing: 0.6px;
+  font-size: 13px;
+  text-align: left;
+}
+
+.btn.ui-cmd-inline-compact {
+  min-width: 0;
+  padding: 7.8px 11.2px;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+  text-align: left;
+}
+@media (min-width: 900px) {
+  .btn.ui-cmd-inline-compact {
+    font-size: 11px;
+  }
+}
+
+.btn.ui-cmd-stacked {
+  min-width: 72px;
+  padding: 4.8px 12px;
+  letter-spacing: 0.8px;
+  font-size: 11px;
+}
+@media (min-width: 900px) {
+  .btn.ui-cmd-stacked {
+    font-size: 10px;
+  }
+}
+
+.btn.ui-cmd-compact {
+  min-width: 44px;
+  padding: 4.8px 9.6px;
+  letter-spacing: 1.2px;
+  font-size: 12px;
+}
+@media (min-width: 900px) {
+  .btn.ui-cmd-compact {
+    font-size: 11px;
+  }
+}
+
+.btn.ui-nav-button {
+  --cmd-nav-label-size: 13px;
+  --cmd-nav-key-size: 12px;
+  min-width: 48px;
+}
+@media (min-width: 900px) {
+  .btn.ui-nav-button.ui-cmd-stacked {
+    padding: 3px 8px;
+  }
+}
+
+.ui-panel :where(p, span:not([class]), span.txt) {
+  font-size: 13px;
+}
+.ui-panel :where(.txt-caption) {
+  font-size: 11px;
+}
+@media (min-width: 900px) {
+  .ui-panel :where(p, span:not([class]), span.txt) {
+    font-size: 16px;
+  }
+  .ui-panel :where(.txt-caption) {
+    font-size: 13px;
+  }
+}
+
+.ui-panel-title {
+  font-size: 14px;
+}
+@media (min-width: 900px) {
+  .ui-panel-title {
+    font-size: 18px;
+  }
+}
+
+.ui-panel-title-compact {
+  font-size: 12px;
+}
+@media (min-width: 900px) {
+  .ui-panel-title-compact {
+    font-size: 13px;
+  }
+}

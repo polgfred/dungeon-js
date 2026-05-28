@@ -1,7 +1,6 @@
-import { Box } from '@mui/material';
-import { alpha, type Theme } from '@mui/material/styles';
 import { useCallback, useEffect, useState } from 'react';
 
+import styles from './App.module.css';
 import type { GameSave } from './dungeon/serialization.js';
 import type { Player } from './dungeon/model.js';
 import { deserializePlayer } from './dungeon/serialization.js';
@@ -11,35 +10,6 @@ import SetupGame from './ui/SetupGame.js';
 import TitleScreen from './ui/TitleScreen.js';
 
 type View = 'home' | 'setup' | 'gameplay';
-
-const screenStyle = (theme: Theme) => ({
-  minHeight: '100vh',
-  color: theme.palette.text.primary,
-  background: `linear-gradient(135deg, ${alpha(
-    theme.palette.background.default,
-    0.96
-  )}, ${alpha(theme.palette.primary.dark, 0.92)} 60%, ${alpha(
-    theme.palette.background.default,
-    0.96
-  )})`,
-  backgroundImage: `linear-gradient(135deg, ${alpha(
-    theme.palette.background.default,
-    0.96
-  )}, ${alpha(theme.palette.primary.dark, 0.92)} 60%, ${alpha(
-    theme.palette.background.default,
-    0.96
-  )}), repeating-linear-gradient(
-    0deg,
-    rgba(0,0,0,0.22) 0px,
-    rgba(0,0,0,0.22) 1px,
-    rgba(0,0,0,0) 1px,
-    rgba(0,0,0,0) 3px
-  )`,
-  backgroundBlendMode: 'screen',
-  position: 'relative',
-  overflow: 'hidden',
-  padding: { xs: 2, md: 4 },
-});
 
 export default function App() {
   const [view, setView] = useState<View>('home');
@@ -69,7 +39,7 @@ export default function App() {
   }, [navigate, player, view]);
 
   return (
-    <Box component="main" sx={(theme) => screenStyle(theme)}>
+    <main className={styles.screen}>
       {view === 'home' && (
         <TitleScreen
           onStart={() => {
@@ -127,6 +97,6 @@ export default function App() {
           }}
         />
       )}
-    </Box>
+    </main>
   );
 }

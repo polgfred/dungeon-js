@@ -1,16 +1,4 @@
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-} from '@mui/material';
-import { alpha, type Theme, useTheme } from '@mui/material/styles';
+import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 
 import helpHtmlContent from '../assets/help.html?raw';
@@ -18,50 +6,22 @@ import type { Player } from '../dungeon/model.js';
 import type { EncounterSave, PlayerSave } from '../dungeon/serialization.js';
 import type { PromptOption } from '../dungeon/types.js';
 import { CommandButton, type Command } from './CommandButton.js';
+import { Dialog, DialogContent, DialogTitle } from './Dialog.js';
 import type { GameplayModel, GameplayProps } from './GameplayModel.js';
 import { useGameplayModel } from './GameplayModel.js';
-
-const helpContentSx = {
-  '& h1': { marginTop: 0, opacity: 0.75 },
-  '& h2, & h3': { opacity: 0.75 },
-  '& h1, & h2, & h3': {
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-  },
-  '& li': { marginBottom: 0.5 },
-  '& ul li::marker': { content: '"- "' },
-};
-
-const panelStyle = (theme: Theme) => ({
-  background: alpha(theme.palette.background.paper, 0.9),
-  border: `1px solid ${alpha(theme.palette.primary.light, 0.5)}`,
-  boxShadow: `0 0 28px ${alpha(theme.palette.primary.dark, 0.4)}`,
-  borderRadius: 2,
-  padding: { xs: 2, md: 3 },
-});
-
-const subtleBoxStyle = (theme: Theme) => ({
-  padding: 1.5,
-  borderRadius: 2,
-  border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-  background: alpha(theme.palette.primary.dark, 0.18),
-});
+import styles from './Gameplay.module.css';
+import { Tooltip } from './Tooltip.js';
+import { useMediaQuery } from './useMediaQuery.js';
 
 function CopyIcon() {
   return (
-    <Box
-      component="svg"
+    <svg
       viewBox="0 0 24 24"
       aria-hidden="true"
-      sx={{
-        width: 18,
-        height: 18,
-        display: 'block',
-        fill: 'currentColor',
-      }}
+      className={styles.copyIcon}
     >
       <path d="M16 1H6C4.9 1 4 1.9 4 3v12h2V3h10V1zm3 4H10c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h9c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16h-9V7h9v14z" />
-    </Box>
+    </svg>
   );
 }
 
@@ -83,27 +43,16 @@ function MapGrid({
   mapCellWidth?: number;
 }) {
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateRows: `repeat(${rows.length}, 1fr)`,
-        gap: 0.5,
-        width: 'fit-content',
-        maxWidth: '100%',
-        alignContent: 'center',
-        justifyItems: 'center',
-        justifyContent: 'center',
-      }}
+    <div
+      className={styles.mapGridOuter}
+      style={{ gridTemplateRows: `repeat(${rows.length}, 1fr)` }}
     >
       {rows.map((row, rowIndex) => (
-        <Box
+        <div
           key={`row-${rowIndex}`}
-          sx={{
-            display: 'grid',
+          className={styles.mapGridRow}
+          style={{
             gridTemplateColumns: `repeat(${row.length}, minmax(0, ${mapCellWidth}px))`,
-            gap: 0.5,
-            width: 'fit-content',
-            maxWidth: '100%',
           }}
         >
           {row.map((cell, colIndex) => {
@@ -111,49 +60,28 @@ function MapGrid({
               rowOffset + rowIndex === playerY &&
               colOffset + colIndex === playerX;
             const cellBox = (
-              <Box
-                sx={(theme) => ({
-                  borderRadius: 0.5,
-                  border: isPlayerCell
-                    ? `2px solid ${alpha(theme.palette.primary.light, 0.9)}`
-                    : `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-                  background: isPlayerCell
-                    ? alpha(theme.palette.primary.dark, 0.32)
-                    : alpha(theme.palette.primary.dark, 0.26),
-                  display: 'grid',
-                  padding: 0.25,
-                  placeItems: 'center',
-                  width: mapCellWidth,
-                  fontSize: 14,
-                  color:
-                    cell === '·'
-                      ? alpha(theme.palette.text.primary, 0.35)
-                      : theme.palette.text.primary,
-                  transition: 'background-color 150ms ease',
-                  '&:hover': {
-                    background: alpha(theme.palette.primary.light, 0.18),
-                  },
-                })}
+              <div
+                className={clsx(
+                  styles.mapCell,
+                  isPlayerCell && styles.mapCellPlayer,
+                  cell === '·' && styles.mapCellDim
+                )}
+                style={{ width: mapCellWidth }}
               >
                 {cell}
-              </Box>
+              </div>
             );
             return showTooltips ? (
-              <Tooltip
-                key={`${rowIndex}-${colIndex}`}
-                title={mapTooltip(cell)}
-                arrow
-                placement="top"
-              >
+              <Tooltip key={`${rowIndex}-${colIndex}`} title={mapTooltip(cell)}>
                 {cellBox}
               </Tooltip>
             ) : (
-              <Box key={`${rowIndex}-${colIndex}`}>{cellBox}</Box>
+              <div key={`${rowIndex}-${colIndex}`}>{cellBox}</div>
             );
           })}
-        </Box>
+        </div>
       ))}
-    </Box>
+    </div>
   );
 }
 
@@ -175,78 +103,38 @@ function MapPanel({
   buttonLayout?: 'inline' | 'stacked' | 'compact';
 }) {
   return (
-    <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) auto' },
-          columnGap: 10,
-          rowGap: 2,
-          paddingX: { xs: 0, md: 5 },
-          alignItems: 'center',
-        }}
-      >
+    <div className={clsx('ui-panel', styles.panel)}>
+      <div className={styles.mapPanelLayout}>
         <MapGrid rows={mapGrid} playerX={playerX} playerY={playerY} />
-        <Box
-          sx={{
-            display: 'grid',
-            gap: 1,
-            justifyItems: 'center',
-            minWidth: 120,
-          }}
-        >
-          <Box
-            sx={{
-              display: 'grid',
-              gap: 0.5,
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gridTemplateRows: 'repeat(3, 1fr)',
-            }}
-          >
-            <Box />
+        <div className={styles.mapControls}>
+          <div className={styles.mapDpad}>
+            <div />
             <CommandButton
               command={movementCommandList[0]}
               onTrigger={onTrigger}
               layout={buttonLayout}
             />
-            <Box />
+            <div />
             <CommandButton
               command={movementCommandList[1]}
               onTrigger={onTrigger}
               layout={buttonLayout}
             />
-            <Box
-              sx={{
-                borderRadius: 1,
-                border: '1px dashed rgba(255,255,255,0.2)',
-                minHeight: 40,
-              }}
-            />
+            <div className={styles.mapDpadCenter} />
             <CommandButton
               command={movementCommandList[2]}
               onTrigger={onTrigger}
               layout={buttonLayout}
             />
-            <Box />
+            <div />
             <CommandButton
               command={movementCommandList[3]}
               onTrigger={onTrigger}
               layout={buttonLayout}
             />
-            <Box />
-          </Box>
-          <Box
-            sx={{
-              display: 'grid',
-              gap: 0.5,
-              gridTemplateColumns: 'repeat(auto-fit, minmax(64px, 1fr))',
-              justifyItems: 'stretch',
-              width: '100%',
-              '& .MuiButton-root': {
-                width: '100%',
-              },
-            }}
-          >
+            <div />
+          </div>
+          <div className={styles.mapVerticals}>
             {verticalCommandList.map((command) => (
               <CommandButton
                 key={command.id}
@@ -255,10 +143,10 @@ function MapPanel({
                 layout={buttonLayout}
               />
             ))}
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -303,22 +191,9 @@ function MobileMapPanel({
   const mapCellWidth = safeWindowSize <= 3 ? 48 : 42;
 
   return (
-    <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexWrap: 'nowrap',
-          gap: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
+    <div className={clsx('ui-panel', styles.panel)}>
+      <div className={styles.mobileMapLayout}>
+        <div className={styles.mobileMapGridWrap}>
           <MapGrid
             rows={visibleRows}
             playerX={playerX}
@@ -328,22 +203,14 @@ function MobileMapPanel({
             showTooltips={false}
             mapCellWidth={mapCellWidth}
           />
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 0.5,
-            alignItems: 'center',
-            marginLeft: 0.5,
-          }}
-        >
+        </div>
+        <div className={styles.mobileMapDpad}>
           <CommandButton
             command={movementCommandList[0]}
             onTrigger={onTrigger}
             layout={buttonLayout}
           />
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <div className={styles.mobileMapDpadRow}>
             <CommandButton
               command={movementCommandList[1]}
               onTrigger={onTrigger}
@@ -354,24 +221,14 @@ function MobileMapPanel({
               onTrigger={onTrigger}
               layout={buttonLayout}
             />
-          </Box>
+          </div>
           <CommandButton
             command={movementCommandList[3]}
             onTrigger={onTrigger}
             layout={buttonLayout}
           />
-        </Box>
-        <Stack
-          spacing={0.5}
-          justifyContent="center"
-          sx={{
-            width: 'auto',
-            flexShrink: 0,
-            '& .MuiButton-root': {
-              width: 'auto',
-            },
-          }}
-        >
+        </div>
+        <div className={styles.mobileMapVerticals}>
           {verticalCommandList.map((command) => (
             <CommandButton
               key={command.id}
@@ -380,9 +237,9 @@ function MobileMapPanel({
               layout={buttonLayout}
             />
           ))}
-        </Stack>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -396,50 +253,37 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
   }, [turnEvents]);
 
   return (
-    <Box
-      sx={(theme) => ({
-        position: 'relative',
-        height: 220,
-        overflow: 'hidden',
-      })}
-    >
-      <Stack
-        ref={eventFeedRef}
-        spacing={1.5}
-        sx={{
-          height: '100%',
-          overflowY: 'auto',
-          position: 'relative',
-          zIndex: 0,
-        }}
-      >
-        <Box sx={{ minHeight: 180, flexShrink: 0 }} />
+    <div className={styles.eventFeedContainer}>
+      <div ref={eventFeedRef} className={styles.eventFeedScroller}>
+        <div className={styles.eventFeedSpacer} />
         {turnEvents.length === 0 ? (
-          <Typography className="ui-tip">You see nothing special.</Typography>
+          <p className={clsx('txt-caption', 'ui-tip')}>
+            You see nothing special.
+          </p>
         ) : (
           turnEvents.map((group, groupIndex) => {
             const isLatest = groupIndex === turnEvents.length - 1;
             return (
-              <Box key={`turn-${groupIndex}`} sx={subtleBoxStyle}>
-                <Stack spacing={0.5}>
+              <div key={`turn-${groupIndex}`} className={styles.subtleBox}>
+                <div className={styles.eventEntries}>
                   {group.map((entry, index) => (
-                    <Typography
+                    <p
                       key={`${entry}-${index}`}
-                      sx={{
-                        color: isLatest ? 'text.primary' : 'text.disabled',
-                        opacity: isLatest ? 1 : 0.7,
-                      }}
+                      className={clsx(
+                        styles.eventEntry,
+                        !isLatest && styles.eventEntryStale
+                      )}
                     >
                       {entry}
-                    </Typography>
+                    </p>
                   ))}
-                </Stack>
-              </Box>
+                </div>
+              </div>
             );
           })
         )}
-      </Stack>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -451,74 +295,42 @@ function CompactReadoutPanel({
   player: Player;
 }) {
   return (
-    <Box
-      className="ui-panel"
-      sx={(theme) => ({
-        ...panelStyle(theme),
-        '& .MuiTypography-root': {
-          fontSize: 13,
-        },
-        '& .MuiTypography-caption': {
-          fontSize: 12,
-        },
-      })}
-    >
-      <Stack spacing={1.5}>
-        <Stack spacing={0.4}>
-          <Typography sx={{ opacity: 0.75 }}>Mode</Typography>
-          <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
-        </Stack>
-        <Stack spacing={0.4}>
-          <Typography sx={{ opacity: 0.75 }}>Status</Typography>
-          <Typography>
-            ST {player.str} · DX {player.dex} · IQ {player.iq}
-          </Typography>
-          <Typography>
-            HP {player.hp} / {player.mhp} · Gold {player.gold}
-          </Typography>
-          <Typography>
-            Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
-          </Typography>
-        </Stack>
-      </Stack>
-    </Box>
+    <div className={clsx('ui-panel', styles.panel, styles.compactReadout)}>
+      <div className={styles.compactReadoutGroup}>
+        <p className={styles.label}>Mode</p>
+        <p>{encounterMode ? 'Encounter' : 'Explore'}</p>
+      </div>
+      <div className={styles.compactReadoutGroup}>
+        <p className={styles.label}>Status</p>
+        <p>
+          ST {player.str} · DX {player.dex} · IQ {player.iq}
+        </p>
+        <p>
+          HP {player.hp} / {player.mhp} · Gold {player.gold}
+        </p>
+        <p>
+          Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
+        </p>
+      </div>
+    </div>
   );
 }
 
 function MobileEventBubble({ lastEventLines }: { lastEventLines: string[] }) {
   return (
-    <Box
-      className="ui-panel"
-      sx={(theme) => ({
-        ...panelStyle(theme),
-        padding: 0,
-        background: alpha(theme.palette.primary.dark, 0.28),
-        flex: 1,
-        minHeight: 0,
-        '& .MuiTypography-root': {
-          fontSize: 13,
-        },
-      })}
-    >
-      <Box
-        sx={(theme) => ({
-          padding: 1.25,
-          borderRadius: 1.5,
-          border: `1px solid ${alpha(theme.palette.primary.light, 0.3)}`,
-          background: alpha(theme.palette.primary.dark, 0.38),
-          height: '100%',
-          overflowY: 'auto',
-        })}
-      >
+    <div className={clsx('ui-panel', styles.panel, styles.mobileEventOuter)}>
+      <div className={styles.mobileEventInner}>
         {lastEventLines.length === 0 ? (
-          <Typography className="ui-tip">You see nothing special.</Typography>
+          <p className={clsx('txt-caption', 'ui-tip')}>
+            You see nothing special.
+          </p>
         ) : (
           lastEventLines.map((entry, index) => (
-            <Typography key={`${entry}-${index}`}>{entry}</Typography>
+            <p key={`${entry}-${index}`}>{entry}</p>
           ))
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -540,18 +352,10 @@ function triggerReadoutCommand(
 
 function statusMarkerTooltip(title: string) {
   return (
-    <Tooltip title={title} arrow>
-      <Box
-        component="span"
-        aria-label={title}
-        sx={{
-          display: 'inline-block',
-          marginLeft: 0.25,
-          cursor: 'help',
-        }}
-      >
+    <Tooltip title={title}>
+      <span aria-label={title} className={styles.statusMarker}>
         *
-      </Box>
+      </span>
     </Tooltip>
   );
 }
@@ -575,56 +379,49 @@ function StatsPanel({
     triggerReadoutCommand(command, { onSave, onBack });
 
   return (
-    <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
-      <Stack spacing={2}>
-        <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.75 }}>Mode</Typography>
-          <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
-        </Stack>
-        <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.75 }}>Stats</Typography>
-          <Typography>ST {player.str}</Typography>
-          <Typography>DX {player.dex}</Typography>
-          <Typography>IQ {player.iq}</Typography>
-          <Typography
-            sx={(theme) => ({
-              color:
-                player.hp < 10
-                  ? theme.palette.error.light
-                  : theme.palette.text.primary,
-            })}
-          >
+    <div className={clsx('ui-panel', styles.panel)}>
+      <div className={styles.statsPanel}>
+        <div className={styles.statsGroup}>
+          <p className={styles.label}>Mode</p>
+          <p>{encounterMode ? 'Encounter' : 'Explore'}</p>
+        </div>
+        <div className={styles.statsGroup}>
+          <p className={styles.label}>Stats</p>
+          <p>ST {player.str}</p>
+          <p>DX {player.dex}</p>
+          <p>IQ {player.iq}</p>
+          <p className={clsx(player.hp < 10 && styles.hpLow)}>
             HP {player.hp} / {player.mhp}
-          </Typography>
-        </Stack>
-        <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.75 }}>Inventory</Typography>
-          <Typography>Gold: {player.gold}</Typography>
-          <Typography>
+          </p>
+        </div>
+        <div className={styles.statsGroup}>
+          <p className={styles.label}>Inventory</p>
+          <p>Gold: {player.gold}</p>
+          <p>
             Weapon: {player.weaponName}
             {player.weaponBroken
               ? statusMarkerTooltip('Weapon is broken')
               : null}
-          </Typography>
-          <Typography>
+          </p>
+          <p>
             Armor: {player.armorName}
             {player.armorTier === 0
               ? statusMarkerTooltip('Armour is destroyed')
               : player.armorDamaged
                 ? statusMarkerTooltip('Armour is damaged')
                 : null}
-          </Typography>
-          <Typography>Flares: {player.flares}</Typography>
-          <Typography>Treasures: {player.treasuresFound.size}</Typography>
-        </Stack>
-        <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.75 }}>Location</Typography>
-          <Typography>
+          </p>
+          <p>Flares: {player.flares}</p>
+          <p>Treasures: {player.treasuresFound.size}</p>
+        </div>
+        <div className={styles.statsGroup}>
+          <p className={styles.label}>Location</p>
+          <p>
             Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
-          </Typography>
-        </Stack>
-        <Stack spacing={1}>
-          <Stack direction="row" spacing={1} flexWrap="wrap">
+          </p>
+        </div>
+        <div className={styles.statsBottom}>
+          <div className={styles.statsCommands}>
             {readoutCommands.map((command) => (
               <CommandButton
                 key={command.id}
@@ -633,18 +430,12 @@ function StatsPanel({
                 layout="inline"
               />
             ))}
-          </Stack>
-          {lastSavedAt && (
-            <Typography variant="caption">Saved {lastSavedAt}</Typography>
-          )}
-          {saveError && (
-            <Typography variant="caption" color="error">
-              {saveError}
-            </Typography>
-          )}
-        </Stack>
-      </Stack>
-    </Box>
+          </div>
+          {lastSavedAt && <p className={styles.statsSavedAt}>Saved {lastSavedAt}</p>}
+          {saveError && <p className={styles.statsSaveError}>{saveError}</p>}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -671,14 +462,11 @@ function CommandBarPanel({
   titleVariant?: 'default' | 'compact';
   enabledOnly?: boolean;
 }) {
-  const titleSx =
-    titleVariant === 'compact'
-      ? {
-          letterSpacing: 1.4,
-          textTransform: 'uppercase',
-          opacity: 0.6,
-        }
-      : { letterSpacing: 2, textTransform: 'uppercase' };
+  const titleClass = clsx(
+    titleVariant === 'compact' ? 'ui-panel-title-compact' : 'ui-panel-title',
+    titleVariant === 'compact' ? styles.commandTitleCompact : styles.commandTitle
+  );
+
   if (promptOptions && promptOptions.length > 0) {
     const commands = promptOptions.map((option) => ({
       id: `prompt-${option.key}`,
@@ -695,31 +483,10 @@ function CommandBarPanel({
       });
     }
     return (
-      <Box
-        className="ui-panel"
-        sx={(theme) => ({
-          ...panelStyle(theme),
-          paddingY: { xs: 1.5, md: 2 },
-        })}
-      >
-        <Stack spacing={2}>
-          <Typography
-            className={
-              titleVariant === 'compact'
-                ? 'ui-panel-title-compact'
-                : 'ui-panel-title'
-            }
-            sx={titleSx}
-          >
-            {promptText || 'Choose'}
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 0.75,
-            }}
-          >
+      <div className={clsx('ui-panel', styles.panel, styles.commandPanel)}>
+        <div className={styles.commandSection}>
+          <p className={titleClass}>{promptText || 'Choose'}</p>
+          <div className={styles.commandButtons}>
             {commands.map((command) => (
               <CommandButton
                 key={command.id}
@@ -728,86 +495,32 @@ function CommandBarPanel({
                 layout={buttonLayout}
               />
             ))}
-          </Box>
-        </Stack>
-      </Box>
+          </div>
+        </div>
+      </div>
     );
   }
 
+  const list = encounterMode ? encounterCommandList : roomCommandList;
+  const title = encounterMode ? 'Encounter Commands' : 'Explore Commands';
+  const visible = enabledOnly ? list.filter((command) => !command.disabled) : list;
+
   return (
-    <Box
-      className="ui-panel"
-      sx={(theme) => ({
-        ...panelStyle(theme),
-        paddingY: { xs: 1.5, md: 2 },
-      })}
-    >
-      {encounterMode ? (
-        <Stack spacing={2}>
-          <Typography
-            className={
-              titleVariant === 'compact'
-                ? 'ui-panel-title-compact'
-                : 'ui-panel-title'
-            }
-            sx={titleSx}
-          >
-            Encounter Commands
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 0.75,
-            }}
-          >
-            {(enabledOnly
-              ? encounterCommandList.filter((command) => !command.disabled)
-              : encounterCommandList
-            ).map((command) => (
-              <CommandButton
-                key={command.id}
-                command={command}
-                onTrigger={onTrigger}
-                layout={buttonLayout}
-              />
-            ))}
-          </Box>
-        </Stack>
-      ) : (
-        <Stack spacing={2}>
-          <Typography
-            className={
-              titleVariant === 'compact'
-                ? 'ui-panel-title-compact'
-                : 'ui-panel-title'
-            }
-            sx={titleSx}
-          >
-            Explore Commands
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 0.75,
-            }}
-          >
-            {(enabledOnly
-              ? roomCommandList.filter((command) => !command.disabled)
-              : roomCommandList
-            ).map((command) => (
-              <CommandButton
-                key={command.id}
-                command={command}
-                onTrigger={onTrigger}
-                layout={buttonLayout}
-              />
-            ))}
-          </Box>
-        </Stack>
-      )}
-    </Box>
+    <div className={clsx('ui-panel', styles.panel, styles.commandPanel)}>
+      <div className={styles.commandSection}>
+        <p className={titleClass}>{title}</p>
+        <div className={styles.commandButtons}>
+          {visible.map((command) => (
+            <CommandButton
+              key={command.id}
+              command={command}
+              onTrigger={onTrigger}
+              layout={buttonLayout}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -830,60 +543,53 @@ function PlayerReadoutPanel({
     triggerReadoutCommand(command, { onSave, onBack });
 
   return (
-    <Box className="ui-panel" sx={(theme) => panelStyle(theme)}>
-      <Stack spacing={2} sx={{ height: '100%' }}>
-        <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.75 }}>Mode</Typography>
-          <Typography>{encounterMode ? 'Encounter' : 'Explore'}</Typography>
-        </Stack>
-        <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.75 }}>Stats</Typography>
-          <Typography>ST {player.str}</Typography>
-          <Typography>DX {player.dex}</Typography>
-          <Typography>IQ {player.iq}</Typography>
-          <Typography
-            sx={(theme) => ({
-              color:
-                player.hp < 10
-                  ? theme.palette.error.light
-                  : theme.palette.text.primary,
-            })}
-          >
+    <div className={clsx('ui-panel', styles.panel)}>
+      <div className={styles.statsPanel}>
+        <div className={styles.statsGroup}>
+          <p className={styles.label}>Mode</p>
+          <p>{encounterMode ? 'Encounter' : 'Explore'}</p>
+        </div>
+        <div className={styles.statsGroup}>
+          <p className={styles.label}>Stats</p>
+          <p>ST {player.str}</p>
+          <p>DX {player.dex}</p>
+          <p>IQ {player.iq}</p>
+          <p className={clsx(player.hp < 10 && styles.hpLow)}>
             HP {player.hp} / {player.mhp}
-          </Typography>
-        </Stack>
-        <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.75 }}>Inventory</Typography>
-          <Typography>Gold: {player.gold}</Typography>
-          <Typography>
+          </p>
+        </div>
+        <div className={styles.statsGroup}>
+          <p className={styles.label}>Inventory</p>
+          <p>Gold: {player.gold}</p>
+          <p>
             Weapon: {player.weaponName}
             {player.weaponBroken
               ? statusMarkerTooltip('Weapon is broken')
               : null}
-          </Typography>
-          <Typography>
+          </p>
+          <p>
             Armor: {player.armorName}
             {player.armorTier === 0
               ? statusMarkerTooltip('Armour is destroyed')
               : player.armorDamaged
                 ? statusMarkerTooltip('Armour is damaged')
                 : null}
-          </Typography>
-          <Typography>Flares: {player.flares}</Typography>
-          <Typography>Treasures: {player.treasuresFound.size}</Typography>
-        </Stack>
-        <Stack spacing={0.5}>
-          <Typography sx={{ opacity: 0.75 }}>Location</Typography>
-          <Typography>
+          </p>
+          <p>Flares: {player.flares}</p>
+          <p>Treasures: {player.treasuresFound.size}</p>
+        </div>
+        <div className={styles.statsGroup}>
+          <p className={styles.label}>Location</p>
+          <p>
             Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
-          </Typography>
-        </Stack>
-        <Typography variant="caption" className="ui-tip">
+          </p>
+        </div>
+        <span className={clsx('txt-caption', 'ui-tip')}>
           Tip: press the letter keys shown on each command.
-        </Typography>
-        <Box sx={{ flexGrow: 1 }} />
-        <Stack spacing={1}>
-          <Stack direction="row" spacing={1} flexWrap="wrap">
+        </span>
+        <div className={styles.statsSpacer} />
+        <div className={styles.statsBottom}>
+          <div className={styles.statsCommands}>
             {readoutCommands.map((command) => (
               <CommandButton
                 key={command.id}
@@ -892,70 +598,22 @@ function PlayerReadoutPanel({
                 layout="inline"
               />
             ))}
-          </Stack>
-          {lastSavedAt && (
-            <Typography variant="caption">Saved {lastSavedAt}</Typography>
-          )}
-          {saveError && (
-            <Typography variant="caption" color="error">
-              {saveError}
-            </Typography>
-          )}
-        </Stack>
-      </Stack>
-    </Box>
+          </div>
+          {lastSavedAt && <p className={styles.statsSavedAt}>Saved {lastSavedAt}</p>}
+          {saveError && <p className={styles.statsSaveError}>{saveError}</p>}
+        </div>
+      </div>
+    </div>
   );
 }
 
 function HelpDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="md"
-      fullWidth
-      slotProps={{
-        paper: {
-          sx: {
-            height: '80vh',
-            maxHeight: '80vh',
-          },
-        },
-      }}
-      sx={(theme) => ({
-        '& .MuiDialog-paper': {
-          background: alpha(theme.palette.background.paper, 0.96),
-          color: theme.palette.text.primary,
-          border: `1px solid ${alpha(theme.palette.primary.light, 0.25)}`,
-        },
-      })}
-    >
-      <DialogTitle
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Typography component="span" variant="inherit">
-          Dungeon of Doom
-        </Typography>
-        <Typography
-          aria-label="Close help"
-          variant="inherit"
-          onClick={onClose}
-          sx={{
-            cursor: 'pointer',
-          }}
-        >
-          X
-        </Typography>
-      </DialogTitle>
+    <Dialog open={open} onClose={onClose} className={styles.helpDialog}>
+      <DialogTitle onClose={onClose}>Dungeon of Doom</DialogTitle>
       <DialogContent dividers>
-        <Box
-          sx={{
-            ...helpContentSx,
-          }}
+        <div
+          className={styles.helpContent}
           dangerouslySetInnerHTML={{ __html: helpHtmlContent }}
         />
       </DialogContent>
@@ -965,51 +623,27 @@ function HelpDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
 
 function MobileHelpPanel({ onClose }: { onClose: () => void }) {
   return (
-    <Box
-      className="ui-panel"
-      sx={(theme) => ({
-        ...panelStyle(theme),
-        padding: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: 0,
-      })}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingX: 1.5,
-          paddingY: 1,
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-        }}
-      >
-        <Typography sx={{ letterSpacing: 1.2, textTransform: 'uppercase' }}>
-          Help
-        </Typography>
-        <Typography
+    <div className={clsx('ui-panel', styles.panel, styles.mobileHelpPanel)}>
+      <div className={styles.mobileHelpHeader}>
+        <p className={styles.mobileHelpHeading}>Help</p>
+        <span
+          role="button"
+          tabIndex={0}
           aria-label="Close help"
           onClick={onClose}
-          sx={{ cursor: 'pointer', opacity: 0.75 }}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') onClose();
+          }}
+          className={styles.mobileHelpClose}
         >
           Close
-        </Typography>
-      </Box>
-      <Box
-        sx={{
-          padding: 1.5,
-          overflowY: 'auto',
-          fontSize: 13,
-          lineHeight: 1.5,
-          '& *': {
-            fontSize: 'inherit',
-          },
-          ...helpContentSx,
-        }}
+        </span>
+      </div>
+      <div
+        className={clsx(styles.mobileHelpContent, styles.helpContent)}
         dangerouslySetInnerHTML={{ __html: helpHtmlContent }}
       />
-    </Box>
+    </div>
   );
 }
 
@@ -1066,20 +700,9 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
 
   return (
     <>
-      <Stack
-        spacing={2}
-        sx={{
-          minHeight: 'calc(100dvh - 96px)',
-          '& .MuiTypography-root': {
-            fontSize: 13,
-          },
-          '& .MuiTypography-caption': {
-            fontSize: 11,
-          },
-        }}
-      >
+      <div className={styles.mobileShell}>
         {mobileView === 'play' ? (
-          <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
+          <div className={styles.mobilePlayShell}>
             <MobileMapPanel
               onTrigger={model.handleTrigger}
               mapGrid={model.mapGrid}
@@ -1105,9 +728,9 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
               player={model.player}
             />
             <MobileEventBubble lastEventLines={model.lastEventLines} />
-          </Stack>
+          </div>
         ) : mobileView === 'stats' ? (
-          <Stack spacing={2} sx={{ flex: 1 }}>
+          <div className={styles.mobileStatsShell}>
             <StatsPanel
               encounterMode={model.isEncounter}
               onBack={model.onBack}
@@ -1116,69 +739,53 @@ function GameplayMobile({ model }: { model: GameplayModel }) {
               lastSavedAt={model.lastSavedAt}
               saveError={model.saveError}
             />
-          </Stack>
+          </div>
         ) : (
-          <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
+          <div className={styles.mobileHelpShell}>
             <MobileHelpPanel onClose={() => setMobileView('play')} />
-          </Stack>
+          </div>
         )}
-      </Stack>
-      <Box
-        sx={(theme) => ({
-          position: 'fixed',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 20,
-          padding: 1,
-          borderTop: `1px solid ${alpha(theme.palette.primary.light, 0.4)}`,
-          background: alpha(theme.palette.background.paper, 0.92),
-          backdropFilter: 'blur(8px)',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-          gap: 1,
-        })}
-      >
-        <Button
-          variant={mobileView === 'play' ? 'contained' : 'outlined'}
+      </div>
+      <div className={styles.mobileNav}>
+        <button
+          type="button"
+          className={clsx(
+            'btn',
+            mobileView === 'play' ? 'btn-contained' : 'btn-outlined'
+          )}
           onClick={() => setMobileView('play')}
         >
           Play
-        </Button>
-        <Button
-          variant={mobileView === 'stats' ? 'contained' : 'outlined'}
+        </button>
+        <button
+          type="button"
+          className={clsx(
+            'btn',
+            mobileView === 'stats' ? 'btn-contained' : 'btn-outlined'
+          )}
           onClick={() => setMobileView('stats')}
         >
           Stats
-        </Button>
-        <Button
-          variant={mobileView === 'help' ? 'contained' : 'outlined'}
+        </button>
+        <button
+          type="button"
+          className={clsx(
+            'btn',
+            mobileView === 'help' ? 'btn-contained' : 'btn-outlined'
+          )}
           onClick={() => setMobileView('help')}
         >
           Help
-        </Button>
-      </Box>
+        </button>
+      </div>
     </>
   );
 }
 
 function GameplayDesktop({ model }: { model: GameplayModel }) {
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gap: 3,
-        gridTemplateColumns: '1fr',
-        alignItems: 'stretch',
-        '@container (min-width: 1280px)': {
-          gridTemplateColumns: '2fr 1fr',
-        },
-      }}
-    >
-      <Stack
-        spacing={3}
-        sx={{ height: '100%', justifyContent: 'space-between' }}
-      >
+    <div className={styles.desktopGrid}>
+      <div className={styles.desktopLeft}>
         <MapPanel
           onTrigger={model.handleTrigger}
           mapGrid={model.mapGrid}
@@ -1197,7 +804,7 @@ function GameplayDesktop({ model }: { model: GameplayModel }) {
           encounterCommandList={model.encounterCommandList}
           roomCommandList={model.roomCommandList}
         />
-      </Stack>
+      </div>
 
       <PlayerReadoutPanel
         encounterMode={model.isEncounter}
@@ -1207,7 +814,7 @@ function GameplayDesktop({ model }: { model: GameplayModel }) {
         lastSavedAt={model.lastSavedAt}
         saveError={model.saveError}
       />
-    </Box>
+    </div>
   );
 }
 
@@ -1239,106 +846,61 @@ function DebugDialog({
     `Built (UTC): ${import.meta.env.VITE_BUILD_TIMESTAMP}`,
   ].join('\n');
 
-  const debugBlockSx = (theme: Theme) => ({
-    margin: 0,
-    padding: 1.5,
-    borderRadius: 1.5,
-    border: `1px solid ${alpha(theme.palette.primary.light, 0.35)}`,
-    background: alpha(theme.palette.primary.dark, 0.2),
-    fontSize: 12,
-    overflowX: 'auto',
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-  });
-
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-      aria-labelledby="debug-dialog-title"
-      sx={{
-        '& .MuiDialog-paper': {
-          background: 'rgba(10, 10, 10, 0.92)',
-          backdropFilter: 'blur(12px)',
-        },
-      }}
-    >
+    <Dialog open={open} onClose={onClose} className={styles.debugDialog}>
       <DialogTitle id="debug-dialog-title">Debug Snapshot</DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={2}>
-          <Stack spacing={1}>
-            <Typography variant="overline" sx={{ opacity: 0.7 }}>
-              Build
-            </Typography>
-            <Box component="pre" sx={debugBlockSx}>
-              {buildInfo}
-            </Box>
-          </Stack>
-          <Stack spacing={1}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography variant="overline" sx={{ opacity: 0.7 }}>
-                Player
-              </Typography>
+        <div className={styles.commandSection}>
+          <div className={styles.statsGroup}>
+            <span className={clsx('txt-overline', styles.label)}>Build</span>
+            <pre className={styles.debugBlock}>{buildInfo}</pre>
+          </div>
+          <div className={styles.statsGroup}>
+            <div className={styles.statsCommands}>
+              <span className={clsx('txt-overline', styles.label)}>Player</span>
               <Tooltip title="Copy player JSON">
-                <IconButton
-                  size="small"
+                <button
+                  type="button"
+                  aria-label="Copy player JSON"
+                  className="btn-icon"
                   onClick={() => copyToClipboard(playerJson)}
                 >
                   <CopyIcon />
-                </IconButton>
+                </button>
               </Tooltip>
-            </Stack>
-            <Box component="pre" sx={debugBlockSx}>
-              {playerJson}
-            </Box>
-          </Stack>
-          <Stack spacing={1}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography variant="overline" sx={{ opacity: 0.7 }}>
+            </div>
+            <pre className={styles.debugBlock}>{playerJson}</pre>
+          </div>
+          <div className={styles.statsGroup}>
+            <div className={styles.statsCommands}>
+              <span className={clsx('txt-overline', styles.label)}>
                 Encounter
-              </Typography>
+              </span>
               <Tooltip title="Copy encounter JSON">
-                <IconButton
-                  size="small"
+                <button
+                  type="button"
+                  aria-label="Copy encounter JSON"
+                  className="btn-icon"
                   onClick={() => copyToClipboard(encounterJson)}
                 >
                   <CopyIcon />
-                </IconButton>
+                </button>
               </Tooltip>
-            </Stack>
-            <Box component="pre" sx={debugBlockSx}>
-              {encounterJson}
-            </Box>
-          </Stack>
-        </Stack>
+            </div>
+            <pre className={styles.debugBlock}>{encounterJson}</pre>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
 }
 
 export default function Gameplay(props: GameplayProps) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery('(max-width: 899px)');
   const model = useGameplayModel(props);
 
   return (
-    <Box
-      sx={{
-        maxWidth: 1280,
-        margin: '0 auto',
-        display: 'grid',
-        gap: 3,
-        containerType: 'inline-size',
-        paddingBottom: { xs: 10, md: 0 },
-        '@keyframes boot': {
-          from: { opacity: 0, transform: 'translateY(14px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
-        },
-        animation: 'boot 650ms ease-out',
-      }}
-    >
+    <div className={styles.root}>
       {isMobile ? (
         <GameplayMobile model={model} />
       ) : (
@@ -1355,6 +917,6 @@ export default function Gameplay(props: GameplayProps) {
           onClose={() => model.setHelpOpen(false)}
         />
       )}
-    </Box>
+    </div>
   );
 }
