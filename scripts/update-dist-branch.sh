@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-DIST_WORKTREE="${DIST_WORKTREE:-/workspaces/dungeon-js-dist}"
+DIST_WORKTREE="${DIST_WORKTREE:-../dungeon-js-dist}"
 
 usage() {
   echo "Usage: $(basename "$0")"
