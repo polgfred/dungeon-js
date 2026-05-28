@@ -39,17 +39,17 @@ export function CommandButton({
   const compact = layout === 'compact';
   const inlineCompact = layout === 'inline' && isMobile;
   const arrowKeys: Record<string, string> = {
-    N: '',
-    S: '',
-    W: '',
-    E: '',
+    N: '\uE01C',
+    S: '\uE01D',
+    W: '\uE01E',
+    E: '\uE01F',
   };
   const displayKey = command.key.startsWith('Shift+')
-    ? `${command.key.slice(6)}`
+    ? `\uE01C${command.key.slice(6)}`
     : command.id.startsWith('move-') && command.key in arrowKeys
       ? arrowKeys[command.key]
       : command.key === 'Esc'
-        ? ``
+        ? `\uE11B`
         : command.key;
   const isNav = command.id.startsWith('move-') || command.id === 'exit';
   const showKeyHint = !isMobile || compact;
