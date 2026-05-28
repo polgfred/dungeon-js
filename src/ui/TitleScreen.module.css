@@ -9,7 +9,6 @@
 }
 @media (min-width: 900px) {
   .root {
-    padding-top: 80px;
     gap: 40px;
     grid-template-columns: 0.85fr 1.15fr;
   }
@@ -17,7 +16,7 @@
 
 .titleFrame {
   width: 100%;
-  border-radius: 24px;
+  border-radius: 12px;
   border: 1px solid var(--primary-light);
   background: rgba(0, 0, 0, 0.22);
   box-shadow: 0 0 24px var(--primary-dark);
@@ -74,7 +73,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 24px;
   border: 1px solid var(--primary-light);
   background: rgba(0, 0, 0, 0.36);

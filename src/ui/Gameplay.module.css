@@ -29,7 +29,7 @@
   background: rgba(var(--bg-paper-rgb), 0.9);
   border: 1px solid rgba(var(--primary-light-rgb), 0.5);
   box-shadow: 0 0 28px rgba(var(--primary-dark-rgb), 0.4);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 16px;
 }
 @media (min-width: 900px) {
@@ -51,7 +51,7 @@
 
 .subtleBox {
   padding: 12px;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid rgba(var(--primary-light-rgb), 0.35);
   background: rgba(var(--primary-dark-rgb), 0.18);
 }
@@ -83,7 +83,7 @@
 }
 
 .mapCell {
-  border-radius: 4px;
+  border-radius: 2px;
   display: grid;
   padding: 2px;
   place-items: center;
@@ -139,7 +139,7 @@
 }
 
 .mapDpadCenter {
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px dashed rgba(255, 255, 255, 0.2);
   min-height: 40px;
 }
@@ -271,7 +271,7 @@
 
 .mobileEventInner {
   padding: 10px;
-  border-radius: 12px;
+  border-radius: 6px;
   border: 1px solid rgba(var(--primary-light-rgb), 0.3);
   background: rgba(var(--primary-dark-rgb), 0.38);
   height: 100%;
@@ -509,7 +509,7 @@
 .debugBlock {
   margin: 0;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 6px;
   border: 1px solid rgba(var(--primary-light-rgb), 0.35);
   background: rgba(var(--primary-dark-rgb), 0.2);
   font-size: 12px;
