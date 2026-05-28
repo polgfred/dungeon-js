@@ -8,14 +8,12 @@
  *   panel    — .ui-panel cascading defaults for plain text
  *   utility  — .ui-tip, .ui-panel-title, .ui-muted etc.
  *               (always override panel defaults)
- *   variant  — .btn.ui-cmd-* button layouts
- *               (override the .btn base)
  *
  * Component CSS modules sit OUTSIDE these layers, so they have
  * higher cascade priority than any layered rule. Per-component
  * styling always wins.
  */
-@layer reset, base, panel, utility, variant;
+@layer reset, base, panel, utility;
 
 @layer reset {
   *,
@@ -193,26 +191,6 @@
     }
   }
 
-  .ui-tip-compact {
-    opacity: 0.6;
-    font-size: 10px;
-  }
-  @media (min-width: 900px) {
-    .ui-tip-compact {
-      font-size: 11px;
-    }
-  }
-
-  .ui-tip-compact-nav {
-    opacity: 0.6;
-    font-size: 10px;
-  }
-  @media (min-width: 900px) {
-    .ui-tip-compact-nav {
-      font-size: 11px;
-    }
-  }
-
   .ui-panel-title {
     font-size: 13px;
   }
@@ -232,60 +210,3 @@
   }
 }
 
-@layer variant {
-  .btn.ui-cmd-inline {
-    min-width: 0;
-    padding: 8px 16px;
-    letter-spacing: 0.6px;
-    font-size: 13px;
-    text-align: left;
-  }
-
-  .btn.ui-cmd-inline-compact {
-    min-width: 0;
-    padding: 7.8px 11.2px;
-    letter-spacing: 0.5px;
-    font-size: 12px;
-    text-align: left;
-  }
-  @media (min-width: 900px) {
-    .btn.ui-cmd-inline-compact {
-      font-size: 11px;
-    }
-  }
-
-  .btn.ui-cmd-stacked {
-    min-width: 72px;
-    padding: 4.8px 12px;
-    letter-spacing: 0.8px;
-    font-size: 11px;
-  }
-  @media (min-width: 900px) {
-    .btn.ui-cmd-stacked {
-      font-size: 10px;
-    }
-  }
-
-  .btn.ui-cmd-compact {
-    min-width: 44px;
-    padding: 4.8px 9.6px;
-    letter-spacing: 1.2px;
-    font-size: 12px;
-  }
-  @media (min-width: 900px) {
-    .btn.ui-cmd-compact {
-      font-size: 11px;
-    }
-  }
-
-  .btn.ui-nav-button {
-    --cmd-nav-label-size: 13px;
-    --cmd-nav-key-size: 12px;
-    min-width: 48px;
-  }
-  @media (min-width: 900px) {
-    .btn.ui-nav-button.ui-cmd-stacked {
-      padding: 3px 8px;
-    }
-  }
-}

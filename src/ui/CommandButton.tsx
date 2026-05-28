@@ -54,12 +54,12 @@ export function CommandButton({
   const isNav = command.id.startsWith('move-') || command.id === 'exit';
   const showKeyHint = !isMobile || compact;
   const layoutClass = compact
-    ? 'ui-cmd-compact'
+    ? styles.layoutCompact
     : stacked
-      ? 'ui-cmd-stacked'
+      ? styles.layoutStacked
       : inlineCompact
-        ? 'ui-cmd-inline-compact'
-        : 'ui-cmd-inline';
+        ? styles.layoutInlineCompact
+        : styles.layoutInline;
   const small = stacked || compact || inlineCompact;
   return (
     <button
@@ -70,9 +70,8 @@ export function CommandButton({
         'btn',
         command.primary ? 'btn-contained' : 'btn-outlined',
         small && 'btn-small',
-        isNav && 'ui-nav-button',
-        layoutClass,
-        styles.button
+        isNav && styles.navButton,
+        layoutClass
       )}
     >
       {compact ? (
@@ -85,12 +84,7 @@ export function CommandButton({
             {command.label}
           </span>
           {showKeyHint && (
-            <span
-              className={clsx(
-                'txt-caption',
-                isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'
-              )}
-            >
+            <span className={isNav ? styles.keyHintNav : styles.keyHint}>
               {displayKey}
             </span>
           )}
@@ -107,12 +101,7 @@ export function CommandButton({
             {command.label}
           </span>
           {showKeyHint && (
-            <span
-              className={clsx(
-                'txt-caption',
-                isNav ? 'ui-tip-compact-nav' : 'ui-tip-compact'
-              )}
-            >
+            <span className={isNav ? styles.keyHintNav : styles.keyHint}>
               {displayKey}
             </span>
           )}
