@@ -57,18 +57,18 @@ function placeStairs(rng: RandomSource, rooms: Room[][][]): void {
       const y = rng.randrange(SIZE);
       const x = rng.randrange(SIZE);
       const room = rooms[z][y][x];
-      const roomBelow = rooms[z + 1][y][x];
+      const roomAbove = rooms[z + 1][y][x];
       if (room.treasureId > 0 || room.monsterLevel > 0) {
         continue;
       }
-      if (roomBelow.treasureId > 0 || roomBelow.monsterLevel > 0) {
+      if (roomAbove.treasureId > 0 || roomAbove.monsterLevel > 0) {
         continue;
       }
       if (room.feature === Feature.STAIRS_DOWN) {
         continue;
       }
       room.feature = Feature.STAIRS_UP;
-      roomBelow.feature = Feature.STAIRS_DOWN;
+      roomAbove.feature = Feature.STAIRS_DOWN;
       break;
     }
   }
@@ -135,8 +135,8 @@ export function validateDungeon(dungeon: Dungeon): string[] {
           if (z === SIZE - 1) {
             errors.push('Stairs up on final floor.');
           } else {
-            const below = dungeon.rooms[z + 1][y][x];
-            if (below.feature !== Feature.STAIRS_DOWN) {
+            const above = dungeon.rooms[z + 1][y][x];
+            if (above.feature !== Feature.STAIRS_DOWN) {
               errors.push('Stair alignment mismatch.');
             }
           }
