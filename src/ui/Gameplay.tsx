@@ -15,11 +15,7 @@ import { useMediaQuery } from './useMediaQuery.js';
 
 function CopyIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className={styles.copyIcon}
-    >
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.copyIcon}>
       <path d="M16 1H6C4.9 1 4 1.9 4 3v12h2V3h10V1zm3 4H10c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h9c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16h-9V7h9v14z" />
     </svg>
   );
@@ -431,7 +427,9 @@ function StatsPanel({
               />
             ))}
           </div>
-          {lastSavedAt && <p className={styles.statsSavedAt}>Saved {lastSavedAt}</p>}
+          {lastSavedAt && (
+            <p className={styles.statsSavedAt}>Saved {lastSavedAt}</p>
+          )}
           {saveError && <p className={styles.statsSaveError}>{saveError}</p>}
         </div>
       </div>
@@ -464,7 +462,9 @@ function CommandBarPanel({
 }) {
   const titleClass = clsx(
     titleVariant === 'compact' ? 'ui-panel-title-compact' : 'ui-panel-title',
-    titleVariant === 'compact' ? styles.commandTitleCompact : styles.commandTitle
+    titleVariant === 'compact'
+      ? styles.commandTitleCompact
+      : styles.commandTitle
   );
 
   if (promptOptions && promptOptions.length > 0) {
@@ -503,7 +503,9 @@ function CommandBarPanel({
 
   const list = encounterMode ? encounterCommandList : roomCommandList;
   const title = encounterMode ? 'Encounter Commands' : 'Explore Commands';
-  const visible = enabledOnly ? list.filter((command) => !command.disabled) : list;
+  const visible = enabledOnly
+    ? list.filter((command) => !command.disabled)
+    : list;
 
   return (
     <div className={clsx('ui-panel', styles.panel, styles.commandPanel)}>
@@ -599,7 +601,9 @@ function PlayerReadoutPanel({
               />
             ))}
           </div>
-          {lastSavedAt && <p className={styles.statsSavedAt}>Saved {lastSavedAt}</p>}
+          {lastSavedAt && (
+            <p className={styles.statsSavedAt}>Saved {lastSavedAt}</p>
+          )}
           {saveError && <p className={styles.statsSaveError}>{saveError}</p>}
         </div>
       </div>
