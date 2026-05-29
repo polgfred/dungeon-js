@@ -4,10 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import helpHtmlContent from '../assets/help.html?raw';
 import type { Player } from '../dungeon/model.js';
 import type { EncounterSave, PlayerSave } from '../dungeon/serialization.js';
-import type { PromptOption } from '../dungeon/types.js';
+import type { EventKind, PromptOption } from '../dungeon/types.js';
 import { CommandButton, type Command } from './CommandButton.js';
 import { Dialog, DialogContent, DialogTitle } from './Dialog.js';
-import type { GameplayModel, GameplayProps } from './GameplayModel.js';
+import type {
+  EventLine,
+  GameplayModel,
+  GameplayProps,
+} from './GameplayModel.js';
 import { useGameplayModel } from './GameplayModel.js';
 import styles from './Gameplay.module.css';
 import { Tooltip } from './Tooltip.js';
@@ -239,7 +243,13 @@ function MobileMapPanel({
   );
 }
 
-function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
+const eventKindClass: Partial<Record<EventKind, string>> = {
+  LOOT: styles.eventLoot,
+  COMBAT: styles.eventCombat,
+  ERROR: styles.eventError,
+};
+
+function EventFeedPanel({ turnEvents }: { turnEvents: EventLine[][] }) {
   const eventFeedRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -264,13 +274,14 @@ function EventFeedPanel({ turnEvents }: { turnEvents: string[][] }) {
                 <div className={styles.eventEntries}>
                   {group.map((entry, index) => (
                     <p
-                      key={`${entry}-${index}`}
+                      key={`${entry.text}-${index}`}
                       className={clsx(
                         styles.eventEntry,
+                        isLatest && eventKindClass[entry.kind],
                         !isLatest && styles.eventEntryStale
                       )}
                     >
-                      {entry}
+                      {entry.text}
                     </p>
                   ))}
                 </div>
@@ -312,7 +323,11 @@ function CompactReadoutPanel({
   );
 }
 
-function MobileEventBubble({ lastEventLines }: { lastEventLines: string[] }) {
+function MobileEventBubble({
+  lastEventLines,
+}: {
+  lastEventLines: EventLine[];
+}) {
   return (
     <div className={clsx('ui-panel', styles.panel, styles.mobileEventOuter)}>
       <div className={styles.mobileEventInner}>
@@ -322,7 +337,9 @@ function MobileEventBubble({ lastEventLines }: { lastEventLines: string[] }) {
           </p>
         ) : (
           lastEventLines.map((entry, index) => (
-            <p key={`${entry}-${index}`}>{entry}</p>
+            <p key={`${entry.text}-${index}`} className={eventKindClass[entry.kind]}>
+              {entry.text}
+            </p>
           ))
         )}
       </div>

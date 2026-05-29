@@ -11,6 +11,7 @@ import {
 } from '../dungeon/serialization.js';
 import type {
   Event as GameEvent,
+  EventKind,
   PromptOption,
   StepResult,
 } from '../dungeon/types.js';
@@ -62,24 +63,30 @@ const ENDGAME_PROMPT = {
   ],
 };
 
-function eventLines(events: GameEvent[]): string[] {
+export type EventLine = { kind: EventKind; text: string };
+
+function eventLines(events: GameEvent[]): EventLine[] {
   return events
     .filter((event) =>
       ['INFO', 'ERROR', 'COMBAT', 'LOOT', 'DEBUG'].includes(event.kind)
     )
-    .map((event) =>
-      event.kind === 'DEBUG' ? JSON.stringify(event.data) : event.text
-    )
-    .filter(Boolean);
+    .map((event) => ({
+      kind: event.kind,
+      text: event.kind === 'DEBUG' ? JSON.stringify(event.data) : event.text,
+    }))
+    .filter((line) => line.text);
 }
 
-function resumeLines(events: GameEvent[]): string[] {
+function resumeLines(events: GameEvent[]): EventLine[] {
   return eventLines(events);
 }
 
 const EVENT_FEED_LIMIT = 10;
 
-function appendEventFeed(previous: string[][], next: string[]): string[][] {
+function appendEventFeed(
+  previous: EventLine[][],
+  next: EventLine[]
+): EventLine[][] {
   if (next.length === 0) return previous;
   const combined = [...previous, next];
   if (combined.length <= EVENT_FEED_LIMIT) return combined;
@@ -114,9 +121,9 @@ export type GameplayProps = {
 export type GameplayModel = {
   player: Player;
   mapGrid: string[][];
-  turnEvents: string[][];
+  turnEvents: EventLine[][];
   isEncounter: boolean;
-  lastEventLines: string[];
+  lastEventLines: EventLine[];
   movementCommandList: Command[];
   verticalCommandList: Command[];
   encounterCommandList: Command[];
@@ -160,7 +167,7 @@ export function useGameplayModel({
   const player = game.player;
   const [mode, setMode] = useState<Mode>(game.mode);
   const [mapGrid, setMapGrid] = useState<string[][]>(game.mapGrid());
-  const [turnEvents, setTurnEvents] = useState<string[][]>([]);
+  const [turnEvents, setTurnEvents] = useState<EventLine[][]>([]);
   const [promptOptions, setPromptOptions] = useState<PromptOption[] | null>(
     null
   );
