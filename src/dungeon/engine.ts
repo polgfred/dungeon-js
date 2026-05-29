@@ -371,6 +371,7 @@ export class Game {
     if (room.treasureId) {
       events.push(...this.awardTreasure(room.treasureId));
       room.treasureId = 0;
+      return events;
     }
 
     switch (room.feature) {
@@ -433,12 +434,6 @@ export class Game {
       const name = MONSTER_NAMES[room.monsterLevel - 1];
       events.push(Event.combat(`You are facing an angry ${name}!`));
       return events;
-    }
-
-    if (room.treasureId) {
-      events.push(
-        Event.loot(`You find the ${this.treasureName(room.treasureId)}!`)
-      );
     }
 
     switch (room.feature) {
