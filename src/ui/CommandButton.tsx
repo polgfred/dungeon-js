@@ -29,6 +29,13 @@ type CommandButtonProps = {
   layout?: 'inline' | 'stacked' | 'compact';
 };
 
+const arrowKeys: Readonly<Record<string, string>> = Object.freeze({
+  N: '\uE01C',
+  S: '\uE01D',
+  W: '\uE01E',
+  E: '\uE01F',
+});
+
 export function CommandButton({
   command,
   onTrigger,
@@ -38,12 +45,6 @@ export function CommandButton({
   const stacked = layout === 'stacked';
   const compact = layout === 'compact';
   const inlineCompact = layout === 'inline' && isMobile;
-  const arrowKeys: Record<string, string> = {
-    N: '\uE01C',
-    S: '\uE01D',
-    W: '\uE01E',
-    E: '\uE01F',
-  };
   const displayKey = command.key.startsWith('Shift+')
     ? `\uE01C${command.key.slice(6)}`
     : command.id.startsWith('move-') && command.key in arrowKeys
