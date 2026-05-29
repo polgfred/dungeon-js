@@ -375,15 +375,15 @@ function statusMarkerTooltip(title: string) {
 
 function StatsPanel({
   encounterMode,
-  onBack,
   player,
+  onBack,
   onSave,
   lastSavedAt,
   saveError,
 }: {
   encounterMode: boolean;
-  onBack: () => void;
   player: Player;
+  onBack: () => void;
   onSave: () => void;
   lastSavedAt: string | null;
   saveError: string | null;
