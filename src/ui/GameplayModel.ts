@@ -375,12 +375,12 @@ export function useGameplayModel({
 
   const handleSave = useCallback(() => {
     const save = game.toSave();
-    const stored = storeSavedGame(save);
-    if (stored.ok) {
+    try {
+      storeSavedGame(save);
       setSaveError(null);
       setLastSavedAt(new Date(save.savedAt).toLocaleString());
-    } else {
-      setSaveError(stored.error ?? 'Save failed.');
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Save failed.');
     }
   }, [game]);
 
