@@ -2,9 +2,8 @@ import { Mode, Race, Spell } from './constants.js';
 import { Dungeon, Player, createSpellCounts, type Room } from './model.js';
 
 type RoomPacked = number;
-type RoomSave = RoomPacked | Room;
 
-type DungeonSave = RoomSave[][][];
+type DungeonSave = RoomPacked[][][];
 
 export type PlayerSave = {
   z: number;
@@ -184,14 +183,11 @@ function encodeRoom(room: Room): RoomPacked {
   );
 }
 
-function decodeRoom(savedRoom: RoomSave): Room {
-  if (typeof savedRoom === 'number') {
-    return {
-      feature: (savedRoom >> FEATURE_SHIFT) & NIBBLE_MASK,
-      monsterLevel: (savedRoom >> MONSTER_SHIFT) & NIBBLE_MASK,
-      treasureId: (savedRoom >> TREASURE_SHIFT) & NIBBLE_MASK,
-      seen: ((savedRoom >> SEEN_SHIFT) & 1) === 1,
-    };
-  }
-  return { ...savedRoom };
+function decodeRoom(savedRoom: RoomPacked): Room {
+  return {
+    feature: (savedRoom >> FEATURE_SHIFT) & NIBBLE_MASK,
+    monsterLevel: (savedRoom >> MONSTER_SHIFT) & NIBBLE_MASK,
+    treasureId: (savedRoom >> TREASURE_SHIFT) & NIBBLE_MASK,
+    seen: ((savedRoom >> SEEN_SHIFT) & 1) === 1,
+  };
 }
