@@ -1,5 +1,5 @@
 import { Feature } from './constants.js';
-import { Dungeon, Room } from './model.js';
+import { Dungeon, type Room } from './model.js';
 import type { RandomSource } from './rng.js';
 
 const SIZE = 7;
@@ -19,7 +19,12 @@ export function generateDungeon(rng: RandomSource): Dungeon {
 }
 
 function createRoom(rng: RandomSource, floor: number): Room {
-  const room = new Room();
+  const room: Room = {
+    feature: Feature.EMPTY,
+    monsterLevel: 0,
+    treasureId: 0,
+    seen: false,
+  };
   if (rng.random() > 0.3) {
     const roll = rng.randint(1, 10);
     if (roll > 8) {

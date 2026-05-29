@@ -1,17 +1,10 @@
-import { Feature, Mode, Race, Spell } from './constants.js';
-import { Dungeon, Player, Room, createSpellCounts } from './model.js';
+import { Mode, Race, Spell } from './constants.js';
+import { Dungeon, Player, createSpellCounts, type Room } from './model.js';
 
-export type RoomSavePacked = number;
-export type RoomSave =
-  | RoomSavePacked
-  | {
-      feature: Feature;
-      monsterLevel: number;
-      treasureId: number;
-      seen: boolean;
-    };
+type RoomPacked = number;
+type RoomSave = RoomPacked | Room;
 
-export type DungeonSave = RoomSave[][][];
+type DungeonSave = RoomSave[][][];
 
 export type PlayerSave = {
   z: number;
@@ -60,7 +53,7 @@ export type GameSave = {
   debug: boolean;
 };
 
-export type GameSaveInput = {
+type GameSaveInput = {
   version: number;
   mode: Mode;
   player: Player;
@@ -70,7 +63,7 @@ export type GameSaveInput = {
   debug: boolean;
 };
 
-export type GameSaveState = {
+type GameSaveState = {
   version: number;
   mode: Mode;
   player: Player;
@@ -108,17 +101,15 @@ export function serializePlayer(player: Player): PlayerSave {
 
 export function deserializePlayer(save: PlayerSave): Player {
   const spells = createSpellCounts();
-  if (save.spells) {
-    for (const [key, value] of Object.entries(save.spells)) {
-      const spell = Number(key) as Spell;
-      if (Number.isNaN(spell)) continue;
-      spells[spell] = value;
-    }
+  for (const [key, value] of Object.entries(save.spells)) {
+    const spell = Number(key) as Spell;
+    if (Number.isNaN(spell)) continue;
+    spells[spell] = value;
   }
   return new Player({
-    z: save.z ?? 0,
-    y: save.y ?? 0,
-    x: save.x ?? 0,
+    z: save.z,
+    y: save.y,
+    x: save.x,
     race: save.race,
     str: save.str,
     dex: save.dex,
@@ -127,16 +118,16 @@ export function deserializePlayer(save: PlayerSave): Player {
     mhp: save.mhp,
     gold: save.gold,
     flares: save.flares,
-    treasuresFound: new Set(save.treasuresFound ?? []),
-    weaponTier: save.weaponTier ?? 0,
-    armorTier: save.armorTier ?? 0,
-    weaponName: save.weaponName ?? '(None)',
-    weaponBroken: save.weaponBroken ?? false,
-    armorName: save.armorName ?? '(None)',
-    armorDamaged: save.armorDamaged ?? false,
+    treasuresFound: new Set(save.treasuresFound),
+    weaponTier: save.weaponTier,
+    armorTier: save.armorTier,
+    weaponName: save.weaponName,
+    weaponBroken: save.weaponBroken,
+    armorName: save.armorName,
+    armorDamaged: save.armorDamaged,
+    fatigued: save.fatigued,
+    tempArmorBonus: save.tempArmorBonus,
     spells,
-    fatigued: save.fatigued ?? false,
-    tempArmorBonus: save.tempArmorBonus ?? 0,
   });
 }
 
@@ -184,7 +175,7 @@ const TREASURE_SHIFT = 8;
 const SEEN_SHIFT = 12;
 const NIBBLE_MASK = 0x0f;
 
-function encodeRoom(room: Room): RoomSavePacked {
+function encodeRoom(room: Room): RoomPacked {
   return (
     ((room.feature & NIBBLE_MASK) << FEATURE_SHIFT) |
     ((room.monsterLevel & NIBBLE_MASK) << MONSTER_SHIFT) |
@@ -194,17 +185,13 @@ function encodeRoom(room: Room): RoomSavePacked {
 }
 
 function decodeRoom(savedRoom: RoomSave): Room {
-  const room = new Room();
   if (typeof savedRoom === 'number') {
-    room.feature = (savedRoom >> FEATURE_SHIFT) & NIBBLE_MASK;
-    room.monsterLevel = (savedRoom >> MONSTER_SHIFT) & NIBBLE_MASK;
-    room.treasureId = (savedRoom >> TREASURE_SHIFT) & NIBBLE_MASK;
-    room.seen = ((savedRoom >> SEEN_SHIFT) & 1) === 1;
-    return room;
+    return {
+      feature: (savedRoom >> FEATURE_SHIFT) & NIBBLE_MASK,
+      monsterLevel: (savedRoom >> MONSTER_SHIFT) & NIBBLE_MASK,
+      treasureId: (savedRoom >> TREASURE_SHIFT) & NIBBLE_MASK,
+      seen: ((savedRoom >> SEEN_SHIFT) & 1) === 1,
+    };
   }
-  room.feature = savedRoom.feature ?? Feature.EMPTY;
-  room.monsterLevel = savedRoom.monsterLevel ?? 0;
-  room.treasureId = savedRoom.treasureId ?? 0;
-  room.seen = savedRoom.seen ?? false;
-  return room;
+  return { ...savedRoom };
 }

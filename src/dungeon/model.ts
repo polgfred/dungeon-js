@@ -9,11 +9,11 @@ import {
 } from './constants.js';
 import type { RandomSource } from './rng.js';
 
-export class Room {
-  feature: Feature = Feature.EMPTY;
-  monsterLevel = 0;
-  treasureId = 0;
-  seen = false;
+export interface Room {
+  feature: Feature;
+  monsterLevel: number;
+  treasureId: number;
+  seen: boolean;
 }
 
 export class Dungeon {
