@@ -102,6 +102,7 @@
 }
 
 .mapCellPlayer {
+  padding: 1px;
   border: 2px solid rgba(var(--primary-light-rgb), 0.9);
   background: rgba(var(--primary-dark-rgb), 0.32);
 }
