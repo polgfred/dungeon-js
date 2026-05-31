@@ -5,8 +5,8 @@ import {
   SPELL_PRICES,
   WEAPON_NAMES,
   WEAPON_PRICES,
-  Race,
   Spell,
+  raceName,
 } from './constants.js';
 import type { VendorSave } from './serialization.js';
 import type { Player } from './model.js';
@@ -21,21 +21,6 @@ import {
 export interface VendorResult {
   events: Event[];
   done?: boolean;
-}
-
-function raceLabel(race: Race): string {
-  switch (race) {
-    case Race.HUMAN:
-      return 'Human';
-    case Race.DWARF:
-      return 'Dwarf';
-    case Race.ELF:
-      return 'Elf';
-    case Race.HALFLING:
-      return 'Halfling';
-    default:
-      return 'Adventurer';
-  }
 }
 
 export class VendorSession {
@@ -177,7 +162,7 @@ export class VendorSession {
       return {
         events: [
           Event.info(
-            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
+            `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
           ),
           this.itemPrompt(),
         ],
@@ -205,7 +190,7 @@ export class VendorSession {
       return {
         events: [
           Event.info(
-            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
+            `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
           ),
           this.itemPrompt(),
         ],
@@ -241,7 +226,7 @@ export class VendorSession {
       return {
         events: [
           Event.info(
-            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
+            `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
           ),
           this.itemPrompt(),
         ],
@@ -263,7 +248,7 @@ export class VendorSession {
           return {
             events: [
               Event.info(
-                `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
+                `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
               ),
               this.itemPrompt(),
             ],
@@ -282,7 +267,7 @@ export class VendorSession {
           return {
             events: [
               Event.info(
-                `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
+                `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
               ),
               this.itemPrompt(),
             ],
@@ -306,7 +291,7 @@ export class VendorSession {
       return {
         events: [
           Event.info(
-            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
+            `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
           ),
           this.categoryPrompt(),
         ],
@@ -348,7 +333,7 @@ export class VendorSession {
       return {
         events: [
           Event.info(
-            `Don't try to cheat me, you foolish ${raceLabel(this.player.race)}. It won't work!`
+            `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
           ),
         ],
         done: true,

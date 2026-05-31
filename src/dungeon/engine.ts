@@ -2,11 +2,12 @@ import {
   ARMOR_NAMES,
   EXPLORE_COMMANDS,
   FEATURE_SYMBOLS,
-  MONSTER_NAMES,
-  TREASURE_NAMES,
   Feature,
   Mode,
   Spell,
+  monsterName,
+  spellName,
+  treasureName,
 } from './constants.js';
 import { EncounterSession } from './encounter.js';
 import { generateDungeon } from './generation.js';
@@ -431,7 +432,7 @@ export class Game {
     const events: Event[] = [];
 
     if (room.monsterLevel > 0) {
-      const name = MONSTER_NAMES[room.monsterLevel - 1];
+      const name = monsterName(room.monsterLevel);
       events.push(Event.combat(`You are facing an angry ${name}!`));
       return events;
     }
@@ -545,7 +546,7 @@ export class Game {
         const tz = this.rng.randint(1, Game.SIZE);
         events.push(
           Event.info(
-            `You see the ${this.treasureName(treasure)} at ${tz},${ty},${tx}!`
+            `You see the ${treasureName(treasure)} at ${tz},${ty},${tx}!`
           )
         );
       }
@@ -572,7 +573,7 @@ export class Game {
         const [treasure, z, y, x] = this.rng.choice(locations);
         events.push(
           Event.info(
-            `You see the ${this.treasureName(treasure)} at ${z + 1},${y + 1},${x + 1}!`
+            `You see the ${treasureName(treasure)} at ${z + 1},${y + 1},${x + 1}!`
           )
         );
       }
@@ -642,7 +643,7 @@ export class Game {
     this.player.spells[spell] = (this.player.spells[spell] ?? 0) + 1;
     return [
       Event.info(
-        `The scroll contains the ${Spell[spell].toLowerCase()} spell.`
+        `The scroll contains the ${spellName(spell).toLowerCase()} spell.`
       ),
     ];
   }
@@ -714,10 +715,6 @@ export class Game {
       return [];
     }
     this.player.treasuresFound.add(treasureId);
-    return [Event.loot(`You find the ${this.treasureName(treasureId)}!`)];
-  }
-
-  private treasureName(treasureId: number): string {
-    return TREASURE_NAMES[treasureId - 1];
+    return [Event.loot(`You find the ${treasureName(treasureId)}!`)];
   }
 }

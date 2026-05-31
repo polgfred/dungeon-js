@@ -1,4 +1,4 @@
-import { MONSTER_NAMES, Spell } from './constants.js';
+import { monsterName, Spell, spellName } from './constants.js';
 import type { EncounterSave } from './serialization.js';
 import type { Player } from './model.js';
 import { Event, type PromptData } from './types.js';
@@ -17,6 +17,14 @@ export interface EncounterResult {
 export interface EncounterCancelResult {
   events: Event[];
 }
+
+const spellMap: Readonly<Record<string, Spell>> = Object.freeze({
+  P: Spell.PROTECTION,
+  F: Spell.FIREBALL,
+  L: Spell.LIGHTNING,
+  W: Spell.WEAKEN,
+  T: Spell.TELEPORT,
+});
 
 function resetPlayerAfterEncounter(player: Player) {
   player.fatigued = false;
@@ -56,7 +64,7 @@ export class EncounterSession {
   }): EncounterSession {
     const { rng, player, monsterLevel, debug } = options;
     const level = monsterLevel;
-    const name = MONSTER_NAMES[level - 1];
+    const name = monsterName(level);
     const vitality = 3 * level + rng.randint(0, 3);
     player.fatigued = false;
     player.tempArmorBonus = 0;
@@ -349,13 +357,6 @@ export class EncounterSession {
   private handleSpellChoice(raw: string): EncounterResult {
     this.awaitingSpell = false;
     const key = raw[0];
-    const spellMap: Record<string, Spell> = {
-      P: Spell.PROTECTION,
-      F: Spell.FIREBALL,
-      L: Spell.LIGHTNING,
-      W: Spell.WEAKEN,
-      T: Spell.TELEPORT,
-    };
     const spell = spellMap[key];
     if (!spell) {
       return {
@@ -381,33 +382,11 @@ export class EncounterSession {
   private spellMenu(): PromptData {
     const spells = this.player.spells;
     const iqTooLow = this.player.iq < 12;
-    const options = [
-      {
-        key: 'P',
-        label: `Protection (${spells[Spell.PROTECTION] ?? 0})`,
-        disabled: iqTooLow || (spells[Spell.PROTECTION] ?? 0) <= 0,
-      },
-      {
-        key: 'F',
-        label: `Fireball (${spells[Spell.FIREBALL] ?? 0})`,
-        disabled: iqTooLow || (spells[Spell.FIREBALL] ?? 0) <= 0,
-      },
-      {
-        key: 'L',
-        label: `Lightning (${spells[Spell.LIGHTNING] ?? 0})`,
-        disabled: iqTooLow || (spells[Spell.LIGHTNING] ?? 0) <= 0,
-      },
-      {
-        key: 'W',
-        label: `Weaken (${spells[Spell.WEAKEN] ?? 0})`,
-        disabled: iqTooLow || (spells[Spell.WEAKEN] ?? 0) <= 0,
-      },
-      {
-        key: 'T',
-        label: `Teleport (${spells[Spell.TELEPORT] ?? 0})`,
-        disabled: iqTooLow || (spells[Spell.TELEPORT] ?? 0) <= 0,
-      },
-    ];
+    const options = Object.entries(spellMap).map(([key, spell]) => ({
+      key,
+      label: `${spellName(spell)} (${spells[spell] ?? 0})`,
+      disabled: iqTooLow || (spells[spell] ?? 0) <= 0,
+    }));
     return {
       type: 'spell',
       options,
