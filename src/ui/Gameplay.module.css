@@ -86,6 +86,7 @@
   border-radius: 2px;
   display: grid;
   padding: 2px;
+  aspect-ratio: 1;
   place-items: center;
   font-size: 14px;
   transition: background-color 150ms ease;
@@ -97,14 +98,27 @@
   background: rgba(var(--primary-light-rgb), 0.18);
 }
 
+.mapGlyph {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
 .mapCellDim {
   color: rgba(var(--text-primary-rgb), 0.35);
 }
 
 .mapCellPlayer {
-  padding: 1px;
   border: 2px solid rgba(var(--primary-light-rgb), 0.9);
   background: rgba(var(--primary-dark-rgb), 0.32);
+}
+
+/* map glyph colors — the two things worth spotting at a glance */
+.mapGlyphDanger {
+  color: var(--error-light);
+}
+.mapGlyphTreasure {
+  color: var(--loot-main);
 }
 
 /* map panel layout */

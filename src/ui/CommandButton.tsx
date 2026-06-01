@@ -30,10 +30,10 @@ type CommandButtonProps = {
 };
 
 const arrowKeys: Readonly<Record<string, string>> = Object.freeze({
-  N: '\uE01C',
-  S: '\uE01D',
-  W: '\uE01E',
-  E: '\uE01F',
+  N: '\u2191',
+  S: '\u2193',
+  W: '\u2190',
+  E: '\u2192',
 });
 
 export function CommandButton({
@@ -46,11 +46,11 @@ export function CommandButton({
   const compact = layout === 'compact';
   const inlineCompact = layout === 'inline' && isMobile;
   const displayKey = command.key.startsWith('Shift+')
-    ? `\uE01C${command.key.slice(6)}`
+    ? `\u2191${command.key.slice(6)}`
     : command.id.startsWith('move-') && command.key in arrowKeys
       ? arrowKeys[command.key]
       : command.key === 'Esc'
-        ? `\uE11B`
+        ? `\u241B`
         : command.key;
   const isNav = command.id.startsWith('move-') || command.id === 'exit';
   const showKeyHint = !isMobile || compact;

@@ -388,7 +388,7 @@ function StatusReadout({
       )}
       <span className={clsx('txt-caption', 'ui-tip')}>
         Tip: press the letter keys shown on each command. Use the Shift
-        {'\uE01C'} key to decrease values.
+        {'\u2191'} key to decrease values.
       </span>
     </div>
   );

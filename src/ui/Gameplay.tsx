@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 
 import helpHtmlContent from '../assets/help.html?raw';
-import type { Player } from '../dungeon/model.js';
+import type { Player, Room } from '../dungeon/model.js';
 import type { EncounterSave, PlayerSave } from '../dungeon/serialization.js';
 import type { EventKind, PromptOption } from '../dungeon/types.js';
 import { CommandButton, type Command } from './CommandButton.js';
@@ -13,14 +13,39 @@ import type {
   GameplayProps,
 } from './GameplayModel.js';
 import { useGameplayModel } from './GameplayModel.js';
+import { GLYPH_PATHS, type GlyphId } from './glyphPaths.js';
 import styles from './Gameplay.module.css';
 import { Tooltip } from './Tooltip.js';
 import { useMediaQuery } from './useMediaQuery.js';
+import { Feature } from '../dungeon/constants.js';
 
 function CopyIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.copyIcon}>
       <path d="M16 1H6C4.9 1 4 1.9 4 3v12h2V3h10V1zm3 4H10c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h9c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16h-9V7h9v14z" />
+    </svg>
+  );
+}
+
+// hidden sprite of <symbol> defs, mounted once
+function GlyphDefs() {
+  return (
+    <svg width={0} height={0} aria-hidden="true" style={{ position: 'absolute' }}>
+      <defs>
+        {Object.entries(GLYPH_PATHS).map(([id, d]) => (
+          <symbol key={id} id={`glyph-${id}`} viewBox="0 0 8 8">
+            <path d={d} fill="currentColor" shapeRendering="crispEdges" />
+          </symbol>
+        ))}
+      </defs>
+    </svg>
+  );
+}
+
+function GlyphIcon({ id }: { id: GlyphId }) {
+  return (
+    <svg className={styles.mapGlyph} viewBox="0 0 8 8" aria-hidden="true">
+      <use href={`#glyph-${id}`} />
     </svg>
   );
 }
@@ -32,9 +57,9 @@ function MapGrid({
   rowOffset = 0,
   colOffset = 0,
   showTooltips = true,
-  mapCellWidth = 42,
+  mapCellWidth = 32,
 }: {
-  rows: string[][];
+  rows: Room[][];
   playerX: number;
   playerY: number;
   rowOffset?: number;
@@ -59,20 +84,22 @@ function MapGrid({
             const isPlayerCell =
               rowOffset + rowIndex === playerY &&
               colOffset + colIndex === playerX;
+            const { id, tooltip, className } = mapGlyph(cell);
             const cellBox = (
               <div
                 className={clsx(
                   styles.mapCell,
+                  className,
                   isPlayerCell && styles.mapCellPlayer,
-                  cell === '·' && styles.mapCellDim
+                  !cell.seen && styles.mapCellDim
                 )}
                 style={{ width: mapCellWidth }}
               >
-                {cell}
+                {id && <GlyphIcon id={id} />}
               </div>
             );
             return showTooltips ? (
-              <Tooltip key={`${rowIndex}-${colIndex}`} title={mapTooltip(cell)}>
+              <Tooltip key={`${rowIndex}-${colIndex}`} title={tooltip}>
                 {cellBox}
               </Tooltip>
             ) : (
@@ -95,7 +122,7 @@ function MapPanel({
   buttonLayout = 'stacked',
 }: {
   onTrigger: (command: Command) => void;
-  mapGrid: string[][];
+  mapGrid: Room[][];
   playerX: number;
   playerY: number;
   movementCommandList: Command[];
@@ -161,7 +188,7 @@ function MobileMapPanel({
   windowSize = 3,
 }: {
   onTrigger: (command: Command) => void;
-  mapGrid: string[][];
+  mapGrid: Room[][];
   playerX: number;
   playerY: number;
   movementCommandList: Command[];
@@ -668,43 +695,63 @@ function MobileHelpPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
-function mapTooltip(cell: string): string {
-  switch (cell) {
-    case '*':
-      return 'You';
-    case '•':
-    case '·':
-      return 'Unknown';
-    case '-':
-      return 'Empty';
-    case 'M':
-      return 'Monster';
-    case 'T':
-      return 'Treasure';
-    case 'm':
-      return 'Mirror';
-    case 's':
-      return 'Scroll';
-    case 'c':
-      return 'Chest';
-    case 'f':
-      return 'Flares';
-    case 'p':
-      return 'Potion';
-    case 'v':
-      return 'Vendor';
-    case 't':
-      return 'Thief';
-    case 'w':
-      return 'Warp';
-    case 'U':
-      return 'Stairs Up';
-    case 'D':
-      return 'Stairs Down';
-    case 'X':
-      return 'Exit';
-    default:
-      return '';
+type MapGlyph = {
+  id?: GlyphId;
+  tooltip: string;
+  className?: string;
+};
+
+function mapGlyph(room: Room): MapGlyph {
+  if (!room.seen) return { id: 'DOT', tooltip: 'Unknown' };
+  if (room.monsterLevel > 0)
+    return {
+      id: 'MONSTER',
+      tooltip: 'Monster',
+      className: styles.mapGlyphDanger,
+    };
+  if (room.treasureId)
+    return {
+      id: 'GEM',
+      tooltip: 'Treasure',
+      className: styles.mapGlyphTreasure,
+    };
+  switch (room.feature) {
+    case Feature.EMPTY:
+      return { tooltip: 'Empty' };
+    case Feature.MIRROR:
+      return { id: 'MIRROR', tooltip: 'Mirror' };
+    case Feature.SCROLL:
+      return { id: 'SCROLL', tooltip: 'Scroll' };
+    case Feature.CHEST:
+      return { id: 'CHEST', tooltip: 'Chest' };
+    case Feature.FLARES:
+      return { id: 'FLAME', tooltip: 'Flares' };
+    case Feature.POTION:
+      return { id: 'FLASK', tooltip: 'Potion' };
+    case Feature.VENDOR:
+      return { id: 'VENDOR', tooltip: 'Vendor' };
+    case Feature.THIEF:
+      return {
+        id: 'THIEF',
+        tooltip: 'Thief',
+        className: styles.mapGlyphDanger,
+      };
+    case Feature.WARP:
+      return {
+        id: 'WARP',
+        tooltip: 'Warp',
+        className: styles.mapGlyphDanger,
+      };
+    case Feature.STAIRS_UP:
+      return { id: 'STAIRS_UP', tooltip: 'Stairs Up' };
+    case Feature.STAIRS_DOWN:
+      return { id: 'STAIRS_DOWN', tooltip: 'Stairs Down' };
+    case Feature.EXIT:
+      return {
+        id: 'EXIT',
+        tooltip: 'Exit',
+        className: styles.mapGlyphTreasure,
+      };
   }
 }
 
@@ -922,6 +969,7 @@ export default function Gameplay(props: GameplayProps) {
 
   return (
     <div className={styles.root}>
+      <GlyphDefs />
       {isMobile ? (
         <GameplayMobile model={model} />
       ) : (

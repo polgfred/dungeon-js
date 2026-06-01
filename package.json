@@ -18,6 +18,7 @@
     "dist": "./scripts/update-dist-branch.sh",
     "docker": "./scripts/build-docker.sh",
     "encounter:console": "tsx scripts/encounter-console.ts",
+    "gen:glyphs": "tsx scripts/generate-glyphs.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

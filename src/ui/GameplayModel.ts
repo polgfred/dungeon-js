@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Feature, Mode } from '../dungeon/constants.js';
 import { Game } from '../dungeon/engine.js';
-import type { Player } from '../dungeon/model.js';
+import type { Player, Room } from '../dungeon/model.js';
 import {
   serializePlayer,
   type EncounterSave,
@@ -120,7 +120,7 @@ export type GameplayProps = {
 
 export type GameplayModel = {
   player: Player;
-  mapGrid: string[][];
+  mapGrid: Room[][];
   turnEvents: EventLine[][];
   isEncounter: boolean;
   lastEventLines: EventLine[];
@@ -165,8 +165,8 @@ export function useGameplayModel({
   }
   const game = gameRef.current;
   const player = game.player;
+  const mapGrid = game.dungeon.rooms[player.z];
   const [mode, setMode] = useState<Mode>(game.mode);
-  const [mapGrid, setMapGrid] = useState<string[][]>(game.mapGrid());
   const [turnEvents, setTurnEvents] = useState<EventLine[][]>([]);
   const [promptOptions, setPromptOptions] = useState<PromptOption[] | null>(
     null
@@ -349,7 +349,6 @@ export function useGameplayModel({
       const prompt = promptData(result.events);
       setMode(result.mode);
       setTurnEvents((prev) => appendEventFeed(prev, eventLines(result.events)));
-      setMapGrid(game.mapGrid());
       setPromptOptions(prompt.promptOptions);
       setPromptText(prompt.promptText);
       setPromptHasCancel(prompt.promptHasCancel);
@@ -407,7 +406,6 @@ export function useGameplayModel({
       )
     );
     setMode(game.mode);
-    setMapGrid(game.mapGrid());
     setPromptOptions(prompt.promptOptions);
     setPromptText(prompt.promptText);
     setPromptHasCancel(prompt.promptHasCancel);
