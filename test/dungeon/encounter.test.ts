@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { EncounterSession } from '../../src/dungeon/encounter.js';
 import {
   ARMOR_NAMES,
-  MONSTER_NAMES,
+  monsterName,
   Spell,
   WEAPON_NAMES,
 } from '../../src/dungeon/constants.js';
@@ -37,7 +37,6 @@ function createSession(options: {
   debug?: boolean;
 }) {
   const monsterLevel = 5;
-  const monsterName = MONSTER_NAMES[monsterLevel - 1];
   const player = buildPlayer(options.playerOverrides);
   const session = EncounterSession.resume({
     rng: options.rng,
@@ -45,7 +44,7 @@ function createSession(options: {
     debug: options.debug ?? false,
     save: {
       monsterLevel,
-      monsterName,
+      monsterName: monsterName(monsterLevel),
       vitality: options.vitality ?? 12,
       awaitingSpell: options.awaitingSpell ?? false,
     },
@@ -275,7 +274,7 @@ describe('EncounterSession real RNG bounds', () => {
         debug: true,
         save: {
           monsterLevel,
-          monsterName: MONSTER_NAMES[monsterLevel - 1],
+          monsterName: monsterName(monsterLevel),
           vitality: 999,
           awaitingSpell: false,
         },
@@ -333,7 +332,7 @@ describe('EncounterSession real RNG bounds', () => {
         debug: true,
         save: {
           monsterLevel: level,
-          monsterName: MONSTER_NAMES[level - 1],
+          monsterName: monsterName(level),
           vitality: 999,
           awaitingSpell: false,
         },
