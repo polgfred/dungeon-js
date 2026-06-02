@@ -1,21 +1,26 @@
 .screen {
   min-height: 100vh;
   color: var(--text-primary);
+  /* A single hue carries the background so it stays one coherent color while
+     attract mode cycles it. The gradients are pure translucency over that color
+     — a neutral diagonal vignette plus CRT scanlines — never a second hue, so
+     the field can't blend two cycling colors into a "popsicle". The base has
+     real luminance (not pure black) so the neutral vignette is actually visible. */
+  background-color: var(--primary-dark);
   background-image:
     linear-gradient(
       135deg,
-      rgba(var(--bg-default-rgb), 0.96),
-      rgba(var(--primary-dark-rgb), 0.92) 60%,
-      rgba(var(--bg-default-rgb), 0.96)
+      rgba(0, 0, 0, 0.5),
+      rgba(0, 0, 0, 0) 50%,
+      rgba(0, 0, 0, 0.5)
     ),
     repeating-linear-gradient(
       0deg,
-      rgba(0, 0, 0, 0.22) 0px,
-      rgba(0, 0, 0, 0.22) 1px,
+      rgba(0, 0, 0, 0.44) 0px,
+      rgba(0, 0, 0, 0.44) 1px,
       rgba(0, 0, 0, 0) 1px,
       rgba(0, 0, 0, 0) 3px
     );
-  background-blend-mode: screen;
   position: relative;
   overflow: hidden;
   padding: 16px;
