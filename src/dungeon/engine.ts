@@ -630,7 +630,7 @@ export class Game {
 
     const gold = 10 + this.rng.randint(0, 20);
     this.player.gold += gold;
-    return [Event.info(`You find ${gold} gold ${pluralize(gold, 'piece')}!`)];
+    return [Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}!`)];
   }
 
   private readScroll(): Event[] {
