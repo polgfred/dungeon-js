@@ -30,7 +30,12 @@ function CopyIcon() {
 // hidden sprite of <symbol> defs, mounted once
 function GlyphDefs() {
   return (
-    <svg width={0} height={0} aria-hidden="true" style={{ position: 'absolute' }}>
+    <svg
+      width={0}
+      height={0}
+      aria-hidden="true"
+      style={{ position: 'absolute' }}
+    >
       <defs>
         {Object.entries(GLYPH_PATHS).map(([id, d]) => (
           <symbol key={id} id={`glyph-${id}`} viewBox="0 0 8 8">
@@ -364,7 +369,10 @@ function MobileEventBubble({
           </p>
         ) : (
           lastEventLines.map((entry, index) => (
-            <p key={`${entry.text}-${index}`} className={eventKindClass[entry.kind]}>
+            <p
+              key={`${entry.text}-${index}`}
+              className={eventKindClass[entry.kind]}
+            >
               {entry.text}
             </p>
           ))

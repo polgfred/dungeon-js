@@ -410,12 +410,12 @@ export function useGameplayModel({
     setPromptText(prompt.promptText);
     setPromptHasCancel(prompt.promptHasCancel);
   }, [game]);
-  
+
   useEffect(() => {
     window.game = game;
     return () => {
       delete window.game;
-    }
+    };
   }, [game]);
 
   useEffect(() => {
