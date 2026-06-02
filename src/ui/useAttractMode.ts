@@ -33,24 +33,18 @@ const ACTIVITY_EVENTS = [
   'wheel',
 ] as const;
 
-// Tweakable timings. The real Atari idled ~9 minutes, then stepped the colors
-// every 4.27s (one tick of the real-time clock's middle byte). We idle far
-// sooner so players actually see the nod; the step interval stays authentic.
 const IDLE_MS = 60_000;
 const STEP_MS = 4_270;
 
-// How far COLRSH advances per step. The OS counted up by 1, which only walks
-// the high (hue) nibble once every 16 ticks — so colors pulse brightness within
-// one family for ~a minute before the hue swings. Striding by 0x11 bumps both
-// nibbles each step, rolling the whole palette (background included) through
-// all 16 hue families while keeping the exact EOR/AND color math.
+// How far COLRSH advances per step
 const COLRSH_STRIDE = 0x11;
 
 const HEX = /^#[0-9a-f]{6}$/i;
 
 function toRgb(hex: string) {
   return (
-    `${parseInt(hex.slice(1, 3), 16)}, ${parseInt(hex.slice(3, 5), 16)}, ` +
+    `${parseInt(hex.slice(1, 3), 16)}, ` +
+    `${parseInt(hex.slice(3, 5), 16)}, ` +
     `${parseInt(hex.slice(5, 7), 16)}`
   );
 }
@@ -71,7 +65,6 @@ export function useAttractMode(): void {
     let idleTimer: number | undefined;
     let stepTimer: number | undefined;
 
-    // The OS cycled COLRSH from the clock; we step it up by one each tick.
     let colrsh = 0;
 
     const applyShift = () => {
@@ -91,7 +84,8 @@ export function useAttractMode(): void {
     };
 
     const enterAttract = () => {
-      colrsh = 0; // first step (colrsh 0) just dims; later steps shift hue
+      // Seed from the wall clock
+      colrsh = Date.now() & 0xff;
       applyShift();
       stepTimer = window.setInterval(applyShift, STEP_MS);
     };
@@ -112,7 +106,9 @@ export function useAttractMode(): void {
     for (const event of ACTIVITY_EVENTS) {
       window.addEventListener(event, onActivity, { passive: true });
     }
-    onActivity(); // arm the idle timer
+
+    // Arm the idle timer
+    onActivity();
 
     return () => {
       for (const event of ACTIVITY_EVENTS) {
