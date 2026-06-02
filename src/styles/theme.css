@@ -1,27 +1,30 @@
 :root {
-  --primary-main: #235082;
-  --primary-light: #3b6a9a;
-  --primary-light-rgb: 59, 106, 154;
-  --primary-dark: #183a5e;
-  --primary-dark-rgb: 24, 58, 94;
+  /* Colors snapped to the Atari GTIA palette (see ui/gtiaPalette.ts).
+     The blue "primary" family lands in GTIA's cyan family (steel-blue -> teal);
+     error-main is muddy because GTIA has no bright pure red. */
+  --primary-main: #065e7c; /* cyan[4] */
+  --primary-light: #28809e; /* cyan[6] */
+  --primary-light-rgb: 40, 128, 158;
+  --primary-dark: #003c52; /* cyan[2] */
+  --primary-dark-rgb: 0, 60, 82;
 
-  --bg-default: #000000;
+  --bg-default: #000000; /* gray[0] */
   --bg-default-rgb: 0, 0, 0;
-  --bg-paper: #235082;
-  --bg-paper-rgb: 35, 80, 130;
+  --bg-paper: #065e7c; /* cyan[4] */
+  --bg-paper-rgb: 6, 94, 124;
 
-  --text-primary: #d0d0d0;
-  --text-primary-rgb: 208, 208, 208;
-  --text-secondary: #9ed9ff;
+  --text-primary: #cccccc; /* gray[12] */
+  --text-primary-rgb: 204, 204, 204;
+  --text-secondary: #9bd6ff; /* lightBlue[12] */
   --text-disabled: rgba(255, 255, 255, 0.5);
 
-  --error-light: #e57373;
-  --error-main: #f44336;
+  --error-light: #d77f62; /* redOrange[9] */
+  --error-main: #b55d40; /* redOrange[7] */
 
-  --loot-main: #ffcf4d;
-  --combat-main: #ff9e42;
+  --loot-main: #ead760; /* goldYellow[12] */
+  --combat-main: #ecb05f; /* orange[11] */
 
-  --grey-200: #eeeeee;
+  --grey-200: #eeeeee; /* gray[14] */
 
   --font-family: 'EightBit Atari';
 }
