@@ -8,6 +8,7 @@ import { hasSavedGame, loadSavedGame } from './ui/gameSave.js';
 import Gameplay from './ui/Gameplay.js';
 import SetupGame from './ui/SetupGame.js';
 import TitleScreen from './ui/TitleScreen.js';
+import { useAttractMode } from './ui/useAttractMode.js';
 
 type View = 'home' | 'setup' | 'gameplay';
 
@@ -17,6 +18,8 @@ export default function App() {
   const [savedGame, setSavedGame] = useState<GameSave | null>(null);
   const [saveAvailable, setSaveAvailable] = useState(false);
   const [continueError, setContinueError] = useState<string | null>(null);
+
+  useAttractMode();
 
   const navigate = useCallback((nextView: View) => {
     setView(nextView);
