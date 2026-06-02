@@ -112,16 +112,16 @@ export const FLASK: Glyph = [
   '..####..',
 ];
 
-// Vendor — a doorway arch
+// Vendor — man with a smiling face and hat
 export const VENDOR: Glyph = [
   '..####..',
-  '.######.',
-  '###..###',
-  '##....##',
-  '##....##',
-  '##....##',
-  '##....##',
-  '##....##',
+  '########',
+  '.#.##.#.',
+  '##.##.##',
+  '########',
+  '.#....#.',
+  '.##..##.',
+  '..####..',
 ];
 
 // Thief — hooded rogue with a peaked hood and shadowed face
