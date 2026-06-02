@@ -94,7 +94,7 @@ describe('Game interactions', () => {
 
   describe('mirrors', () => {
     it('looks in a mirror and reveals a treasure location', () => {
-      const rng = new ScriptedRng({ randint: [1, 0] });
+      const rng = new ScriptedRng({ randint: [1, 1] });
       const { game, player, dungeon } = setupGame({
         feature: Feature.MIRROR,
         rng,

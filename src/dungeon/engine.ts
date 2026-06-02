@@ -551,8 +551,10 @@ export class Game {
         );
       }
     } else {
-      const locations: Array<[number, number, number, number]> = [];
-      for (let z = 0; z < this.dungeon.rooms.length; z += 1) {
+      const remaining = 10 - this.player.treasuresFound.size;
+      const target = this.rng.randint(1, remaining);
+      let seen = 0;
+      outer: for (let z = 0; z < this.dungeon.rooms.length; z += 1) {
         const floor = this.dungeon.rooms[z];
         for (let y = 0; y < floor.length; y += 1) {
           const row = floor[y];
@@ -562,20 +564,18 @@ export class Game {
               candidate.treasureId &&
               !this.player.treasuresFound.has(candidate.treasureId)
             ) {
-              locations.push([candidate.treasureId, z, y, x]);
+              seen += 1;
+              if (seen === target) {
+                events.push(
+                  Event.info(
+                    `You see the ${treasureName(candidate.treasureId)} at ${z + 1},${y + 1},${x + 1}!`
+                  )
+                );
+                break outer;
+              }
             }
           }
         }
-      }
-      if (locations.length === 0) {
-        events.push(Event.info(this.rng.choice(visions)));
-      } else {
-        const [treasure, z, y, x] = this.rng.choice(locations);
-        events.push(
-          Event.info(
-            `You see the ${treasureName(treasure)} at ${z + 1},${y + 1},${x + 1}!`
-          )
-        );
       }
     }
     room.feature = Feature.EMPTY;
