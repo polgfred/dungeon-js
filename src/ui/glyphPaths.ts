@@ -30,6 +30,6 @@ export const GLYPH_PATHS: Record<GlyphId, string> = {
   STAIRS_DOWN: 'M0 0h2v1h-2zM0 1h2v1h-2zM0 2h4v1h-4zM0 3h4v1h-4zM0 4h6v1h-6zM0 5h6v1h-6zM0 6h8v1h-8zM0 7h8v1h-8z',
   STAIRS_UP: 'M6 0h2v1h-2zM6 1h2v1h-2zM4 2h4v1h-4zM4 3h4v1h-4zM2 4h6v1h-6zM2 5h6v1h-6zM0 6h8v1h-8zM0 7h8v1h-8z',
   THIEF: 'M3 0h2v1h-2zM2 1h4v1h-4zM1 2h6v1h-6zM1 3h1v1h-1zM3 3h2v1h-2zM6 3h1v1h-1zM1 4h1v1h-1zM3 4h2v1h-2zM6 4h1v1h-1zM1 5h6v1h-6zM1 6h6v1h-6zM0 7h8v1h-8z',
-  VENDOR: 'M3 0h2v1h-2zM1 1h6v1h-6zM0 2h2v1h-2zM3 2h2v1h-2zM1 3h6v1h-6zM3 4h2v1h-2zM6 4h2v1h-2zM3 5h2v1h-2zM6 5h2v1h-2zM1 6h6v1h-6zM3 7h2v1h-2z',
+  VENDOR: 'M2 0h4v1h-4zM1 1h6v1h-6zM0 2h3v1h-3zM5 2h3v1h-3zM0 3h2v1h-2zM6 3h2v1h-2zM0 4h2v1h-2zM6 4h2v1h-2zM0 5h2v1h-2zM5 5h3v1h-3zM0 6h2v1h-2zM6 6h2v1h-2zM0 7h2v1h-2zM6 7h2v1h-2z',
   WARP: 'M0 0h8v1h-8zM0 1h1v1h-1zM7 1h1v1h-1zM0 2h1v1h-1zM2 2h4v1h-4zM7 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM5 3h1v1h-1zM7 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM5 4h1v1h-1zM7 4h1v1h-1zM0 5h1v1h-1zM2 5h1v1h-1zM4 5h2v1h-2zM7 5h1v1h-1zM0 6h1v1h-1zM2 6h1v1h-1zM7 6h1v1h-1zM0 7h1v1h-1zM2 7h6v1h-6z',
 };

@@ -112,16 +112,16 @@ export const FLASK: Glyph = [
   '..####..',
 ];
 
-// Vendor — a dollar sign (the original game's vendor symbol)
+// Vendor — a doorway arch
 export const VENDOR: Glyph = [
-  '...##...',
+  '..####..',
   '.######.',
-  '##.##...',
-  '.######.',
-  '...##.##',
-  '...##.##',
-  '.######.',
-  '...##...',
+  '###..###',
+  '##....##',
+  '##....##',
+  '##...###',
+  '##....##',
+  '##....##',
 ];
 
 // Thief — hooded rogue with a peaked hood and shadowed face
