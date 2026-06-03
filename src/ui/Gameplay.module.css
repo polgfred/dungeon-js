@@ -184,12 +184,18 @@
   justify-content: center;
 }
 
+.mobileMapControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
 .mobileMapDpad {
   display: flex;
   flex-direction: column;
   gap: 4px;
   align-items: center;
-  margin-left: 4px;
 }
 
 .mobileMapDpadRow {
@@ -197,13 +203,13 @@
   gap: 4px;
 }
 
+/* U/D/X stacked beneath the NSEW pad, mirroring the desktop controls column;
+   wraps if a narrow phone can't fit all three across. */
 .mobileMapVerticals {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 4px;
   justify-content: center;
-  width: auto;
-  flex-shrink: 0;
 }
 .mobileMapVerticals .btn {
   width: auto;

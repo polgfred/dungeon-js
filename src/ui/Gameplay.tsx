@@ -222,39 +222,41 @@ function MobileMapPanel({
             showTooltips={false}
           />
         </div>
-        <div className={styles.mobileMapDpad}>
-          <CommandButton
-            command={movementCommandList[0]}
-            onTrigger={onTrigger}
-            layout={buttonLayout}
-          />
-          <div className={styles.mobileMapDpadRow}>
+        <div className={styles.mobileMapControls}>
+          <div className={styles.mobileMapDpad}>
             <CommandButton
-              command={movementCommandList[1]}
+              command={movementCommandList[0]}
               onTrigger={onTrigger}
               layout={buttonLayout}
             />
+            <div className={styles.mobileMapDpadRow}>
+              <CommandButton
+                command={movementCommandList[1]}
+                onTrigger={onTrigger}
+                layout={buttonLayout}
+              />
+              <CommandButton
+                command={movementCommandList[2]}
+                onTrigger={onTrigger}
+                layout={buttonLayout}
+              />
+            </div>
             <CommandButton
-              command={movementCommandList[2]}
+              command={movementCommandList[3]}
               onTrigger={onTrigger}
               layout={buttonLayout}
             />
           </div>
-          <CommandButton
-            command={movementCommandList[3]}
-            onTrigger={onTrigger}
-            layout={buttonLayout}
-          />
-        </div>
-        <div className={styles.mobileMapVerticals}>
-          {verticalCommandList.map((command) => (
-            <CommandButton
-              key={command.id}
-              command={command}
-              onTrigger={onTrigger}
-              layout={buttonLayout}
-            />
-          ))}
+          <div className={styles.mobileMapVerticals}>
+            {verticalCommandList.map((command) => (
+              <CommandButton
+                key={command.id}
+                command={command}
+                onTrigger={onTrigger}
+                layout={buttonLayout}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
