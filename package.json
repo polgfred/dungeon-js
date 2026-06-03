@@ -16,6 +16,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "dist": "./scripts/update-dist-branch.sh",
+    "deploy": "./scripts/deploy-cloudflare.sh",
     "docker": "./scripts/build-docker.sh",
     "encounter:console": "tsx scripts/encounter-console.ts",
     "gen:glyphs": "tsx scripts/generate-glyphs.ts",
