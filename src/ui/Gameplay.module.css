@@ -24,7 +24,6 @@
   }
 }
 
-/* shared panel */
 .panel {
   background: rgba(var(--bg-paper-rgb), 0.9);
   border: 1px solid rgba(var(--primary-light-rgb), 0.5);
@@ -56,7 +55,6 @@
   background: rgba(var(--primary-dark-rgb), 0.18);
 }
 
-/* svg icon */
 .copyIcon {
   width: 18px;
   height: 18px;
@@ -64,38 +62,42 @@
   fill: currentColor;
 }
 
-/* map grid */
 .mapGridOuter {
+  --map-cell: 32px;
   display: grid;
+  grid-auto-rows: var(--map-cell);
   gap: 4px;
   width: fit-content;
   max-width: 100%;
   align-content: center;
   justify-items: center;
   justify-content: center;
-}
 
-.mapGridRow {
-  display: grid;
-  gap: 4px;
-  width: fit-content;
-  max-width: 100%;
-}
+  .mapGridRow {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--map-cell);
+    gap: 4px;
+    width: fit-content;
+    max-width: 100%;
 
-.mapCell {
-  border-radius: 2px;
-  display: grid;
-  padding: 2px;
-  aspect-ratio: 1;
-  place-items: center;
-  font-size: 14px;
-  transition: background-color 150ms ease;
-  border: 1px solid rgba(var(--primary-light-rgb), 0.35);
-  background: rgba(var(--primary-dark-rgb), 0.26);
-  color: var(--text-primary);
-}
-.mapCell:hover {
-  background: rgba(var(--primary-light-rgb), 0.18);
+    .mapCell {
+      border-radius: 2px;
+      display: grid;
+      width: var(--map-cell);
+      padding: 2px;
+      aspect-ratio: 1;
+      place-items: center;
+      font-size: 14px;
+      transition: background-color 150ms ease;
+      border: 1px solid rgba(var(--primary-light-rgb), 0.35);
+      background: rgba(var(--primary-dark-rgb), 0.26);
+      color: var(--text-primary);
+    }
+    .mapCell:hover {
+      background: rgba(var(--primary-light-rgb), 0.18);
+    }
+  }
 }
 
 .mapGlyph {
@@ -113,15 +115,14 @@
   background: rgba(var(--primary-dark-rgb), 0.32);
 }
 
-/* map glyph colors — the two things worth spotting at a glance */
 .mapGlyphDanger {
   color: var(--error-light);
 }
+
 .mapGlyphTreasure {
   color: var(--loot-main);
 }
 
-/* map panel layout */
 .mapPanelLayout {
   display: grid;
   grid-template-columns: 1fr;
@@ -170,7 +171,6 @@
   width: 100%;
 }
 
-/* mobile map */
 .mobileMapLayout {
   display: flex;
   flex-wrap: nowrap;
@@ -209,7 +209,6 @@
   width: auto;
 }
 
-/* event feed (desktop) */
 .eventFeedContainer {
   position: relative;
   height: 220px;
@@ -260,7 +259,6 @@
   opacity: 0.7;
 }
 
-/* compact readout (mobile) */
 .compactReadout {
   display: flex;
   flex-direction: column;
@@ -284,16 +282,16 @@
   opacity: 0.75;
 }
 
-/* mobile event bubble */
 .mobileEventOuter {
   padding: 0;
   background: rgba(var(--primary-dark-rgb), 0.28);
   flex: 1;
   min-height: 0;
-}
-.mobileEventOuter p {
-  margin: 0;
-  font-size: 13px;
+
+  p {
+    margin: 0;
+    font-size: 13px;
+  }
 }
 
 .mobileEventInner {
@@ -305,22 +303,21 @@
   overflow-y: auto;
 }
 
-/* stats panels */
 .statsPanel {
   display: flex;
   flex-direction: column;
   gap: 16px;
   height: 100%;
-}
 
-.statsGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+  .statsGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 
-.statsGroup p {
-  margin: 0;
+    p {
+      margin: 0;
+    }
+  }
 }
 
 .hpLow {

@@ -62,7 +62,6 @@ function MapGrid({
   rowOffset = 0,
   colOffset = 0,
   showTooltips = true,
-  mapCellWidth = 32,
 }: {
   rows: Room[][];
   playerX: number;
@@ -70,21 +69,11 @@ function MapGrid({
   rowOffset?: number;
   colOffset?: number;
   showTooltips?: boolean;
-  mapCellWidth?: number;
 }) {
   return (
-    <div
-      className={styles.mapGridOuter}
-      style={{ gridTemplateRows: `repeat(${rows.length}, 1fr)` }}
-    >
+    <div className={styles.mapGridOuter}>
       {rows.map((row, rowIndex) => (
-        <div
-          key={`row-${rowIndex}`}
-          className={styles.mapGridRow}
-          style={{
-            gridTemplateColumns: `repeat(${row.length}, minmax(0, ${mapCellWidth}px))`,
-          }}
-        >
+        <div key={`row-${rowIndex}`} className={styles.mapGridRow}>
           {row.map((cell, colIndex) => {
             const isPlayerCell =
               rowOffset + rowIndex === playerY &&
@@ -98,7 +87,6 @@ function MapGrid({
                   isPlayerCell && styles.mapCellPlayer,
                   !cell.seen && styles.mapCellDim
                 )}
-                style={{ width: mapCellWidth }}
               >
                 {id && <GlyphIcon id={id} />}
               </div>
@@ -190,7 +178,7 @@ function MobileMapPanel({
   movementCommandList,
   verticalCommandList,
   buttonLayout = 'compact',
-  windowSize = 3,
+  windowSize = 5,
 }: {
   onTrigger: (command: Command) => void;
   mapGrid: Room[][];
@@ -220,7 +208,6 @@ function MobileMapPanel({
   const visibleRows = mapGrid
     .slice(rowStart, rowStart + safeWindowSize)
     .map((row) => row.slice(colStart, colStart + safeWindowSize));
-  const mapCellWidth = safeWindowSize <= 3 ? 48 : 42;
 
   return (
     <div className={clsx('ui-panel', styles.panel)}>
@@ -233,7 +220,6 @@ function MobileMapPanel({
             rowOffset={rowStart}
             colOffset={colStart}
             showTooltips={false}
-            mapCellWidth={mapCellWidth}
           />
         </div>
         <div className={styles.mobileMapDpad}>
