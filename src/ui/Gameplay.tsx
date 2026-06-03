@@ -359,7 +359,7 @@ function MobileEventBubble({
           lastEventLines.map((entry, index) => (
             <p
               key={`${entry.text}-${index}`}
-              className={eventKindClass[entry.kind]}
+              className={clsx(styles.eventEntry, eventKindClass[entry.kind])}
             >
               {entry.text}
             </p>

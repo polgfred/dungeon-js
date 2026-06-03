@@ -72,31 +72,44 @@
   align-content: center;
   justify-items: center;
   justify-content: center;
+}
 
-  .mapGridRow {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: var(--map-cell);
-    gap: 4px;
-    width: fit-content;
-    max-width: 100%;
+.mapGridRow {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--map-cell);
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+}
 
-    .mapCell {
-      border-radius: 2px;
-      display: grid;
-      width: var(--map-cell);
-      padding: 2px;
-      aspect-ratio: 1;
-      place-items: center;
-      font-size: 14px;
-      transition: background-color 150ms ease;
-      border: 1px solid rgba(var(--primary-light-rgb), 0.35);
-      background: rgba(var(--primary-dark-rgb), 0.26);
-      color: var(--text-primary);
-    }
-    .mapCell:hover {
-      background: rgba(var(--primary-light-rgb), 0.18);
-    }
+.mapCell {
+  border-radius: 2px;
+  display: grid;
+  width: var(--map-cell);
+  padding: 2px;
+  aspect-ratio: 1;
+  place-items: center;
+  font-size: 14px;
+  transition: background-color 150ms ease;
+  border: 1px solid rgba(var(--primary-light-rgb), 0.35);
+  background: rgba(var(--primary-dark-rgb), 0.26);
+  color: var(--text-primary);
+
+  &:hover {
+    background: rgba(var(--primary-light-rgb), 0.18);
+  }
+  &.mapCellPlayer {
+    border: 2px solid rgba(var(--primary-light-rgb), 0.9);
+  }
+  &.mapCellDim {
+    color: rgba(var(--text-primary-rgb), 0.35);
+  }
+  &.mapGlyphDanger {
+    color: var(--error-light);
+  }
+  &.mapGlyphTreasure {
+    color: var(--loot-main);
   }
 }
 
@@ -104,23 +117,6 @@
   display: block;
   width: 20px;
   height: 20px;
-}
-
-.mapCellDim {
-  color: rgba(var(--text-primary-rgb), 0.35);
-}
-
-.mapCellPlayer {
-  border: 2px solid rgba(var(--primary-light-rgb), 0.9);
-  background: rgba(var(--primary-dark-rgb), 0.32);
-}
-
-.mapGlyphDanger {
-  color: var(--error-light);
-}
-
-.mapGlyphTreasure {
-  color: var(--loot-main);
 }
 
 .mapPanelLayout {
@@ -166,15 +162,16 @@
   grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
   justify-items: stretch;
   width: 100%;
-}
-.mapVerticals .btn {
-  width: 100%;
+
+  .btn {
+    width: 100%;
+  }
 }
 
 .mobileMapLayout {
   display: flex;
   flex-wrap: nowrap;
-  gap: 8px;
+  gap: 20px;
   align-items: center;
   justify-content: center;
 }
@@ -203,16 +200,15 @@
   gap: 4px;
 }
 
-/* U/D/X stacked beneath the NSEW pad, mirroring the desktop controls column;
-   wraps if a narrow phone can't fit all three across. */
 .mobileMapVerticals {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   justify-content: center;
-}
-.mobileMapVerticals .btn {
-  width: auto;
+
+  .btn {
+    width: auto;
+  }
 }
 
 .eventFeedContainer {
@@ -246,23 +242,20 @@
   margin: 0;
   color: var(--text-primary);
   opacity: 1;
-}
 
-.eventLoot {
-  color: var(--loot-main);
-}
-
-.eventCombat {
-  color: var(--combat-main);
-}
-
-.eventError {
-  color: var(--error-light);
-}
-
-.eventEntryStale {
-  color: var(--text-disabled);
-  opacity: 0.7;
+  &.eventLoot {
+    color: var(--loot-main);
+  }
+  &.eventCombat {
+    color: var(--combat-main);
+  }
+  &.eventError {
+    color: var(--error-light);
+  }
+  &.eventEntryStale {
+    color: var(--text-disabled);
+    opacity: 0.7;
+  }
 }
 
 .compactReadout {
@@ -270,18 +263,20 @@
   flex-direction: column;
   gap: 12px;
 }
-.compactReadout p {
-  margin: 0;
-  font-size: 13px;
-}
-.compactReadout .txt-caption {
-  font-size: 12px;
-}
 
 .compactReadoutGroup {
   display: flex;
   flex-direction: column;
   gap: 3.2px;
+
+  p {
+    margin: 0;
+    font-size: 13px;
+
+    .txt-caption {
+      font-size: 12px;
+    }
+  }
 }
 
 .label {
@@ -314,16 +309,16 @@
   flex-direction: column;
   gap: 16px;
   height: 100%;
+}
 
-  .statsGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.statsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-    p {
-      margin: 0;
-    }
-  }
+p {
+  margin: 0;
 }
 
 .hpLow {
@@ -365,7 +360,6 @@
   cursor: help;
 }
 
-/* command bar */
 .commandTitle {
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -391,18 +385,19 @@
   gap: 16px;
 }
 
-/* mobile shells */
 .mobileShell {
   display: flex;
   flex-direction: column;
   gap: 16px;
   min-height: calc(100dvh - 96px);
-}
-.mobileShell p {
-  font-size: 13px;
-}
-.mobileShell .txt-caption {
-  font-size: 11px;
+
+  p {
+    font-size: 13px;
+  }
+
+  .txt-caption {
+    font-size: 11px;
+  }
 }
 
 .mobilePlayShell {
@@ -428,7 +423,6 @@
   min-height: 0;
 }
 
-/* mobile nav */
 .mobileNav {
   position: fixed;
   left: 0;
@@ -444,7 +438,6 @@
   gap: 8px;
 }
 
-/* desktop layout */
 .desktopGrid {
   display: grid;
   gap: 24px;
@@ -465,7 +458,6 @@
   justify-content: space-between;
 }
 
-/* mobile help panel */
 .mobileHelpPanel {
   padding: 0;
   display: flex;
@@ -497,30 +489,32 @@
   overflow-y: auto;
   font-size: 13px;
   line-height: 1.5;
-}
-.mobileHelpContent * {
-  font-size: inherit;
+
+  * {
+    font-size: inherit;
+  }
 }
 
-.helpContent :where(h1) {
-  margin-top: 0;
-  opacity: 0.75;
-}
-.helpContent :where(h2, h3) {
-  opacity: 0.75;
-}
-.helpContent :where(h1, h2, h3) {
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-}
-.helpContent :where(li) {
-  margin-bottom: 4px;
-}
-.helpContent :where(ul li)::marker {
-  content: '- ';
+.helpContent {
+  :where(h1) {
+    margin-top: 0;
+    opacity: 0.75;
+  }
+  :where(h2, h3) {
+    opacity: 0.75;
+  }
+  :where(h1, h2, h3) {
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  :where(li) {
+    margin-bottom: 4px;
+  }
+  :where(ul li)::marker {
+    content: '- ';
+  }
 }
 
-/* dialogs */
 .helpDialog {
   background: rgba(var(--bg-paper-rgb), 0.96);
   color: var(--text-primary);
