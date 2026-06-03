@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import styles from './App.module.css';
-import type { GameSave } from './dungeon/serialization.js';
-import type { Player } from './dungeon/model.js';
-import { deserializePlayer } from './dungeon/serialization.js';
-import { hasSavedGame, loadSavedGame } from './ui/gameSave.js';
-import Gameplay from './ui/Gameplay.js';
-import SetupGame from './ui/SetupGame.js';
-import TitleScreen from './ui/TitleScreen.js';
-import { useAttractMode } from './ui/useAttractMode.js';
+import type { GameSave } from '../dungeon/serialization.js';
+import type { Player } from '../dungeon/model.js';
+import { deserializePlayer } from '../dungeon/serialization.js';
+import { hasSavedGame, loadSavedGame } from './gameSave.js';
+import Gameplay from './Gameplay.js';
+import SetupGame from './SetupGame.js';
+import TitleScreen from './TitleScreen.js';
+import { useAttractMode } from './useAttractMode.js';
 
 type View = 'home' | 'setup' | 'gameplay';
 
