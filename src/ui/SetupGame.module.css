@@ -445,6 +445,11 @@
   flex-direction: column;
   gap: 24px;
 }
+@container (min-width: 1280px) {
+  .setupPanelStack {
+    justify-content: space-between;
+  }
+}
 
 .stageStack {
   display: flex;
