@@ -1,7 +1,7 @@
 {
   "name": "dungeon",
   "version": "1.0.0",
-  "description": "",
+  "description": "Dungeon of Doom Retro Crawler",
   "homepage": "https://github.com/polgfred/dungeon-js",
   "repository": {
     "type": "git",
@@ -26,19 +26,19 @@
   "devDependencies": {
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^24.1.0",
-    "@types/react": "^19.2.9",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.2",
+    "@vitejs/plugin-react": "^6.0.2",
     "clsx": "^2.1.1",
-    "jsdom": "^28.0.0",
-    "prettier": "^3.8.1",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vitest": "^4.0.18",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.8.3",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8",
     "wrangler": "^4.97.0"
   }
 }
