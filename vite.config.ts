@@ -1,15 +1,12 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
-import compression from 'vite-plugin-compression';
 
 const buildCommitHash = process.env.VITE_BUILD_COMMIT_HASH ?? 'unknown';
 const buildTimestamp = new Date().toISOString();
 
-export default defineConfig(({ mode }) => {
-  const enableCompression = mode === 'server';
-
+export default defineConfig(({}) => {
   return {
-    plugins: [react(), ...(enableCompression ? [compression()] : [])],
+    plugins: [react()],
     server: {
       host: true,
     },
