@@ -31,8 +31,10 @@
 .titleImage {
   display: block;
   width: 100%;
-  height: auto;
-  image-rendering: pixelated;
+  aspect-ratio: 1532 / 947;
+  background-color: var(--text-primary);
+  opacity: 0.75;
+  mask: url(../assets/DofDTitle.png) center / contain no-repeat;
 }
 
 .intro {

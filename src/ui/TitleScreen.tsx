@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 
-import titleImage from '../assets/DofDTitle.png';
 import styles from './TitleScreen.module.css';
 
 type TitleScreenProps = {
@@ -29,10 +28,10 @@ export default function TitleScreen({
   return (
     <div className={styles.root}>
       <div className={styles.titleFrame}>
-        <img
+        <div
           className={styles.titleImage}
-          src={titleImage}
-          alt="Dungeon of Doom title screen"
+          role="img"
+          aria-label="Dungeon of Doom title screen"
         />
       </div>
       <div className={styles.intro}>
