@@ -10,8 +10,8 @@
   max-height: 85vh;
   overflow: hidden;
   /* modals render at the top layer */
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
 }
 
 .dialog[open] {

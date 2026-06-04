@@ -541,6 +541,6 @@ p {
   white-space: pre-wrap;
   word-break: break-word;
   /* let debug JSON be selected */
-  user-select: text;
   -webkit-user-select: text;
+  user-select: text;
 }
