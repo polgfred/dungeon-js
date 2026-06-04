@@ -154,7 +154,7 @@ export class EncounterSession {
     }
     this.awaitingSpell = false;
     return this.withDebug({
-      events: [Event.info('You ready yourself for the fight.')],
+      events: [],
     });
   }
 

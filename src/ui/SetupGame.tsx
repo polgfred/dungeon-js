@@ -263,7 +263,7 @@ function ShopStage({
     <div className={styles.gap3}>
       <h2 className={clsx('txt-h5', styles.stageTitle)}>Arm Thyself</h2>
       <p className={styles.stageBody}>
-        Now, you must purchase a weapon, armor, and flares. Any remaining gold
+        Now, you must purchase a weapon, armour, and flares. Any remaining gold
         is kept for future exploits.
       </p>
       <div className={styles.shopGroup}>
@@ -278,7 +278,7 @@ function ShopStage({
           onChange={onWeaponTier}
         />
         <TierGroup
-          label="Armor Tier"
+          label="Armour Tier"
           value={armorTier}
           options={[1, 2, 3].map((tier) => ({
             value: tier,
@@ -325,11 +325,14 @@ function ReadyStage({ player }: { player: Player }) {
       <h2 className={clsx('txt-h5', styles.stageTitle)}>Setup Complete</h2>
       <p className={styles.stageBody}>
         Brave adventurer, thy gear outfits thee well! But alas, this quest is
-        not for the faint of heart. Are you ready to enter the dungeon?
+        not for the faint of heart.
+      </p>
+      <p className={styles.stageBody}>
+        Are you ready to enter the dungeon?
       </p>
       <div className={styles.readyList}>
         <p>Weapon: {player.weaponName}</p>
-        <p>Armor: {player.armorName}</p>
+        <p>Armour: {player.armorName}</p>
         <p>Flares: {player.flares}</p>
         <p>Gold Remaining: {player.gold}</p>
       </div>
@@ -376,7 +379,7 @@ function StatusReadout({
         <p className={styles.statusGroupLabel}>Inventory</p>
         <p>Gold: {gold !== null ? gold : '--'}</p>
         <p>Weapon: {WEAPON_NAMES[weaponTier]}</p>
-        <p>Armor: {ARMOR_NAMES[armorTier]}</p>
+        <p>Armour: {ARMOR_NAMES[armorTier]}</p>
         <p>Flares: {flares}</p>
       </div>
       {gold !== null && (

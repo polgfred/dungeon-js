@@ -228,13 +228,13 @@ export function useSetupGameModel({
         {
           id: 'shop-armor-plus',
           key: 'A',
-          label: 'Armor +',
+          label: 'Armour +',
           disabled: armorTier >= 3,
         },
         {
           id: 'shop-armor-minus',
           key: 'Shift+A',
-          label: 'Armor -',
+          label: 'Armour -',
           disabled: armorTier <= 1,
         },
         {

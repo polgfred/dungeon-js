@@ -101,7 +101,7 @@ export class VendorSession {
       case 'category':
       default:
         return {
-          events: [Event.info('Perhaps another time.')],
+          events: [],
           done: true,
         };
     }
@@ -173,7 +173,7 @@ export class VendorSession {
     this.player.weaponBroken = false;
     this.player.gold -= price;
     return {
-      events: [Event.info('A fine weapon for your quest.')],
+      events: [],
       done: true,
     };
   }
@@ -201,7 +201,7 @@ export class VendorSession {
     this.player.armorDamaged = false;
     this.player.gold -= price;
     return {
-      events: [Event.info('Armor fitted and ready.')],
+      events: [],
       done: true,
     };
   }
@@ -235,7 +235,7 @@ export class VendorSession {
     this.player.gold -= price;
     this.player.spells[spell] = (this.player.spells[spell] ?? 0) + 1;
     return {
-      events: [Event.info('A scroll is yours.')],
+      events: [],
       done: true,
     };
   }
@@ -300,7 +300,7 @@ export class VendorSession {
     this.player.gold -= price;
     this.player.flares += 10;
     return {
-      events: [Event.info('Ten flares, as promised.')],
+      events: [],
       done: true,
     };
   }
@@ -356,7 +356,7 @@ export class VendorSession {
       hasCancel: true,
       options: [
         { key: 'W', label: 'Weapons', disabled: false },
-        { key: 'A', label: 'Armor', disabled: false },
+        { key: 'A', label: 'Armour', disabled: false },
         { key: 'S', label: 'Scrolls', disabled: false },
         { key: 'P', label: 'Potions', disabled: false },
         { key: 'F', label: 'Flares', disabled: this.player.gold < 10 },
@@ -388,7 +388,7 @@ export class VendorSession {
           ],
         });
       case 'A':
-        return Event.prompt('Choose armor:', {
+        return Event.prompt('Choose armour:', {
           hasCancel: true,
           options: [
             {

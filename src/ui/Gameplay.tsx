@@ -440,7 +440,7 @@ function StatsPanel({
               : null}
           </p>
           <p>
-            Armor: {player.armorName}
+            Armour: {player.armorName}
             {player.armorTier === 0
               ? statusMarkerTooltip('Armour is destroyed')
               : player.armorDamaged
@@ -542,7 +542,7 @@ function CommandBarPanel({
   }
 
   const list = encounterMode ? encounterCommandList : roomCommandList;
-  const title = encounterMode ? 'Encounter Commands' : 'Explore Commands';
+  const title = encounterMode ? 'Encounter Commands:' : 'Explore Commands:';
   const visible = enabledOnly
     ? list.filter((command) => !command.disabled)
     : list;
@@ -610,7 +610,7 @@ function PlayerReadoutPanel({
               : null}
           </p>
           <p>
-            Armor: {player.armorName}
+            Armour: {player.armorName}
             {player.armorTier === 0
               ? statusMarkerTooltip('Armour is destroyed')
               : player.armorDamaged
