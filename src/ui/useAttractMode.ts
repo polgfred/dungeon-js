@@ -39,7 +39,16 @@ const STEP_MS = 4_270;
 // How far COLRSH advances per step
 const COLRSH_STRIDE = 0x11;
 
-const HEX = /^#[0-9a-f]{6}$/i;
+// Normalize a CSS hex to canonical 6-digit lowercase
+function normalizeHex(value: string): string | null {
+  const v = value.trim().toLowerCase();
+  if (/^#[0-9a-f]{6}$/.test(v)) return v;
+  if (/^#[0-9a-f]{3}$/.test(v)) {
+    const [r, g, b] = v.slice(1);
+    return `#${r}${r}${g}${g}${b}${b}`;
+  }
+  return null;
+}
 
 function toRgb(hex: string) {
   return (
@@ -56,11 +65,13 @@ export function useAttractMode(): void {
 
     // Snapshot each token's resting value (and whether it has an -rgb twin) once.
     const tokens = CYCLED_TOKENS.map((token) => {
-      const hex = style.getPropertyValue(token).trim();
-      const rgbToken = `${token}-rgb`;
-      const hasRgb = style.getPropertyValue(rgbToken).trim() !== '';
-      return { token, hex, rgbToken, hasRgb };
-    }).filter(({ hex }) => HEX.test(hex));
+      const hex = normalizeHex(style.getPropertyValue(token));
+      if (hex) {
+        const rgbToken = `${token}-rgb`;
+        const hasRgb = style.getPropertyValue(rgbToken).trim() !== '';
+        return { token, hex, rgbToken, hasRgb };
+      }
+    }).filter((entry) => entry !== undefined);
 
     let idleTimer: number | undefined;
     let stepTimer: number | undefined;
