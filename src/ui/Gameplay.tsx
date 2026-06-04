@@ -906,8 +906,8 @@ function DebugDialog({
     ? JSON.stringify(snapshot.encounter, null, 2)
     : 'No active encounter.';
   const buildInfo = [
-    `Commit: ${import.meta.env.VITE_BUILD_COMMIT_HASH}`,
-    `Built (UTC): ${import.meta.env.VITE_BUILD_TIMESTAMP}`,
+    `Commit: ${import.meta.env.COMMIT_SHA}`,
+    `Built (UTC): ${import.meta.env.COMMIT_UTC}`,
   ].join('\n');
 
   return (

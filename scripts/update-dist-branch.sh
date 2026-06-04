@@ -27,8 +27,8 @@ if [[ "$BRANCH" != "dist" ]]; then
 fi
 
 echo "Building app..."
-BUILD_COMMIT_HASH="$(git rev-parse --short HEAD)"
-VITE_BUILD_COMMIT_HASH="$BUILD_COMMIT_HASH" npm run build -- --base=/dungeon-js/
+export COMMIT_SHA="$(git rev-parse --short HEAD)"
+npm run build -- --base=/dungeon-js/
 
 echo "Syncing dist/ to dist worktree..."
 git -C "$DIST_WORKTREE" rm -r --quiet .

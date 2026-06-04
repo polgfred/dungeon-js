@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-BUILD_COMMIT_HASH="$(git rev-parse --short HEAD)"
+COMMIT_SHA="$(git rev-parse --short HEAD)"
 
 docker build \
-  --build-arg VITE_BUILD_COMMIT_HASH="$BUILD_COMMIT_HASH" \
+  --build-arg COMMIT_SHA="$COMMIT_SHA" \
   -t "dungeon:latest" \
   .

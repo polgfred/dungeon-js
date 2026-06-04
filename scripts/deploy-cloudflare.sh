@@ -12,8 +12,8 @@ if [[ "${1-}" == "-h" || "${1-}" == "--help" ]]; then
 fi
 
 echo "Building app..."
-BUILD_COMMIT_HASH="$(git rev-parse --short HEAD)"
-VITE_BUILD_COMMIT_HASH="$BUILD_COMMIT_HASH" npm run build
+export COMMIT_SHA="$(git rev-parse --short HEAD)"
+npm run build
 
 echo "Deploying dist/ to CloudFlare..."
 npx wrangler pages deploy dist/
