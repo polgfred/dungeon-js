@@ -14,12 +14,5 @@ export default defineConfig(({}) => {
       'import.meta.env.VITE_BUILD_COMMIT_HASH': JSON.stringify(buildCommitHash),
       'import.meta.env.VITE_BUILD_TIMESTAMP': JSON.stringify(buildTimestamp),
     },
-    test: {
-      environment: 'node',
-    },
-    build: {
-      sourcemap: false,
-      minify: 'esbuild',
-    },
   };
 });
