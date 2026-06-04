@@ -1,4 +1,4 @@
-import { Mode } from './constants.js';
+import type { Mode } from './constants.js';
 
 export type EventKind =
   | 'INFO'

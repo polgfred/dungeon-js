@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import helpHtmlContent from '../assets/help.html?raw';
 import {
@@ -9,7 +9,7 @@ import {
   WEAPON_PRICES,
   Race,
 } from '../dungeon/constants.js';
-import { Player } from '../dungeon/model.js';
+import type { Player } from '../dungeon/model.js';
 import { CommandButton, type Command } from './CommandButton.js';
 import styles from './SetupGame.module.css';
 import {

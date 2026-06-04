@@ -1,4 +1,4 @@
-import { Mode, Race, Spell } from './constants.js';
+import type { Mode, Race, Spell } from './constants.js';
 import { Dungeon, Player, createSpellCounts, type Room } from './model.js';
 
 type RoomPacked = number;

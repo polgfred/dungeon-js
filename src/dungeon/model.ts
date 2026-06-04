@@ -3,9 +3,9 @@ import {
   ARMOR_PRICES,
   WEAPON_NAMES,
   WEAPON_PRICES,
-  Feature,
   Race,
   Spell,
+  type Feature,
 } from './constants.js';
 import type { RandomSource } from './rng.js';
 

@@ -4,10 +4,10 @@ import {
   FEATURE_SYMBOLS,
   Feature,
   Mode,
-  Spell,
   monsterName,
   spellName,
   treasureName,
+  type Spell,
 } from './constants.js';
 import { EncounterSession } from './encounter.js';
 import { generateDungeon } from './generation.js';
