@@ -444,7 +444,7 @@ p {
   grid-template-columns: 1fr;
   align-items: stretch;
 }
-@container (min-width: 1280px) {
+@container (min-width: 1130px) {
   .desktopGrid {
     grid-template-columns: 2fr 1fr;
   }
