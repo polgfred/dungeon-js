@@ -333,7 +333,10 @@ function CompactReadoutPanel({
           ST {player.str} · DX {player.dex} · IQ {player.iq}
         </p>
         <p>
-          HP {player.hp} / {player.mhp} · Gold {player.gold}
+          <span className={clsx(player.hp < 10 && styles.hpLow)}>
+            HP {player.hp} / {player.mhp}
+          </span>{' '}
+          · Gold {player.gold}
         </p>
         <p>
           Floor {player.z + 1} · Room {player.y + 1},{player.x + 1}
@@ -448,7 +451,9 @@ function StatsPanel({
                 : null}
           </p>
           <p>Flares: {player.flares}</p>
-          <p>Treasures: {player.treasuresFound.size}</p>
+          <p className={clsx(player.treasuresFound.size === 10 && styles.treasuresFull)}>
+            Treasures: {player.treasuresFound.size}
+          </p>
         </div>
         <div className={styles.statsGroup}>
           <p className={styles.label}>Location</p>
@@ -618,7 +623,9 @@ function PlayerReadoutPanel({
                 : null}
           </p>
           <p>Flares: {player.flares}</p>
-          <p>Treasures: {player.treasuresFound.size}</p>
+          <p className={clsx(player.treasuresFound.size === 10 && styles.treasuresFull)}>
+            Treasures: {player.treasuresFound.size}
+          </p>
         </div>
         <div className={styles.statsGroup}>
           <p className={styles.label}>Location</p>

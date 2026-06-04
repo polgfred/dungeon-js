@@ -325,6 +325,10 @@ p {
   color: var(--error-light);
 }
 
+.treasuresFull {
+  color: var(--loot-main);
+}
+
 .statsBottom {
   display: flex;
   flex-direction: column;
