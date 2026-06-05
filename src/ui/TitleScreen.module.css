@@ -15,6 +15,7 @@
 }
 
 .titleFrame {
+  padding: 12px 24px;
   width: 100%;
   border-radius: 12px;
   border: 1px solid var(--primary-light);
@@ -31,7 +32,7 @@
 .titleImage {
   display: block;
   width: 100%;
-  aspect-ratio: 1532 / 947;
+  aspect-ratio: 8 / 5;
   background-color: var(--text-primary);
   opacity: 0.75;
   mask: url(../assets/DofDTitle.png) center / contain no-repeat;
