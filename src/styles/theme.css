@@ -26,5 +26,5 @@
 
   --grey-200: #eeeeee; /* gray[14] */
 
-  --font-family: 'EightBit Atari';
+  --font-family: 'EightBit Atari', monospace;
 }
