@@ -18,6 +18,7 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
     if (!el) return;
     if (open && !el.open) {
       el.showModal();
+      el.focus();
     } else if (!open && el.open) {
       el.close();
     }
@@ -26,6 +27,7 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
   return (
     <dialog
       ref={ref}
+      tabIndex={-1}
       className={clsx(styles.dialog, className)}
       onClose={onClose}
       onClick={(event) => {

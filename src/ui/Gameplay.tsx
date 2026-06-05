@@ -927,7 +927,9 @@ function DebugDialog({
 
   return (
     <Dialog open={open} onClose={onClose} className={styles.debugDialog}>
-      <DialogTitle id="debug-dialog-title">Debug Snapshot</DialogTitle>
+      <DialogTitle id="debug-dialog-title" onClose={onClose}>
+        Debug Snapshot
+      </DialogTitle>
       <DialogContent dividers>
         <div className={styles.commandSection}>
           <div className={styles.statsGroup}>
