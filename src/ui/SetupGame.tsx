@@ -327,9 +327,7 @@ function ReadyStage({ player }: { player: Player }) {
         Brave adventurer, thy gear outfits thee well! But alas, this quest is
         not for the faint of heart.
       </p>
-      <p className={styles.stageBody}>
-        Are you ready to enter the dungeon?
-      </p>
+      <p className={styles.stageBody}>Are you ready to enter the dungeon?</p>
       <div className={styles.readyList}>
         <p>Weapon: {player.weaponName}</p>
         <p>Armour: {player.armorName}</p>

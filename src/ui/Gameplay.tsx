@@ -451,7 +451,11 @@ function StatsPanel({
                 : null}
           </p>
           <p>Flares: {player.flares}</p>
-          <p className={clsx(player.treasuresFound.size === 10 && styles.treasuresFull)}>
+          <p
+            className={clsx(
+              player.treasuresFound.size === 10 && styles.treasuresFull
+            )}
+          >
             Treasures: {player.treasuresFound.size}
           </p>
         </div>
@@ -623,7 +627,11 @@ function PlayerReadoutPanel({
                 : null}
           </p>
           <p>Flares: {player.flares}</p>
-          <p className={clsx(player.treasuresFound.size === 10 && styles.treasuresFull)}>
+          <p
+            className={clsx(
+              player.treasuresFound.size === 10 && styles.treasuresFull
+            )}
+          >
             Treasures: {player.treasuresFound.size}
           </p>
         </div>
