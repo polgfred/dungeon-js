@@ -19,7 +19,7 @@ import {
   serializeDungeon,
   serializePlayer,
 } from './serialization.js';
-import { Event, type StepResult } from './types.js';
+import { Event, type PlayerId, type StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
 import { defaultRandomSource, type RandomSource } from './rng.js';
 import {
@@ -30,8 +30,6 @@ import {
 function pluralize(count: number, singular: string, plural = `${singular}s`) {
   return count === 1 ? singular : plural;
 }
-
-export type PlayerId = string;
 
 export interface PlayerState {
   readonly id: PlayerId;
@@ -208,30 +206,25 @@ export class Game {
     return this.enterRoom(this.state(id));
   }
 
+  private stepResult(id: PlayerId, events: Event[]): StepResult {
+    return { playerId: id, events, mode: this.mode(id) };
+  }
+
   step(id: PlayerId, command: string): StepResult {
     const state = this.state(id);
     const raw = command.trim().toUpperCase();
     if (!raw) {
-      return {
-        events: [Event.error("I don't understand that.")],
-        mode: this.mode(id),
-      };
+      return this.stepResult(id, [Event.error("I don't understand that.")]);
     }
 
     if (this.endMode) {
-      return {
-        events: [Event.error("I don't understand that.")],
-        mode: this.mode(id),
-      };
+      return this.stepResult(id, [Event.error("I don't understand that.")]);
     }
 
     if (state.exited) {
-      return {
-        events: [
-          Event.info('You have left the dungeon and await your companions.'),
-        ],
-        mode: this.mode(id),
-      };
+      return this.stepResult(id, [
+        Event.info('You have left the dungeon and await your companions.'),
+      ]);
     }
 
     if (state.vendor) {
@@ -239,10 +232,7 @@ export class Game {
       if (result.done) {
         state.vendor = null;
       }
-      return {
-        events: result.events,
-        mode: this.mode(id),
-      };
+      return this.stepResult(id, result.events);
     }
 
     if (state.encounter) {
@@ -250,10 +240,7 @@ export class Game {
       // The monster may have been slain by another player who shared this room.
       if (room.monsterLevel <= 0) {
         state.encounter = null;
-        return {
-          events: this.describeRoom(room),
-          mode: this.mode(id),
-        };
+        return this.stepResult(id, this.describeRoom(room));
       }
 
       const result = state.encounter.step(raw);
@@ -295,32 +282,20 @@ export class Game {
           this.endMode = Mode.GAME_OVER;
         }
       }
-      return {
-        events,
-        mode: this.mode(id),
-      };
+      return this.stepResult(id, events);
     }
 
     const key = raw[0];
     if (!EXPLORE_COMMANDS.has(key)) {
-      return {
-        events: [Event.error("I don't understand that.")],
-        mode: this.mode(id),
-      };
+      return this.stepResult(id, [Event.error("I don't understand that.")]);
     }
-    return {
-      events: this.handleExplore(state, key),
-      mode: this.mode(id),
-    };
+    return this.stepResult(id, this.handleExplore(state, key));
   }
 
   attemptCancel(id: PlayerId): StepResult {
     const state = this.state(id);
     if (this.endMode || state.exited) {
-      return {
-        events: [],
-        mode: this.mode(id),
-      };
+      return this.stepResult(id, []);
     }
 
     if (state.vendor) {
@@ -328,24 +303,15 @@ export class Game {
       if (result.done) {
         state.vendor = null;
       }
-      return {
-        events: result.events,
-        mode: this.mode(id),
-      };
+      return this.stepResult(id, result.events);
     }
 
     if (state.encounter) {
       const result = state.encounter.attemptCancel();
-      return {
-        events: result.events,
-        mode: this.mode(id),
-      };
+      return this.stepResult(id, result.events);
     }
 
-    return {
-      events: [Event.info("I don't understand that.")],
-      mode: this.mode(id),
-    };
+    return this.stepResult(id, [Event.info("I don't understand that.")]);
   }
 
   mapView(id: PlayerId): RoomView[][] {

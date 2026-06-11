@@ -1,5 +1,7 @@
 import type { Mode } from './constants.js';
 
+export type PlayerId = string;
+
 export type EventKind =
   | 'INFO'
   | 'ERROR'
@@ -8,12 +10,6 @@ export type EventKind =
   | 'PROMPT'
   | 'DEBUG';
 
-/**
- * When true, this event is meant for the whole party, not just the player whose
- * turn produced it — e.g. "a treasure was found" or "a monster was slain". The
- * engine only tags events; routing broadcasts to other players is the
- * transport's job.
- */
 export type Broadcastable = { broadcast?: boolean };
 
 export type InfoEvent = { kind: 'INFO'; text: string } & Broadcastable;
@@ -79,6 +75,7 @@ export const Event = {
 };
 
 export interface StepResult {
+  playerId: PlayerId;
   events: Event[];
   mode: Mode;
 }

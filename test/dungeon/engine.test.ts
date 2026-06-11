@@ -35,6 +35,7 @@ describe('Game interactions', () => {
 
       const result = game.step(ID, 'R');
 
+      expect(result.playerId).toBe(ID);
       expect(result.events[0].text).toBe(
         'The scroll contains the fireball spell.'
       );
