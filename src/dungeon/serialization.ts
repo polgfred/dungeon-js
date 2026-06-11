@@ -43,7 +43,7 @@ export type PlayerEntrySave = {
   explored: boolean[][][];
   encounter: EncounterSave | null;
   vendor: VendorSave | null;
-  endMode: Mode | null;
+  exited: boolean;
 };
 
 export type GameSave = {
@@ -51,6 +51,7 @@ export type GameSave = {
   savedAt: string;
   dungeon: DungeonSave;
   treasuresFound: number[];
+  endMode: Mode | null;
   players: PlayerEntrySave[];
   debug: boolean;
 };

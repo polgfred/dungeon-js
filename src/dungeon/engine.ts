@@ -40,7 +40,7 @@ export interface PlayerState {
   explored: boolean[][][];
   encounter: EncounterSession | null;
   vendor: VendorSession | null;
-  endMode: Mode.GAME_OVER | Mode.VICTORY | null;
+  exited: boolean;
 }
 
 function createExploredGrid(): boolean[][][] {
@@ -53,12 +53,13 @@ function createExploredGrid(): boolean[][][] {
 
 export class Game {
   static readonly SIZE = 7;
-  static readonly SAVE_VERSION = 3;
+  static readonly SAVE_VERSION = 4;
 
   saveVersion = Game.SAVE_VERSION;
   rng: RandomSource;
   dungeon: Dungeon;
   treasuresFound: Set<number>;
+  endMode: Mode.GAME_OVER | Mode.VICTORY | null = null;
   private players: Map<PlayerId, PlayerState> = new Map();
   private debug: boolean;
 
@@ -82,7 +83,7 @@ export class Game {
       explored: createExploredGrid(),
       encounter: null,
       vendor: null,
-      endMode: null,
+      exited: false,
     };
     this.players.set(id, state);
     return state;
@@ -113,10 +114,11 @@ export class Game {
   }
 
   mode(id: PlayerId): Mode {
-    const state = this.state(id);
-    if (state.endMode) {
-      return state.endMode;
+    if (this.endMode) {
+      return this.endMode;
     }
+
+    const state = this.state(id);
     if (state.encounter) {
       return Mode.ENCOUNTER;
     }
@@ -143,20 +145,20 @@ export class Game {
       treasuresFound: new Set(save.treasuresFound),
     });
     game.saveVersion = save.version;
+    game.endMode =
+      save.endMode === Mode.GAME_OVER || save.endMode === Mode.VICTORY
+        ? save.endMode
+        : null;
 
     for (const entry of save.players) {
       const player = deserializePlayer(entry.player);
-      const endMode =
-        entry.endMode === Mode.GAME_OVER || entry.endMode === Mode.VICTORY
-          ? entry.endMode
-          : null;
       const state: PlayerState = {
         id: entry.id,
         player,
         explored: entry.explored.map((floor) => floor.map((row) => [...row])),
         encounter: null,
         vendor: null,
-        endMode,
+        exited: entry.exited,
       };
       if (entry.encounter) {
         state.encounter = EncounterSession.resume({
@@ -166,8 +168,7 @@ export class Game {
           debug: game.debug,
           save: entry.encounter,
         });
-      }
-      if (entry.vendor) {
+      } else if (entry.vendor) {
         state.vendor = VendorSession.resume({
           rng,
           player,
@@ -185,13 +186,14 @@ export class Game {
       savedAt: new Date().toISOString(),
       dungeon: serializeDungeon(this.dungeon),
       treasuresFound: [...this.treasuresFound],
+      endMode: this.endMode,
       players: [...this.players.values()].map((state) => ({
         id: state.id,
         player: serializePlayer(state.player),
         explored: state.explored.map((floor) => floor.map((row) => [...row])),
         encounter: state.encounter ? state.encounter.toSave() : null,
         vendor: state.vendor ? state.vendor.toSave() : null,
-        endMode: state.endMode,
+        exited: state.exited,
       })),
       debug: this.debug,
     };
@@ -216,9 +218,18 @@ export class Game {
       };
     }
 
-    if (state.endMode) {
+    if (this.endMode) {
       return {
         events: [Event.error("I don't understand that.")],
+        mode: this.mode(id),
+      };
+    }
+
+    if (state.exited) {
+      return {
+        events: [
+          Event.info('You have left the dungeon and await your companions.'),
+        ],
         mode: this.mode(id),
       };
     }
@@ -276,7 +287,7 @@ export class Game {
           }
         }
         if (state.player.hp <= 0) {
-          state.endMode = Mode.GAME_OVER;
+          this.endMode = Mode.GAME_OVER;
         }
       }
       return {
@@ -300,7 +311,7 @@ export class Game {
 
   attemptCancel(id: PlayerId): StepResult {
     const state = this.state(id);
-    if (state.endMode) {
+    if (this.endMode || state.exited) {
       return {
         events: [],
         mode: this.mode(id),
@@ -478,7 +489,7 @@ export class Game {
           );
           if (player.hp <= 0) {
             events.push(Event.info('YOU HAVE DIED.'));
-            state.endMode = Mode.GAME_OVER;
+            this.endMode = Mode.GAME_OVER;
           }
           break;
         }
@@ -569,20 +580,31 @@ export class Game {
       return [Event.info('There is no exit here.')];
     }
     if (this.treasuresFound.size < 10) {
-      state.endMode = Mode.GAME_OVER;
-      const remaining = 10 - this.treasuresFound.size;
       return [
         Event.info(
-          'What? And hast thou abandoned thy quest before it was accomplished?'
-        ),
-        Event.info(
-          `The DUNGEON of DOOM still holds ${remaining} ${pluralize(remaining, 'treasure')} ` +
-            `that thine eyes shall never behold! Verily thy triumph is incomplete!`
+          'What? Wilt thou abandon thy quest before it is accomplished?'
         ),
       ];
     }
-    state.endMode = Mode.VICTORY;
-    return [Event.info('ALL HAIL THE VICTOR!')];
+    state.exited = true;
+    if (this.allExited()) {
+      this.endMode = Mode.VICTORY;
+      return [Event.info('ALL HAIL THE VICTOR!')];
+    }
+    return [
+      Event.info(
+        'You step out of the DUNGEON of DOOM and await your companions.'
+      ),
+    ];
+  }
+
+  private allExited(): boolean {
+    for (const state of this.players.values()) {
+      if (!state.exited) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private useFlare(state: PlayerState): Event[] {
@@ -700,7 +722,7 @@ export class Game {
       player.armorDamaged = false;
       player.hp -= this.rng.randint(0, 4) + 3;
       if (player.hp <= 0) {
-        state.endMode = Mode.GAME_OVER;
+        this.endMode = Mode.GAME_OVER;
         return [
           Event.info(
             'The perverse thing explodes as you open it, wounding you!'

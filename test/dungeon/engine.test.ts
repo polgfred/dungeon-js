@@ -343,15 +343,65 @@ describe('Game interactions', () => {
     });
   });
 
+  describe('party end state', () => {
+    function twoPlayerGame() {
+      const a = buildPlayer({ z: 0, y: 0, x: 0, hp: 4 });
+      const b = buildPlayer({ z: 0, y: 0, x: 0 });
+      const game = new Game({ seed: 0 });
+      game.addPlayer('a', a);
+      game.addPlayer('b', b);
+      const dungeon = createEmptyDungeon();
+      game.dungeon = dungeon;
+      return { game, dungeon };
+    }
+
+    it('ends the game for the whole party when any one player dies', () => {
+      const { game, dungeon } = twoPlayerGame();
+      dungeon.rooms[0][0][0].feature = Feature.THIEF;
+      game.rng = new ScriptedRng({ randint: [4] });
+
+      game.startEvents('a');
+
+      expect(game.mode('a')).toBe(Mode.GAME_OVER);
+      expect(game.mode('b')).toBe(Mode.GAME_OVER);
+    });
+
+    it('blocks the exit until every treasure is found, without losing', () => {
+      const { game, dungeon } = twoPlayerGame();
+      dungeon.rooms[0][0][0].feature = Feature.EXIT;
+
+      const result = game.step('a', 'X');
+
+      expect(result.mode).toBe(Mode.EXPLORE);
+      expect(game.mode('a')).toBe(Mode.EXPLORE);
+    });
+
+    it('declares victory only once the last player has exited', () => {
+      const { game, dungeon } = twoPlayerGame();
+      dungeon.rooms[0][0][0].feature = Feature.EXIT;
+      game.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+      const first = game.step('a', 'X');
+      expect(first.mode).not.toBe(Mode.VICTORY);
+      expect(game.mode('b')).toBe(Mode.EXPLORE);
+
+      const last = game.step('b', 'X');
+      expect(last.mode).toBe(Mode.VICTORY);
+      expect(game.mode('a')).toBe(Mode.VICTORY);
+    });
+  });
+
   describe('save rehydration mode', () => {
     it('restores GAME_OVER and VICTORY from serialized end state', () => {
-      const losePlayer = buildPlayer({ z: 0, y: 0, x: 0 });
+      const losePlayer = buildPlayer({ z: 0, y: 0, x: 0, hp: 4 });
       const loseGame = new Game({ seed: 0 });
       loseGame.addPlayer(ID, losePlayer);
       const loseDungeon = createEmptyDungeon();
-      loseDungeon.rooms[0][0][0].feature = Feature.EXIT;
+      loseDungeon.rooms[0][0][0].feature = Feature.THIEF;
       loseGame.dungeon = loseDungeon;
-      expect(loseGame.step(ID, 'X').mode).toBe(Mode.GAME_OVER);
+      loseGame.rng = new ScriptedRng({ randint: [4] });
+      loseGame.startEvents(ID);
+      expect(loseGame.mode(ID)).toBe(Mode.GAME_OVER);
 
       const winPlayer = buildPlayer({ z: 0, y: 0, x: 0 });
       const winGame = new Game({ seed: 0 });
