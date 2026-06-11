@@ -264,6 +264,11 @@ export class Game {
           const monsterLevel = room.monsterLevel;
           room.monsterLevel = 0;
           room.monsterVitality = 0;
+          this.clearEncountersAt(
+            state.player.z,
+            state.player.y,
+            state.player.x
+          );
           if (state.player.hp > 0) {
             if (room.treasureId) {
               events.push(...this.awardTreasure(room.treasureId));
@@ -831,6 +836,17 @@ export class Game {
       return [];
     }
     this.treasuresFound.add(treasureId);
-    return [Event.loot(`You find the ${treasureName(treasureId)}!`)];
+    return [
+      Event.broadcast(Event.loot(`You find the ${treasureName(treasureId)}!`)),
+    ];
+  }
+
+  private clearEncountersAt(z: number, y: number, x: number): void {
+    for (const other of this.players.values()) {
+      const p = other.player;
+      if (other.encounter && p.z === z && p.y === y && p.x === x) {
+        other.encounter = null;
+      }
+    }
   }
 }

@@ -317,7 +317,9 @@ export class EncounterSession {
   }
 
   private handleMonsterDeath(events: Event[]): EncounterResult {
-    events.push(Event.combat(`The foul ${this.monsterName} expires.`));
+    events.push(
+      Event.broadcast(Event.combat(`The foul ${this.monsterName} expires.`))
+    );
     if (this.rng.random() > 0.7) {
       events.push(
         Event.combat(

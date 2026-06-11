@@ -8,13 +8,25 @@ export type EventKind =
   | 'PROMPT'
   | 'DEBUG';
 
-export type InfoEvent = { kind: 'INFO'; text: string };
-export type ErrorEvent = { kind: 'ERROR'; text: string };
-export type CombatEvent = { kind: 'COMBAT'; text: string };
-export type LootEvent = { kind: 'LOOT'; text: string };
+/**
+ * When true, this event is meant for the whole party, not just the player whose
+ * turn produced it — e.g. "a treasure was found" or "a monster was slain". The
+ * engine only tags events; routing broadcasts to other players is the
+ * transport's job.
+ */
+export type Broadcastable = { broadcast?: boolean };
+
+export type InfoEvent = { kind: 'INFO'; text: string } & Broadcastable;
+export type ErrorEvent = { kind: 'ERROR'; text: string } & Broadcastable;
+export type CombatEvent = { kind: 'COMBAT'; text: string } & Broadcastable;
+export type LootEvent = { kind: 'LOOT'; text: string } & Broadcastable;
 export type DebugValue = string | number | boolean | null;
 export type DebugData = Record<string, DebugValue>;
-export type DebugEvent = { kind: 'DEBUG'; text: ''; data: DebugData };
+export type DebugEvent = {
+  kind: 'DEBUG';
+  text: '';
+  data: DebugData;
+} & Broadcastable;
 
 export type PromptOption = {
   key: string;
@@ -32,7 +44,7 @@ export type PromptEvent = {
   kind: 'PROMPT';
   text: string;
   data?: PromptData;
-};
+} & Broadcastable;
 
 export type Event =
   | InfoEvent
@@ -60,6 +72,9 @@ export const Event = {
   },
   debug(data: DebugData): DebugEvent {
     return { kind: 'DEBUG', text: '', data };
+  },
+  broadcast<E extends Event>(event: E): E {
+    return { ...event, broadcast: true };
   },
 };
 

@@ -389,6 +389,54 @@ describe('Game interactions', () => {
       expect(last.mode).toBe(Mode.VICTORY);
       expect(game.mode('a')).toBe(Mode.VICTORY);
     });
+
+    it('clears the encounter for every co-fighter the instant the monster dies', () => {
+      const a = buildPlayer({ z: 0, y: 0, x: 0 });
+      const b = buildPlayer({ z: 0, y: 0, x: 0 });
+      const game = new Game({ seed: 0 });
+      game.addPlayer('a', a);
+      game.addPlayer('b', b);
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][0].monsterLevel = 1;
+      game.dungeon = dungeon;
+      // vitality roll (a enters) = 3; attack roll hits; damage 4 kills; no dying
+      // attack; then a gold roll for the loot.
+      game.rng = new ScriptedRng({ randint: [0, 1, 0, 5], random: [0.1] });
+
+      game.startEvents('a');
+      game.startEvents('b');
+      expect(game.mode('a')).toBe(Mode.ENCOUNTER);
+      expect(game.mode('b')).toBe(Mode.ENCOUNTER);
+
+      game.step('a', 'F');
+
+      // b never acted, but is dropped out of combat immediately.
+      expect(game.mode('a')).toBe(Mode.EXPLORE);
+      expect(game.mode('b')).toBe(Mode.EXPLORE);
+    });
+
+    it('broadcasts treasure-found and monster-slain to the whole party', () => {
+      const player = buildPlayer({ z: 0, y: 0, x: 0 });
+      const game = new Game({ seed: 0 });
+      game.addPlayer(ID, player);
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][0].monsterLevel = 1;
+      dungeon.rooms[0][0][0].treasureId = 1;
+      game.dungeon = dungeon;
+      game.rng = new ScriptedRng({ randint: [0, 1, 0], random: [0.1] });
+      game.startEvents(ID);
+
+      const result = game.step(ID, 'F');
+
+      const slain = result.events.find(
+        (event) => event.text === 'The foul Skeleton expires.'
+      );
+      const found = result.events.find(
+        (event) => event.text === 'You find the Gold Fleece!'
+      );
+      expect(slain?.broadcast).toBe(true);
+      expect(found?.broadcast).toBe(true);
+    });
   });
 
   describe('save rehydration mode', () => {
