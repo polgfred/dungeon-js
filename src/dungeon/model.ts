@@ -33,20 +33,14 @@ export class Dungeon {
 
 export type SpellCounts = Record<Spell, number>;
 
-const ALL_SPELLS: Spell[] = [
-  Spell.PROTECTION,
-  Spell.FIREBALL,
-  Spell.LIGHTNING,
-  Spell.WEAKEN,
-  Spell.TELEPORT,
-];
-
 export function createSpellCounts(): SpellCounts {
-  const counts = {} as SpellCounts;
-  for (const spell of ALL_SPELLS) {
-    counts[spell] = 0;
+  return {
+    [Spell.PROTECTION]: 0,
+    [Spell.FIREBALL]: 0,
+    [Spell.LIGHTNING]: 0,
+    [Spell.WEAKEN]: 0,
+    [Spell.TELEPORT]: 0,
   }
-  return counts;
 }
 
 export class Player {
