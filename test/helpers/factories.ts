@@ -1,5 +1,5 @@
-import { createSpellCounts, Player, Room } from '../../src/dungeon/model.js';
-import { Race, Spell } from '../../src/dungeon/constants.js';
+import { createSpellCounts, Player, type Room } from '../../src/dungeon/model.js';
+import { Feature, Race, Spell } from '../../src/dungeon/constants.js';
 
 export type PlayerOptions = ConstructorParameters<typeof Player>[0];
 
@@ -23,7 +23,6 @@ export function buildPlayer(options: Partial<PlayerOptions> = {}): Player {
     mhp: 20,
     gold: 0,
     flares: 0,
-    treasuresFound: new Set<number>(),
     weaponTier: 2,
     armorTier: 1,
     weaponName: 'Short sword',
@@ -34,7 +33,11 @@ export function buildPlayer(options: Partial<PlayerOptions> = {}): Player {
 }
 
 export function buildRoom(options: Partial<Room> = {}): Room {
-  const room = new Room();
-  Object.assign(room, options);
-  return room;
+  return {
+    feature: Feature.EMPTY,
+    monsterLevel: 0,
+    monsterVitality: 0,
+    treasureId: 0,
+    ...options,
+  };
 }

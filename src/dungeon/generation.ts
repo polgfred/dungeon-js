@@ -22,8 +22,8 @@ function createRoom(rng: RandomSource, floor: number): Room {
   const room: Room = {
     feature: Feature.EMPTY,
     monsterLevel: 0,
+    monsterVitality: 0,
     treasureId: 0,
-    seen: false,
   };
   if (rng.random() > 0.3) {
     const roll = rng.randint(1, 10);

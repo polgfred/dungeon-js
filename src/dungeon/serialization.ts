@@ -17,7 +17,6 @@ export type PlayerSave = {
   mhp: number;
   gold: number;
   flares: number;
-  treasuresFound: number[];
   weaponTier: number;
   armorTier: number;
   weaponName: string;
@@ -30,9 +29,6 @@ export type PlayerSave = {
 };
 
 export type EncounterSave = {
-  monsterLevel: number;
-  monsterName: string;
-  vitality: number;
   awaitingSpell: boolean;
 };
 
@@ -41,34 +37,21 @@ export type VendorSave = {
   category: string | null;
 };
 
+export type PlayerEntrySave = {
+  id: string;
+  player: PlayerSave;
+  explored: boolean[][][];
+  encounter: EncounterSave | null;
+  vendor: VendorSave | null;
+  endMode: Mode | null;
+};
+
 export type GameSave = {
   version: number;
   savedAt: string;
-  mode: Mode;
-  player: PlayerSave;
   dungeon: DungeonSave;
-  encounter: EncounterSave | null;
-  vendor: VendorSave | null;
-  debug: boolean;
-};
-
-type GameSaveInput = {
-  version: number;
-  mode: Mode;
-  player: Player;
-  dungeon: Dungeon;
-  encounter: EncounterSave | null;
-  vendor: VendorSave | null;
-  debug: boolean;
-};
-
-type GameSaveState = {
-  version: number;
-  mode: Mode;
-  player: Player;
-  dungeon: Dungeon;
-  encounter: EncounterSave | null;
-  vendor: VendorSave | null;
+  treasuresFound: number[];
+  players: PlayerEntrySave[];
   debug: boolean;
 };
 
@@ -85,7 +68,6 @@ export function serializePlayer(player: Player): PlayerSave {
     mhp: player.mhp,
     gold: player.gold,
     flares: player.flares,
-    treasuresFound: Array.from(player.treasuresFound),
     weaponTier: player.weaponTier,
     armorTier: player.armorTier,
     weaponName: player.weaponName,
@@ -117,7 +99,6 @@ export function deserializePlayer(save: PlayerSave): Player {
     mhp: save.mhp,
     gold: save.gold,
     flares: save.flares,
-    treasuresFound: new Set(save.treasuresFound),
     weaponTier: save.weaponTier,
     armorTier: save.armorTier,
     weaponName: save.weaponName,
@@ -128,31 +109,6 @@ export function deserializePlayer(save: PlayerSave): Player {
     tempArmorBonus: save.tempArmorBonus,
     spells,
   });
-}
-
-export function serializeGame(input: GameSaveInput): GameSave {
-  return {
-    version: input.version,
-    savedAt: new Date().toISOString(),
-    mode: input.mode,
-    player: serializePlayer(input.player),
-    dungeon: serializeDungeon(input.dungeon),
-    encounter: input.encounter,
-    vendor: input.vendor,
-    debug: input.debug,
-  };
-}
-
-export function deserializeGame(save: GameSave): GameSaveState {
-  return {
-    version: save.version,
-    mode: save.mode,
-    player: deserializePlayer(save.player),
-    dungeon: deserializeDungeon(save.dungeon),
-    encounter: save.encounter,
-    vendor: save.vendor,
-    debug: save.debug,
-  };
 }
 
 export function serializeDungeon(dungeon: Dungeon): DungeonSave {
@@ -171,15 +127,16 @@ export function deserializeDungeon(save: DungeonSave): Dungeon {
 const FEATURE_SHIFT = 0;
 const MONSTER_SHIFT = 4;
 const TREASURE_SHIFT = 8;
-const SEEN_SHIFT = 12;
+const VITALITY_SHIFT = 12;
 const NIBBLE_MASK = 0x0f;
+const VITALITY_MASK = 0x3f;
 
 function encodeRoom(room: Room): RoomPacked {
   return (
     ((room.feature & NIBBLE_MASK) << FEATURE_SHIFT) |
     ((room.monsterLevel & NIBBLE_MASK) << MONSTER_SHIFT) |
     ((room.treasureId & NIBBLE_MASK) << TREASURE_SHIFT) |
-    ((room.seen ? 1 : 0) << SEEN_SHIFT)
+    ((room.monsterVitality & VITALITY_MASK) << VITALITY_SHIFT)
   );
 }
 
@@ -188,6 +145,6 @@ function decodeRoom(savedRoom: RoomPacked): Room {
     feature: (savedRoom >> FEATURE_SHIFT) & NIBBLE_MASK,
     monsterLevel: (savedRoom >> MONSTER_SHIFT) & NIBBLE_MASK,
     treasureId: (savedRoom >> TREASURE_SHIFT) & NIBBLE_MASK,
-    seen: ((savedRoom >> SEEN_SHIFT) & 1) === 1,
+    monsterVitality: (savedRoom >> VITALITY_SHIFT) & VITALITY_MASK,
   };
 }

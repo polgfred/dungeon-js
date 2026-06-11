@@ -11,8 +11,15 @@ import type { RandomSource } from './rng.js';
 
 export interface Room {
   feature: Feature;
-  monsterLevel: number;
   treasureId: number;
+  monsterLevel: number;
+  monsterVitality: number;
+}
+
+export interface RoomView {
+  feature: Feature;
+  treasureId: number;
+  monsterLevel: number;
   seen: boolean;
 }
 
@@ -56,7 +63,6 @@ export class Player {
 
   gold: number;
   flares: number;
-  treasuresFound: Set<number>;
 
   weaponTier = 0;
   armorTier = 0;
@@ -82,7 +88,6 @@ export class Player {
     mhp: number;
     gold: number;
     flares: number;
-    treasuresFound?: Set<number>;
     weaponTier?: number;
     armorTier?: number;
     weaponName?: string;
@@ -104,7 +109,6 @@ export class Player {
     this.mhp = options.mhp;
     this.gold = options.gold;
     this.flares = options.flares;
-    this.treasuresFound = options.treasuresFound ?? new Set<number>();
     this.weaponTier = options.weaponTier ?? 0;
     this.armorTier = options.armorTier ?? 0;
     this.weaponName = options.weaponName ?? 'none';

@@ -2,12 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { EncounterSession } from '../../src/dungeon/encounter.js';
 import {
   ARMOR_NAMES,
-  monsterName,
   Spell,
   WEAPON_NAMES,
 } from '../../src/dungeon/constants.js';
 import type { DebugEvent, Event } from '../../src/dungeon/types.js';
-import { buildPlayer } from '../helpers/factories.js';
+import { buildPlayer, buildRoom } from '../helpers/factories.js';
 import { ScriptedRng } from '../helpers/rng.js';
 import { defaultRandomSource } from '../../src/dungeon/rng.js';
 
@@ -38,19 +37,21 @@ function createSession(options: {
 }) {
   const monsterLevel = 5;
   const player = buildPlayer(options.playerOverrides);
+  const room = buildRoom({
+    monsterLevel,
+    monsterVitality: options.vitality ?? 12,
+  });
   const session = EncounterSession.resume({
     rng: options.rng,
     player,
+    room,
     debug: options.debug ?? false,
     save: {
-      monsterLevel,
-      monsterName: monsterName(monsterLevel),
-      vitality: options.vitality ?? 12,
       awaitingSpell: options.awaitingSpell ?? false,
     },
   });
 
-  return { session, player };
+  return { session, player, room };
 }
 
 describe('EncounterSession fight loop', () => {
@@ -271,11 +272,9 @@ describe('EncounterSession real RNG bounds', () => {
           weaponTier,
           weaponName: WEAPON_NAMES[weaponTier],
         }),
+        room: buildRoom({ monsterLevel, monsterVitality: 999 }),
         debug: true,
         save: {
-          monsterLevel,
-          monsterName: monsterName(monsterLevel),
-          vitality: 999,
           awaitingSpell: false,
         },
       });
@@ -329,11 +328,9 @@ describe('EncounterSession real RNG bounds', () => {
           weaponTier: 0,
           weaponName: '(None)',
         }),
+        room: buildRoom({ monsterLevel: level, monsterVitality: 999 }),
         debug: true,
         save: {
-          monsterLevel: level,
-          monsterName: monsterName(level),
-          vitality: 999,
           awaitingSpell: false,
         },
       });

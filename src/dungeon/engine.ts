@@ -1,7 +1,6 @@
 import {
   ARMOR_NAMES,
   EXPLORE_COMMANDS,
-  FEATURE_SYMBOLS,
   Feature,
   Mode,
   monsterName,
@@ -9,14 +8,16 @@ import {
   treasureName,
   type Spell,
 } from './constants.js';
-import { EncounterSession } from './encounter.js';
+import { EncounterSession, rollMonsterVitality } from './encounter.js';
 import { generateDungeon } from './generation.js';
-import type { Dungeon, Player, Room } from './model.js';
+import type { Dungeon, Player, Room, RoomView } from './model.js';
 import {
   type GameSave,
   type EncounterSave,
-  deserializeGame,
-  serializeGame,
+  deserializeDungeon,
+  deserializePlayer,
+  serializeDungeon,
+  serializePlayer,
 } from './serialization.js';
 import { Event, type StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
@@ -30,42 +31,96 @@ function pluralize(count: number, singular: string, plural = `${singular}s`) {
   return count === 1 ? singular : plural;
 }
 
+export type PlayerId = string;
+
+export interface PlayerState {
+  readonly id: PlayerId;
+  player: Player;
+  /** Per-player explored grid, indexed [z][y][x]. */
+  explored: boolean[][][];
+  encounter: EncounterSession | null;
+  vendor: VendorSession | null;
+  endMode: Mode.GAME_OVER | Mode.VICTORY | null;
+}
+
+function createExploredGrid(): boolean[][][] {
+  return Array.from({ length: Game.SIZE }, () =>
+    Array.from({ length: Game.SIZE }, () =>
+      Array.from({ length: Game.SIZE }, () => false)
+    )
+  );
+}
+
 export class Game {
   static readonly SIZE = 7;
-  static readonly SAVE_VERSION = 2;
+  static readonly SAVE_VERSION = 3;
 
   saveVersion = Game.SAVE_VERSION;
   rng: RandomSource;
-  player: Player;
   dungeon: Dungeon;
-  private endMode: Mode.GAME_OVER | Mode.VICTORY | null = null;
-  private encounterSession: EncounterSession | null = null;
-  private shopSession: VendorSession | null = null;
+  treasuresFound: Set<number>;
+  private players: Map<PlayerId, PlayerState> = new Map();
   private debug: boolean;
 
-  get mode(): Mode {
-    if (this.endMode) {
-      return this.endMode;
-    }
-    if (this.encounterSession) {
-      return Mode.ENCOUNTER;
-    }
-    return Mode.EXPLORE;
-  }
-
   constructor(options: {
-    seed: number;
-    player: Player;
+    seed?: number;
     rng?: RandomSource | null;
     debug?: boolean;
     dungeon?: Dungeon;
+    treasuresFound?: Set<number>;
   }) {
     this.rng = options.rng ?? defaultRandomSource;
-    this.player = options.player;
     this.dungeon = options.dungeon ?? generateDungeon(this.rng);
-    this.encounterSession = null;
-    this.shopSession = null;
+    this.treasuresFound = options.treasuresFound ?? new Set<number>();
     this.debug = options.debug ?? false;
+  }
+
+  addPlayer(id: PlayerId, player: Player): PlayerState {
+    const state: PlayerState = {
+      id,
+      player,
+      explored: createExploredGrid(),
+      encounter: null,
+      vendor: null,
+      endMode: null,
+    };
+    this.players.set(id, state);
+    return state;
+  }
+
+  removePlayer(id: PlayerId): void {
+    this.players.delete(id);
+  }
+
+  hasPlayer(id: PlayerId): boolean {
+    return this.players.has(id);
+  }
+
+  get playerIds(): PlayerId[] {
+    return [...this.players.keys()];
+  }
+
+  getPlayer(id: PlayerId): Player {
+    return this.state(id).player;
+  }
+
+  private state(id: PlayerId): PlayerState {
+    const state = this.players.get(id);
+    if (!state) {
+      throw new Error(`Unknown player: ${id}`);
+    }
+    return state;
+  }
+
+  mode(id: PlayerId): Mode {
+    const state = this.state(id);
+    if (state.endMode) {
+      return state.endMode;
+    }
+    if (state.encounter) {
+      return Mode.ENCOUNTER;
+    }
+    return Mode.EXPLORE;
   }
 
   static fromSave(
@@ -80,100 +135,131 @@ export class Game {
         `Unsupported save version ${save.version}. Expected ${Game.SAVE_VERSION}.`
       );
     }
-    const state = deserializeGame(save);
-    const player = state.player;
+    const dungeon = deserializeDungeon(save.dungeon);
     const game = new Game({
-      seed: 0,
-      player,
       rng,
-      dungeon: state.dungeon,
-      debug: state.debug,
+      dungeon,
+      debug: save.debug,
+      treasuresFound: new Set(save.treasuresFound),
     });
-    game.saveVersion = state.version;
-    if (state.mode === Mode.GAME_OVER || state.mode === Mode.VICTORY) {
-      game.endMode = state.mode;
-    }
-    if (state.encounter) {
-      game.encounterSession = EncounterSession.resume({
-        rng,
+    game.saveVersion = save.version;
+
+    for (const entry of save.players) {
+      const player = deserializePlayer(entry.player);
+      const endMode =
+        entry.endMode === Mode.GAME_OVER || entry.endMode === Mode.VICTORY
+          ? entry.endMode
+          : null;
+      const state: PlayerState = {
+        id: entry.id,
         player,
-        debug: game.debug,
-        save: state.encounter,
-      });
-    }
-    if (state.vendor) {
-      game.shopSession = VendorSession.resume({
-        rng,
-        player,
-        save: state.vendor,
-      });
+        explored: entry.explored.map((floor) => floor.map((row) => [...row])),
+        encounter: null,
+        vendor: null,
+        endMode,
+      };
+      if (entry.encounter) {
+        state.encounter = EncounterSession.resume({
+          rng,
+          player,
+          room: dungeon.rooms[player.z][player.y][player.x],
+          debug: game.debug,
+          save: entry.encounter,
+        });
+      }
+      if (entry.vendor) {
+        state.vendor = VendorSession.resume({
+          rng,
+          player,
+          save: entry.vendor,
+        });
+      }
+      game.players.set(entry.id, state);
     }
     return game;
   }
 
   toSave(): GameSave {
-    return serializeGame({
+    return {
       version: this.saveVersion,
-      mode: this.mode,
-      player: this.player,
-      dungeon: this.dungeon,
-      encounter: this.encounterSession ? this.encounterSession.toSave() : null,
-      vendor: this.shopSession ? this.shopSession.toSave() : null,
+      savedAt: new Date().toISOString(),
+      dungeon: serializeDungeon(this.dungeon),
+      treasuresFound: [...this.treasuresFound],
+      players: [...this.players.values()].map((state) => ({
+        id: state.id,
+        player: serializePlayer(state.player),
+        explored: state.explored.map((floor) => floor.map((row) => [...row])),
+        encounter: state.encounter ? state.encounter.toSave() : null,
+        vendor: state.vendor ? state.vendor.toSave() : null,
+        endMode: state.endMode,
+      })),
       debug: this.debug,
-    });
+    };
   }
 
-  getEncounterSave(): EncounterSave | null {
-    return this.encounterSession ? this.encounterSession.toSave() : null;
+  getEncounterSave(id: PlayerId): EncounterSave | null {
+    const state = this.state(id);
+    return state.encounter ? state.encounter.toSave() : null;
   }
 
-  startEvents(): Event[] {
-    return this.enterRoom();
+  startEvents(id: PlayerId): Event[] {
+    return this.enterRoom(this.state(id));
   }
 
-  step(command: string): StepResult {
+  step(id: PlayerId, command: string): StepResult {
+    const state = this.state(id);
     const raw = command.trim().toUpperCase();
     if (!raw) {
       return {
         events: [Event.error("I don't understand that.")],
-        mode: this.mode,
+        mode: this.mode(id),
       };
     }
 
-    if (this.mode === Mode.GAME_OVER || this.mode === Mode.VICTORY) {
+    if (state.endMode) {
       return {
         events: [Event.error("I don't understand that.")],
-        mode: this.mode,
+        mode: this.mode(id),
       };
     }
 
-    if (this.shopSession) {
-      const result = this.shopSession.step(raw);
+    if (state.vendor) {
+      const result = state.vendor.step(raw);
       if (result.done) {
-        this.shopSession = null;
+        state.vendor = null;
       }
       return {
         events: result.events,
-        mode: this.mode,
+        mode: this.mode(id),
       };
     }
 
-    if (this.encounterSession) {
-      const result = this.encounterSession.step(raw);
+    if (state.encounter) {
+      const room = this.currentRoom(state.player);
+      // The monster may have been slain by another player who shared this room.
+      if (room.monsterLevel <= 0) {
+        state.encounter = null;
+        return {
+          events: this.describeRoom(room),
+          mode: this.mode(id),
+        };
+      }
+
+      const result = state.encounter.step(raw);
       const events = result.events;
       if (result.done) {
-        this.encounterSession = null;
+        state.encounter = null;
         if (result.defeatedMonster) {
-          const room = this.currentRoom();
           const monsterLevel = room.monsterLevel;
           room.monsterLevel = 0;
-          if (this.player.hp > 0) {
+          room.monsterVitality = 0;
+          if (state.player.hp > 0) {
             if (room.treasureId) {
               events.push(...this.awardTreasure(room.treasureId));
               room.treasureId = 0;
             } else {
               const gold = 5 * monsterLevel + this.rng.randint(0, 20);
-              this.player.gold += gold;
+              state.player.gold += gold;
               events.push(
                 Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}.`)
               );
@@ -181,21 +267,21 @@ export class Game {
           }
         }
         if (result.relocate) {
-          this.randomRelocate({
+          this.randomRelocate(state, {
             anyFloor: Boolean(result.relocateAnyFloor),
             avoidMonsters: Boolean(result.relocateAvoidMonsters),
           });
           if (result.enterRoom) {
-            events.push(...this.enterRoom());
+            events.push(...this.enterRoom(state));
           }
         }
-        if (this.player.hp <= 0) {
-          this.endMode = Mode.GAME_OVER;
+        if (state.player.hp <= 0) {
+          state.endMode = Mode.GAME_OVER;
         }
       }
       return {
         events,
-        mode: this.mode,
+        mode: this.mode(id),
       };
     }
 
@@ -203,145 +289,140 @@ export class Game {
     if (!EXPLORE_COMMANDS.has(key)) {
       return {
         events: [Event.error("I don't understand that.")],
-        mode: this.mode,
+        mode: this.mode(id),
       };
     }
     return {
-      events: this.handleExplore(key),
-      mode: this.mode,
+      events: this.handleExplore(state, key),
+      mode: this.mode(id),
     };
   }
 
-  attemptCancel(): StepResult {
-    if (this.mode === Mode.GAME_OVER || this.mode === Mode.VICTORY) {
+  attemptCancel(id: PlayerId): StepResult {
+    const state = this.state(id);
+    if (state.endMode) {
       return {
         events: [],
-        mode: this.mode,
+        mode: this.mode(id),
       };
     }
 
-    if (this.shopSession) {
-      const result = this.shopSession.attemptCancel();
+    if (state.vendor) {
+      const result = state.vendor.attemptCancel();
       if (result.done) {
-        this.shopSession = null;
+        state.vendor = null;
       }
       return {
         events: result.events,
-        mode: this.mode,
+        mode: this.mode(id),
       };
     }
 
-    if (this.encounterSession) {
-      const result = this.encounterSession.attemptCancel();
+    if (state.encounter) {
+      const result = state.encounter.attemptCancel();
       return {
         events: result.events,
-        mode: this.mode,
+        mode: this.mode(id),
       };
     }
 
     return {
       events: [Event.info("I don't understand that.")],
-      mode: this.mode,
+      mode: this.mode(id),
     };
   }
 
-  mapGrid(): string[][] {
-    const grid: string[][] = [];
-    for (let y = 0; y < Game.SIZE; y += 1) {
-      const row: string[] = [];
-      for (let x = 0; x < Game.SIZE; x += 1) {
-        const room = this.dungeon.rooms[this.player.z][y][x];
-        if (!room.seen) {
-          row.push('·');
-        } else if (room.monsterLevel > 0) {
-          row.push('M');
-        } else if (room.treasureId) {
-          row.push('T');
-        } else {
-          row.push(FEATURE_SYMBOLS[room.feature] ?? '-');
-        }
-      }
-      grid.push(row);
-    }
-    return grid;
+  mapView(id: PlayerId): RoomView[][] {
+    const state = this.state(id);
+    const z = state.player.z;
+    return this.dungeon.rooms[z].map((row, y) =>
+      row.map((room, x) => ({
+        feature: room.feature,
+        monsterLevel: room.monsterLevel,
+        treasureId: room.treasureId,
+        seen: state.explored[z][y][x],
+      }))
+    );
   }
 
-  resumeEvents(): Event[] {
-    if (this.shopSession) {
+  resumeEvents(id: PlayerId): Event[] {
+    const state = this.state(id);
+    if (state.vendor) {
       return [
         Event.info(
           'There is a vendor here. Do you wish to purchase something?'
         ),
-        ...this.shopSession.viewEvents(),
+        ...state.vendor.viewEvents(),
       ];
     }
-    if (this.encounterSession) {
-      return this.encounterSession.viewEvents();
+    if (state.encounter) {
+      return state.encounter.viewEvents();
     }
-    return this.describeRoom(this.currentRoom());
+    return this.describeRoom(this.currentRoom(state.player));
   }
 
-  private currentRoom() {
-    return this.dungeon.rooms[this.player.z][this.player.y][this.player.x];
+  private currentRoom(player: Player): Room {
+    return this.dungeon.rooms[player.z][player.y][player.x];
   }
 
-  private handleExplore(key: string): Event[] {
+  private handleExplore(state: PlayerState, key: string): Event[] {
     switch (key) {
       case 'N':
-        return this.move(-1, 0);
+        return this.move(state, -1, 0);
       case 'S':
-        return this.move(1, 0);
+        return this.move(state, 1, 0);
       case 'E':
-        return this.move(0, 1);
+        return this.move(state, 0, 1);
       case 'W':
-        return this.move(0, -1);
+        return this.move(state, 0, -1);
       case 'U':
-        return this.stairsUp();
+        return this.stairsUp(state);
       case 'D':
-        return this.stairsDown();
+        return this.stairsDown(state);
       case 'F':
-        return this.useFlare();
+        return this.useFlare(state);
       case 'X':
-        return this.attemptExit();
+        return this.attemptExit(state);
       case 'L':
-        return this.useMirror();
+        return this.useMirror(state);
       case 'O':
-        return this.openChest();
+        return this.openChest(state);
       case 'R':
-        return this.readScroll();
+        return this.readScroll(state);
       case 'P':
-        return this.drinkPotion();
+        return this.drinkPotion(state);
       case 'B':
-        return this.openVendor();
+        return this.openVendor(state);
       default:
         return [];
     }
   }
 
-  private move(dy: number, dx: number): Event[] {
-    const ny = this.player.y + dy;
-    const nx = this.player.x + dx;
+  private move(state: PlayerState, dy: number, dx: number): Event[] {
+    const player = state.player;
+    const ny = player.y + dy;
+    const nx = player.x + dx;
     if (ny < 0 || ny >= Game.SIZE || nx < 0 || nx >= Game.SIZE) {
       return [Event.info('A wall interposes itself.')];
     }
-    this.player.y = ny;
-    this.player.x = nx;
-    return this.enterRoom();
+    player.y = ny;
+    player.x = nx;
+    return this.enterRoom(state);
   }
 
-  private stairsUp(): Event[] {
-    const room = this.currentRoom();
+  private stairsUp(state: PlayerState): Event[] {
+    const room = this.currentRoom(state.player);
     if (room.feature !== Feature.STAIRS_UP) {
       return [
         Event.info('There are no stairs leading up here, foolish adventurer.'),
       ];
     }
-    this.player.z += 1;
-    return this.enterRoom();
+    state.player.z += 1;
+    return this.enterRoom(state);
   }
 
-  private stairsDown(): Event[] {
-    const room = this.currentRoom();
+  private stairsDown(state: PlayerState): Event[] {
+    const room = this.currentRoom(state.player);
     if (room.feature !== Feature.STAIRS_DOWN) {
       return [
         Event.info(
@@ -349,23 +430,27 @@ export class Game {
         ),
       ];
     }
-    this.player.z -= 1;
-    return this.enterRoom();
+    state.player.z -= 1;
+    return this.enterRoom(state);
   }
 
-  private enterRoom(): Event[] {
+  private enterRoom(state: PlayerState): Event[] {
     const events: Event[] = [];
-    const room = this.currentRoom();
-    room.seen = true;
+    const player = state.player;
+    const room = this.currentRoom(player);
+    state.explored[player.z][player.y][player.x] = true;
 
     if (room.monsterLevel > 0) {
-      this.encounterSession = EncounterSession.start({
+      if (room.monsterVitality <= 0) {
+        room.monsterVitality = rollMonsterVitality(this.rng, room.monsterLevel);
+      }
+      state.encounter = EncounterSession.start({
         rng: this.rng,
-        player: this.player,
-        monsterLevel: room.monsterLevel,
+        player,
+        room,
         debug: this.debug,
       });
-      events.push(...this.encounterSession.viewEvents());
+      events.push(...state.encounter.viewEvents());
       return events;
     }
 
@@ -378,27 +463,27 @@ export class Game {
     switch (room.feature) {
       case Feature.FLARES: {
         const gained = this.rng.randint(1, 5);
-        this.player.flares += gained;
+        player.flares += gained;
         room.feature = Feature.EMPTY;
         events.push(Event.info('You pick up some flares here.'));
         break;
       }
       case Feature.THIEF: {
         room.feature = Feature.EMPTY;
-        if (this.player.gold === 0) {
+        if (player.gold === 0) {
           const damage = this.rng.randint(2, 4);
-          this.player.hp = Math.max(0, this.player.hp - damage);
+          player.hp = Math.max(0, player.hp - damage);
           events.push(
             Event.info('A thief sneaks from the shadows and attacks you!')
           );
-          if (this.player.hp <= 0) {
+          if (player.hp <= 0) {
             events.push(Event.info('YOU HAVE DIED.'));
-            this.endMode = Mode.GAME_OVER;
+            state.endMode = Mode.GAME_OVER;
           }
           break;
         }
-        const stolen = Math.min(this.rng.randint(1, 50), this.player.gold);
-        this.player.gold -= stolen;
+        const stolen = Math.min(this.rng.randint(1, 50), player.gold);
+        player.gold -= stolen;
         events.push(
           Event.info(
             `A thief sneaks from the shadows and removes ${stolen} gold ${pluralize(stolen, 'piece')} ` +
@@ -414,11 +499,11 @@ export class Game {
             'This room contains a warp. Before you realize what is going on, you appear elsewhere...'
           )
         );
-        this.randomRelocate({
+        this.randomRelocate(state, {
           anyFloor: true,
           avoidMonsters: false,
         });
-        events.push(...this.enterRoom());
+        events.push(...this.enterRoom(state));
         break;
       default:
         events.push(...this.describeRoom(room));
@@ -478,14 +563,14 @@ export class Game {
     return events;
   }
 
-  private attemptExit(): Event[] {
-    const room = this.currentRoom();
+  private attemptExit(state: PlayerState): Event[] {
+    const room = this.currentRoom(state.player);
     if (room.feature !== Feature.EXIT) {
       return [Event.info('There is no exit here.')];
     }
-    if (this.player.treasuresFound.size < 10) {
-      this.endMode = Mode.GAME_OVER;
-      const remaining = 10 - this.player.treasuresFound.size;
+    if (this.treasuresFound.size < 10) {
+      state.endMode = Mode.GAME_OVER;
+      const remaining = 10 - this.treasuresFound.size;
       return [
         Event.info(
           'What? And hast thou abandoned thy quest before it was accomplished?'
@@ -496,32 +581,34 @@ export class Game {
         ),
       ];
     }
-    this.endMode = Mode.VICTORY;
+    state.endMode = Mode.VICTORY;
     return [Event.info('ALL HAIL THE VICTOR!')];
   }
 
-  private useFlare(): Event[] {
-    if (this.player.flares < 1) {
+  private useFlare(state: PlayerState): Event[] {
+    const player = state.player;
+    if (player.flares < 1) {
       return [Event.info('Thou hast no flares.')];
     }
-    this.player.flares -= 1;
+    player.flares -= 1;
     for (const dy of [-1, 0, 1]) {
       for (const dx of [-1, 0, 1]) {
         if (dy === 0 && dx === 0) {
           continue;
         }
-        const ny = this.player.y + dy;
-        const nx = this.player.x + dx;
+        const ny = player.y + dy;
+        const nx = player.x + dx;
         if (ny >= 0 && ny < Game.SIZE && nx >= 0 && nx < Game.SIZE) {
-          this.dungeon.rooms[this.player.z][ny][nx].seen = true;
+          state.explored[player.z][ny][nx] = true;
         }
       }
     }
     return [Event.info('The flare illuminates nearby rooms.')];
   }
 
-  private useMirror(): Event[] {
-    const room = this.currentRoom();
+  private useMirror(state: PlayerState): Event[] {
+    const player = state.player;
+    const room = this.currentRoom(player);
     if (room.feature !== Feature.MIRROR) {
       return [Event.info('There is no mirror here.')];
     }
@@ -534,9 +621,9 @@ export class Game {
       'You see the exit on the 7th floor, big and friendly-looking.',
     ];
     const events: Event[] = [];
-    if (this.player.treasuresFound.size === 10) {
+    if (this.treasuresFound.size === 10) {
       events.push(Event.info(this.rng.choice(visions)));
-    } else if (this.rng.randint(1, 50) > this.player.iq) {
+    } else if (this.rng.randint(1, 50) > player.iq) {
       if (this.rng.randint(1, 10) <= 5) {
         events.push(Event.info(this.rng.choice(visions)));
       } else {
@@ -551,7 +638,7 @@ export class Game {
         );
       }
     } else {
-      const remaining = 10 - this.player.treasuresFound.size;
+      const remaining = 10 - this.treasuresFound.size;
       const target = this.rng.randint(1, remaining);
       let seen = 0;
       outer: for (let z = 0; z < this.dungeon.rooms.length; z += 1) {
@@ -562,7 +649,7 @@ export class Game {
             const candidate = row[x];
             if (
               candidate.treasureId &&
-              !this.player.treasuresFound.has(candidate.treasureId)
+              !this.treasuresFound.has(candidate.treasureId)
             ) {
               seen += 1;
               if (seen === target) {
@@ -582,37 +669,38 @@ export class Game {
     return events;
   }
 
-  private openChest(): Event[] {
-    const room = this.currentRoom();
+  private openChest(state: PlayerState): Event[] {
+    const player = state.player;
+    const room = this.currentRoom(player);
     if (room.feature !== Feature.CHEST) {
       return [Event.info('There is no chest here.')];
     }
     room.feature = Feature.EMPTY;
     const rand = this.rng.random();
     if (rand < 0.1) {
-      if (this.player.armorTier > 0) {
-        this.player.armorTier -= 1;
-        if (this.player.armorTier === 0) {
-          this.player.armorName = ARMOR_NAMES[0];
-          this.player.armorDamaged = false;
+      if (player.armorTier > 0) {
+        player.armorTier -= 1;
+        if (player.armorTier === 0) {
+          player.armorName = ARMOR_NAMES[0];
+          player.armorDamaged = false;
           return [
             Event.info(
               'The perverse thing explodes as you open it, destroying your armour!'
             ),
           ];
         }
-        this.player.armorDamaged = true;
+        player.armorDamaged = true;
         return [
           Event.info(
             'The perverse thing explodes as you open it, damaging your armour!'
           ),
         ];
       }
-      this.player.armorName = ARMOR_NAMES[0];
-      this.player.armorDamaged = false;
-      this.player.hp -= this.rng.randint(0, 4) + 3;
-      if (this.player.hp <= 0) {
-        this.endMode = Mode.GAME_OVER;
+      player.armorName = ARMOR_NAMES[0];
+      player.armorDamaged = false;
+      player.hp -= this.rng.randint(0, 4) + 3;
+      if (player.hp <= 0) {
+        state.endMode = Mode.GAME_OVER;
         return [
           Event.info(
             'The perverse thing explodes as you open it, wounding you!'
@@ -629,18 +717,19 @@ export class Game {
     }
 
     const gold = 10 + this.rng.randint(0, 20);
-    this.player.gold += gold;
+    player.gold += gold;
     return [Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}!`)];
   }
 
-  private readScroll(): Event[] {
-    const room = this.currentRoom();
+  private readScroll(state: PlayerState): Event[] {
+    const player = state.player;
+    const room = this.currentRoom(player);
     if (room.feature !== Feature.SCROLL) {
       return [Event.info('Sorry. There is nothing to read here.')];
     }
     room.feature = Feature.EMPTY;
     const spell = this.rng.randint(1, 5) as Spell;
-    this.player.spells[spell] = (this.player.spells[spell] ?? 0) + 1;
+    player.spells[spell] = (player.spells[spell] ?? 0) + 1;
     return [
       Event.info(
         `The scroll contains the ${spellName(spell).toLowerCase()} spell.`
@@ -648,8 +737,9 @@ export class Game {
     ];
   }
 
-  private drinkPotion(): Event[] {
-    const room = this.currentRoom();
+  private drinkPotion(state: PlayerState): Event[] {
+    const player = state.player;
+    const room = this.currentRoom(player);
     if (room.feature !== Feature.POTION) {
       return [Event.info('There is no potion here, I fear.')];
     }
@@ -657,7 +747,7 @@ export class Game {
     const roll = this.rng.randint(1, 5);
     if (roll === 1) {
       const heal = 5 + this.rng.randint(1, 10);
-      this.player.hp = Math.min(this.player.mhp, this.player.hp + heal);
+      player.hp = Math.min(player.mhp, player.hp + heal);
       return drinkHealingPotionEvents();
     }
 
@@ -669,52 +759,56 @@ export class Game {
     if (this.rng.random() > 0.5) {
       change = -change;
     }
-    this.player.applyAttributeChange({ target: effect, change });
+    player.applyAttributeChange({ target: effect, change });
     return drinkAttributePotionEvents({ target: effect, change });
   }
 
-  private openVendor(): Event[] {
-    const room = this.currentRoom();
+  private openVendor(state: PlayerState): Event[] {
+    const room = this.currentRoom(state.player);
     if (room.feature !== Feature.VENDOR) {
       return [Event.info('There is no vendor here.')];
     }
-    this.shopSession = new VendorSession({
+    state.vendor = new VendorSession({
       rng: this.rng,
-      player: this.player,
+      player: state.player,
     });
-    return this.shopSession.viewEvents();
+    return state.vendor.viewEvents();
   }
 
-  private randomRelocate(options: {
-    anyFloor: boolean;
-    avoidMonsters: boolean;
-  }): void {
+  private randomRelocate(
+    state: PlayerState,
+    options: {
+      anyFloor: boolean;
+      avoidMonsters: boolean;
+    }
+  ): void {
+    const player = state.player;
     if (options.anyFloor) {
-      this.player.z = this.rng.randrange(Game.SIZE);
+      player.z = this.rng.randrange(Game.SIZE);
     }
     while (true) {
       const ny = this.rng.randrange(Game.SIZE);
       const nx = this.rng.randrange(Game.SIZE);
-      if (ny === this.player.y && nx === this.player.x) {
+      if (ny === player.y && nx === player.x) {
         continue;
       }
       if (
         options.avoidMonsters &&
-        this.dungeon.rooms[this.player.z][ny][nx].monsterLevel > 0
+        this.dungeon.rooms[player.z][ny][nx].monsterLevel > 0
       ) {
         continue;
       }
-      this.player.y = ny;
-      this.player.x = nx;
+      player.y = ny;
+      player.x = nx;
       return;
     }
   }
 
   private awardTreasure(treasureId: number): Event[] {
-    if (this.player.treasuresFound.has(treasureId)) {
+    if (this.treasuresFound.has(treasureId)) {
       return [];
     }
-    this.player.treasuresFound.add(treasureId);
+    this.treasuresFound.add(treasureId);
     return [Event.loot(`You find the ${treasureName(treasureId)}!`)];
   }
 }

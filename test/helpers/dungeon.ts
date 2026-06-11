@@ -8,8 +8,8 @@ export function createEmptyDungeon(): Dungeon {
       Array.from({ length: Game.SIZE }, () => ({
         feature: Feature.EMPTY,
         monsterLevel: 0,
+        monsterVitality: 0,
         treasureId: 0,
-        seen: false,
       }))
     )
   );

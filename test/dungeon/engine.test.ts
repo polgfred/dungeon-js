@@ -5,6 +5,8 @@ import { buildPlayer } from '../helpers/factories.js';
 import { ScriptedRng } from '../helpers/rng.js';
 import { createEmptyDungeon } from '../helpers/dungeon.js';
 
+const ID = 'p1';
+
 function setupGame(options: { feature: Feature; rng: ScriptedRng }) {
   const player = buildPlayer({
     z: 0,
@@ -13,7 +15,8 @@ function setupGame(options: { feature: Feature; rng: ScriptedRng }) {
     hp: 10,
     mhp: 20,
   });
-  const game = new Game({ seed: 0, player });
+  const game = new Game({ seed: 0 });
+  game.addPlayer(ID, player);
   const dungeon = createEmptyDungeon();
   dungeon.rooms[0][0][0].feature = options.feature;
   game.dungeon = dungeon;
@@ -30,7 +33,7 @@ describe('Game interactions', () => {
         rng,
       });
 
-      const result = game.step('R');
+      const result = game.step(ID, 'R');
 
       expect(result.events[0].text).toBe(
         'The scroll contains the fireball spell.'
@@ -48,7 +51,7 @@ describe('Game interactions', () => {
         rng,
       });
 
-      const result = game.step('O');
+      const result = game.step(ID, 'O');
 
       expect(result.events[0].text).toBe('You find 17 gold pieces!');
       expect(player.gold).toBe(17);
@@ -63,7 +66,7 @@ describe('Game interactions', () => {
       });
       player.armorTier = 1;
 
-      const result = game.step('O');
+      const result = game.step(ID, 'O');
 
       expect(result.events[0].text).toBe(
         'The perverse thing explodes as you open it, destroying your armour!'
@@ -81,7 +84,7 @@ describe('Game interactions', () => {
       player.armorTier = 0;
       player.hp = 4;
 
-      const result = game.step('O');
+      const result = game.step(ID, 'O');
 
       expect(result.mode).toBe(Mode.GAME_OVER);
       expect(result.events[0].text).toBe(
@@ -95,17 +98,17 @@ describe('Game interactions', () => {
   describe('mirrors', () => {
     it('looks in a mirror and reveals a treasure location', () => {
       const rng = new ScriptedRng({ randint: [1, 1] });
-      const { game, player, dungeon } = setupGame({
+      const { game, dungeon } = setupGame({
         feature: Feature.MIRROR,
         rng,
       });
 
       dungeon.rooms[0][0][1].treasureId = 1;
 
-      const result = game.step('L');
+      const result = game.step(ID, 'L');
 
       expect(result.events[0].text).toBe('You see the Gold Fleece at 1,1,2!');
-      expect(player.treasuresFound.size).toBe(0);
+      expect(game.treasuresFound.size).toBe(0);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
 
@@ -115,9 +118,9 @@ describe('Game interactions', () => {
         feature: Feature.MIRROR,
         rng,
       });
-      game.player.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      game.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
-      const result = game.step('L');
+      const result = game.step(ID, 'L');
 
       expect(result.events[0].text).toBe(
         'The mirror is cloudy and yields no vision.'
@@ -134,7 +137,7 @@ describe('Game interactions', () => {
         rng,
       });
 
-      const result = game.step('P');
+      const result = game.step(ID, 'P');
 
       expect(result.events[0].text).toBe('You drink the potion...');
       expect(result.events[1].text).toBe('Healing results.');
@@ -149,7 +152,7 @@ describe('Game interactions', () => {
         rng,
       });
 
-      const result = game.step('P');
+      const result = game.step(ID, 'P');
 
       expect(result.events[0].text).toBe('You drink the potion...');
       expect(result.events[1].text).toBe('The potion makes you dumber.');
@@ -164,7 +167,7 @@ describe('Game interactions', () => {
         rng,
       });
 
-      const result = game.step('P');
+      const result = game.step(ID, 'P');
 
       expect(result.events[0].text).toBe('You drink the potion...');
       expect(result.events[1].text).toBe('Strange energies surge through you.');
@@ -180,7 +183,7 @@ describe('Game interactions', () => {
         rng,
       });
 
-      const result = game.step('P');
+      const result = game.step(ID, 'P');
 
       expect(result.events[0].text).toBe('You drink the potion...');
       expect(result.events[1].text).toBe('You feel weaker.');
@@ -199,14 +202,14 @@ describe('Game interactions', () => {
       });
 
       player.hp = 4;
-      const result = game.startEvents();
+      const result = game.startEvents(ID);
 
       expect(result[0].text).toBe(
         'A thief sneaks from the shadows and attacks you!'
       );
       expect(player.hp).toBe(0);
       expect(result[1].text).toBe('YOU HAVE DIED.');
-      expect(game.mode).toBe(Mode.GAME_OVER);
+      expect(game.mode(ID)).toBe(Mode.GAME_OVER);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
 
@@ -218,14 +221,14 @@ describe('Game interactions', () => {
       });
 
       player.gold = 10;
-      const result = game.startEvents();
+      const result = game.startEvents(ID);
 
       expect(result[0].text).toBe(
         'A thief sneaks from the shadows and removes 3 gold pieces from your possession.'
       );
       expect(player.gold).toBe(7);
       expect(player.hp).toBe(10);
-      expect(game.mode).toBe(Mode.EXPLORE);
+      expect(game.mode(ID)).toBe(Mode.EXPLORE);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
   });
@@ -245,13 +248,14 @@ describe('Game interactions', () => {
         mhp: 20,
         ...options.playerOverrides,
       });
-      const game = new Game({ seed: 0, player });
+      const game = new Game({ seed: 0 });
+      game.addPlayer(ID, player);
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = options.monsterLevel;
       dungeon.rooms[0][0][0].treasureId = options.treasureId ?? 0;
       game.dungeon = dungeon;
       game.rng = options.rng;
-      game.startEvents();
+      game.startEvents(ID);
       return { game, player, dungeon };
     }
 
@@ -263,7 +267,7 @@ describe('Game interactions', () => {
         playerOverrides: { hp: 1, mhp: 1, dex: 1 },
       });
 
-      const result = game.step('F');
+      const result = game.step(ID, 'F');
 
       expect(result.mode).toBe(Mode.GAME_OVER);
       expect(dungeon.rooms[0][0][0].monsterLevel).toBe(1);
@@ -274,18 +278,18 @@ describe('Game interactions', () => {
         randint: [0, 10, 4],
         random: [0.1],
       });
-      const { game, player, dungeon } = setupEncounter({
+      const { game, dungeon } = setupEncounter({
         monsterLevel: 1,
         treasureId: 1,
         rng,
       });
 
-      const result = game.step('F');
+      const result = game.step(ID, 'F');
 
       expect(result.mode).toBe(Mode.EXPLORE);
       expect(dungeon.rooms[0][0][0].monsterLevel).toBe(0);
       expect(dungeon.rooms[0][0][0].treasureId).toBe(0);
-      expect(player.treasuresFound.has(1)).toBe(true);
+      expect(game.treasuresFound.has(1)).toBe(true);
     });
 
     it('relocates on successful run', () => {
@@ -298,7 +302,7 @@ describe('Game interactions', () => {
         rng,
       });
 
-      const result = game.step('R');
+      const result = game.step(ID, 'R');
 
       expect(result.mode).toBe(Mode.EXPLORE);
       expect(player.y).toBe(1);
@@ -316,7 +320,7 @@ describe('Game interactions', () => {
       });
       dungeon.rooms[0][1][1].monsterLevel = 2;
 
-      const result = game.step('R');
+      const result = game.step(ID, 'R');
 
       expect(result.mode).toBe(Mode.ENCOUNTER);
       expect(result.events.some((event) => event.kind === 'COMBAT')).toBe(true);
@@ -329,8 +333,8 @@ describe('Game interactions', () => {
         rng,
       });
 
-      game.step('S');
-      const result = game.step('T');
+      game.step(ID, 'S');
+      const result = game.step(ID, 'T');
 
       expect(result.mode).toBe(Mode.EXPLORE);
       expect(player.y).toBe(3);
@@ -340,64 +344,66 @@ describe('Game interactions', () => {
   });
 
   describe('save rehydration mode', () => {
-    it('restores GAME_OVER and VICTORY from serialized mode', () => {
+    it('restores GAME_OVER and VICTORY from serialized end state', () => {
       const losePlayer = buildPlayer({ z: 0, y: 0, x: 0 });
-      const loseGame = new Game({ seed: 0, player: losePlayer });
+      const loseGame = new Game({ seed: 0 });
+      loseGame.addPlayer(ID, losePlayer);
       const loseDungeon = createEmptyDungeon();
       loseDungeon.rooms[0][0][0].feature = Feature.EXIT;
       loseGame.dungeon = loseDungeon;
-      expect(loseGame.step('X').mode).toBe(Mode.GAME_OVER);
+      expect(loseGame.step(ID, 'X').mode).toBe(Mode.GAME_OVER);
 
       const winPlayer = buildPlayer({ z: 0, y: 0, x: 0 });
-      winPlayer.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-      const winGame = new Game({ seed: 0, player: winPlayer });
+      const winGame = new Game({ seed: 0 });
+      winGame.addPlayer(ID, winPlayer);
+      winGame.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       const winDungeon = createEmptyDungeon();
       winDungeon.rooms[0][0][0].feature = Feature.EXIT;
       winGame.dungeon = winDungeon;
-      expect(winGame.step('X').mode).toBe(Mode.VICTORY);
+      expect(winGame.step(ID, 'X').mode).toBe(Mode.VICTORY);
 
       const resumedLose = Game.fromSave(loseGame.toSave());
       const resumedWin = Game.fromSave(winGame.toSave());
-      expect(resumedLose.mode).toBe(Mode.GAME_OVER);
-      expect(resumedWin.mode).toBe(Mode.VICTORY);
+      expect(resumedLose.mode(ID)).toBe(Mode.GAME_OVER);
+      expect(resumedWin.mode(ID)).toBe(Mode.VICTORY);
     });
 
-    it('ignores stale non-terminal mode and derives from session state', () => {
+    it('derives mode from per-player encounter session, not a stored mode', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ seed: 0, player });
+      const game = new Game({ seed: 0 });
+      game.addPlayer(ID, player);
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
       game.dungeon = dungeon;
-      game.startEvents();
+      game.startEvents(ID);
 
       const encounterSave = game.toSave();
-      encounterSave.mode = Mode.EXPLORE;
-      expect(encounterSave.encounter).not.toBeNull();
+      expect(encounterSave.players[0].encounter).not.toBeNull();
       const resumedEncounter = Game.fromSave(encounterSave);
-      expect(resumedEncounter.mode).toBe(Mode.ENCOUNTER);
+      expect(resumedEncounter.mode(ID)).toBe(Mode.ENCOUNTER);
 
       const exploreSave = game.toSave();
-      exploreSave.mode = Mode.ENCOUNTER;
-      exploreSave.encounter = null;
+      exploreSave.players[0].encounter = null;
       const resumedExplore = Game.fromSave(exploreSave);
-      expect(resumedExplore.mode).toBe(Mode.EXPLORE);
+      expect(resumedExplore.mode(ID)).toBe(Mode.EXPLORE);
     });
 
     it('resumes in encounter spell selection with spell prompt events', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ seed: 0, player });
+      const game = new Game({ seed: 0 });
+      game.addPlayer(ID, player);
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
       game.dungeon = dungeon;
       game.rng = new ScriptedRng({ randint: [0] });
-      game.startEvents();
-      game.step('S');
+      game.startEvents(ID);
+      game.step(ID, 'S');
 
       const resumed = Game.fromSave(game.toSave());
-      const events = resumed.resumeEvents();
+      const events = resumed.resumeEvents(ID);
       const promptEvent = events.find((event) => event.kind === 'PROMPT');
 
-      expect(resumed.mode).toBe(Mode.ENCOUNTER);
+      expect(resumed.mode(ID)).toBe(Mode.ENCOUNTER);
       expect(events).toHaveLength(1);
       expect(promptEvent?.text).toBe('Choose a spell:');
       expect(promptEvent?.data?.hasCancel).toBe(true);
@@ -406,15 +412,16 @@ describe('Game interactions', () => {
 
     it('resumes in vendor item selection with vendor intro and item prompt', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0, gold: 100 });
-      const game = new Game({ seed: 0, player });
+      const game = new Game({ seed: 0 });
+      game.addPlayer(ID, player);
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].feature = Feature.VENDOR;
       game.dungeon = dungeon;
-      game.step('B');
-      game.step('W');
+      game.step(ID, 'B');
+      game.step(ID, 'W');
 
       const resumed = Game.fromSave(game.toSave());
-      const events = resumed.resumeEvents();
+      const events = resumed.resumeEvents(ID);
       const promptEvent = events.find((event) => event.kind === 'PROMPT');
 
       expect(events).toHaveLength(2);
@@ -428,7 +435,8 @@ describe('Game interactions', () => {
     });
 
     it('throws when save version is missing', () => {
-      const game = new Game({ seed: 0, player: buildPlayer() });
+      const game = new Game({ seed: 0 });
+      game.addPlayer(ID, buildPlayer());
       const save = game.toSave() as Record<string, unknown>;
       delete save.version;
 
@@ -438,7 +446,8 @@ describe('Game interactions', () => {
     });
 
     it('throws when save version does not match', () => {
-      const game = new Game({ seed: 0, player: buildPlayer() });
+      const game = new Game({ seed: 0 });
+      game.addPlayer(ID, buildPlayer());
       const save = game.toSave();
       save.version = Game.SAVE_VERSION + 1;
 

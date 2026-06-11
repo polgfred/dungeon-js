@@ -1,8 +1,12 @@
 import { monsterName, Spell, spellName } from './constants.js';
 import type { EncounterSave } from './serialization.js';
-import type { Player } from './model.js';
+import type { Player, Room } from './model.js';
 import { Event, type PromptData } from './types.js';
 import type { RandomSource } from './rng.js';
+
+export function rollMonsterVitality(rng: RandomSource, level: number): number {
+  return 3 * level + rng.randint(0, 3);
+}
 
 export interface EncounterResult {
   events: Event[];
@@ -34,65 +38,59 @@ function resetPlayerAfterEncounter(player: Player) {
 export class EncounterSession {
   private rng: RandomSource;
   private player: Player;
-  private monsterLevel: number;
-  private monsterName: string;
-  private vitality: number;
+  private room: Room;
   private awaitingSpell = false;
   private debug: boolean;
+
+  private get monsterLevel(): number {
+    return this.room.monsterLevel;
+  }
+
+  private get monsterName(): string {
+    return monsterName(this.room.monsterLevel);
+  }
+
+  private get vitality(): number {
+    return this.room.monsterVitality;
+  }
+
+  private set vitality(value: number) {
+    this.room.monsterVitality = value;
+  }
 
   private constructor(options: {
     rng: RandomSource;
     player: Player;
-    monsterLevel: number;
-    monsterName: string;
-    vitality: number;
+    room: Room;
     debug: boolean;
   }) {
     this.rng = options.rng;
     this.player = options.player;
-    this.monsterLevel = options.monsterLevel;
-    this.monsterName = options.monsterName;
-    this.vitality = options.vitality;
+    this.room = options.room;
     this.debug = options.debug;
   }
 
   static start(options: {
     rng: RandomSource;
     player: Player;
-    monsterLevel: number;
+    room: Room;
     debug: boolean;
   }): EncounterSession {
-    const { rng, player, monsterLevel, debug } = options;
-    const level = monsterLevel;
-    const name = monsterName(level);
-    const vitality = 3 * level + rng.randint(0, 3);
+    const { rng, player, room, debug } = options;
     player.fatigued = false;
     player.tempArmorBonus = 0;
-    return new EncounterSession({
-      rng,
-      player,
-      monsterLevel: level,
-      monsterName: name,
-      vitality,
-      debug,
-    });
+    return new EncounterSession({ rng, player, room, debug });
   }
 
   static resume(options: {
     rng: RandomSource;
     player: Player;
+    room: Room;
     debug: boolean;
     save: EncounterSave;
   }): EncounterSession {
-    const { rng, player, debug, save } = options;
-    const session = new EncounterSession({
-      rng,
-      player,
-      monsterLevel: save.monsterLevel,
-      monsterName: save.monsterName,
-      vitality: save.vitality,
-      debug,
-    });
+    const { rng, player, room, debug, save } = options;
+    const session = new EncounterSession({ rng, player, room, debug });
     session.awaitingSpell = save.awaitingSpell;
     return session;
   }
@@ -112,9 +110,6 @@ export class EncounterSession {
 
   toSave(): EncounterSave {
     return {
-      monsterLevel: this.monsterLevel,
-      monsterName: this.monsterName,
-      vitality: this.vitality,
       awaitingSpell: this.awaitingSpell,
     };
   }
@@ -332,8 +327,6 @@ export class EncounterSession {
       const attackResult = this.monsterAttack();
       events.push(...attackResult.events);
       if (attackResult.done) {
-        this.monsterLevel = 0;
-        this.monsterName = '';
         this.vitality = 0;
         return {
           events,
@@ -343,8 +336,6 @@ export class EncounterSession {
       }
     }
 
-    this.monsterLevel = 0;
-    this.monsterName = '';
     this.vitality = 0;
     resetPlayerAfterEncounter(this.player);
     return {
@@ -484,9 +475,6 @@ export class EncounterSession {
             'Thy surroundings vibrate momentarily, as you are magically transported elsewhere...'
           )
         );
-        this.monsterLevel = 0;
-        this.monsterName = '';
-        this.vitality = 0;
         resetPlayerAfterEncounter(this.player);
         if (this.debug) {
           events.push(
