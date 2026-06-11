@@ -5,7 +5,7 @@ export interface Env {
 }
 
 export default {
-  fetch(request: Request, env: Env): Response | Promise<Response> {
+  fetch(request: Request, env: Env) {
     const code = new URL(request.url).pathname.replace(/^\/+|\/+$/g, '');
     if (!code) {
       return new Response('Room code required.', { status: 400 });

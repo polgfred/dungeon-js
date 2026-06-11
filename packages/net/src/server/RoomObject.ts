@@ -44,7 +44,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
     this.restore();
   }
 
-  protected hydrate(snapshot: RoomSnapshot | undefined): void {
+  protected hydrate(snapshot: RoomSnapshot | undefined) {
     if (!snapshot) return;
     for (const member of snapshot.members) {
       this.members.set(member.id, { ...member });
@@ -61,7 +61,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
 
   // --- connection lifecycle -------------------------------------------------
 
-  override fetch(request: Request): Response {
+  override fetch(request: Request) {
     if (request.headers.get('Upgrade') !== 'websocket') {
       return new Response('Expected a WebSocket upgrade.', { status: 426 });
     }
@@ -70,7 +70,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  override webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer): void {
+  override webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer) {
     let message: ClientMessage;
     try {
       const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw);
@@ -109,7 +109,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
 
   // --- lobby ----------------------------------------------------------------
 
-  private handleJoin(ws: WebSocket, playerId: PlayerId, name: string): void {
+  private handleJoin(ws: WebSocket, playerId: PlayerId, name: string) {
     ws.serializeAttachment({ playerId } satisfies SocketAttachment);
     const existing = this.members.get(playerId);
     if (existing) {
@@ -130,7 +130,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
     }
   }
 
-  private handleSetCharacter(playerId: PlayerId, character: PlayerSave): void {
+  private handleSetCharacter(playerId: PlayerId, character: PlayerSave) {
     if (this.game) {
       this.sendError(playerId, 'The game has already begun.');
       return;
@@ -142,7 +142,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
     this.broadcastLobby();
   }
 
-  private handleStart(): void {
+  private handleStart() {
     if (this.game) return; // already underway
 
     const game = new Game({ rng: defaultRandomSource });
@@ -166,21 +166,21 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
 
   // --- play -----------------------------------------------------------------
 
-  private handleAction(playerId: PlayerId, command: string): void {
+  private handleAction(playerId: PlayerId, command: string) {
     const game = this.requireSeated(playerId);
     if (!game) return;
     this.fanOut(game.step(playerId, command));
     this.persist();
   }
 
-  private handleCancel(playerId: PlayerId): void {
+  private handleCancel(playerId: PlayerId) {
     const game = this.requireSeated(playerId);
     if (!game) return;
     this.fanOut(game.attemptCancel(playerId));
     this.persist();
   }
 
-  private requireSeated(playerId: PlayerId): Game | null {
+  private requireSeated(playerId: PlayerId) {
     if (!this.game) {
       this.sendError(playerId, 'The game has not started yet.');
       return null;
@@ -197,7 +197,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
    * happened; everyone else sees only the broadcast-flagged events (attributed to
    * the actor). Every connected player gets a refreshed view afterward.
    */
-  private fanOut(result: StepResult): void {
+  private fanOut(result: StepResult) {
     const broadcast = result.events.filter((event) => event.broadcast);
     for (const ws of this.ctx.getWebSockets()) {
       const playerId = this.playerIdOf(ws);
@@ -237,7 +237,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
     };
   }
 
-  private pushViews(): void {
+  private pushViews() {
     for (const ws of this.ctx.getWebSockets()) {
       const playerId = this.playerIdOf(ws);
       if (playerId && this.game?.hasPlayer(playerId)) {
@@ -246,7 +246,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
     }
   }
 
-  private broadcastLobby(): void {
+  private broadcastLobby() {
     const state: LobbyState = {
       members: [...this.members.values()].map((member) => ({
         id: member.id,
@@ -264,17 +264,17 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
     return attachment?.playerId ?? null;
   }
 
-  private socketsOf(playerId: PlayerId): WebSocket[] {
+  private socketsOf(playerId: PlayerId) {
     return this.ctx
       .getWebSockets()
       .filter((ws) => this.playerIdOf(ws) === playerId);
   }
 
-  private send(ws: WebSocket, message: ServerMessage): void {
+  private send(ws: WebSocket, message: ServerMessage) {
     ws.send(JSON.stringify(message));
   }
 
-  private sendError(playerId: PlayerId, message: string): void {
+  private sendError(playerId: PlayerId, message: string) {
     for (const ws of this.socketsOf(playerId)) {
       this.send(ws, { type: 'error', message });
     }

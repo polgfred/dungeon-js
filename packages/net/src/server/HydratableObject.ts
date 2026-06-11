@@ -14,7 +14,7 @@ export abstract class HydratableObject<
   Env = unknown,
 > extends DurableObject<Env> {
   /** Call from the subclass constructor, after `super()`. */
-  protected restore(): void {
+  protected restore() {
     this.hydrate(this.ctx.storage.kv.get<Snapshot>(SNAPSHOT_KEY));
   }
 
@@ -25,7 +25,7 @@ export abstract class HydratableObject<
   protected abstract snapshot(): Snapshot;
 
   /** Write the current state to storage. */
-  protected persist(): void {
+  protected persist() {
     this.ctx.storage.kv.put(SNAPSHOT_KEY, this.snapshot());
   }
 }
