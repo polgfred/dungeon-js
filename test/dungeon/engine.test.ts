@@ -280,8 +280,8 @@ describe('Game interactions', () => {
         random: [0.1],
       });
       const { game, dungeon } = setupEncounter({
-        monsterLevel: 1,
         treasureId: 1,
+        monsterLevel: 1,
         rng,
       });
 

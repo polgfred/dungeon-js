@@ -114,20 +114,20 @@ export function deserializePlayer(save: PlayerSave): Player {
 
 export function serializeDungeon(dungeon: Dungeon): DungeonSave {
   return dungeon.rooms.map((floor) =>
-    floor.map((row) => row.map((room) => encodeRoom(room)))
+    floor.map((row) => row.map(encodeRoom))
   );
 }
 
 export function deserializeDungeon(save: DungeonSave): Dungeon {
   const rooms = save.map((floor) =>
-    floor.map((row) => row.map((savedRoom) => decodeRoom(savedRoom)))
+    floor.map((row) => row.map(decodeRoom))
   );
   return new Dungeon(rooms);
 }
 
 const FEATURE_SHIFT = 0;
-const MONSTER_SHIFT = 4;
-const TREASURE_SHIFT = 8;
+const TREASURE_SHIFT = 4;
+const MONSTER_SHIFT = 8;
 const VITALITY_SHIFT = 12;
 const NIBBLE_MASK = 0x0f;
 const VITALITY_MASK = 0x3f;
@@ -135,8 +135,8 @@ const VITALITY_MASK = 0x3f;
 function encodeRoom(room: Room): RoomPacked {
   return (
     ((room.feature & NIBBLE_MASK) << FEATURE_SHIFT) |
-    ((room.monsterLevel & NIBBLE_MASK) << MONSTER_SHIFT) |
     ((room.treasureId & NIBBLE_MASK) << TREASURE_SHIFT) |
+    ((room.monsterLevel & NIBBLE_MASK) << MONSTER_SHIFT) |
     ((room.monsterVitality & VITALITY_MASK) << VITALITY_SHIFT)
   );
 }
@@ -144,8 +144,8 @@ function encodeRoom(room: Room): RoomPacked {
 function decodeRoom(savedRoom: RoomPacked): Room {
   return {
     feature: (savedRoom >> FEATURE_SHIFT) & NIBBLE_MASK,
-    monsterLevel: (savedRoom >> MONSTER_SHIFT) & NIBBLE_MASK,
     treasureId: (savedRoom >> TREASURE_SHIFT) & NIBBLE_MASK,
+    monsterLevel: (savedRoom >> MONSTER_SHIFT) & NIBBLE_MASK,
     monsterVitality: (savedRoom >> VITALITY_SHIFT) & VITALITY_MASK,
   };
 }

@@ -21,9 +21,9 @@ export function generateDungeon(rng: RandomSource): Dungeon {
 function createRoom(rng: RandomSource, floor: number): Room {
   const room: Room = {
     feature: Feature.EMPTY,
+    treasureId: 0,
     monsterLevel: 0,
     monsterVitality: 0,
-    treasureId: 0,
   };
   if (rng.random() > 0.3) {
     const roll = rng.randint(1, 10);

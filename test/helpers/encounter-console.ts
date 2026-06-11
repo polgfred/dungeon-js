@@ -145,9 +145,9 @@ function runEncounter(options: RunOptions): void {
   const monsterLevel = 3;
   const room: Room = {
     feature: Feature.EMPTY,
+    treasureId: 0,
     monsterLevel,
     monsterVitality: rollMonsterVitality(rng, monsterLevel),
-    treasureId: 0,
   };
   const session = EncounterSession.start({
     rng,

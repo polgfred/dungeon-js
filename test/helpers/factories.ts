@@ -35,9 +35,9 @@ export function buildPlayer(options: Partial<PlayerOptions> = {}): Player {
 export function buildRoom(options: Partial<Room> = {}): Room {
   return {
     feature: Feature.EMPTY,
+    treasureId: 0,
     monsterLevel: 0,
     monsterVitality: 0,
-    treasureId: 0,
     ...options,
   };
 }

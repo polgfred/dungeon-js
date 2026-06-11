@@ -320,8 +320,8 @@ export class Game {
     return this.dungeon.rooms[z].map((row, y) =>
       row.map((room, x) => ({
         feature: room.feature,
-        monsterLevel: room.monsterLevel,
         treasureId: room.treasureId,
+        monsterLevel: room.monsterLevel,
         seen: state.explored[z][y][x],
       }))
     );
