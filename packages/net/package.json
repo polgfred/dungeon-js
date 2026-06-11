@@ -10,6 +10,7 @@
     "./server": "./src/server/index.ts"
   },
   "scripts": {
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.client.json",
     "dev": "wrangler dev",
     "play": "tsx scripts/play.ts",
     "smoke": "tsx scripts/smoke.ts"
