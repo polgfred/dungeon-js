@@ -39,8 +39,12 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
   private members = new Map<PlayerId, Member>();
   private game: Game | null = null;
 
+  constructor(ctx: DurableObjectState, env: unknown) {
+    super(ctx, env);
+    this.restore();
+  }
+
   protected hydrate(snapshot: RoomSnapshot | undefined): void {
-    this.members = new Map();
     if (!snapshot) return;
     for (const member of snapshot.members) {
       this.members.set(member.id, { ...member });
