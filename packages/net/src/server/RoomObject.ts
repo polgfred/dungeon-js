@@ -1,0 +1,278 @@
+import {
+  Game,
+  defaultRandomSource,
+  deserializePlayer,
+  serializePlayer,
+  type GameSave,
+  type PlayerSave,
+  type StepResult,
+} from '@dod/core';
+
+import type {
+  ClientMessage,
+  LobbyState,
+  PlayerId,
+  PlayerView,
+  ServerMessage,
+} from '../shared/index.js';
+import { HydratableObject } from './HydratableObject.js';
+
+/** A player in the room: their identity plus the character they've built (if any). */
+interface Member {
+  id: PlayerId;
+  name: string;
+  character: PlayerSave | null;
+}
+
+/** Persisted room state. The room is in the lobby until `game` is non-null. */
+interface RoomSnapshot {
+  members: Member[];
+  game: GameSave | null;
+}
+
+/** Data attached to each socket so it survives hibernation. */
+interface SocketAttachment {
+  playerId: PlayerId;
+}
+
+export class RoomObject extends HydratableObject<RoomSnapshot> {
+  private members = new Map<PlayerId, Member>();
+  private game: Game | null = null;
+
+  protected hydrate(snapshot: RoomSnapshot | undefined): void {
+    this.members = new Map();
+    if (!snapshot) return;
+    for (const member of snapshot.members) {
+      this.members.set(member.id, { ...member });
+    }
+    this.game = snapshot.game ? Game.fromSave(snapshot.game) : null;
+  }
+
+  protected snapshot(): RoomSnapshot {
+    return {
+      members: [...this.members.values()],
+      game: this.game ? this.game.toSave() : null,
+    };
+  }
+
+  // --- connection lifecycle -------------------------------------------------
+
+  override fetch(request: Request): Response {
+    if (request.headers.get('Upgrade') !== 'websocket') {
+      return new Response('Expected a WebSocket upgrade.', { status: 426 });
+    }
+    const { 0: client, 1: server } = new WebSocketPair();
+    this.ctx.acceptWebSocket(server);
+    return new Response(null, { status: 101, webSocket: client });
+  }
+
+  override webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer): void {
+    let message: ClientMessage;
+    try {
+      const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw);
+      message = JSON.parse(text) as ClientMessage;
+    } catch {
+      this.send(ws, { type: 'error', message: 'Malformed message.' });
+      return;
+    }
+
+    if (message.type === 'join') {
+      this.handleJoin(ws, message.playerId, message.name);
+      return;
+    }
+
+    const playerId = this.playerIdOf(ws);
+    if (!playerId) {
+      this.send(ws, { type: 'error', message: 'Send a join message first.' });
+      return;
+    }
+
+    switch (message.type) {
+      case 'setCharacter':
+        this.handleSetCharacter(playerId, message.character);
+        break;
+      case 'start':
+        this.handleStart();
+        break;
+      case 'action':
+        this.handleAction(playerId, message.command);
+        break;
+      case 'cancel':
+        this.handleCancel(playerId);
+        break;
+    }
+  }
+
+  // --- lobby ----------------------------------------------------------------
+
+  private handleJoin(ws: WebSocket, playerId: PlayerId, name: string): void {
+    ws.serializeAttachment({ playerId } satisfies SocketAttachment);
+    const existing = this.members.get(playerId);
+    if (existing) {
+      existing.name = name; // reconnect / rename
+    } else {
+      this.members.set(playerId, { id: playerId, name, character: null });
+    }
+    this.persist();
+
+    if (this.game) {
+      if (this.game.hasPlayer(playerId)) {
+        this.send(ws, { type: 'view', view: this.viewFor(playerId) });
+      } else {
+        this.send(ws, { type: 'error', message: 'This game has already begun.' });
+      }
+    } else {
+      this.broadcastLobby();
+    }
+  }
+
+  private handleSetCharacter(playerId: PlayerId, character: PlayerSave): void {
+    if (this.game) {
+      this.sendError(playerId, 'The game has already begun.');
+      return;
+    }
+    const member = this.members.get(playerId);
+    if (!member) return;
+    member.character = character;
+    this.persist();
+    this.broadcastLobby();
+  }
+
+  private handleStart(): void {
+    if (this.game) return; // already underway
+
+    const game = new Game({ rng: defaultRandomSource });
+    for (const member of this.members.values()) {
+      if (member.character) {
+        game.addPlayer(member.id, deserializePlayer(member.character));
+      }
+    }
+    if (game.playerIds.length === 0) return; // nobody is ready
+
+    this.game = game;
+    for (const id of game.playerIds) {
+      const events = game.startEvents(id);
+      for (const ws of this.socketsOf(id)) {
+        this.send(ws, { type: 'events', from: id, events });
+      }
+    }
+    this.persist();
+    this.pushViews();
+  }
+
+  // --- play -----------------------------------------------------------------
+
+  private handleAction(playerId: PlayerId, command: string): void {
+    const game = this.requireSeated(playerId);
+    if (!game) return;
+    this.fanOut(game.step(playerId, command));
+    this.persist();
+  }
+
+  private handleCancel(playerId: PlayerId): void {
+    const game = this.requireSeated(playerId);
+    if (!game) return;
+    this.fanOut(game.attemptCancel(playerId));
+    this.persist();
+  }
+
+  private requireSeated(playerId: PlayerId): Game | null {
+    if (!this.game) {
+      this.sendError(playerId, 'The game has not started yet.');
+      return null;
+    }
+    if (!this.game.hasPlayer(playerId)) {
+      this.sendError(playerId, 'You are not playing in this game.');
+      return null;
+    }
+    return this.game;
+  }
+
+  /**
+   * Deliver the results of one player's turn: the actor sees everything that
+   * happened; everyone else sees only the broadcast-flagged events (attributed to
+   * the actor). Every connected player gets a refreshed view afterward.
+   */
+  private fanOut(result: StepResult): void {
+    const broadcast = result.events.filter((event) => event.broadcast);
+    for (const ws of this.ctx.getWebSockets()) {
+      const playerId = this.playerIdOf(ws);
+      if (!playerId || !this.game?.hasPlayer(playerId)) continue;
+      if (playerId === result.playerId) {
+        this.send(ws, {
+          type: 'events',
+          from: result.playerId,
+          events: result.events,
+        });
+      } else if (broadcast.length) {
+        this.send(ws, {
+          type: 'events',
+          from: result.playerId,
+          events: broadcast,
+        });
+      }
+      this.send(ws, { type: 'view', view: this.viewFor(playerId) });
+    }
+  }
+
+  // --- views & sending ------------------------------------------------------
+
+  private viewFor(playerId: PlayerId): PlayerView {
+    const game = this.game!;
+    return {
+      self: serializePlayer(game.getPlayer(playerId)),
+      mode: game.mode(playerId),
+      map: game.mapView(playerId),
+      treasuresFound: game.treasuresFound.size,
+      ended: game.endMode,
+      party: game.playerIds.map((id) => ({
+        id,
+        name: this.members.get(id)?.name ?? id,
+        alive: game.getPlayer(id).hp > 0,
+      })),
+    };
+  }
+
+  private pushViews(): void {
+    for (const ws of this.ctx.getWebSockets()) {
+      const playerId = this.playerIdOf(ws);
+      if (playerId && this.game?.hasPlayer(playerId)) {
+        this.send(ws, { type: 'view', view: this.viewFor(playerId) });
+      }
+    }
+  }
+
+  private broadcastLobby(): void {
+    const state: LobbyState = {
+      members: [...this.members.values()].map((member) => ({
+        id: member.id,
+        name: member.name,
+        ready: member.character !== null,
+      })),
+    };
+    for (const ws of this.ctx.getWebSockets()) {
+      this.send(ws, { type: 'lobby', state });
+    }
+  }
+
+  private playerIdOf(ws: WebSocket): PlayerId | null {
+    const attachment = ws.deserializeAttachment() as SocketAttachment | null;
+    return attachment?.playerId ?? null;
+  }
+
+  private socketsOf(playerId: PlayerId): WebSocket[] {
+    return this.ctx
+      .getWebSockets()
+      .filter((ws) => this.playerIdOf(ws) === playerId);
+  }
+
+  private send(ws: WebSocket, message: ServerMessage): void {
+    ws.send(JSON.stringify(message));
+  }
+
+  private sendError(playerId: PlayerId, message: string): void {
+    for (const ws of this.socketsOf(playerId)) {
+      this.send(ws, { type: 'error', message });
+    }
+  }
+}
