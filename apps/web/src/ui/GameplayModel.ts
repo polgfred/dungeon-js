@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Feature, Mode } from '../dungeon/constants.js';
-import { Game } from '../dungeon/engine.js';
-import type { Player, Room } from '../dungeon/model.js';
+import { Feature, Mode } from '@dod/core';
+import { Game } from '@dod/core';
+import type { Player, Room } from '@dod/core';
 import {
   serializePlayer,
   type EncounterSave,
   type GameSave,
   type PlayerSave,
-} from '../dungeon/serialization.js';
+} from '@dod/core';
 import type {
   Event as GameEvent,
   EventKind,
   PromptOption,
   StepResult,
-} from '../dungeon/types.js';
+} from '@dod/core';
 import { storeSavedGame } from './gameSave.js';
 import type { Command } from './CommandButton.js';
 

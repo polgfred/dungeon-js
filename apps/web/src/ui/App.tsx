@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import styles from './App.module.css';
-import type { GameSave } from '../dungeon/serialization.js';
-import type { Player } from '../dungeon/model.js';
-import { deserializePlayer } from '../dungeon/serialization.js';
+import type { GameSave } from '@dod/core';
+import type { Player } from '@dod/core';
+import { deserializePlayer } from '@dod/core';
 import { hasSavedGame, loadSavedGame } from './gameSave.js';
 import Gameplay from './Gameplay.js';
 import SetupGame from './SetupGame.js';

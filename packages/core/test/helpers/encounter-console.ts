@@ -1,11 +1,11 @@
 import {
   EncounterSession,
   rollMonsterVitality,
-} from '../../src/dungeon/encounter.js';
-import { createSpellCounts, Player, type Room } from '../../src/dungeon/model.js';
-import { Feature, Race, Spell } from '../../src/dungeon/constants.js';
-import type { Event, PromptData } from '../../src/dungeon/types.js';
-import type { RandomSource } from '../../src/dungeon/rng.js';
+} from '../../src/encounter.js';
+import { createSpellCounts, Player, type Room } from '../../src/model.js';
+import { Feature, Race, Spell } from '../../src/constants.js';
+import type { Event, PromptData } from '../../src/types.js';
+import type { RandomSource } from '../../src/rng.js';
 
 type RunOptions = {
   seed: number;

@@ -1,5 +1,5 @@
-import { Game } from '../dungeon/engine.js';
-import type { GameSave } from '../dungeon/serialization.js';
+import { Game } from '@dod/core';
+import type { GameSave } from '@dod/core';
 
 const STORAGE_KEY = 'dungeon-js-save';
 

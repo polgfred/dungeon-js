@@ -8,8 +8,8 @@ import {
   WEAPON_NAMES,
   WEAPON_PRICES,
   Race,
-} from '../dungeon/constants.js';
-import type { Player } from '../dungeon/model.js';
+} from '@dod/core';
+import type { Player } from '@dod/core';
 import { CommandButton, type Command } from './CommandButton.js';
 import styles from './SetupGame.module.css';
 import {

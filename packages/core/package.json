@@ -1,0 +1,10 @@
+{
+  "name": "@dod/core",
+  "version": "1.0.0",
+  "description": "Dungeon of Doom game engine (platform-agnostic core)",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

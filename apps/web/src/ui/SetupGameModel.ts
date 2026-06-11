@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ARMOR_PRICES, WEAPON_PRICES, Race } from '../dungeon/constants.js';
-import { Player } from '../dungeon/model.js';
-import { defaultRandomSource } from '../dungeon/rng.js';
+import { ARMOR_PRICES, WEAPON_PRICES, Race } from '@dod/core';
+import { Player } from '@dod/core';
+import { defaultRandomSource } from '@dod/core';
 import type { Command } from './CommandButton.js';
 
 export type AllocationKey = 'ST' | 'DX' | 'IQ';

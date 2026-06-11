@@ -1,5 +1,5 @@
-import { createSpellCounts, Player, type Room } from '../../src/dungeon/model.js';
-import { Feature, Race, Spell } from '../../src/dungeon/constants.js';
+import { createSpellCounts, Player, type Room } from '../../src/model.js';
+import { Feature, Race, Spell } from '../../src/constants.js';
 
 export type PlayerOptions = ConstructorParameters<typeof Player>[0];
 

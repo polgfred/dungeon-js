@@ -1,4 +1,4 @@
-import type { RandomSource } from '../../src/dungeon/rng.js';
+import type { RandomSource } from '../../src/rng.js';
 
 type RngQueues = {
   random?: number[];

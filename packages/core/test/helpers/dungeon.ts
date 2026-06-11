@@ -1,6 +1,6 @@
-import { Dungeon, type Room } from '../../src/dungeon/model.js';
-import { Feature } from '../../src/dungeon/constants.js';
-import { Game } from '../../src/dungeon/engine.js';
+import { Dungeon, type Room } from '../../src/model.js';
+import { Feature } from '../../src/constants.js';
+import { Game } from '../../src/engine.js';
 
 export function createEmptyDungeon(): Dungeon {
   const rooms: Room[][][] = Array.from({ length: Game.SIZE }, () =>

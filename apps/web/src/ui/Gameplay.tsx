@@ -2,9 +2,9 @@ import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 
 import helpHtmlContent from '../assets/help.html?raw';
-import type { Player, Room } from '../dungeon/model.js';
-import type { EncounterSave, PlayerSave } from '../dungeon/serialization.js';
-import type { EventKind, PromptOption } from '../dungeon/types.js';
+import type { Player, Room } from '@dod/core';
+import type { EncounterSave, PlayerSave } from '@dod/core';
+import type { EventKind, PromptOption } from '@dod/core';
 import { CommandButton, type Command } from './CommandButton.js';
 import { Dialog, DialogContent, DialogTitle } from './Dialog.js';
 import type {
@@ -17,7 +17,7 @@ import { GLYPH_PATHS, type GlyphId } from './glyphPaths.js';
 import styles from './Gameplay.module.css';
 import { Tooltip } from './Tooltip.js';
 import { useMediaQuery } from './useMediaQuery.js';
-import { Feature } from '../dungeon/constants.js';
+import { Feature } from '@dod/core';
 
 function CopyIcon() {
   return (

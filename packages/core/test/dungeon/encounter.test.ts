@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { EncounterSession } from '../../src/dungeon/encounter.js';
+import { EncounterSession } from '../../src/encounter.js';
 import {
   ARMOR_NAMES,
   Spell,
   WEAPON_NAMES,
-} from '../../src/dungeon/constants.js';
-import type { DebugEvent, Event } from '../../src/dungeon/types.js';
+} from '../../src/constants.js';
+import type { DebugEvent, Event } from '../../src/types.js';
 import { buildPlayer, buildRoom } from '../helpers/factories.js';
 import { ScriptedRng } from '../helpers/rng.js';
-import { defaultRandomSource } from '../../src/dungeon/rng.js';
+import { defaultRandomSource } from '../../src/rng.js';
 
 function eventTexts(events: Event[]): string[] {
   return events.map((event) => event.text);

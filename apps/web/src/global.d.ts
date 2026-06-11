@@ -1,4 +1,4 @@
-import { Game } from './dungeon/engine.ts';
+import { Game } from '@dod/core';
 
 declare global {
   interface Window {

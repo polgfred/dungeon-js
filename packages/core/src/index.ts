@@ -4,5 +4,6 @@ export * from './engine.js';
 export * from './generation.js';
 export * from './model.js';
 export * from './rng.js';
+export * from './serialization.js';
 export * from './types.js';
 export * from './vendor.js';

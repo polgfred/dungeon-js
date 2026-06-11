@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { Game } from '../../src/dungeon/engine.js';
-import { Feature, Mode, Spell } from '../../src/dungeon/constants.js';
+import { Game } from '../../src/engine.js';
+import { Feature, Mode, Spell } from '../../src/constants.js';
 import { buildPlayer } from '../helpers/factories.js';
 import { ScriptedRng } from '../helpers/rng.js';
 import { createEmptyDungeon } from '../helpers/dungeon.js';
