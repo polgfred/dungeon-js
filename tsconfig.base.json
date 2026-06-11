@@ -9,7 +9,10 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "paths": {
-      "@dod/core": ["./packages/core/src/index.ts"]
+      "@dod/core": ["./packages/core/src/index.ts"],
+      "@dod/net/shared": ["./packages/net/src/shared/index.ts"],
+      "@dod/net/client": ["./packages/net/src/client/index.ts"],
+      "@dod/net/server": ["./packages/net/src/server/index.ts"]
     }
   }
 }
