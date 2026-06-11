@@ -9,6 +9,10 @@
     "./client": "./src/client/index.ts",
     "./server": "./src/server/index.ts"
   },
+  "scripts": {
+    "dev": "wrangler dev",
+    "play": "tsx scripts/play.ts"
+  },
   "dependencies": {
     "@dod/core": "*"
   },
