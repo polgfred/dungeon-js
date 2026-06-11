@@ -11,7 +11,8 @@
   },
   "scripts": {
     "dev": "wrangler dev",
-    "play": "tsx scripts/play.ts"
+    "play": "tsx scripts/play.ts",
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
     "@dod/core": "*"
