@@ -24,7 +24,7 @@ import {
 import {
   Event,
   type PlayerId,
-  type PromptData,
+  type PromptEvent,
   type StepResult,
 } from './types.js';
 import { VendorSession } from './vendor.js';
@@ -368,9 +368,9 @@ export class Game {
    * vendor menu — so a view fully describes what they can choose right now
    * (combat's Fight/Run/Spell are static, defined client-side). Null otherwise.
    */
-  currentPrompt(id: PlayerId): PromptData | null {
+  currentPrompt(id: PlayerId): PromptEvent | null {
     for (const event of this.resumeEvents(id)) {
-      if (event.kind === 'PROMPT') return event.data ?? null;
+      if (event.kind === 'PROMPT') return event;
     }
     return null;
   }

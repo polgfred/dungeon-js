@@ -1,4 +1,4 @@
-import type { Event, Mode, PlayerSave, PromptData, Tile } from '@dod/core';
+import type { Event, Mode, PlayerSave, PromptOption, Tile } from '@dod/core';
 
 /**
  * Wire protocol between the browser client and the table Durable Object, plus the
@@ -35,6 +35,13 @@ export interface PartyMember {
   alive: boolean;
 }
 
+/** The current dynamic menu the player must answer — its question plus options. */
+export interface PromptView {
+  text: string;
+  options: PromptOption[];
+  hasCancel: boolean;
+}
+
 export interface PlayerView {
   self: PlayerSave;
   mode: Mode;
@@ -43,7 +50,7 @@ export interface PlayerView {
   ended: Mode | null;
   party: PartyMember[];
   /** The current dynamic prompt (spell/vendor menu) the player must answer, if any. */
-  prompt: PromptData | null;
+  prompt: PromptView | null;
 }
 
 export type ServerMessage =

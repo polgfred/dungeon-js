@@ -11,11 +11,13 @@ import type {
   PlayerView,
 } from '@dod/net/client';
 
-import { CommandButton, type Command } from './CommandButton.js';
+import type { Command } from './CommandButton.js';
 import styles from './Gameplay.module.css';
 import {
   ENCOUNTER_COMMANDS,
-  EXPLORE_COMMAND_GROUPS,
+  FEATURE_COMMANDS,
+  NAV_COMMANDS,
+  TRANSIT_COMMANDS,
 } from './gameplayCommands.js';
 import { GlyphDefs, MapGrid } from './mapView.js';
 import { navigate } from './useRoute.js';
@@ -57,7 +59,7 @@ function StatsReadout({ view }: { view: PlayerView }) {
 
 function Party({ party, playerId }: { party: PartyMember[]; playerId: PlayerId }) {
   return (
-    <div className={styles.party}>
+    <>
       <p className={clsx('ui-panel-title', styles.railTitle)}>Party</p>
       <ul className={styles.partyList}>
         {party.map((member) => (
@@ -71,15 +73,24 @@ function Party({ party, playerId }: { party: PartyMember[]; playerId: PlayerId }
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 }
 
+// Display: a direction command's key → its arrow glyph.
 const ARROWS: Record<string, string> = {
   N: '↑',
   S: '↓',
   W: '←',
   E: '→',
+};
+
+// Input: a physical arrow key → the direction command it sends.
+const ARROW_KEYS: Record<string, string> = {
+  ArrowUp: 'N',
+  ArrowDown: 'S',
+  ArrowLeft: 'W',
+  ArrowRight: 'E',
 };
 
 function keyCap(command: Command): string {
@@ -88,33 +99,78 @@ function keyCap(command: Command): string {
     : command.key;
 }
 
-/** A slim, dim, still-clickable reference for the static commands — training
- *  wheels that stay out of the way once you've learned the keys. Grouped into
- *  lines (directions / transitions / actions). */
-function CommandLegend({
-  groups,
+/** A slim, dim, still-clickable command chip — training wheels that stay out of
+ *  the way once you've learned the keys. */
+function LegendChip({
+  command,
   onTrigger,
 }: {
-  groups: Command[][];
+  command: Command;
   onTrigger: (command: Command) => void;
 }) {
   return (
-    <div className={styles.legend}>
-      {groups.map((group, i) => (
-        <div key={i} className={styles.legendGroup}>
-          {group.map((command) => (
-            <button
-              key={command.id}
-              type="button"
-              className={styles.legendItem}
-              onClick={() => onTrigger(command)}
-            >
-              <span className={styles.legendKey}>{keyCap(command)}</span>
-              <span className={styles.legendLabel}>{command.label}</span>
-            </button>
-          ))}
-        </div>
+    <button
+      type="button"
+      className={styles.legendItem}
+      onClick={() => onTrigger(command)}
+    >
+      <span className={styles.legendKey}>{keyCap(command)}</span>
+      <span className={styles.legendLabel}>{command.label}</span>
+    </button>
+  );
+}
+
+function LegendGroup({
+  commands,
+  onTrigger,
+}: {
+  commands: Command[];
+  onTrigger: (command: Command) => void;
+}) {
+  return (
+    <div className={styles.legendGroup}>
+      {commands.map((command) => (
+        <LegendChip key={command.id} command={command} onTrigger={onTrigger} />
       ))}
+    </div>
+  );
+}
+
+/** Directions as a D-pad cross — arrow keys drive it too, so position carries
+ *  the meaning and the labels drop away. */
+function CompassCross({
+  commands,
+  onTrigger,
+}: {
+  commands: Command[];
+  onTrigger: (command: Command) => void;
+}) {
+  const byKey = Object.fromEntries(commands.map((c) => [c.key, c] as const));
+  const cell = (key: string) => {
+    const command = byKey[key];
+    if (!command) return <span />;
+    return (
+      <button
+        type="button"
+        className={styles.compassKey}
+        title={command.label}
+        onClick={() => onTrigger(command)}
+      >
+        {keyCap(command)}
+      </button>
+    );
+  };
+  return (
+    <div className={styles.compass}>
+      <span />
+      {cell('N')}
+      <span />
+      {cell('W')}
+      <span />
+      {cell('E')}
+      <span />
+      {cell('S')}
+      <span />
     </div>
   );
 }
@@ -130,40 +186,58 @@ function CommandCluster({
 }) {
   const trigger = (command: Command) => onAction(command.key);
 
-  // Dynamic menus you can't memorize (spell list, vendor) stay prominent.
+  // Dynamic menus you can't memorize (spell list, vendor): same slim chips as
+  // everything else, but full-color (not dimmed) since they're the live choice.
   if (view.prompt) {
     const options = view.prompt.options ?? [];
     return (
       <div className={styles.prompt}>
-        <div className={styles.promptButtons}>
-          {options.map((option) => (
-            <CommandButton
-              key={option.key}
-              command={{
-                id: `prompt-${option.key}`,
-                key: option.key,
-                label: option.label,
-                disabled: option.disabled,
-              }}
-              onTrigger={trigger}
-            />
-          ))}
-          {view.prompt.hasCancel && (
-            <button type="button" className={clsx('btn', 'btn-outlined')} onClick={onCancel}>
-              Cancel
-            </button>
-          )}
-        </div>
+        <p className={styles.promptText}>{view.prompt.text}</p>
+        {options.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            className={styles.promptOption}
+            disabled={option.disabled}
+            onClick={() => onAction(option.key)}
+          >
+            <span className={styles.legendKey}>{option.key}</span>
+            <span>{option.label}</span>
+          </button>
+        ))}
+        {view.prompt.hasCancel && (
+          <button
+            type="button"
+            className={styles.promptOption}
+            onClick={onCancel}
+          >
+            <span className={styles.legendKey}>{'␛'}</span>
+            <span>Cancel</span>
+          </button>
+        )}
       </div>
     );
   }
 
-  // Static commands become a slim how-to legend (keyboard does the real work).
+  if (view.mode === Mode.ENCOUNTER) {
+    return (
+      <div className={styles.legend}>
+        <LegendGroup commands={ENCOUNTER_COMMANDS} onTrigger={trigger} />
+      </div>
+    );
+  }
+
+  // Explore: a nav block (cross + U/D/X) over the room actions. Kept shorter
+  // than the map so the map sets the board height — no reflow when the mode
+  // (and this whole cluster) changes.
   return (
-    <CommandLegend
-      groups={view.mode === Mode.ENCOUNTER ? [ENCOUNTER_COMMANDS] : EXPLORE_COMMAND_GROUPS}
-      onTrigger={trigger}
-    />
+    <div className={styles.legend}>
+      <div className={styles.navBlock}>
+        <CompassCross commands={NAV_COMMANDS} onTrigger={trigger} />
+        <LegendGroup commands={TRANSIT_COMMANDS} onTrigger={trigger} />
+      </div>
+      <LegendGroup commands={FEATURE_COMMANDS} onTrigger={trigger} />
+    </div>
   );
 }
 
@@ -255,6 +329,12 @@ export function Gameplay({
         onCancel();
         return;
       }
+      const arrow = ARROW_KEYS[event.key];
+      if (arrow) {
+        event.preventDefault();
+        onAction(arrow);
+        return;
+      }
       if (event.key.length === 1 && /[a-z0-9]/i.test(event.key)) {
         onAction(event.key.toUpperCase());
       }
@@ -278,19 +358,22 @@ export function Gameplay({
         )}
       </section>
 
-      <aside className={styles.sidebar}>
+      <aside className={styles.statsPane}>
         {status !== 'open' && (
           <p className={styles.reconnecting}>
             {status === 'closed' ? 'Disconnected — reconnecting…' : 'Connecting…'}
           </p>
         )}
         <StatsReadout view={view} />
-        <Party party={view.party} playerId={playerId} />
       </aside>
 
       <section className={styles.feedDock}>
         <Feed feed={feed} party={view.party} playerId={playerId} />
       </section>
+
+      <aside className={styles.members}>
+        <Party party={view.party} playerId={playerId} />
+      </aside>
     </div>
   );
 }
