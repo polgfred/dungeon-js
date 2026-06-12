@@ -232,6 +232,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
         name: this.members.get(id)?.name ?? id,
         alive: game.getPlayer(id).hp > 0,
       })),
+      prompt: game.currentPrompt(playerId),
     };
   }
 

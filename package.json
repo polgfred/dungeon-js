@@ -16,7 +16,7 @@
     "apps/*"
   ],
   "scripts": {
-    "typecheck": "npm run typecheck -w @dod/core -w @dod/net",
+    "typecheck": "npm run typecheck -w @dod/core -w @dod/net -w @dod/web",
     "dev": "npm run dev -w @dod/web",
     "build": "npm run build -w @dod/web",
     "preview": "npm run preview -w @dod/web",

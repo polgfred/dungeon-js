@@ -21,7 +21,12 @@ import {
   serializeDungeon,
   serializePlayer,
 } from './serialization.js';
-import { Event, type PlayerId, type StepResult } from './types.js';
+import {
+  Event,
+  type PlayerId,
+  type PromptData,
+  type StepResult,
+} from './types.js';
 import { VendorSession } from './vendor.js';
 import { defaultRandomSource, type RandomSource } from './rng.js';
 import {
@@ -356,6 +361,18 @@ export class Game {
       return state.encounter.viewEvents();
     }
     return this.describeRoom(this.currentRoom(state.player));
+  }
+
+  /**
+   * The player's current dynamic prompt — a spell menu mid-encounter, or a
+   * vendor menu — so a view fully describes what they can choose right now
+   * (combat's Fight/Run/Spell are static, defined client-side). Null otherwise.
+   */
+  currentPrompt(id: PlayerId): PromptData | null {
+    for (const event of this.resumeEvents(id)) {
+      if (event.kind === 'PROMPT') return event.data ?? null;
+    }
+    return null;
   }
 
   private currentRoom(player: Player): Room {

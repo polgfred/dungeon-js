@@ -1,4 +1,4 @@
-import type { Event, Mode, PlayerSave, Tile } from '@dod/core';
+import type { Event, Mode, PlayerSave, PromptData, Tile } from '@dod/core';
 
 /**
  * Wire protocol between the browser client and the table Durable Object, plus the
@@ -42,6 +42,8 @@ export interface PlayerView {
   treasuresFound: number;
   ended: Mode | null;
   party: PartyMember[];
+  /** The current dynamic prompt (spell/vendor menu) the player must answer, if any. */
+  prompt: PromptData | null;
 }
 
 export type ServerMessage =

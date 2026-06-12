@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { loadPlayerId } from '@dod/net/client';
 
-import { GameplayStub } from './GameplayStub.js';
+import { Gameplay } from './Gameplay.js';
 import { Lobby } from './Lobby.js';
 import styles from './Play.module.css';
 import { loadPlayerName, savePlayerName, tableWsUrl } from './table.js';
@@ -108,10 +108,11 @@ export default function PlayTable({ code }: { code: string }) {
   }
   if (table.phase === 'play' && table.view) {
     return (
-      <GameplayStub
+      <Gameplay
         view={table.view}
         feed={table.feed}
         status={table.status}
+        playerId={playerId}
         onAction={table.action}
         onCancel={table.cancel}
       />
