@@ -17,6 +17,21 @@
   width: min(28rem, 100%);
 }
 
+.gateInput {
+  font-family: var(--font-family);
+  font-size: 1rem;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--primary-light);
+  padding: 0.5rem 0.6rem;
+  width: 100%;
+}
+
+.gateInput:focus-visible {
+  outline: 2px solid var(--text-secondary);
+  outline-offset: 1px;
+}
+
 /* --- gameplay stub --- */
 
 .game {
