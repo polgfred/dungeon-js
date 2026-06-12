@@ -7,8 +7,8 @@
     'feed  members';
   gap: 1.75rem 2.5rem;
   padding: 1.75rem 2rem;
-  /* Fill the (positioned) .screen shell without adding to its flow, so the page
-     itself never scrolls — the feed scrolls internally instead. */
+
+  /* Page doesn't scroll, the feed scrolls internally */
   position: absolute;
   inset: 0;
   box-sizing: border-box;
@@ -49,7 +49,6 @@
   border: 1px solid rgba(var(--text-primary-rgb), 0.14);
 }
 
-/* Pure-CSS glyph tooltip (period-styled, mirrors the shared Tooltip). */
 .cell[data-tip]::after {
   content: attr(data-tip);
   position: absolute;
@@ -99,7 +98,6 @@
 
 /* --- command legend: slim, dim how-to (the keyboard does the real work) --- */
 
-/* Skinny vertical stack beside the map: items stacked, groups spaced apart. */
 .legend {
   display: flex;
   flex-direction: column;
@@ -107,7 +105,6 @@
   padding-top: 0.5rem;
 }
 
-/* Nav block: D-pad cross with U/D/X stacked beside it (explore only). */
 .navBlock {
   display: flex;
   flex-direction: row;
@@ -115,7 +112,6 @@
   align-items: center;
 }
 
-/* Directions as a slim D-pad cross (arrow keys drive it too). */
 .compass {
   display: grid;
   grid-template-columns: repeat(3, 1.55rem);
@@ -147,8 +143,6 @@
   gap: 0.25rem;
 }
 
-/* Active by default (the action applies here); :disabled = can't do it here —
-   dimmed and unclickable, but the keyboard still fires it (snark easter egg). */
 .legendItem {
   display: inline-flex;
   align-items: baseline;
@@ -185,10 +179,8 @@
   border-color: rgba(var(--primary-light-rgb), 0.2);
 }
 
-/* --- dynamic prompt (spell/vendor): prominent, you can't memorize these --- */
+/* --- dynamic prompt (spell/vendor): more prominent --- */
 
-/* Dynamic menus (spell/vendor): slim chips like the legend, but full-color
-   (not dimmed) — they're the live choice — with the question on top. */
 .prompt {
   display: flex;
   flex-direction: column;
