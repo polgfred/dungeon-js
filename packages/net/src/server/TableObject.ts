@@ -139,6 +139,12 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     if (this.game) {
       if (this.game.hasPlayer(playerId)) {
         this.send(ws, { type: 'view', view: this.viewFor(playerId) });
+        // Re-describe the current room
+        this.send(ws, {
+          type: 'events',
+          from: playerId,
+          events: this.game.resumeEvents(playerId),
+        });
       } else {
         this.send(ws, { type: 'error', message: 'This game has already begun.' });
       }
