@@ -382,6 +382,8 @@ export function Gameplay({
   onAction: (command: string) => void;
   onCancel: () => void;
 }) {
+  // Whether arrows are allowed to substitute for N/S/E/W
+  const arrowsMove = !view.prompt && view.mode === Mode.EXPLORE;
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -393,8 +395,8 @@ export function Gameplay({
       }
       const arrow = ARROW_KEYS[event.key];
       if (arrow) {
-        event.preventDefault();
-        onAction(arrow);
+        event.preventDefault(); // don't inadvertently scroll
+        if (arrowsMove) onAction(arrow);
         return;
       }
       if (event.key.length === 1 && /[a-z0-9]/i.test(event.key)) {
@@ -403,7 +405,7 @@ export function Gameplay({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onAction, onCancel]);
+  }, [onAction, onCancel, arrowsMove]);
 
   return (
     <div className={styles.game}>
