@@ -1,6 +1,6 @@
 /**
  * Network smoke test — proves the server layer end to end without a browser:
- * two players join a room, ready up, start, take a turn, and reconnect, while we
+ * two players join a table, ready up, start, take a turn, and reconnect, while we
  * assert on the protocol traffic. Assertions are structural (independent of the
  * random dungeon), so this is a fast "is the network layer broken?" check.
  *
@@ -24,7 +24,7 @@ import type {
 const PORT = Number(process.env.DOD_PORT ?? 8799);
 const EXTERNAL_URL = process.env.DOD_URL;
 const baseUrl = EXTERNAL_URL ?? `ws://localhost:${PORT}`;
-const room = `smoke-${Date.now()}`;
+const table = `smoke-${Date.now()}`;
 
 let checks = 0;
 function check(condition: boolean, label: string): void {
@@ -103,7 +103,7 @@ class Client {
 }
 
 async function scenario(): Promise<void> {
-  const url = `${baseUrl}/${room}`;
+  const url = `${baseUrl}/${table}`;
 
   // --- lobby ---
   const alice = new Client('alice', url);
@@ -174,7 +174,7 @@ async function waitForWorker(timeoutMs: number): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  console.log(`network smoke — room "${room}" @ ${baseUrl}\n`);
+  console.log(`network smoke — table "${table}" @ ${baseUrl}\n`);
 
   if (EXTERNAL_URL) {
     await scenario();

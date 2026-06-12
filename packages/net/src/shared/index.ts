@@ -1,7 +1,7 @@
 import type { Event, Mode, PlayerSave, Tile } from '@dod/core';
 
 /**
- * Wire protocol between the browser client and the room Durable Object, plus the
+ * Wire protocol between the browser client and the table Durable Object, plus the
  * per-player view the server pushes. The view shape here is provisional (v0) and
  * expected to move as the client UI firms up.
  */

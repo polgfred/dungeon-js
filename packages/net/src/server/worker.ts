@@ -1,18 +1,18 @@
-import { RoomObject } from './RoomObject.js';
+import { TableObject } from './TableObject.js';
 
 export interface Env {
-  ROOM: DurableObjectNamespace;
+  TABLE: DurableObjectNamespace;
 }
 
 export default {
   fetch(request: Request, env: Env) {
     const code = new URL(request.url).pathname.replace(/^\/+|\/+$/g, '');
     if (!code) {
-      return new Response('Room code required.', { status: 400 });
+      return new Response('Table code required.', { status: 400 });
     }
-    const id = env.ROOM.idFromName(code);
-    return env.ROOM.get(id).fetch(request);
+    const id = env.TABLE.idFromName(code);
+    return env.TABLE.get(id).fetch(request);
   },
 } satisfies ExportedHandler<Env>;
 
-export { RoomObject };
+export { TableObject };

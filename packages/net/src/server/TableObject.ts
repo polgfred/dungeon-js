@@ -17,25 +17,22 @@ import type {
 } from '../shared/index.js';
 import { HydratableObject } from './HydratableObject.js';
 
-/** A player in the room: their identity plus the character they've built (if any). */
 interface Member {
   id: PlayerId;
   name: string;
   character: PlayerSave | null;
 }
 
-/** Persisted room state. The room is in the lobby until `game` is non-null. */
-interface RoomSnapshot {
+interface TableSnapshot {
   members: Member[];
   game: GameSave | null;
 }
 
-/** Data attached to each socket so it survives hibernation. */
 interface SocketAttachment {
   playerId: PlayerId;
 }
 
-export class RoomObject extends HydratableObject<RoomSnapshot> {
+export class TableObject extends HydratableObject<TableSnapshot> {
   private members = new Map<PlayerId, Member>();
   private game: Game | null = null;
 
@@ -44,7 +41,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
     this.restore();
   }
 
-  protected hydrate(snapshot: RoomSnapshot | undefined) {
+  protected hydrate(snapshot: TableSnapshot | undefined) {
     if (!snapshot) return;
     for (const member of snapshot.members) {
       this.members.set(member.id, { ...member });
@@ -52,7 +49,7 @@ export class RoomObject extends HydratableObject<RoomSnapshot> {
     this.game = snapshot.game ? Game.fromSave(snapshot.game) : null;
   }
 
-  protected snapshot(): RoomSnapshot {
+  protected snapshot(): TableSnapshot {
     return {
       members: [...this.members.values()],
       game: this.game ? this.game.toSave() : null,

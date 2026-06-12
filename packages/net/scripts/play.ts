@@ -1,10 +1,10 @@
 /**
  * Raw-dog terminal client — play a multiplayer Dungeon of Doom game over a
  * WebSocket, no browser required. Point it at a running worker and you join a
- * room, build a throwaway character, and drive your adventurer from the keyboard.
+ * table, build a throwaway character, and drive your adventurer from the keyboard.
  *
  *   npm run dev  -w @dod/net                     # terminal 1: the worker
- *   npm run play -w @dod/net -- <room> [name]    # terminal 2+: each player
+ *   npm run play -w @dod/net -- <table> [name]    # terminal 2+: each player
  *
  * At the `> ` prompt:
  *   /start            begin the run (once everyone's character is in)
@@ -30,7 +30,7 @@ import type {
   ServerMessage,
 } from '@dod/net/shared';
 
-const [, , room = 'demo', name = 'Hero'] = process.argv;
+const [, , table = 'demo', name = 'Hero'] = process.argv;
 const url = process.env.DOD_URL ?? 'ws://localhost:8787';
 // Use the name as a stable id, so relaunching reconnects you to the same seat
 // instead of arriving as a new (locked-out) player. Pass distinct names per
@@ -133,14 +133,14 @@ function eventsText(from: string, events: Event[]): string {
     .join('\n');
 }
 
-const ws = new WebSocket(`${url}/${room}`);
+const ws = new WebSocket(`${url}/${table}`);
 
 function send(message: ClientMessage): void {
   ws.send(JSON.stringify(message));
 }
 
 ws.addEventListener('open', () => {
-  show(`connected to "${room}" as ${name}`);
+  show(`connected to "${table}" as ${name}`);
   send({ type: 'join', playerId, name });
   send({ type: 'setCharacter', character: makeCharacter() });
 });

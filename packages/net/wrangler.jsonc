@@ -3,9 +3,9 @@
   "main": "src/server/worker.ts",
   "compatibility_date": "2026-06-04",
   "durable_objects": {
-    "bindings": [{ "name": "ROOM", "class_name": "RoomObject" }]
+    "bindings": [{ "name": "TABLE", "class_name": "TableObject" }]
   },
-  // SQLite-backed storage is what gives RoomObject the synchronous ctx.storage.kv
+  // SQLite-backed storage is what gives TableObject the synchronous ctx.storage.kv
   // API the HydratableObject base relies on — must be new_sqlite_classes.
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RoomObject"] }]
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["TableObject"] }]
 }

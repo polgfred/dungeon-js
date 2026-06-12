@@ -6,10 +6,16 @@ import { defineConfig } from 'vitest/config';
 const commitSha = process.env.COMMIT_SHA ?? 'unknown';
 const commitUtc = new Date().toISOString();
 
-// Resolve the workspace engine to its TypeScript source so Vite/Vitest compile
-// it directly (no build step for internal packages).
+// Resolve the workspace packages to their TypeScript source so Vite/Vitest
+// compile them directly (no build step for internal packages).
 const coreSrc = fileURLToPath(
   new URL('../../packages/core/src/index.ts', import.meta.url)
+);
+const netClient = fileURLToPath(
+  new URL('../../packages/net/src/client/index.ts', import.meta.url)
+);
+const netShared = fileURLToPath(
+  new URL('../../packages/net/src/shared/index.ts', import.meta.url)
 );
 
 export default defineConfig(({}) => {
@@ -18,6 +24,8 @@ export default defineConfig(({}) => {
     resolve: {
       alias: {
         '@dod/core': coreSrc,
+        '@dod/net/client': netClient,
+        '@dod/net/shared': netShared,
       },
     },
     server: {
