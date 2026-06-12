@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import clsx from 'clsx';
 
-import { Mode } from '@dod/core';
+import { Feature, Mode } from '@dod/core';
 import type {
   ConnectionStatus,
   FeedItem,
@@ -99,19 +99,54 @@ function keyCap(command: Command): string {
     : command.key;
 }
 
-/** A slim, dim, still-clickable command chip — training wheels that stay out of
- *  the way once you've learned the keys. */
+/**
+ * Whether a command's action can be performed right now — drives the primary vs
+ * dimmed look. The current room is the tile under the player (always fresh,
+ * since you re-observe it every action), so feature actions key off it.
+ */
+function commandActive(command: Command, view: PlayerView): boolean {
+  const here = view.map[view.self.y]?.[view.self.x];
+  switch (command.id) {
+    case 'move-u':
+      return here === Feature.STAIRS_UP;
+    case 'move-d':
+      return here === Feature.STAIRS_DOWN;
+    case 'exit':
+      return here === Feature.EXIT;
+    case 'act-flare':
+      return view.self.flares > 0;
+    case 'act-mirror':
+      return here === Feature.MIRROR;
+    case 'act-chest':
+      return here === Feature.CHEST;
+    case 'act-scroll':
+      return here === Feature.SCROLL;
+    case 'act-potion':
+      return here === Feature.POTION;
+    case 'act-vendor':
+      return here === Feature.VENDOR;
+    default:
+      return true; // movement and combat are always attemptable
+  }
+}
+
+/** A slim command chip: primary when the action applies here, dimmed otherwise.
+ *  Dimmed ones aren't clickable, but the keyboard still fires them (the snarky
+ *  "there is no chest here" easter egg). */
 function LegendChip({
   command,
+  active,
   onTrigger,
 }: {
   command: Command;
+  active: boolean;
   onTrigger: (command: Command) => void;
 }) {
   return (
     <button
       type="button"
       className={styles.legendItem}
+      disabled={!active}
       onClick={() => onTrigger(command)}
     >
       <span className={styles.legendKey}>{keyCap(command)}</span>
@@ -122,15 +157,22 @@ function LegendChip({
 
 function LegendGroup({
   commands,
+  view,
   onTrigger,
 }: {
   commands: Command[];
+  view: PlayerView;
   onTrigger: (command: Command) => void;
 }) {
   return (
     <div className={styles.legendGroup}>
       {commands.map((command) => (
-        <LegendChip key={command.id} command={command} onTrigger={onTrigger} />
+        <LegendChip
+          key={command.id}
+          command={command}
+          active={commandActive(command, view)}
+          onTrigger={onTrigger}
+        />
       ))}
     </div>
   );
@@ -222,7 +264,7 @@ function CommandCluster({
   if (view.mode === Mode.ENCOUNTER) {
     return (
       <div className={styles.legend}>
-        <LegendGroup commands={ENCOUNTER_COMMANDS} onTrigger={trigger} />
+        <LegendGroup commands={ENCOUNTER_COMMANDS} view={view} onTrigger={trigger} />
       </div>
     );
   }
@@ -234,9 +276,9 @@ function CommandCluster({
     <div className={styles.legend}>
       <div className={styles.navBlock}>
         <CompassCross commands={NAV_COMMANDS} onTrigger={trigger} />
-        <LegendGroup commands={TRANSIT_COMMANDS} onTrigger={trigger} />
+        <LegendGroup commands={TRANSIT_COMMANDS} view={view} onTrigger={trigger} />
       </div>
-      <LegendGroup commands={FEATURE_COMMANDS} onTrigger={trigger} />
+      <LegendGroup commands={FEATURE_COMMANDS} view={view} onTrigger={trigger} />
     </div>
   );
 }
