@@ -17,7 +17,7 @@ export function ChatInput({ onSend }: { onSend: (text: string) => void }) {
       className={styles.input}
       value={text}
       maxLength={280}
-      placeholder="Say something…"
+      placeholder="Say something..."
       onChange={(event) => setText(event.target.value)}
       onKeyDown={(event) => {
         if (event.key === 'Enter') send();
