@@ -1,0 +1,91 @@
+/* --- connection / error notices --- */
+
+.notice {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.noticePanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.5rem;
+  width: min(28rem, 100%);
+}
+
+/* --- gameplay stub --- */
+
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.map {
+  font-family: var(--font-family);
+  line-height: 1.4;
+  letter-spacing: 0.15em;
+  padding: 1rem;
+  margin: 0;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.stats {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 1rem;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.feedLine {
+  font-size: 0.9rem;
+}
+
+.feedLoot {
+  color: var(--loot-main);
+}
+
+.feedCombat {
+  color: var(--combat-main);
+}
+
+.feedBroadcast {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.cmd {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cmdInput {
+  flex: 1;
+  font-family: var(--font-family);
+  font-size: 1rem;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--primary-light);
+  padding: 0.5rem 0.6rem;
+}
+
+.cmdInput:focus-visible {
+  outline: 2px solid var(--text-secondary);
+  outline-offset: 1px;
+}

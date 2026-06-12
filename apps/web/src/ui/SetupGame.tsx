@@ -94,7 +94,7 @@ function SetupCommandPanel({
   );
 }
 
-function RaceStage({
+export function RaceStage({
   race,
   baseStats,
   onSelect,
@@ -139,7 +139,7 @@ function RaceStage({
   );
 }
 
-function AllocationStage({
+export function AllocationStage({
   baseStats,
   allocations,
   remainingPoints,
@@ -238,7 +238,7 @@ function TierGroup({
   );
 }
 
-function ShopStage({
+export function ShopStage({
   weaponTier,
   armorTier,
   flares,
@@ -319,7 +319,7 @@ function ShopStage({
   );
 }
 
-function ReadyStage({ player }: { player: Player }) {
+export function ReadyStage({ player }: { player: Player }) {
   return (
     <div className={styles.gap3}>
       <h2 className={clsx('txt-h5', styles.stageTitle)}>Setup Complete</h2>
