@@ -315,14 +315,26 @@
   padding: 1.25rem 1.5rem;
 }
 
+/* IRC-style two-column log: right-aligned name column + message column */
 .feed {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  align-content: start;
+  gap: 0.35rem 0.7rem;
   overflow-y: auto;
   min-height: 0;
   font-size: 0.9rem;
+}
+
+.feedName {
+  text-align: right;
+  color: var(--text-primary);
+}
+
+/* Nameless game/system messages sit in the message column */
+.feedEvent {
+  grid-column: 2;
 }
 
 .feedLine {
@@ -341,25 +353,17 @@
   color: var(--error-light);
 }
 
-.feedChat {
-  color: var(--text-secondary);
+.chatName {
+  color: var(--text-primary);
 }
 
-.chatName {
+.broadcastName {
   color: var(--text-primary);
 }
 
 .chatText {
   font-style: italic;
   color: var(--text-secondary);
-}
-
-.feedBroadcast {
-  color: var(--text-primary);
-}
-
-.broadcastName {
-  color: var(--text-primary);
 }
 
 /* --- end overlay --- */

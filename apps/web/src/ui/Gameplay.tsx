@@ -335,16 +335,14 @@ const FEED_KIND_CLASS: Partial<Record<string, string>> = {
   ERROR: styles.feedError,
 };
 
-/** IRC-style `<name> message` line: name in the player's color */
+/** IRC-style two-column line: name | message */
 function NamedLine({
-  containerClass,
   nameClass,
   textClass,
   color,
   name,
   text,
 }: {
-  containerClass: string;
   nameClass: string;
   textClass: string;
   color: string;
@@ -352,12 +350,12 @@ function NamedLine({
   text: string;
 }) {
   return (
-    <div className={containerClass}>
-      <span className={nameClass} style={{ color }}>
-        &lt;{name}&gt;
-      </span>{' '}
+    <>
+      <span className={clsx(styles.feedName, nameClass)} style={{ color }}>
+        {name}
+      </span>
       <span className={textClass}>{text}</span>
-    </div>
+    </>
   );
 }
 
@@ -392,7 +390,6 @@ function Feed({
           return (
             <NamedLine
               key={i}
-              containerClass={styles.feedChat}
               nameClass={styles.chatName}
               textClass={styles.chatText}
               color={colorOf(item.from)}
@@ -402,13 +399,12 @@ function Feed({
           );
         }
         const mine = item.from === playerId;
-        // Another player's broadcast: their name in their color, prefixing the
-        // message — which keeps its normal type color (combat/loot/error).
+        // Another player's broadcast: their name in their color, the message in
+        // its normal type color (combat/loot/error).
         if (item.event.broadcast && !mine) {
           return (
             <NamedLine
               key={i}
-              containerClass={styles.feedBroadcast}
               nameClass={styles.broadcastName}
               textClass={clsx(styles.feedLine, FEED_KIND_CLASS[item.event.kind])}
               color={colorOf(item.from)}
@@ -417,8 +413,12 @@ function Feed({
             />
           );
         }
+        // Nameless game events sit in the message column (name column blank).
         return (
-          <div key={i} className={clsx(styles.feedLine, FEED_KIND_CLASS[item.event.kind])}>
+          <div
+            key={i}
+            className={clsx(styles.feedEvent, styles.feedLine, FEED_KIND_CLASS[item.event.kind])}
+          >
             {item.event.text}
           </div>
         );
