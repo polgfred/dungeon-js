@@ -56,10 +56,10 @@ function StatsReadout({ view }: { view: PlayerView }) {
     <div className={styles.stats}>
       <p className={clsx('ui-panel-title', styles.railTitle)}>Status</p>
       <dl className={styles.statList}>
-        <StatRow label="HP" value={`${s.hp}/${s.mhp}`} tone={s.hp < 10 ? 'alert' : undefined} />
-        <StatRow label="ST" value={String(s.str)} />
-        <StatRow label="DX" value={String(s.dex)} />
-        <StatRow label="IQ" value={String(s.iq)} />
+        <StatRow label="Health" value={`${s.hp}/${s.mhp}`} tone={s.hp < 10 ? 'alert' : undefined} />
+        <StatRow label="Strength" value={String(s.str)} />
+        <StatRow label="Dexterity" value={String(s.dex)} />
+        <StatRow label="Intelligence" value={String(s.iq)} />
         <StatRow label="Gold" value={String(s.gold)} />
         <StatRow label="Flares" value={String(s.flares)} />
         <StatRow
