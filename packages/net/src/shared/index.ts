@@ -15,7 +15,8 @@ export type ClientMessage =
   | { type: 'setCharacter'; character: PlayerSave }
   | { type: 'start' }
   | { type: 'action'; command: string }
-  | { type: 'cancel' };
+  | { type: 'cancel' }
+  | { type: 'chat'; text: string };
 
 // --- server -> client -------------------------------------------------------
 
@@ -57,4 +58,5 @@ export type ServerMessage =
   | { type: 'lobby'; state: LobbyState }
   | { type: 'view'; view: PlayerView }
   | { type: 'events'; from: PlayerId; events: Event[] }
+  | { type: 'chat'; from: PlayerId; name: string; text: string }
   | { type: 'error'; message: string };

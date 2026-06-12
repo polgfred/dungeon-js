@@ -81,6 +81,18 @@ describe('tableReducer', () => {
     expect(first.feed).toHaveLength(1); // prior state untouched (immutable fold)
   });
 
+  it('appends chat to the same feed, attributed by name', () => {
+    const next = tableReducer(initialTableState, {
+      type: 'chat',
+      from: 'bob',
+      name: 'Bob',
+      text: 'on my way',
+    });
+    expect(next.feed).toEqual([
+      { kind: 'chat', from: 'bob', name: 'Bob', text: 'on my way' },
+    ]);
+  });
+
   it('surfaces server errors', () => {
     const next = tableReducer(initialTableState, {
       type: 'error',

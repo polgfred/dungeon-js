@@ -115,6 +115,7 @@ export default function PlayTable({ code }: { code: string }) {
         playerId={playerId}
         onAction={table.action}
         onCancel={table.cancel}
+        onChat={table.chat}
       />
     );
   }
@@ -124,8 +125,10 @@ export default function PlayTable({ code }: { code: string }) {
         code={code}
         lobby={table.lobby}
         playerId={playerId}
+        feed={table.feed}
         onSetCharacter={table.setCharacter}
         onStart={table.start}
+        onChat={table.chat}
       />
     );
   }

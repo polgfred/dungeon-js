@@ -10,7 +10,9 @@ import { TableConnection, type ConnectionStatus } from './connection.js';
 
 export type TablePhase = 'lobby' | 'play';
 
-export type FeedItem = { kind: 'event'; from: PlayerId; event: Event };
+export type FeedItem =
+  | { kind: 'event'; from: PlayerId; event: Event }
+  | { kind: 'chat'; from: PlayerId; name: string; text: string };
 
 export interface TableState {
   status: ConnectionStatus;
@@ -52,6 +54,19 @@ export function tableReducer(state: TableState, action: TableAction): TableState
             from: action.from,
             event,
           })),
+        ],
+      };
+    case 'chat':
+      return {
+        ...state,
+        feed: [
+          ...state.feed,
+          {
+            kind: 'chat',
+            from: action.from,
+            name: action.name,
+            text: action.text,
+          },
         ],
       };
     case 'error':
@@ -111,5 +126,8 @@ export class TableStore {
   };
   cancel = () => {
     this.connection?.cancel();
+  };
+  chat = (text: string) => {
+    this.connection?.chat(text);
   };
 }

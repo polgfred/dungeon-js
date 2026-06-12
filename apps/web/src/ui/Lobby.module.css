@@ -85,13 +85,28 @@
 
 .chatSlot {
   flex: 1;
-  min-height: 6rem;
+  min-height: 8rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.chatStub {
-  color: var(--text-disabled);
+.chatLog {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   font-size: 0.85rem;
-  margin: 0;
+  margin-bottom: 0.5rem;
+}
+
+.chatLine {
+  color: var(--text-primary);
+}
+
+.chatName {
+  color: var(--text-secondary);
 }
 
 .startBtn {

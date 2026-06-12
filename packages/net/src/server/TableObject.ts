@@ -101,6 +101,26 @@ export class TableObject extends HydratableObject<TableSnapshot> {
       case 'cancel':
         this.handleCancel(playerId);
         break;
+      case 'chat':
+        this.handleChat(playerId, message.text);
+        break;
+    }
+  }
+
+  /** Chat is a pure pass-through — not game state, so it doesn't touch the
+   *  engine or persistence. Fan out to everyone at the table (lobby or play). */
+  private handleChat(playerId: PlayerId, text: string) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    const name = this.members.get(playerId)?.name ?? playerId;
+    const message = {
+      type: 'chat',
+      from: playerId,
+      name,
+      text: trimmed.slice(0, 280),
+    } as const;
+    for (const ws of this.ctx.getWebSockets()) {
+      this.send(ws, message);
     }
   }
 

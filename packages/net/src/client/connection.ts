@@ -53,6 +53,10 @@ export class TableConnection {
     this.send({ type: 'cancel' });
   }
 
+  chat(text: string) {
+    this.send({ type: 'chat', text });
+  }
+
   close() {
     this.ws.close();
   }

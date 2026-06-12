@@ -24,5 +24,6 @@ export function useTable(url: string) {
     start: store.start,
     action: store.action,
     cancel: store.cancel,
+    chat: store.chat,
   };
 }

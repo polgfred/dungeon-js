@@ -3,8 +3,9 @@ import { useState } from 'react';
 import clsx from 'clsx';
 
 import { serializePlayer, type PlayerSave } from '@dod/core';
-import type { LobbyState, PlayerId } from '@dod/net/client';
+import type { FeedItem, LobbyState, PlayerId } from '@dod/net/client';
 
+import { ChatInput } from './ChatInput.js';
 import { LobbyBuilder } from './LobbyBuilder.js';
 import styles from './Lobby.module.css';
 import { navigate } from './useRoute.js';
@@ -29,14 +30,18 @@ export function Lobby({
   code,
   lobby,
   playerId,
+  feed,
   onSetCharacter,
   onStart,
+  onChat,
 }: {
   code: string;
   lobby: LobbyState | null;
   playerId: PlayerId;
+  feed: FeedItem[];
   onSetCharacter: (character: PlayerSave) => void;
   onStart: () => void;
+  onChat: (text: string) => void;
 }) {
   const [submitted, setSubmitted] = useState(false);
   const members = lobby?.members ?? [];
@@ -100,7 +105,19 @@ export function Lobby({
 
         <div className={clsx('ui-panel', styles.railPanel, styles.chatSlot)}>
           <p className={clsx('ui-panel-title', styles.railTitle)}>Chat</p>
-          <p className={styles.chatStub}>Coming soon.</p>
+          <div className={styles.chatLog}>
+            {feed
+              .filter((item) => item.kind === 'chat')
+              .map((item, i) =>
+                item.kind === 'chat' ? (
+                  <div key={i} className={styles.chatLine}>
+                    <span className={styles.chatName}>{item.name}</span>{' '}
+                    {item.text}
+                  </div>
+                ) : null
+              )}
+          </div>
+          <ChatInput onSend={onChat} />
         </div>
 
         <button

@@ -11,6 +11,7 @@ import type {
   PlayerView,
 } from '@dod/net/client';
 
+import { ChatInput } from './ChatInput.js';
 import type { Command } from './CommandButton.js';
 import styles from './Gameplay.module.css';
 import {
@@ -327,12 +328,21 @@ function Feed({
   const named = (id: PlayerId) =>
     party.find((member) => member.id === id)?.name ?? id;
   const lines = feed.filter(
-    (item) => item.event.kind !== 'PROMPT' && item.event.kind !== 'DEBUG'
+    (item) =>
+      item.kind === 'chat' ||
+      (item.event.kind !== 'PROMPT' && item.event.kind !== 'DEBUG')
   );
 
   return (
     <div ref={scroller} className={styles.feed}>
       {lines.map((item, i) => {
+        if (item.kind === 'chat') {
+          return (
+            <div key={i} className={styles.feedChat}>
+              <span className={styles.chatName}>{item.name}</span> {item.text}
+            </div>
+          );
+        }
         const mine = item.from === playerId;
         const tag = item.event.broadcast && !mine ? `«${named(item.from)}» ` : '';
         return (
@@ -374,6 +384,7 @@ export function Gameplay({
   playerId,
   onAction,
   onCancel,
+  onChat,
 }: {
   view: PlayerView;
   feed: FeedItem[];
@@ -381,6 +392,7 @@ export function Gameplay({
   playerId: PlayerId;
   onAction: (command: string) => void;
   onCancel: () => void;
+  onChat: (text: string) => void;
 }) {
   // Whether arrows are allowed to substitute for N/S/E/W
   const arrowsMove = !view.prompt && view.mode === Mode.EXPLORE;
@@ -425,7 +437,7 @@ export function Gameplay({
       <aside className={styles.statsPane}>
         {status !== 'open' && (
           <p className={styles.reconnecting}>
-            {status === 'closed' ? 'Reconnecting...' : 'Connecting...'}
+            {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
           </p>
         )}
         <StatsReadout view={view} />
@@ -433,6 +445,7 @@ export function Gameplay({
 
       <section className={styles.feedDock}>
         <Feed feed={feed} party={view.party} playerId={playerId} />
+        <ChatInput onSend={onChat} />
       </section>
 
       <aside className={styles.members}>

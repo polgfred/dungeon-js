@@ -1,0 +1,20 @@
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.3);
+  border-radius: 3px;
+  padding: 0.4rem 0.6rem;
+}
+
+.input::placeholder {
+  color: var(--text-disabled);
+}
+
+.input:focus-visible {
+  outline: 1px solid var(--text-secondary);
+  outline-offset: -1px;
+}
