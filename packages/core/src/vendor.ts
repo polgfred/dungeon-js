@@ -1,6 +1,8 @@
 import {
   ARMOR_NAMES,
   ARMOR_PRICES,
+  FLARE_BATCH,
+  FLARE_PRICE,
   POTION_PRICES,
   SPELL_PRICES,
   WEAPON_NAMES,
@@ -286,7 +288,7 @@ export class VendorSession {
   }
 
   private purchaseFlares(): VendorResult {
-    const price = 10;
+    const price = FLARE_PRICE;
     if (this.player.gold < price) {
       return {
         events: [
@@ -298,7 +300,7 @@ export class VendorSession {
       };
     }
     this.player.gold -= price;
-    this.player.flares += 10;
+    this.player.flares += FLARE_BATCH;
     return {
       events: [],
       done: true,
@@ -351,15 +353,21 @@ export class VendorSession {
     };
   }
 
+  private cannotAfford(cheapest: number): boolean {
+    return this.player.gold < cheapest;
+  }
+
   private categoryPrompt(): Event {
+    const cheapest = (prices: Record<PropertyKey, number>) =>
+      Math.min(...Object.values(prices));
     return Event.prompt('He is selling:', {
       hasCancel: true,
       options: [
-        { key: 'W', label: 'Weapons', disabled: false },
-        { key: 'A', label: 'Armour', disabled: false },
-        { key: 'S', label: 'Scrolls', disabled: false },
-        { key: 'P', label: 'Potions', disabled: false },
-        { key: 'F', label: 'Flares', disabled: this.player.gold < 10 },
+        { key: 'W', label: 'Weapons', disabled: this.cannotAfford(cheapest(WEAPON_PRICES)) },
+        { key: 'A', label: 'Armour', disabled: this.cannotAfford(cheapest(ARMOR_PRICES)) },
+        { key: 'S', label: 'Scrolls', disabled: this.cannotAfford(cheapest(SPELL_PRICES)) },
+        { key: 'P', label: 'Potions', disabled: this.cannotAfford(cheapest(POTION_PRICES)) },
+        { key: 'F', label: 'Flares', disabled: this.cannotAfford(FLARE_PRICE) },
       ],
     });
   }

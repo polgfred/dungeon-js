@@ -134,6 +134,9 @@ export const POTION_PRICES: Record<string, number> = {
   ATTRIBUTE: 100,
 };
 
+export const FLARE_PRICE = 10;
+export const FLARE_BATCH = 10;
+
 export const FEATURE_SYMBOLS: Record<Feature, string> = {
   [Feature.EMPTY]: '-',
   [Feature.MIRROR]: 'm',
