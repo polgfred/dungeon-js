@@ -20,8 +20,9 @@
   grid-area: board;
   display: flex;
   flex-direction: row;
-  gap: 3.5rem;
+  gap: 4rem;
   align-items: flex-start;
+  padding-left: 4rem;
 }
 
 .grid {
@@ -44,7 +45,7 @@
   align-items: center;
   justify-content: center;
   color: var(--text-primary);
-  border: 1px solid transparent;
+  border: 1px solid rgba(var(--text-primary-rgb), 0.14);
 }
 
 .cellDim {
@@ -190,6 +191,10 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
 }
 
 .reconnecting {
@@ -231,10 +236,12 @@
 
 .members {
   grid-area: members;
-  border-top: 1px solid rgba(var(--primary-light-rgb), 0.3);
-  padding-top: 0.75rem;
   min-height: 0;
   overflow-y: auto;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
 }
 
 .partyList {
@@ -254,21 +261,23 @@
 
 .feedDock {
   grid-area: feed;
-  border-top: 1px solid rgba(var(--primary-light-rgb), 0.3);
-  padding-top: 0.75rem;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
+  border-radius: 4px;
+  padding: 1.25rem 1.5rem;
 }
 
 .feed {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.35rem;
   overflow-y: auto;
   min-height: 0;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .feedLine {
