@@ -16,7 +16,7 @@
   --text-primary: #cccccc; /* gray[12] */
   --text-primary-rgb: 204, 204, 204;
   --text-secondary: #9bd6ff; /* lightBlue[12] */
-  --text-disabled: rgba(255, 255, 255, 0.5);
+  --text-disabled: rgba(var(--text-primary-rgb), 0.5);
 
   --error-light: #d77f62; /* redOrange[9] */
   --error-main: #b55d40; /* redOrange[7] */

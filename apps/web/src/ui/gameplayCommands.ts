@@ -1,28 +1,36 @@
 import type { Command } from './CommandButton.js';
 
 // Static command sets, keyed exactly as the engine expects (single chars sent to
-// step()). Movement uses `move-*` ids so CommandButton renders arrow glyphs.
+// step()). Grouped for the legend: directions, level transitions, room actions.
+// `move-*` ids make CommandButton / the legend render arrow glyphs.
 
-export const MOVE_COMMANDS: Command[] = [
+export const NAV_COMMANDS: Command[] = [
   { id: 'move-n', key: 'N', label: 'North', disabled: false },
-  { id: 'move-w', key: 'W', label: 'West', disabled: false },
-  { id: 'move-e', key: 'E', label: 'East', disabled: false },
   { id: 'move-s', key: 'S', label: 'South', disabled: false },
+  { id: 'move-e', key: 'E', label: 'East', disabled: false },
+  { id: 'move-w', key: 'W', label: 'West', disabled: false },
 ];
 
-export const VERTICAL_COMMANDS: Command[] = [
+export const TRANSIT_COMMANDS: Command[] = [
   { id: 'move-u', key: 'U', label: 'Up', disabled: false },
   { id: 'move-d', key: 'D', label: 'Down', disabled: false },
+  { id: 'exit', key: 'X', label: 'Exit', disabled: false },
 ];
 
-export const ACTION_COMMANDS: Command[] = [
+export const FEATURE_COMMANDS: Command[] = [
   { id: 'act-flare', key: 'F', label: 'Flare', disabled: false },
   { id: 'act-mirror', key: 'L', label: 'Mirror', disabled: false },
   { id: 'act-chest', key: 'O', label: 'Open', disabled: false },
   { id: 'act-scroll', key: 'R', label: 'Read', disabled: false },
   { id: 'act-potion', key: 'P', label: 'Potion', disabled: false },
   { id: 'act-vendor', key: 'B', label: 'Buy', disabled: false },
-  { id: 'exit', key: 'X', label: 'Exit', disabled: false },
+];
+
+/** Explore legend, as displayed lines. */
+export const EXPLORE_COMMAND_GROUPS: Command[][] = [
+  NAV_COMMANDS,
+  TRANSIT_COMMANDS,
+  FEATURE_COMMANDS,
 ];
 
 export const ENCOUNTER_COMMANDS: Command[] = [
