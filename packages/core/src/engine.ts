@@ -2,15 +2,17 @@ import {
   ARMOR_NAMES,
   EXPLORE_COMMANDS,
   Feature,
+  MapTile,
   Mode,
   monsterName,
   spellName,
   treasureName,
   type Spell,
+  type Tile,
 } from './constants.js';
 import { EncounterSession, rollMonsterVitality } from './encounter.js';
 import { generateDungeon } from './generation.js';
-import type { Dungeon, Player, Room, RoomView } from './model.js';
+import type { Dungeon, Player, Room } from './model.js';
 import {
   type GameSave,
   type EncounterSave,
@@ -34,24 +36,23 @@ function pluralize(count: number, singular: string, plural = `${singular}s`) {
 export interface PlayerState {
   readonly id: PlayerId;
   player: Player;
-  /** Per-player explored grid, indexed [z][y][x]. */
-  explored: boolean[][][];
+  observed: Tile[][][];
   encounter: EncounterSession | null;
   vendor: VendorSession | null;
   exited: boolean;
 }
 
-function createExploredGrid(): boolean[][][] {
+function createObservedGrid(): Tile[][][] {
   return Array.from({ length: Game.SIZE }, () =>
     Array.from({ length: Game.SIZE }, () =>
-      Array.from({ length: Game.SIZE }, () => false)
+      Array.from({ length: Game.SIZE }, () => MapTile.UNSEEN as Tile)
     )
   );
 }
 
 export class Game {
   static readonly SIZE = 7;
-  static readonly SAVE_VERSION = 4;
+  static readonly SAVE_VERSION = 5;
 
   saveVersion = Game.SAVE_VERSION;
   rng: RandomSource;
@@ -78,7 +79,7 @@ export class Game {
     const state: PlayerState = {
       id,
       player,
-      explored: createExploredGrid(),
+      observed: createObservedGrid(),
       encounter: null,
       vendor: null,
       exited: false,
@@ -153,7 +154,7 @@ export class Game {
       const state: PlayerState = {
         id: entry.id,
         player,
-        explored: entry.explored.map((floor) => floor.map((row) => [...row])),
+        observed: structuredClone(entry.observed),
         encounter: null,
         vendor: null,
         exited: entry.exited,
@@ -188,7 +189,7 @@ export class Game {
       players: [...this.players.values()].map((state) => ({
         id: state.id,
         player: serializePlayer(state.player),
-        explored: state.explored.map((floor) => floor.map((row) => [...row])),
+        observed: structuredClone(state.observed),
         encounter: state.encounter ? state.encounter.toSave() : null,
         vendor: state.vendor ? state.vendor.toSave() : null,
         exited: state.exited,
@@ -240,6 +241,7 @@ export class Game {
       // The monster may have been slain by another player who shared this room.
       if (room.monsterLevel <= 0) {
         state.encounter = null;
+        this.observe(state);
         return this.stepResult(id, this.describeRoom(room));
       }
 
@@ -251,11 +253,6 @@ export class Game {
           const monsterLevel = room.monsterLevel;
           room.monsterLevel = 0;
           room.monsterVitality = 0;
-          this.clearEncountersAt(
-            state.player.z,
-            state.player.y,
-            state.player.x
-          );
           if (state.player.hp > 0) {
             if (room.treasureId) {
               events.push(...this.awardTreasure(room.treasureId));
@@ -268,6 +265,13 @@ export class Game {
               );
             }
           }
+          this.observe(state);
+          // Reobserve for everyone in the room.
+          this.clearEncountersAt(
+            state.player.z,
+            state.player.y,
+            state.player.x
+          );
         }
         if (result.relocate) {
           this.randomRelocate(state, {
@@ -314,17 +318,28 @@ export class Game {
     return this.stepResult(id, [Event.info("I don't understand that.")]);
   }
 
-  mapView(id: PlayerId): RoomView[][] {
+  mapView(id: PlayerId): Tile[][] {
     const state = this.state(id);
-    const z = state.player.z;
-    return this.dungeon.rooms[z].map((row, y) =>
-      row.map((room, x) => ({
-        feature: room.feature,
-        treasureId: room.treasureId,
-        monsterLevel: room.monsterLevel,
-        seen: state.explored[z][y][x],
-      }))
-    );
+    return state.observed[state.player.z].map((row) => [...row]);
+  }
+
+  private resolveTile(room: Room): Tile {
+    if (room.monsterLevel > 0) {
+      return MapTile.MONSTER;
+    }
+    if (room.treasureId > 0) {
+      return MapTile.TREASURE;
+    }
+    return room.feature;
+  }
+
+  private observe(
+    state: PlayerState,
+    z: number = state.player.z,
+    y: number = state.player.y,
+    x: number = state.player.x
+  ): void {
+    state.observed[z][y][x] = this.resolveTile(this.dungeon.rooms[z][y][x]);
   }
 
   resumeEvents(id: PlayerId): Event[] {
@@ -420,7 +435,6 @@ export class Game {
     const events: Event[] = [];
     const player = state.player;
     const room = this.currentRoom(player);
-    state.explored[player.z][player.y][player.x] = true;
 
     if (room.monsterLevel > 0) {
       if (room.monsterVitality <= 0) {
@@ -433,65 +447,63 @@ export class Game {
         debug: this.debug,
       });
       events.push(...state.encounter.viewEvents());
-      return events;
-    }
-
-    if (room.treasureId) {
+    } else if (room.treasureId) {
       events.push(...this.awardTreasure(room.treasureId));
       room.treasureId = 0;
-      return events;
-    }
-
-    switch (room.feature) {
-      case Feature.FLARES: {
-        const gained = this.rng.randint(1, 5);
-        player.flares += gained;
-        room.feature = Feature.EMPTY;
-        events.push(Event.info('You pick up some flares here.'));
-        break;
-      }
-      case Feature.THIEF: {
-        room.feature = Feature.EMPTY;
-        if (player.gold === 0) {
-          const damage = this.rng.randint(2, 4);
-          player.hp = Math.max(0, player.hp - damage);
-          events.push(
-            Event.info('A thief sneaks from the shadows and attacks you!')
-          );
-          if (player.hp <= 0) {
-            events.push(Event.info('YOU HAVE DIED.'));
-            this.endMode = Mode.GAME_OVER;
-          }
+    } else {
+      switch (room.feature) {
+        case Feature.FLARES: {
+          const gained = this.rng.randint(1, 5);
+          player.flares += gained;
+          room.feature = Feature.EMPTY;
+          events.push(Event.info('You pick up some flares here.'));
           break;
         }
-        const stolen = Math.min(this.rng.randint(1, 50), player.gold);
-        player.gold -= stolen;
-        events.push(
-          Event.info(
-            `A thief sneaks from the shadows and removes ${stolen} gold ${pluralize(stolen, 'piece')} ` +
-              `from your possession.`
-          )
-        );
-        break;
+        case Feature.THIEF: {
+          room.feature = Feature.EMPTY;
+          if (player.gold === 0) {
+            const damage = this.rng.randint(2, 4);
+            player.hp = Math.max(0, player.hp - damage);
+            events.push(
+              Event.info('A thief sneaks from the shadows and attacks you!')
+            );
+            if (player.hp <= 0) {
+              events.push(Event.info('YOU HAVE DIED.'));
+              this.endMode = Mode.GAME_OVER;
+            }
+            break;
+          }
+          const stolen = Math.min(this.rng.randint(1, 50), player.gold);
+          player.gold -= stolen;
+          events.push(
+            Event.info(
+              `A thief sneaks from the shadows and removes ${stolen} gold ${pluralize(stolen, 'piece')} ` +
+                `from your possession.`
+            )
+          );
+          break;
+        }
+        case Feature.WARP:
+          room.feature = Feature.EMPTY;
+          events.push(
+            Event.info(
+              'This room contains a warp. Before you realize what is going on, you appear elsewhere...'
+            )
+          );
+          this.observe(state);
+          this.randomRelocate(state, {
+            anyFloor: true,
+            avoidMonsters: false,
+          });
+          events.push(...this.enterRoom(state));
+          return events;
+        default:
+          events.push(...this.describeRoom(room));
+          break;
       }
-      case Feature.WARP:
-        room.feature = Feature.EMPTY;
-        events.push(
-          Event.info(
-            'This room contains a warp. Before you realize what is going on, you appear elsewhere...'
-          )
-        );
-        this.randomRelocate(state, {
-          anyFloor: true,
-          avoidMonsters: false,
-        });
-        events.push(...this.enterRoom(state));
-        break;
-      default:
-        events.push(...this.describeRoom(room));
-        break;
     }
 
+    this.observe(state);
     return events;
   }
 
@@ -592,7 +604,7 @@ export class Game {
         const ny = player.y + dy;
         const nx = player.x + dx;
         if (ny >= 0 && ny < Game.SIZE && nx >= 0 && nx < Game.SIZE) {
-          state.explored[player.z][ny][nx] = true;
+          this.observe(state, player.z, ny, nx);
         }
       }
     }
@@ -659,6 +671,7 @@ export class Game {
       }
     }
     room.feature = Feature.EMPTY;
+    this.observe(state);
     return events;
   }
 
@@ -711,6 +724,7 @@ export class Game {
 
     const gold = 10 + this.rng.randint(0, 20);
     player.gold += gold;
+    this.observe(state);
     return [Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}!`)];
   }
 
@@ -723,6 +737,7 @@ export class Game {
     room.feature = Feature.EMPTY;
     const spell = this.rng.randint(1, 5) as Spell;
     player.spells[spell] = (player.spells[spell] ?? 0) + 1;
+    this.observe(state);
     return [
       Event.info(
         `The scroll contains the ${spellName(spell).toLowerCase()} spell.`
@@ -753,6 +768,7 @@ export class Game {
       change = -change;
     }
     player.applyAttributeChange({ target: effect, change });
+    this.observe(state);
     return drinkAttributePotionEvents({ target: effect, change });
   }
 
@@ -812,6 +828,7 @@ export class Game {
       const p = other.player;
       if (other.encounter && p.z === z && p.y === y && p.x === x) {
         other.encounter = null;
+        this.observe(other);
       }
     }
   }

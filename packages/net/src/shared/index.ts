@@ -1,4 +1,4 @@
-import type { Event, Mode, PlayerSave, RoomView } from '@dod/core';
+import type { Event, Mode, PlayerSave, Tile } from '@dod/core';
 
 /**
  * Wire protocol between the browser client and the room Durable Object, plus the
@@ -38,7 +38,7 @@ export interface PartyMember {
 export interface PlayerView {
   self: PlayerSave;
   mode: Mode;
-  map: RoomView[][];
+  map: Tile[][];
   treasuresFound: number;
   ended: Mode | null;
   party: PartyMember[];

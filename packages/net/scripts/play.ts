@@ -16,10 +16,10 @@
 import { clearLine, createInterface, cursorTo } from 'node:readline';
 
 import {
-  FEATURE_SYMBOLS,
   Player,
   Race,
   serializePlayer,
+  tileSymbol,
   defaultRandomSource,
   type Event,
 } from '@dod/core';
@@ -91,12 +91,9 @@ function viewText(view: PlayerView): string {
     lines.push(
       '  ' +
         view.map[y]
-          .map((cell, x) => {
+          .map((tile, x) => {
             if (x === self.x && y === self.y) return '@';
-            if (!cell.seen) return '·';
-            if (cell.monsterLevel > 0) return 'M';
-            if (cell.treasureId > 0) return 'T';
-            return FEATURE_SYMBOLS[cell.feature] ?? '-';
+            return tileSymbol(tile);
           })
           .join(' ')
     );

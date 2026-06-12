@@ -148,3 +148,30 @@ export const FEATURE_SYMBOLS: Record<Feature, string> = {
   [Feature.STAIRS_DOWN]: 'D',
   [Feature.EXIT]: 'X',
 };
+
+/** A single map cell, as last observed by a player. */
+export const enum MapTile {
+  UNSEEN = -1,
+  MONSTER = 12,
+  TREASURE = 13,
+}
+
+export type Tile = Feature | MapTile;
+
+const TILE_SYMBOLS: Record<MapTile, string> = {
+  [MapTile.UNSEEN]: '·',
+  [MapTile.MONSTER]: 'M',
+  [MapTile.TREASURE]: 'T',
+};
+
+/** The single glyph for a map cell — feature symbol, or a monster/treasure/unseen marker. */
+export function tileSymbol(tile: Tile): string {
+  if (
+    tile === MapTile.UNSEEN ||
+    tile === MapTile.MONSTER ||
+    tile === MapTile.TREASURE
+  ) {
+    return TILE_SYMBOLS[tile];
+  }
+  return FEATURE_SYMBOLS[tile];
+}

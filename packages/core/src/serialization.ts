@@ -1,4 +1,4 @@
-import type { Mode, Race, Spell } from './constants.js';
+import type { Mode, Race, Spell, Tile } from './constants.js';
 import { Dungeon, Player, createSpellCounts, type Room } from './model.js';
 
 type RoomPacked = number;
@@ -40,7 +40,7 @@ export type VendorSave = {
 export type PlayerEntrySave = {
   id: string;
   player: PlayerSave;
-  explored: boolean[][][];
+  observed: Tile[][][];
   encounter: EncounterSave | null;
   vendor: VendorSave | null;
   exited: boolean;

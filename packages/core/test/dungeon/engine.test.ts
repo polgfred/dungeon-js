@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Game } from '../../src/engine.js';
-import { Feature, Mode, Spell } from '../../src/constants.js';
+import { Feature, MapTile, Mode, Spell } from '../../src/constants.js';
 import { buildPlayer } from '../helpers/factories.js';
 import { ScriptedRng } from '../helpers/rng.js';
 import { createEmptyDungeon } from '../helpers/dungeon.js';
@@ -551,6 +551,59 @@ describe('Game interactions', () => {
       save.version = Game.SAVE_VERSION + 1;
 
       expect(() => Game.fromSave(save)).toThrow('Unsupported save version');
+    });
+  });
+
+  describe('per-player map memory', () => {
+    it('refreshes every co-fighter in the room the instant the monster dies', () => {
+      const a = buildPlayer({ z: 0, y: 0, x: 0 });
+      const b = buildPlayer({ z: 0, y: 0, x: 0 });
+      const game = new Game({ seed: 0 });
+      game.addPlayer('a', a);
+      game.addPlayer('b', b);
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][0].monsterLevel = 1;
+      game.dungeon = dungeon;
+      // a enters (vitality 0), then a's attack kills (1, 0) and loots gold (5).
+      game.rng = new ScriptedRng({ randint: [0, 1, 0, 5], random: [0.1] });
+
+      game.startEvents('a');
+      game.startEvents('b');
+      expect(game.mapView('a')[0][0]).toBe(MapTile.MONSTER);
+      expect(game.mapView('b')[0][0]).toBe(MapTile.MONSTER);
+
+      game.step('a', 'F');
+
+      // b never acted, but watched it die from the same room — both tiles clear.
+      expect(game.mapView('a')[0][0]).toBe(Feature.EMPTY);
+      expect(game.mapView('b')[0][0]).toBe(Feature.EMPTY);
+    });
+
+    it('re-scouts a stale tile when a flare relights a cleared room', () => {
+      const a = buildPlayer({ z: 0, y: 0, x: 1 });
+      const b = buildPlayer({ z: 0, y: 0, x: 0, flares: 5 });
+      const game = new Game({ seed: 0 });
+      game.addPlayer('a', a);
+      game.addPlayer('b', b);
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][1].monsterLevel = 1;
+      game.dungeon = dungeon;
+      game.rng = new ScriptedRng({ randint: [0, 1, 0, 5], random: [0.1] });
+
+      game.startEvents('a');
+      game.startEvents('b');
+
+      // b flares from the doorway and sees the monster next door.
+      game.step('b', 'F');
+      expect(game.mapView('b')[0][1]).toBe(MapTile.MONSTER);
+
+      // a clears the room; b's memory is now stale.
+      game.step('a', 'F');
+      expect(game.mapView('b')[0][1]).toBe(MapTile.MONSTER);
+
+      // a second flare overwrites the stale tile with current truth.
+      game.step('b', 'F');
+      expect(game.mapView('b')[0][1]).toBe(Feature.EMPTY);
     });
   });
 });

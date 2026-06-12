@@ -16,13 +16,6 @@ export interface Room {
   monsterVitality: number;
 }
 
-export interface RoomView {
-  feature: Feature;
-  treasureId: number;
-  monsterLevel: number;
-  seen: boolean;
-}
-
 export class Dungeon {
   rooms: Room[][][];
 
