@@ -142,13 +142,14 @@ export class TableObject extends HydratableObject<TableSnapshot> {
   private handleStart() {
     if (this.game) return; // already underway
 
+    const members = [...this.members.values()];
+    // Wait for everyone: don't start until every member has readied a character.
+    if (members.length === 0 || members.some((m) => !m.character)) return;
+
     const game = new Game({ rng: defaultRandomSource });
-    for (const member of this.members.values()) {
-      if (member.character) {
-        game.addPlayer(member.id, deserializePlayer(member.character));
-      }
+    for (const member of members) {
+      game.addPlayer(member.id, deserializePlayer(member.character!));
     }
-    if (game.playerIds.length === 0) return; // nobody is ready
 
     this.game = game;
     for (const id of game.playerIds) {
