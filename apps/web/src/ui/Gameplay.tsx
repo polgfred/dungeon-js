@@ -268,10 +268,23 @@ function CommandCluster({
     );
   }
 
+  // Combat is a live decision, so Fight/Run/Spell use the prominent prompt style
+  // (the slim legend is reserved for nav/explore). Same active/keyboard rules.
   if (view.mode === Mode.ENCOUNTER) {
     return (
-      <div className={styles.legend}>
-        <LegendGroup commands={ENCOUNTER_COMMANDS} view={view} onTrigger={trigger} />
+      <div className={styles.prompt}>
+        {ENCOUNTER_COMMANDS.map((command) => (
+          <button
+            key={command.id}
+            type="button"
+            className={styles.promptOption}
+            disabled={!commandActive(command, view)}
+            onClick={() => trigger(command)}
+          >
+            <span className={styles.legendKey}>{command.key}</span>
+            <span>{command.label}</span>
+          </button>
+        ))}
       </div>
     );
   }

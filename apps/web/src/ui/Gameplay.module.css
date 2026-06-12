@@ -197,6 +197,11 @@
   cursor: default;
 }
 
+.promptOption:disabled .legendKey {
+  color: var(--text-disabled);
+  border-color: rgba(var(--primary-light-rgb), 0.2);
+}
+
 /* --- stats readout (top-right) --- */
 
 .statsPane {
