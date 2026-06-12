@@ -102,10 +102,15 @@
 }
 
 .chatLine {
+  color: var(--text-secondary);
+}
+
+/* Name color is set inline (the player's --chat-N token); message stays dimmer. */
+.chatName {
   color: var(--text-primary);
 }
 
-.chatName {
+.chatText {
   color: var(--text-secondary);
 }
 

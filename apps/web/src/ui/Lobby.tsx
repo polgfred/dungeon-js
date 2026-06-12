@@ -6,6 +6,7 @@ import { serializePlayer, type PlayerSave } from '@dod/core';
 import type { FeedItem, LobbyState, PlayerId } from '@dod/net/client';
 
 import { ChatInput } from './ChatInput.js';
+import { chatColorsById } from './chatColors.js';
 import { LobbyBuilder } from './LobbyBuilder.js';
 import styles from './Lobby.module.css';
 import { navigate } from './useRoute.js';
@@ -46,6 +47,7 @@ export function Lobby({
   const [submitted, setSubmitted] = useState(false);
   const members = lobby?.members ?? [];
   const everyoneReady = members.length > 0 && members.every((m) => m.ready);
+  const colorOf = chatColorsById(members);
 
   const copyLink = () => {
     void navigator.clipboard?.writeText(window.location.href);
@@ -89,7 +91,7 @@ export function Lobby({
                   {member.ready ? '✓' : '·'}
                 </span>
                 <span className={styles.partyName}>
-                  {member.name}
+                  <span style={{ color: colorOf(member.id) }}>{member.name}</span>
                   {member.id === playerId ? ' (you)' : ''}
                 </span>
                 {!member.ready && (
@@ -111,8 +113,13 @@ export function Lobby({
               .map((item, i) =>
                 item.kind === 'chat' ? (
                   <div key={i} className={styles.chatLine}>
-                    <span className={styles.chatName}>{item.name}</span>{' '}
-                    {item.text}
+                    <span
+                      className={styles.chatName}
+                      style={{ color: colorOf(item.from) }}
+                    >
+                      &lt;{item.name}&gt;
+                    </span>{' '}
+                    <span className={styles.chatText}>{item.text}</span>
                   </div>
                 ) : null
               )}

@@ -26,5 +26,15 @@
 
   --grey-200: #eeeeee; /* gray[14] */
 
+  /* Per-player chat colors, distinct GTIA hues at a bright luminance */
+  --chat-0: #e5d35e; /* gold[12] */
+  --chat-1: #87e292; /* green[11] */
+  --chat-2: #fa97b3; /* red[11] */
+  --chat-3: #bda4f7; /* bluePurple[11] */
+  --chat-4: #e89073; /* redOrange[10] */
+  --chat-5: #8ee6ff; /* cyan[12] */
+  --chat-6: #ee94e4; /* magenta[11] */
+  --chat-7: #9dde69; /* yellowGreen[11] */
+
   --font-family: 'EightBit Atari', monospace;
 }

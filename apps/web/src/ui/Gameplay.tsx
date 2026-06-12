@@ -12,6 +12,7 @@ import type {
 } from '@dod/net/client';
 
 import { ChatInput } from './ChatInput.js';
+import { chatColorsById } from './chatColors.js';
 import type { Command } from './CommandButton.js';
 import styles from './Gameplay.module.css';
 import {
@@ -84,17 +85,16 @@ function StatsReadout({ view }: { view: PlayerView }) {
 }
 
 function Party({ party, playerId }: { party: PartyMember[]; playerId: PlayerId }) {
+  const colorOf = chatColorsById(party);
   return (
     <>
       <p className={clsx('ui-panel-title', styles.railTitle)}>Party</p>
       <ul className={styles.partyList}>
         {party.map((member) => (
-          <li
-            key={member.id}
-            className={clsx(styles.partyRow, !member.alive && styles.partyDead)}
-          >
-            {member.name}
+          <li key={member.id} className={styles.partyRow}>
+            <span style={{ color: colorOf(member.id) }}>{member.name}</span>
             {member.id === playerId ? ' (you)' : ''}
+            {/* Only ever set on the terminal game-over frame — marks who fell. */}
             {!member.alive && ' †'}
           </li>
         ))}
@@ -352,6 +352,7 @@ function Feed({
 
   const named = (id: PlayerId) =>
     party.find((member) => member.id === id)?.name ?? id;
+  const colorOf = chatColorsById(party);
   const lines = feed.filter(
     (item) =>
       item.kind === 'chat' ||
@@ -364,7 +365,10 @@ function Feed({
         if (item.kind === 'chat') {
           return (
             <div key={i} className={styles.feedChat}>
-              <span className={styles.chatName}>{item.name}</span> {item.text}
+              <span className={styles.chatName} style={{ color: colorOf(item.from) }}>
+                &lt;{item.name}&gt;
+              </span>{' '}
+              <span className={styles.chatText}>{item.text}</span>
             </div>
           );
         }

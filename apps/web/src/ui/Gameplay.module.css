@@ -242,8 +242,12 @@
   margin: 0;
 }
 
+/* These panes aren't .ui-panel, so the shared .ui-panel-title's responsive
+   shrink (which is paired with .ui-panel body text) would make the header
+   smaller than its own fixed-size contents below 900px. Pin it instead. */
 .railTitle {
   margin: 0 0 0.5rem;
+  font-size: 0.95rem;
 }
 
 .statList {
@@ -296,10 +300,6 @@
   gap: 0.25rem;
 }
 
-.partyDead {
-  color: var(--text-disabled);
-}
-
 /* --- feed: full-width bottom dock --- */
 
 .feedDock {
@@ -346,10 +346,16 @@
 }
 
 .feedChat {
+  color: var(--text-secondary);
+}
+
+/* Name color is set inline (the player's --chat-N token); message stays dimmer
+   so chat reads obviously different from a plain game-event line. */
+.chatName {
   color: var(--text-primary);
 }
 
-.chatName {
+.chatText {
   color: var(--text-secondary);
 }
 

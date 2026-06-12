@@ -23,6 +23,14 @@ const CYCLED_TOKENS = [
   '--loot-main',
   '--combat-main',
   '--grey-200',
+  '--chat-0',
+  '--chat-1',
+  '--chat-2',
+  '--chat-3',
+  '--chat-4',
+  '--chat-5',
+  '--chat-6',
+  '--chat-7',
 ] as const;
 
 // Input events that count as activity and reset the idle timer.
