@@ -1,4 +1,4 @@
-import { monsterName, Spell, spellName } from './constants.js';
+import { monsterName, Spell, SPELL_MIN_IQ, spellName } from './constants.js';
 import type { EncounterSave } from './serialization.js';
 import type { Player, Room } from './model.js';
 import { Event, type PromptData } from './types.js';
@@ -357,7 +357,7 @@ export class EncounterSession {
       };
     }
     const charges = this.player.spells[spell] ?? 0;
-    if (this.player.iq < 12) {
+    if (this.player.iq < SPELL_MIN_IQ) {
       return {
         events: [Event.info('You have insufficient intelligence.')],
       };
@@ -374,7 +374,7 @@ export class EncounterSession {
 
   private spellMenu(): PromptData {
     const spells = this.player.spells;
-    const iqTooLow = this.player.iq < 12;
+    const iqTooLow = this.player.iq < SPELL_MIN_IQ;
     const options = Object.entries(spellMap).map(([key, spell]) => ({
       key,
       label: `${spellName(spell)} (${spells[spell] ?? 0})`,

@@ -150,6 +150,9 @@ export const FEATURE_SYMBOLS: Record<Feature, string> = {
 };
 
 /** A single map cell, as last observed by a player. */
+/** Minimum IQ required to cast any spell in an encounter. */
+export const SPELL_MIN_IQ = 12;
+
 export const enum MapTile {
   UNSEEN = -1,
   MONSTER = 12,

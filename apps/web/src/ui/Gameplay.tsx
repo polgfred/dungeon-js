@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import clsx from 'clsx';
 
-import { Feature, Mode } from '@dod/core';
+import { Feature, Mode, SPELL_MIN_IQ } from '@dod/core';
 import type {
   ConnectionStatus,
   FeedItem,
@@ -125,8 +125,15 @@ function commandActive(command: Command, view: PlayerView): boolean {
       return here === Feature.POTION;
     case 'act-vendor':
       return here === Feature.VENDOR;
+    case 'run':
+      return !view.self.fatigued;
+    case 'spell':
+      return (
+        view.self.iq >= SPELL_MIN_IQ &&
+        Object.values(view.self.spells).some((count) => count > 0)
+      );
     default:
-      return true; // movement and combat are always attemptable
+      return true; // movement and Fight are always attemptable
   }
 }
 
