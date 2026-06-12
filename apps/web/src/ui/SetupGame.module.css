@@ -129,212 +129,167 @@
   flex-direction: column;
 }
 
-/* race stage */
+/* race stage — compact, panel-light to match the gameplay screen */
 .stageTitle {
-  letter-spacing: 2px;
-  font-size: 18px;
+  letter-spacing: 1.5px;
+  font-size: 0.95rem;
   margin: 0;
-}
-@media (min-width: 900px) {
-  .stageTitle {
-    font-size: 20px;
-  }
+  color: var(--text-secondary);
 }
 
 .stageBody {
   opacity: 0.75;
-  font-size: 13px;
+  font-size: 0.8rem;
   margin: 0;
-}
-@media (min-width: 900px) {
-  .stageBody {
-    font-size: 16px;
-  }
 }
 
 .raceGrid {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   grid-template-columns: 1fr 1fr;
-}
-@media (min-width: 900px) {
-  .raceGrid {
-    gap: 16px;
-  }
 }
 
 .raceCard {
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 4px;
+  padding: 0.5rem 0.6rem;
   text-align: center;
-  border: 1px solid rgba(var(--primary-light-rgb), 0.5);
-  background: rgba(var(--primary-dark-rgb), 0.35);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.3);
+  background: rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   cursor: pointer;
   color: inherit;
   font-family: inherit;
 }
-@media (min-width: 900px) {
-  .raceCard {
-    padding: 16px;
-    gap: 8px;
-  }
-}
 
 .raceCardActive {
   border-color: rgba(var(--primary-light-rgb), 0.9);
-  background: rgba(var(--primary-light-rgb), 0.5);
-  box-shadow: 0 0 20px rgba(var(--primary-light-rgb), 0.45);
+  background: rgba(var(--primary-light-rgb), 0.35);
 }
 
 .raceLabel {
-  letter-spacing: 1.25px;
-  font-size: 16px;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
 }
 
 .raceTagline {
-  opacity: 0.75;
+  opacity: 0.7;
   text-align: center;
   width: 100%;
-  display: none;
-  font-size: 0.875rem;
-  line-height: 1.43;
-}
-@media (min-width: 900px) {
-  .raceTagline {
-    display: block;
-  }
+  font-size: 0.72rem;
+  line-height: 1.35;
 }
 
 .rolledStats {
-  border: 1px solid rgba(var(--primary-light-rgb), 0.45);
-  border-radius: 8px;
-  padding: 16px;
-  background: rgba(var(--primary-dark-rgb), 0.35);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.2);
+  border-radius: 4px;
+  padding: 0.5rem 0.6rem;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .rolledStatsLabel {
   opacity: 0.75;
   margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
 }
 
 .rolledStatsValue {
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   margin: 0;
+  font-size: 0.85rem;
 }
 
 /* allocation stage */
 .allocList {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 6px;
 }
 
 .allocRow {
   display: grid;
-  grid-template-columns: 80px 1fr auto;
-  gap: 16px;
+  grid-template-columns: 2.5rem 1fr auto;
+  gap: 0.6rem;
   align-items: center;
-  border: 1px solid rgba(var(--primary-light-rgb), 0.45);
-  border-radius: 8px;
-  padding: 16px;
-  background: rgba(var(--primary-dark-rgb), 0.35);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.2);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .allocKey {
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   margin: 0;
+  color: var(--text-secondary);
 }
 
 .allocMuted {
   opacity: 0.75;
   margin: 0;
+  font-size: 0.8rem;
 }
 
 .allocAdjust {
   display: flex;
   flex-direction: row;
-  gap: 8px;
+  gap: 6px;
 }
 
 .pointsRemaining {
   color: var(--text-secondary);
   margin: 0;
+  font-size: 0.8rem;
 }
 
 /* shop stage */
 .shopGroup {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0.75rem;
 }
 
 .shopGroupLabel {
-  margin: 0 0 12px 0;
-  letter-spacing: 1px;
+  margin: 0 0 0.4rem 0;
+  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
 .shopTier {
   display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-@media (min-width: 900px) {
-  .shopTier {
-    flex-direction: row;
-    align-items: center;
-    width: auto;
-  }
+  flex-direction: row;
+  align-items: center;
+  width: auto;
 }
 
 .shopTierBtn {
-  border: 1px solid rgba(var(--primary-light-rgb), 0.5);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.4);
   background: transparent;
   color: var(--text-primary);
   text-transform: none;
-  letter-spacing: 1px;
-  width: 100%;
-  padding: 11px 22px;
+  letter-spacing: 0.5px;
+  padding: 0.4rem 0.7rem;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 0.78rem;
   cursor: pointer;
-}
-@media (min-width: 900px) {
-  .shopTierBtn {
-    width: auto;
-  }
 }
 .shopTier .shopTierBtn:not(:first-child) {
   border-left-width: 0;
 }
-@media (max-width: 899px) {
-  .shopTier .shopTierBtn:not(:first-child) {
-    border-left-width: 1px;
-    border-top-width: 0;
-  }
-}
 .shopTier .shopTierBtn:first-child {
-  border-radius: 4px 4px 0 0;
+  border-radius: 4px 0 0 4px;
 }
 .shopTier .shopTierBtn:last-child {
-  border-radius: 0 0 4px 4px;
-}
-@media (min-width: 900px) {
-  .shopTier .shopTierBtn:first-child {
-    border-radius: 4px 0 0 4px;
-  }
-  .shopTier .shopTierBtn:last-child {
-    border-radius: 0 4px 4px 0;
-  }
+  border-radius: 0 4px 4px 0;
 }
 .shopTierBtnActiveWeapon {
-  background: rgba(var(--primary-light-rgb), 0.7);
+  background: rgba(var(--primary-light-rgb), 0.6);
   color: var(--text-primary);
 }
 .shopTierBtnActiveArmor {
-  background: rgba(var(--primary-light-rgb), 0.6);
+  background: rgba(var(--primary-light-rgb), 0.55);
   color: var(--text-primary);
 }
 
@@ -342,11 +297,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 16px;
+  gap: 0.6rem;
 }
 
 .flaresValue {
-  min-width: 40px;
+  min-width: 1.5rem;
   text-align: center;
   margin: 0;
 }
@@ -354,47 +309,31 @@
 .flaresMax {
   opacity: 0.65;
   margin: 0;
+  font-size: 0.78rem;
 }
 
 .setupError {
   color: var(--error-light);
   margin: 0;
+  font-size: 0.8rem;
 }
 
 .goldRemaining {
   opacity: 0.75;
   color: var(--text-secondary);
   margin: 0;
+  font-size: 0.8rem;
 }
 
 /* ready stage */
 .readyList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+  font-size: 0.85rem;
 }
 
 .readyList p {
-  margin: 0;
-}
-
-/* status readout */
-.statusGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.statusGroup p {
-  margin: 0;
-}
-
-.statusGroupLabel {
-  opacity: 0.75;
-}
-
-.statusRemaining {
-  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -466,5 +405,5 @@
 .gap3 {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 0.9rem;
 }

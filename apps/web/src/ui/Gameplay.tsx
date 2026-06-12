@@ -22,43 +22,15 @@ import {
   TRANSIT_COMMANDS,
 } from './gameplayCommands.js';
 import { GlyphDefs, MapGrid } from './mapView.js';
+import { StatList, StatRow } from './StatList.js';
 import { navigate } from './useRoute.js';
-
-const STAT_TONE = {
-  alert: styles.statAlert,
-  loot: styles.statLoot,
-} as const;
-
-function StatRow({
-  label,
-  value,
-  tone,
-  title,
-}: {
-  label: string;
-  value: string;
-  tone?: keyof typeof STAT_TONE;
-  title?: string;
-}) {
-  return (
-    <div className={styles.statRow}>
-      <dt className={styles.statLabel}>{label}</dt>
-      <dd
-        className={clsx(styles.statValue, tone && STAT_TONE[tone])}
-        title={title}
-      >
-        {value}
-      </dd>
-    </div>
-  );
-}
 
 function StatsReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
     <div className={styles.stats}>
       <p className={clsx('ui-panel-title', styles.railTitle)}>Status</p>
-      <dl className={styles.statList}>
+      <StatList>
         <StatRow
           label="Health"
           value={`${s.hp}/${s.mhp}`}
@@ -86,7 +58,7 @@ function StatsReadout({ view }: { view: PlayerView }) {
           tone={s.armorDamaged ? 'alert' : undefined}
           title={s.armorDamaged ? 'Damaged' : undefined}
         />
-      </dl>
+      </StatList>
     </div>
   );
 }

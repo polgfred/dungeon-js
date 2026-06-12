@@ -12,6 +12,7 @@ import {
 import type { Player } from '@dod/core';
 import { CommandButton, type Command } from './CommandButton.js';
 import styles from './SetupGame.module.css';
+import { StatList, StatRow } from './StatList.js';
 import {
   type AllocationKey,
   type AllocationState,
@@ -339,7 +340,7 @@ export function ReadyStage({ player }: { player: Player }) {
   );
 }
 
-function StatusReadout({
+export function StatusReadout({
   race,
   derivedStats,
   gold,
@@ -356,42 +357,32 @@ function StatusReadout({
   flares: number;
   totalCost: number;
 }) {
+  // Built as we go, so anything not yet chosen reads as a dash.
+  const dash = '\u2014';
+  const stat = (value: number | undefined) =>
+    derivedStats && value !== undefined ? String(value) : dash;
+  const raceLabel = race
+    ? (raceOptions.find((option) => option.value === race)?.label ?? dash)
+    : dash;
+  const remaining = gold !== null ? gold - totalCost : null;
+
   return (
-    <div className={styles.gap2}>
-      <div className={styles.statusGroup}>
-        <p className={styles.statusGroupLabel}>Race</p>
-        <p>
-          {race
-            ? raceOptions.find((option) => option.value === race)?.label
-            : 'Unassigned'}
-        </p>
-      </div>
-      <div className={styles.statusGroup}>
-        <p className={styles.statusGroupLabel}>Stats</p>
-        <p>ST {derivedStats ? derivedStats.ST : '--'}</p>
-        <p>DX {derivedStats ? derivedStats.DX : '--'}</p>
-        <p>IQ {derivedStats ? derivedStats.IQ : '--'}</p>
-        <p>HP {derivedStats ? derivedStats.HP : '--'}</p>
-      </div>
-      <div className={styles.statusGroup}>
-        <p className={styles.statusGroupLabel}>Inventory</p>
-        <p>Gold: {gold !== null ? gold : '--'}</p>
-        <p>Weapon: {WEAPON_NAMES[weaponTier]}</p>
-        <p>Armour: {ARMOR_NAMES[armorTier]}</p>
-        <p>Flares: {flares}</p>
-      </div>
-      {gold !== null && (
-        <div className={styles.statusGroup}>
-          <p className={styles.statusRemaining}>
-            Remaining: {gold !== null ? gold - totalCost : '--'}
-          </p>
-        </div>
-      )}
-      <span className={clsx('txt-caption', 'ui-tip')}>
-        Tip: press the letter keys shown on each command. Use the Shift
-        {'\u2191'} key to decrease values.
-      </span>
-    </div>
+    <StatList>
+      <StatRow label="Race" value={raceLabel} />
+      <StatRow label="Strength" value={stat(derivedStats?.ST)} />
+      <StatRow label="Dexterity" value={stat(derivedStats?.DX)} />
+      <StatRow label="Intelligence" value={stat(derivedStats?.IQ)} />
+      <StatRow label="Health" value={stat(derivedStats?.HP)} />
+      <StatRow label="Gold" value={gold !== null ? String(gold) : dash} />
+      <StatRow label="Weapon" value={WEAPON_NAMES[weaponTier]} />
+      <StatRow label="Armour" value={ARMOR_NAMES[armorTier]} />
+      <StatRow label="Flares" value={String(flares)} />
+      <StatRow
+        label="Remaining"
+        value={remaining !== null ? String(remaining) : dash}
+        tone={remaining !== null && remaining < 0 ? 'alert' : undefined}
+      />
+    </StatList>
   );
 }
 

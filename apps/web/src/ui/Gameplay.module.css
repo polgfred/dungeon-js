@@ -251,35 +251,6 @@
   font-size: 0.95rem;
 }
 
-.statList {
-  margin: 0;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.15rem 1.25rem;
-  font-size: 0.9rem;
-}
-
-.statRow {
-  display: contents;
-}
-
-.statLabel {
-  color: var(--text-secondary);
-}
-
-.statValue {
-  margin: 0;
-  text-align: right;
-}
-
-.statAlert {
-  color: var(--error-light);
-}
-
-.statLoot {
-  color: var(--loot-main);
-}
-
 /* --- members: IRC-style nick column beside the feed (bottom-right) --- */
 
 .members {

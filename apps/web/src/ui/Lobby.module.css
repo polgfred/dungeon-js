@@ -1,22 +1,40 @@
+/* Mirrors the gameplay grid: builder in the board slot, the in-progress
+   character readout in stats, chat in feed, party/code/start in members. */
 .lobby {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 18rem;
-  gap: 1rem;
-  padding: 1rem;
-  min-height: 100%;
-  align-items: start;
+  grid-template-columns: 1fr max-content;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'board stats'
+    'feed  members';
+  gap: 1.75rem 2.5rem;
+  padding: 1.75rem 2rem;
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
 }
 
-/* --- builder (main column) --- */
+.railTitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* --- board: the character build (panel-light, like the map board) --- */
+
+.board {
+  grid-area: board;
+  min-width: 0;
+}
 
 .builder {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
-.builderPanel {
-  padding: 1.25rem;
+.builderStage {
+  display: flex;
+  flex-direction: column;
 }
 
 .builderActions {
@@ -25,33 +43,95 @@
   gap: 0.5rem;
 }
 
-.readyTitle {
-  margin-top: 0;
-}
-
-/* --- right rail (party + chat + start) --- */
-
-.rail {
+.ready {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 0.75rem;
-  position: sticky;
-  top: 1rem;
 }
 
-.railPanel {
-  padding: 0.85rem 1rem;
+.readyTitle {
+  margin: 0;
 }
 
-.railTitle {
-  margin: 0 0 0.5rem;
+/* --- stats: in-progress character readout (upper right) --- */
+
+.statsPane {
+  grid-area: stats;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 13rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+}
+
+/* --- feed: chat (bottom left) --- */
+
+.feedDock {
+  grid-area: feed;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
+  border-radius: 4px;
+  padding: 1.25rem 1.5rem;
+}
+
+.chatLog {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.chatLine {
+  color: var(--text-secondary);
+}
+
+/* Name color is set inline (the player's --chat-N token); message stays dimmer. */
+.chatName {
+  color: var(--text-primary);
+}
+
+.chatText {
+  color: var(--text-secondary);
+}
+
+/* --- members: table code + adventurers + start (bottom right) --- */
+
+.members {
+  grid-area: members;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 14rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+}
+
+.tableInfo,
+.adventurers {
+  display: flex;
+  flex-direction: column;
 }
 
 .code {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   letter-spacing: 0.06em;
   color: var(--text-secondary);
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.5rem;
 }
 
 .party {
@@ -83,46 +163,23 @@
   color: var(--text-disabled);
 }
 
-.chatSlot {
-  flex: 1;
-  min-height: 8rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.chatLog {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-}
-
-.chatLine {
-  color: var(--text-secondary);
-}
-
-/* Name color is set inline (the player's --chat-N token); message stays dimmer. */
-.chatName {
-  color: var(--text-primary);
-}
-
-.chatText {
-  color: var(--text-secondary);
-}
-
+/* Start sits at the bottom of the members column. */
 .startBtn {
   width: 100%;
+  margin-top: auto;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   .lobby {
-    grid-template-columns: 1fr;
-  }
-  .rail {
     position: static;
+    height: auto;
+    min-height: 100vh;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      'board'
+      'stats'
+      'feed'
+      'members';
   }
 }

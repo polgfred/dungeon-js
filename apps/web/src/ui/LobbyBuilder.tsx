@@ -1,7 +1,3 @@
-import clsx from 'clsx';
-
-import type { Player } from '@dod/core';
-
 import { CommandButton } from './CommandButton.js';
 import {
   RaceStage,
@@ -9,7 +5,7 @@ import {
   ShopStage,
   ReadyStage,
 } from './SetupGame.js';
-import { useSetupGameModel, type SetupGameModel } from './SetupGameModel.js';
+import type { SetupGameModel } from './SetupGameModel.js';
 import styles from './Lobby.module.css';
 
 const ACTION_IDS: Record<SetupGameModel['stage'], string[]> = {
@@ -20,25 +16,18 @@ const ACTION_IDS: Record<SetupGameModel['stage'], string[]> = {
 };
 
 /**
- * A compact, single-column character builder for the lobby. Reuses the
- * single-player `useSetupGameModel` rules and stage views, but drops the wide
- * stats column so the right rail can carry the party + chat.
+ * The character build for the lobby's board quadrant: the active stage plus its
+ * confirm/back actions. Presentational — the model is owned by `Lobby` so the
+ * stats quadrant can read the same in-progress character.
  */
-export function LobbyBuilder({
-  onComplete,
-  onLeave,
-}: {
-  onComplete: (player: Player) => void;
-  onLeave: () => void;
-}) {
-  const model = useSetupGameModel({ onComplete, onBack: onLeave });
+export function LobbyBuilder({ model }: { model: SetupGameModel }) {
   const actions = model.commandList.filter((command) =>
     ACTION_IDS[model.stage].includes(command.id)
   );
 
   return (
     <div className={styles.builder}>
-      <div className={clsx('ui-panel', styles.builderPanel)}>
+      <div className={styles.builderStage}>
         {model.stage === 'race' && (
           <RaceStage
             race={model.race}
