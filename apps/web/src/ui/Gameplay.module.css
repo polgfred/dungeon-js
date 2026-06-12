@@ -341,24 +341,25 @@
   color: var(--error-light);
 }
 
-.feedBroadcast {
-  font-style: italic;
-  color: var(--text-secondary);
-}
-
 .feedChat {
   color: var(--text-secondary);
 }
 
-/* Name color is set inline (the player's --chat-N token); message stays dimmer
-   so chat reads obviously different from a plain game-event line. */
 .chatName {
   color: var(--text-primary);
 }
 
 .chatText {
-  color: var(--text-secondary);
   font-style: italic;
+  color: var(--text-secondary);
+}
+
+.feedBroadcast {
+  color: var(--text-primary);
+}
+
+.broadcastName {
+  color: var(--text-primary);
 }
 
 /* --- end overlay --- */
