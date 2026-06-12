@@ -43,7 +43,10 @@ function StatRow({
   return (
     <div className={styles.statRow}>
       <dt className={styles.statLabel}>{label}</dt>
-      <dd className={clsx(styles.statValue, tone && STAT_TONE[tone])} title={title}>
+      <dd
+        className={clsx(styles.statValue, tone && STAT_TONE[tone])}
+        title={title}
+      >
         {value}
       </dd>
     </div>
@@ -56,7 +59,11 @@ function StatsReadout({ view }: { view: PlayerView }) {
     <div className={styles.stats}>
       <p className={clsx('ui-panel-title', styles.railTitle)}>Status</p>
       <dl className={styles.statList}>
-        <StatRow label="Health" value={`${s.hp}/${s.mhp}`} tone={s.hp < 10 ? 'alert' : undefined} />
+        <StatRow
+          label="Health"
+          value={`${s.hp}/${s.mhp}`}
+          tone={s.hp < 10 ? 'alert' : undefined}
+        />
         <StatRow label="Strength" value={String(s.str)} />
         <StatRow label="Dexterity" value={String(s.dex)} />
         <StatRow label="Intelligence" value={String(s.iq)} />
@@ -84,7 +91,13 @@ function StatsReadout({ view }: { view: PlayerView }) {
   );
 }
 
-function Party({ party, playerId }: { party: PartyMember[]; playerId: PlayerId }) {
+function Party({
+  party,
+  playerId,
+}: {
+  party: PartyMember[];
+  playerId: PlayerId;
+}) {
   const colorOf = chatColorsById(party);
   return (
     <>
@@ -322,9 +335,17 @@ function CommandCluster({
     <div className={styles.legend}>
       <div className={styles.navBlock}>
         <CompassCross commands={NAV_COMMANDS} onTrigger={trigger} />
-        <LegendGroup commands={TRANSIT_COMMANDS} view={view} onTrigger={trigger} />
+        <LegendGroup
+          commands={TRANSIT_COMMANDS}
+          view={view}
+          onTrigger={trigger}
+        />
       </div>
-      <LegendGroup commands={FEATURE_COMMANDS} view={view} onTrigger={trigger} />
+      <LegendGroup
+        commands={FEATURE_COMMANDS}
+        view={view}
+        onTrigger={trigger}
+      />
     </div>
   );
 }
@@ -406,7 +427,10 @@ function Feed({
             <NamedLine
               key={i}
               nameClass={styles.broadcastName}
-              textClass={clsx(styles.feedLine, FEED_KIND_CLASS[item.event.kind])}
+              textClass={clsx(
+                styles.feedLine,
+                FEED_KIND_CLASS[item.event.kind]
+              )}
               color={colorOf(item.from)}
               name={named(item.from)}
               text={item.event.text}
@@ -417,7 +441,11 @@ function Feed({
         return (
           <div
             key={i}
-            className={clsx(styles.feedEvent, styles.feedLine, FEED_KIND_CLASS[item.event.kind])}
+            className={clsx(
+              styles.feedEvent,
+              styles.feedLine,
+              FEED_KIND_CLASS[item.event.kind]
+            )}
           >
             {item.event.text}
           </div>
@@ -432,9 +460,16 @@ function EndOverlay({ ended }: { ended: Mode }) {
   return (
     <div className={styles.end}>
       <h2 className={clsx('txt-h5', victory ? styles.endWin : styles.endLose)}>
-        {victory ? 'ALL HAIL THE VICTOR!' : 'THE PARTY HAS FALLEN'}
+        {victory ? 'ALL HAIL THE VICTOR!' : 'THE PARTY HAS FALLEN.'}
       </h2>
-      <button type="button" className={clsx('btn', 'btn-outlined')} onClick={() => navigate('/')}>
+      <p className={styles.endText}>
+        Art thou brave enough for another attempt?
+      </p>
+      <button
+        type="button"
+        className={clsx('btn', 'btn-outlined')}
+        onClick={() => navigate('/')}
+      >
         Back to title
       </button>
     </div>
@@ -464,7 +499,11 @@ export function Gameplay({
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')
+      )
+        return;
       if (event.key === 'Escape') {
         onCancel();
         return;
@@ -488,13 +527,11 @@ export function Gameplay({
       <GlyphDefs />
 
       <section className={styles.board}>
+        <MapGrid map={view.map} selfX={view.self.x} selfY={view.self.y} />
         {view.ended ? (
           <EndOverlay ended={view.ended} />
         ) : (
-          <>
-            <MapGrid map={view.map} selfX={view.self.x} selfY={view.self.y} />
-            <CommandCluster view={view} onAction={onAction} onCancel={onCancel} />
-          </>
+          <CommandCluster view={view} onAction={onAction} onCancel={onCancel} />
         )}
       </section>
 

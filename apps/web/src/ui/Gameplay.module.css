@@ -22,7 +22,7 @@
   flex-direction: row;
   gap: 4rem;
   align-items: flex-start;
-  padding-left: 6rem;
+  padding: 0 6rem;
 }
 
 .grid {
@@ -368,20 +368,28 @@
 
 /* --- end overlay --- */
 
+/* Sits in the controls' slot beside the map once the game ends. */
 .end {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 1.5rem;
-  padding: 3rem 1rem;
+  padding-top: 0.5rem;
 }
 
 .endWin {
+  font-size: 1.25em;
   color: var(--loot-main);
 }
 
 .endLose {
+  font-size: 1.25em;
   color: var(--error-light);
+}
+
+.endText {
+  color: var(--text-primary);
+  opacity: 0.75;
 }
 
 @media (max-width: 760px) {
