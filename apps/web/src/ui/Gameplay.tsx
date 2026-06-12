@@ -23,11 +23,23 @@ import {
 import { GlyphDefs, MapGrid } from './mapView.js';
 import { navigate } from './useRoute.js';
 
-function StatRow({ label, value, alert }: { label: string; value: string; alert?: boolean }) {
+function StatRow({
+  label,
+  value,
+  alert,
+  title,
+}: {
+  label: string;
+  value: string;
+  alert?: boolean;
+  title?: string;
+}) {
   return (
     <div className={styles.statRow}>
       <dt className={styles.statLabel}>{label}</dt>
-      <dd className={clsx(styles.statValue, alert && styles.hpLow)}>{value}</dd>
+      <dd className={clsx(styles.statValue, alert && styles.hpLow)} title={title}>
+        {value}
+      </dd>
     </div>
   );
 }
@@ -47,11 +59,15 @@ function StatsReadout({ view }: { view: PlayerView }) {
         <StatRow label="Treasures" value={`${view.treasuresFound}/10`} />
         <StatRow
           label="Weapon"
-          value={`${s.weaponName}${s.weaponBroken ? ' (broken)' : ''}`}
+          value={s.weaponName}
+          alert={s.weaponBroken}
+          title={s.weaponBroken ? 'Broken' : undefined}
         />
         <StatRow
           label="Armour"
-          value={`${s.armorName}${s.armorDamaged ? ' (damaged)' : ''}`}
+          value={s.armorName}
+          alert={s.armorDamaged}
+          title={s.armorDamaged ? 'Damaged' : undefined}
         />
       </dl>
     </div>

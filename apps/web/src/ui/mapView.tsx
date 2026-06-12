@@ -79,7 +79,7 @@ export function MapGrid({
             return (
               <div
                 key={x}
-                title={isSelf ? 'You' : glyph.tooltip}
+                data-tip={glyph.tooltip}
                 className={clsx(
                   styles.cell,
                   isSelf && styles.cellSelf,
