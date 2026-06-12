@@ -62,12 +62,11 @@ export function tableReducer(state: TableState, action: TableAction): TableState
 /** An observable wrapper over a TableConnection. */
 export class TableStore {
   private state: TableState = initialTableState;
-  private readonly listeners = new Set<() => void>();
   private connection: TableConnection | null = null;
+  private readonly events = new EventTarget();
 
   constructor(private readonly url: string) {}
 
-  /** Open the socket. Idempotent; pair with disconnect() in an effect cleanup. */
   connect() {
     if (this.connection) return;
     this.connection = new TableConnection(this.url, {
@@ -85,13 +84,13 @@ export class TableStore {
     const next = tableReducer(this.state, action);
     if (next === this.state) return;
     this.state = next;
-    for (const listener of this.listeners) listener();
+    this.events.dispatchEvent(new CustomEvent('change'));
   }
 
-  subscribe = (listener: () => void): (() => void) => {
-    this.listeners.add(listener);
+  subscribe = (listener: () => void) => {
+    this.events.addEventListener('change', listener);
     return () => {
-      this.listeners.delete(listener);
+      this.events.removeEventListener('change', listener);
     };
   };
 
