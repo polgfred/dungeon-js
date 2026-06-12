@@ -93,7 +93,7 @@ export function Lobby({
               </li>
             ))}
             {members.length === 0 && (
-              <li className={styles.partyStatus}>connecting…</li>
+              <li className={styles.partyStatus}>connecting...</li>
             )}
           </ul>
         </div>
@@ -109,7 +109,7 @@ export function Lobby({
           disabled={!everyoneReady}
           onClick={onStart}
         >
-          {everyoneReady ? 'Start' : 'Waiting for all…'}
+          {everyoneReady ? 'Start' : 'Waiting...'}
         </button>
       </aside>
     </div>

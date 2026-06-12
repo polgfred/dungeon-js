@@ -131,11 +131,11 @@ export default function PlayTable({ code }: { code: string }) {
   }
   return (
     <Notice
-      title={table.status === 'closed' ? 'Disconnected' : 'Connecting…'}
+      title={table.status === 'closed' ? 'Disconnected' : 'Connecting...'}
       message={
         table.status === 'closed'
           ? 'Lost the connection to the table.'
-          : `Joining ${code}…`
+          : `Joining ${code}...`
       }
     />
   );

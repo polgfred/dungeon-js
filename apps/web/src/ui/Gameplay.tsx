@@ -425,7 +425,7 @@ export function Gameplay({
       <aside className={styles.statsPane}>
         {status !== 'open' && (
           <p className={styles.reconnecting}>
-            {status === 'closed' ? 'Disconnected — reconnecting…' : 'Connecting…'}
+            {status === 'closed' ? 'Reconnecting...' : 'Connecting...'}
           </p>
         )}
         <StatsReadout view={view} />
