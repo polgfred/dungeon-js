@@ -267,8 +267,12 @@
   text-align: right;
 }
 
-.hpLow {
+.statAlert {
   color: var(--error-light);
+}
+
+.statLoot {
+  color: var(--loot-main);
 }
 
 /* --- members: IRC-style nick column beside the feed (bottom-right) --- */

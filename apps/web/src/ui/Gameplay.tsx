@@ -23,21 +23,26 @@ import {
 import { GlyphDefs, MapGrid } from './mapView.js';
 import { navigate } from './useRoute.js';
 
+const STAT_TONE = {
+  alert: styles.statAlert,
+  loot: styles.statLoot,
+} as const;
+
 function StatRow({
   label,
   value,
-  alert,
+  tone,
   title,
 }: {
   label: string;
   value: string;
-  alert?: boolean;
+  tone?: keyof typeof STAT_TONE;
   title?: string;
 }) {
   return (
     <div className={styles.statRow}>
       <dt className={styles.statLabel}>{label}</dt>
-      <dd className={clsx(styles.statValue, alert && styles.hpLow)} title={title}>
+      <dd className={clsx(styles.statValue, tone && STAT_TONE[tone])} title={title}>
         {value}
       </dd>
     </div>
@@ -50,23 +55,27 @@ function StatsReadout({ view }: { view: PlayerView }) {
     <div className={styles.stats}>
       <p className={clsx('ui-panel-title', styles.railTitle)}>Status</p>
       <dl className={styles.statList}>
-        <StatRow label="HP" value={`${s.hp}/${s.mhp}`} alert={s.hp < 10} />
+        <StatRow label="HP" value={`${s.hp}/${s.mhp}`} tone={s.hp < 10 ? 'alert' : undefined} />
         <StatRow label="ST" value={String(s.str)} />
         <StatRow label="DX" value={String(s.dex)} />
         <StatRow label="IQ" value={String(s.iq)} />
         <StatRow label="Gold" value={String(s.gold)} />
         <StatRow label="Flares" value={String(s.flares)} />
-        <StatRow label="Treasures" value={`${view.treasuresFound}/10`} />
+        <StatRow
+          label="Treasures"
+          value={`${view.treasuresFound}/10`}
+          tone={view.treasuresFound >= 10 ? 'loot' : undefined}
+        />
         <StatRow
           label="Weapon"
           value={s.weaponName}
-          alert={s.weaponBroken}
+          tone={s.weaponBroken ? 'alert' : undefined}
           title={s.weaponBroken ? 'Broken' : undefined}
         />
         <StatRow
           label="Armour"
           value={s.armorName}
-          alert={s.armorDamaged}
+          tone={s.armorDamaged ? 'alert' : undefined}
           title={s.armorDamaged ? 'Damaged' : undefined}
         />
       </dl>
