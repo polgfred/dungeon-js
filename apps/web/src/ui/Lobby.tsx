@@ -11,7 +11,6 @@ import { CharacterReadout } from './CharacterReadout.js';
 import { LobbyBuilder } from './LobbyBuilder.js';
 import styles from './Lobby.module.css';
 import { useSetupGameModel } from './SetupGameModel.js';
-import { navigate } from './useRoute.js';
 
 function ReadyCard({ onEdit }: { onEdit: () => void }) {
   return (
@@ -50,7 +49,6 @@ export function Lobby({
       onSetCharacter(serializePlayer(player));
       setSubmitted(true);
     },
-    onBack: () => navigate('/'),
   });
 
   const members = lobby?.members ?? [];

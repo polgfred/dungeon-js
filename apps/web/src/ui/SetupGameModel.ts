@@ -51,7 +51,6 @@ export type Stats = {
 };
 
 export type SetupGameModel = {
-  onBack: () => void;
   onComplete: (player: Player) => void;
   stage: SetupStage;
   race: Race | null;
@@ -91,10 +90,8 @@ function normalizeCommandKey(event: KeyboardEvent): string | null {
 
 export function useSetupGameModel({
   onComplete,
-  onBack,
 }: {
   onComplete: (player: Player) => void;
-  onBack: () => void;
 }): SetupGameModel {
   const rng = useMemo(() => defaultRandomSource, []);
   const [stage, setStage] = useState<SetupStage>('race');
@@ -469,7 +466,6 @@ export function useSetupGameModel({
       race,
       baseStats,
       handleRaceSelect,
-      onBack,
       handleAdjust,
       handleAdvanceToShop,
       handleFinish,
@@ -508,7 +504,6 @@ export function useSetupGameModel({
   }, [commandMap, handleTrigger]);
 
   return {
-    onBack,
     onComplete,
     stage,
     race,
