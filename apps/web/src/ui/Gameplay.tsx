@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import clsx from 'clsx';
 
-import { Feature, Mode, SPELL_MIN_IQ } from '@dod/core';
+import { Feature, Mode, raceName, SPELL_MIN_IQ } from '@dod/core';
 import type {
   ConnectionStatus,
   FeedItem,
@@ -31,6 +31,7 @@ function StatsReadout({ view }: { view: PlayerView }) {
     <div className={styles.stats}>
       <p className={clsx('ui-panel-title', styles.railTitle)}>Status</p>
       <StatList>
+        <StatRow label="Race" value={String(raceName(s.race))} />
         <StatRow
           label="Health"
           value={`${s.hp}/${s.mhp}`}
