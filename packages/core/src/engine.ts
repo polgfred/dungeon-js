@@ -357,6 +357,8 @@ export class Game {
   }
 
   resumeEvents(id: PlayerId): Event[] {
+    // Don't re-describe a room when the game is over
+    if (this.endMode) return [];
     const state = this.state(id);
     if (state.vendor) {
       return [
@@ -494,7 +496,7 @@ export class Game {
               Event.info('A thief sneaks from the shadows and attacks you!')
             );
             if (player.hp <= 0) {
-              events.push(Event.info('YOU HAVE DIED.'));
+              events.push(Event.broadcast(Event.info('YOU HAVE DIED.')));
               this.endMode = Mode.GAME_OVER;
             }
             break;
@@ -598,7 +600,7 @@ export class Game {
     state.exited = true;
     if (this.allExited()) {
       this.endMode = Mode.VICTORY;
-      return [Event.info('ALL HAIL THE VICTOR!')];
+      return [Event.broadcast(Event.info('ALL HAIL THE VICTOR!'))];
     }
     return [
       Event.info(
@@ -737,7 +739,7 @@ export class Game {
           Event.info(
             'The perverse thing explodes as you open it, wounding you!'
           ),
-          Event.info('YOU HAVE DIED.'),
+          Event.broadcast(Event.info('YOU HAVE DIED.')),
         ];
       }
       return [

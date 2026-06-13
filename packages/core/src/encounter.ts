@@ -307,7 +307,7 @@ export class EncounterSession {
       );
     }
     if (this.player.hp <= 0) {
-      events.push(Event.info('YOU HAVE DIED.'));
+      events.push(Event.broadcast(Event.info('YOU HAVE DIED.')));
       return {
         events,
         done: true,
