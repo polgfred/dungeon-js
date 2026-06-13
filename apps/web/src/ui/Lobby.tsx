@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -12,13 +12,25 @@ import { LobbyBuilder } from './LobbyBuilder.js';
 import styles from './Lobby.module.css';
 import { useSetupGameModel } from './SetupGameModel.js';
 
-function ReadyCard({ onEdit }: { onEdit: () => void }) {
+function ReadyCard({
+  everyoneReady,
+  onStart,
+}: {
+  everyoneReady: boolean;
+  onStart: () => void;
+}) {
   return (
     <div className={styles.ready}>
-      <h2 className={clsx('txt-h5', styles.readyTitle)}>Ready</h2>
-      <p>Thy adventurer awaits. The quest begins once all are ready.</p>
-      <button type="button" className={clsx('btn', 'btn-outlined')} onClick={onEdit}>
-        Edit character
+      <p className={styles.readyText}>
+        Thy adventurer stands ready. THE DUNGEON awaits the whole party...
+      </p>
+      <button
+        type="button"
+        className={clsx('btn', 'btn-contained', styles.startBtn)}
+        disabled={!everyoneReady}
+        onClick={onStart}
+      >
+        {everyoneReady ? 'Begin the descent' : 'Awaiting the party...'}
       </button>
     </div>
   );
@@ -55,15 +67,22 @@ export function Lobby({
   const everyoneReady = members.length > 0 && members.every((m) => m.ready);
   const colorOf = chatColorsById(members);
 
+  const [copied, setCopied] = useState(false);
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const copyLink = () => {
-    void navigator.clipboard?.writeText(window.location.href);
+    void navigator.clipboard?.writeText(window.location.href).then(() => {
+      setCopied(true);
+      clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopied(false), 1500);
+    });
   };
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
 
   return (
     <div className={styles.lobby}>
       <section className={styles.board}>
         {submitted ? (
-          <ReadyCard onEdit={() => setSubmitted(false)} />
+          <ReadyCard everyoneReady={everyoneReady} onStart={onStart} />
         ) : (
           <LobbyBuilder model={model} />
         )}
@@ -106,33 +125,23 @@ export function Lobby({
       </section>
 
       <aside className={styles.members}>
-        <div className={styles.tableInfo}>
-          <p className={clsx('ui-panel-title', styles.railTitle)}>The Table</p>
-          <p className={styles.code}>{code}</p>
-          <button
-            type="button"
-            className={clsx('btn', 'btn-outlined', 'btn-small')}
-            onClick={copyLink}
-          >
-            copy link
-          </button>
-        </div>
-
         <div className={styles.adventurers}>
-          <p className={clsx('ui-panel-title', styles.railTitle)}>Adventurers</p>
+          <p className={clsx('ui-panel-title', styles.railTitle)}>Party</p>
           <ul className={styles.party}>
             {members.map((member) => (
               <li key={member.id} className={styles.partyRow}>
-                <span className={styles.partyMark}>
-                  {member.ready ? '✓' : '·'}
+                <span
+                  className={clsx(
+                    styles.partyMark,
+                    !member.ready && styles.partyMarkPending
+                  )}
+                >
+                  {member.ready ? '√' : '·'}
                 </span>
                 <span className={styles.partyName}>
                   <span style={{ color: colorOf(member.id) }}>{member.name}</span>
                   {member.id === playerId ? ' (you)' : ''}
                 </span>
-                {!member.ready && (
-                  <span className={styles.partyStatus}>building</span>
-                )}
               </li>
             ))}
             {members.length === 0 && (
@@ -141,14 +150,17 @@ export function Lobby({
           </ul>
         </div>
 
-        <button
-          type="button"
-          className={clsx('btn', 'btn-contained', styles.startBtn)}
-          disabled={!everyoneReady}
-          onClick={onStart}
-        >
-          {everyoneReady ? 'Start' : 'Waiting...'}
-        </button>
+        <div className={styles.tableInfo}>
+          <p className={clsx('ui-panel-title', styles.railTitle)}>Table</p>
+          <p className={styles.code}>{code}</p>
+          <button
+            type="button"
+            className={clsx('btn', 'btn-outlined', 'btn-small')}
+            onClick={copyLink}
+          >
+            {copied ? 'copied!' : 'copy link'}
+          </button>
+        </div>
       </aside>
     </div>
   );
