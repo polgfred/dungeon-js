@@ -247,8 +247,9 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
   private viewFor(playerId: PlayerId): PlayerView {
     const game = this.game!;
+    const self = game.getPlayer(playerId);
     return {
-      self: serializePlayer(game.getPlayer(playerId)),
+      self: serializePlayer(self),
       mode: game.mode(playerId),
       map: game.mapView(playerId),
       treasuresFound: game.treasuresFound.size,
@@ -258,6 +259,10 @@ export class TableObject extends HydratableObject<TableSnapshot> {
         name: this.members.get(id)?.name ?? id,
         alive: game.getPlayer(id).hp > 0,
       })),
+      occupants: game.playerIds
+        .map((id) => ({ id, player: game.getPlayer(id) }))
+        .filter(({ player }) => player.z === self.z)
+        .map(({ id, player }) => ({ id, x: player.x, y: player.y })),
       monster: game.currentMonster(playerId),
       prompt: this.promptView(playerId),
     };

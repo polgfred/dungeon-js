@@ -36,7 +36,12 @@ export interface PartyMember {
   alive: boolean;
 }
 
-/** The current dynamic menu the player must answer — its question plus options. */
+export interface Occupant {
+  id: PlayerId;
+  x: number;
+  y: number;
+}
+
 export interface PromptView {
   text: string;
   options: PromptOption[];
@@ -50,6 +55,7 @@ export interface PlayerView {
   treasuresFound: number;
   ended: Mode | null;
   party: PartyMember[];
+  occupants: Occupant[];
   monster: string | null;
   prompt: PromptView | null;
 }

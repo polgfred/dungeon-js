@@ -8,6 +8,7 @@ export type {
   LobbyMember,
   PlayerView,
   PartyMember,
+  Occupant,
   PlayerId,
 } from '../shared/index.js';
 
