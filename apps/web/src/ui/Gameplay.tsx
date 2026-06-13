@@ -64,13 +64,20 @@ function StatsReadout({ view }: { view: PlayerView }) {
 function Party({
   party,
   playerId,
+  status,
 }: {
   party: PartyMember[];
   playerId: PlayerId;
+  status: ConnectionStatus;
 }) {
   const colorOf = chatColorsById(party);
   return (
     <>
+      {status !== 'open' && (
+        <p className={styles.reconnecting}>
+          {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
+        </p>
+      )}
       <p className={clsx('ui-panel-title', styles.railTitle)}>Party</p>
       <ul className={styles.partyList}>
         {party.map((member) => (
@@ -506,11 +513,6 @@ export function Gameplay({
       </section>
 
       <aside className={styles.statsPane}>
-        {status !== 'open' && (
-          <p className={styles.reconnecting}>
-            {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
-          </p>
-        )}
         <p className={clsx('ui-panel-title', styles.railTitle)}>Status</p>
         <StatsReadout view={view} />
       </aside>
@@ -521,7 +523,7 @@ export function Gameplay({
       </section>
 
       <aside className={styles.members}>
-        <Party party={view.party} playerId={playerId} />
+        <Party party={view.party} playerId={playerId} status={status} />
       </aside>
     </div>
   );

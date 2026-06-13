@@ -128,6 +128,7 @@ export default function PlayTable({ code }: { code: string }) {
         code={code}
         lobby={table.lobby}
         playerId={playerId}
+        status={table.status}
         feed={table.feed}
         onSetCharacter={table.setCharacter}
         onStart={table.start}

@@ -1,7 +1,8 @@
 .game {
   display: grid;
-  grid-template-columns: 1fr max-content;
-  grid-template-rows: auto 1fr;
+  /* The right column and top row are locked to what their contents need. */
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr);
   grid-template-areas:
     'board stats'
     'feed  members';
@@ -22,6 +23,9 @@
   flex-direction: row;
   gap: 4rem;
   align-items: flex-start;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
   padding: 0 6rem;
 }
 
@@ -229,8 +233,9 @@
   grid-area: stats;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  min-width: 11rem;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(var(--primary-light-rgb), 0.15);
   border-radius: 4px;

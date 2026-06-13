@@ -3,7 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import { serializePlayer, type PlayerSave } from '@dod/core';
-import type { FeedItem, LobbyState, PlayerId } from '@dod/net/client';
+import type {
+  ConnectionStatus,
+  FeedItem,
+  LobbyState,
+  PlayerId,
+} from '@dod/net/client';
 
 import { ChatInput } from './ChatInput.js';
 import { chatColorsById } from './chatColors.js';
@@ -40,6 +45,7 @@ export function Lobby({
   code,
   lobby,
   playerId,
+  status,
   feed,
   onSetCharacter,
   onStart,
@@ -48,6 +54,7 @@ export function Lobby({
   code: string;
   lobby: LobbyState | null;
   playerId: PlayerId;
+  status: ConnectionStatus;
   feed: FeedItem[];
   onSetCharacter: (character: PlayerSave) => void;
   onStart: () => void;
@@ -125,6 +132,11 @@ export function Lobby({
       </section>
 
       <aside className={styles.members}>
+        {status !== 'open' && (
+          <p className={styles.reconnecting}>
+            {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
+          </p>
+        )}
         <div className={styles.adventurers}>
           <p className={clsx('ui-panel-title', styles.railTitle)}>Party</p>
           <ul className={styles.party}>
@@ -144,9 +156,6 @@ export function Lobby({
                 </span>
               </li>
             ))}
-            {members.length === 0 && (
-              <li className={styles.partyStatus}>connecting...</li>
-            )}
           </ul>
         </div>
 

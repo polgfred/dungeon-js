@@ -37,7 +37,7 @@
 
 /* Dim prose hint for the builder's dead space. */
 .hint {
-  max-width: 32rem;
+  max-width: 50%;
   opacity: 0.5;
   font-size: 0.8rem;
   line-height: 1.45;
