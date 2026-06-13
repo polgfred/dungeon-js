@@ -11,6 +11,9 @@
 
 .feedLine {
   color: var(--text-primary);
+  /* Hanging indent */
+  padding-left: 2em;
+  text-indent: -2em;
 }
 
 .feedLoot {
