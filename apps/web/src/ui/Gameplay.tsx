@@ -66,20 +66,13 @@ function StatsReadout({ view }: { view: PlayerView }) {
 function Party({
   party,
   playerId,
-  status,
 }: {
   party: PartyMember[];
   playerId: PlayerId;
-  status: ConnectionStatus;
 }) {
   const colorOf = chatColorsById(party);
   return (
-    <>
-      {status !== 'open' && (
-        <p className={layout.reconnecting}>
-          {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
-        </p>
-      )}
+    <section>
       <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
       <ul className={styles.partyList}>
         {party.map((member) => (
@@ -91,7 +84,7 @@ function Party({
           </li>
         ))}
       </ul>
-    </>
+    </section>
   );
 }
 
@@ -414,19 +407,29 @@ export function Gameplay({
         )}
       </section>
 
-      <aside className={layout.stats}>
-        <p className={clsx('ui-panel-title', layout.railTitle)}>Status</p>
-        <StatsReadout view={view} />
+      <aside className={layout.sidebar}>
+        {status !== 'open' && (
+          <p className={layout.reconnecting}>
+            {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
+          </p>
+        )}
+        <section>
+          <p className={clsx('ui-panel-title', layout.railTitle)}>Status</p>
+          <StatsReadout view={view} />
+        </section>
+        <section>
+          <p className={clsx('ui-panel-title', layout.railTitle)}>Location</p>
+          <p className={styles.location}>
+            Floor {view.self.z + 1} · Room {view.self.y + 1},{view.self.x + 1}
+          </p>
+        </section>
+        <Party party={view.party} playerId={playerId} />
       </aside>
 
       <section className={layout.feedDock}>
         <Feed feed={feed} members={view.party} playerId={playerId} />
         <ChatInput onSend={onChat} />
       </section>
-
-      <aside className={layout.members}>
-        <Party party={view.party} playerId={playerId} status={status} />
-      </aside>
     </div>
   );
 }

@@ -23,15 +23,8 @@
 
 /* The feed dock's log is the shared Feed component (Feed.module.css). */
 
-/* --- members: table code + adventurers (bottom right). The shared pane chrome
-   is in Layout.module.css; the lobby stacks its sections in a column. --- */
-
-.members {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-width: 14rem;
-}
+/* --- sidebar sections: character / party / table (shared .sidebar chrome and
+   column layout live in Layout.module.css). --- */
 
 .tableInfo,
 .adventurers {
@@ -39,7 +32,7 @@
   flex-direction: column;
 }
 
-/* The table code/link sits at the foot of the column, under the party. */
+/* The table code/link sits at the foot of the tall sidebar, under the party. */
 .tableInfo {
   margin-top: auto;
 }

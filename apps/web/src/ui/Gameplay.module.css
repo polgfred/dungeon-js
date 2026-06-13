@@ -209,7 +209,13 @@
   border-color: rgba(var(--primary-light-rgb), 0.2);
 }
 
-/* --- members: IRC-style nick column beside the feed (bottom-right) --- */
+/* --- sidebar: Location line + party list --- */
+
+.location {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
 
 .partyList {
   list-style: none;

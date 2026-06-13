@@ -97,31 +97,26 @@ export function Lobby({
         )}
       </section>
 
-      <aside className={layout.stats}>
-        <p className={clsx('ui-panel-title', layout.railTitle)}>Character</p>
-        <CharacterReadout
-          stage={model.stage}
-          race={model.race}
-          derivedStats={model.derivedStats}
-          gold={model.gold}
-          weaponTier={model.weaponTier}
-          armorTier={model.armorTier}
-          flares={model.flares}
-          totalCost={model.totalCost}
-        />
-      </aside>
-
-      <section className={layout.feedDock}>
-        <Feed feed={feed} members={members} playerId={playerId} />
-        <ChatInput onSend={onChat} />
-      </section>
-
-      <aside className={clsx(layout.members, styles.members)}>
+      <aside className={layout.sidebar}>
         {status !== 'open' && (
           <p className={layout.reconnecting}>
             {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
           </p>
         )}
+        <section>
+          <p className={clsx('ui-panel-title', layout.railTitle)}>Character</p>
+          <CharacterReadout
+            stage={model.stage}
+            race={model.race}
+            derivedStats={model.derivedStats}
+            gold={model.gold}
+            weaponTier={model.weaponTier}
+            armorTier={model.armorTier}
+            flares={model.flares}
+            totalCost={model.totalCost}
+          />
+        </section>
+
         <div className={styles.adventurers}>
           <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
           <ul className={styles.party}>
@@ -156,6 +151,11 @@ export function Lobby({
           </button>
         </div>
       </aside>
+
+      <section className={layout.feedDock}>
+        <Feed feed={feed} members={members} playerId={playerId} />
+        <ChatInput onSend={onChat} />
+      </section>
     </div>
   );
 }
