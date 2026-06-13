@@ -334,27 +334,23 @@ const FEED_KIND_CLASS: Partial<Record<string, string>> = {
   ERROR: styles.feedError,
 };
 
-/** IRC-style two-column line: name | message */
+/** A single feed line: <name> message, the name in the player's color. */
 function NamedLine({
-  nameClass,
   textClass,
   color,
   name,
   text,
 }: {
-  nameClass: string;
-  textClass: string;
+  textClass?: string;
   color: string;
   name: string;
   text: string;
 }) {
   return (
-    <>
-      <span className={clsx(styles.feedName, nameClass)} style={{ color }}>
-        {name}
-      </span>
+    <div className={styles.feedLine}>
+      <span style={{ color }}>&lt;{name}&gt;</span>{' '}
       <span className={textClass}>{text}</span>
-    </>
+    </div>
   );
 }
 
@@ -389,7 +385,6 @@ function Feed({
           return (
             <NamedLine
               key={i}
-              nameClass={styles.chatName}
               textClass={styles.chatText}
               color={colorOf(item.from)}
               name={item.name}
@@ -404,26 +399,18 @@ function Feed({
           return (
             <NamedLine
               key={i}
-              nameClass={styles.broadcastName}
-              textClass={clsx(
-                styles.feedLine,
-                FEED_KIND_CLASS[item.event.kind]
-              )}
+              textClass={FEED_KIND_CLASS[item.event.kind]}
               color={colorOf(item.from)}
               name={named(item.from)}
               text={item.event.text}
             />
           );
         }
-        // Nameless game events sit in the message column (name column blank).
+        // Nameless game/system events: just the message, in its standard color.
         return (
           <div
             key={i}
-            className={clsx(
-              styles.feedEvent,
-              styles.feedLine,
-              FEED_KIND_CLASS[item.event.kind]
-            )}
+            className={clsx(styles.feedLine, FEED_KIND_CLASS[item.event.kind])}
           >
             {item.event.text}
           </div>

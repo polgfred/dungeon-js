@@ -118,10 +118,7 @@ export function Lobby({
             .map((item, i) =>
               item.kind === 'chat' ? (
                 <div key={i} className={styles.chatLine}>
-                  <span
-                    className={styles.chatName}
-                    style={{ color: colorOf(item.from) }}
-                  >
+                  <span style={{ color: colorOf(item.from) }}>
                     &lt;{item.name}&gt;
                   </span>{' '}
                   <span className={styles.chatText}>{item.text}</span>

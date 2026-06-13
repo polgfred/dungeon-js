@@ -38,11 +38,8 @@
 }
 
 /* Name color is set inline (the player's --chat-N token); message stays dimmer. */
-.chatName {
-  color: var(--text-primary);
-}
-
 .chatText {
+  font-style: italic;
   color: var(--text-secondary);
 }
 

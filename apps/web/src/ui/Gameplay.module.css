@@ -222,26 +222,15 @@
 
 /* --- feed: IRC-style log inside the shared bottom dock --- */
 
-/* IRC-style two-column log: right-aligned name column + message column */
+/* Single-line flow: one <name> message per row. */
 .feed {
   flex: 1;
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  align-content: start;
-  gap: 0.35rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
   overflow-y: auto;
   min-height: 0;
   font-size: 0.9rem;
-}
-
-.feedName {
-  text-align: right;
-  color: var(--text-primary);
-}
-
-/* Nameless game/system messages sit in the message column */
-.feedEvent {
-  grid-column: 2;
 }
 
 .feedLine {
@@ -258,14 +247,6 @@
 
 .feedError {
   color: var(--error-light);
-}
-
-.chatName {
-  color: var(--text-primary);
-}
-
-.broadcastName {
-  color: var(--text-primary);
 }
 
 .chatText {
