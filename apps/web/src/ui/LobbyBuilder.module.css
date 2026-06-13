@@ -1,0 +1,45 @@
+/* Per-stage layout: a question over a body of choices + an optional hint. The
+   chips themselves live in Chips.module.css; this is the build's own layout. */
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+/* The narrator's prose for the step, sitting above the choices. */
+.question {
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+/* Choices on the left, the key hint in the dead space to their right. */
+.body {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 3rem;
+}
+
+/* The choices, indented under the prose. The column hugs its widest chip and
+   stretches the rest to match, so each chip's note/value lands on one edge. */
+.choices {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+  width: max-content;
+  min-width: 13rem;
+  padding: 0.85rem;
+}
+
+/* Dim prose hint for the builder's dead space. */
+.hint {
+  max-width: 32rem;
+  opacity: 0.5;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  padding: 0.85rem;
+}
