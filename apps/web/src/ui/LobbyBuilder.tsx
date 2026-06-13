@@ -68,7 +68,7 @@ function commandHelpers(model: SetupGameModel) {
 }
 
 function RaceStage({ model }: StageProps) {
-  const { select, action } = commandHelpers(model);
+  const { select } = commandHelpers(model);
   return (
     <div className={styles.menu}>
       <p className={styles.question}>
@@ -79,12 +79,9 @@ function RaceStage({ model }: StageProps) {
           {Object.entries(RACE_BY_ID).map(([id, value]) =>
             select(id, model.race === value)
           )}
-          {action('race-confirm')}
-          {action('race-back')}
         </div>
         <p className={styles.hint}>
-          Hint: Press the key shown beside an option to select it. Press Enter
-          to confirm your choice.
+          Hint: Press the key shown beside an option to choose it.
         </p>
       </div>
     </div>
@@ -119,7 +116,6 @@ function AllocateStage({ model }: StageProps) {
             );
           })}
           {action('alloc-confirm')}
-          {action('alloc-back')}
         </div>
         <p className={styles.hint}>
           Hint: Press the key shown beside an option to raise its value. Hold
@@ -131,7 +127,7 @@ function AllocateStage({ model }: StageProps) {
 }
 
 function WeaponStage({ model }: StageProps) {
-  const { select, action } = commandHelpers(model);
+  const { select } = commandHelpers(model);
   return (
     <div className={styles.menu}>
       <p className={styles.question}>Now then, thou must purchase a weapon.</p>
@@ -140,12 +136,9 @@ function WeaponStage({ model }: StageProps) {
           {[1, 2, 3].map((tier) =>
             select(`weapon-${tier}`, model.weaponTier === tier)
           )}
-          {action('weapon-confirm')}
-          {action('weapon-back')}
         </div>
         <p className={styles.hint}>
-          Hint: Press the key shown beside an option to select it. Press Enter
-          to confirm your choice.
+          Hint: Press the key shown beside an option to choose it.
         </p>
       </div>
     </div>
@@ -153,7 +146,7 @@ function WeaponStage({ model }: StageProps) {
 }
 
 function ArmourStage({ model }: StageProps) {
-  const { select, action } = commandHelpers(model);
+  const { select } = commandHelpers(model);
   return (
     <div className={styles.menu}>
       <p className={styles.question}>
@@ -164,12 +157,9 @@ function ArmourStage({ model }: StageProps) {
           {[1, 2, 3].map((tier) =>
             select(`armour-${tier}`, model.armorTier === tier)
           )}
-          {action('armour-confirm')}
-          {action('armour-back')}
         </div>
         <p className={styles.hint}>
-          Hint: Press the key shown beside an option to select it. Press Enter
-          to confirm your choice.
+          Hint: Press the key shown beside an option to choose it.
         </p>
       </div>
     </div>
@@ -195,7 +185,6 @@ function FlaresStage({ model }: StageProps) {
             downDisabled={byId.get('flares-minus')?.disabled}
           />
           {action('flares-confirm')}
-          {action('flares-back')}
         </div>
         <p className={styles.hint}>
           Hint: Press the key shown beside an option to raise its value. Hold

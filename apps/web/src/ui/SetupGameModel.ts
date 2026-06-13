@@ -30,6 +30,19 @@ export type SetupStage =
   | 'flares'
   | 'ready';
 
+const STAGE_ORDER: SetupStage[] = [
+  'race',
+  'allocate',
+  'weapon',
+  'armour',
+  'flares',
+  'ready',
+];
+
+export function stageReached(current: SetupStage, target: SetupStage): boolean {
+  return STAGE_ORDER.indexOf(current) >= STAGE_ORDER.indexOf(target);
+}
+
 export type Stats = {
   ST: number;
   DX: number;
@@ -141,6 +154,7 @@ export function useSetupGameModel({
     setBaseStats({ ST: st, DX: dx, IQ: iq, HP: hp });
     setAllocations({ ST: 0, DX: 0, IQ: 0 });
     setSetupError(null);
+    setStage('allocate');
   };
 
   const handleAdjust = (key: AllocationKey, delta: number) => {
@@ -187,13 +201,6 @@ export function useSetupGameModel({
         { id: 'race-dwarf', key: 'D', label: 'Dwarf', disabled: false },
         { id: 'race-elf', key: 'E', label: 'Elf', disabled: false },
         { id: 'race-halfling', key: 'L', label: 'Halfling', disabled: false },
-        {
-          id: 'race-confirm',
-          key: 'Enter',
-          label: 'Confirm',
-          disabled: !race || !baseStats,
-        },
-        { id: 'race-back', key: 'Esc', label: 'Back', disabled: false },
       ];
     }
 
@@ -245,7 +252,6 @@ export function useSetupGameModel({
           label: 'Confirm',
           disabled: remainingPoints !== 0,
         },
-        { id: 'alloc-back', key: 'Esc', label: 'Back', disabled: false },
       ];
     }
 
@@ -273,13 +279,6 @@ export function useSetupGameModel({
           note: `${WEAPON_PRICES[3]}g`,
           disabled: WEAPON_PRICES[3] > g,
         },
-        {
-          id: 'weapon-confirm',
-          key: 'Enter',
-          label: 'Confirm',
-          disabled: weaponTier === 0,
-        },
-        { id: 'weapon-back', key: 'Esc', label: 'Back', disabled: false },
       ];
     }
 
@@ -308,13 +307,6 @@ export function useSetupGameModel({
           note: `${ARMOR_PRICES[3]}g`,
           disabled: ARMOR_PRICES[3] > left,
         },
-        {
-          id: 'armour-confirm',
-          key: 'Enter',
-          label: 'Confirm',
-          disabled: armorTier === 0,
-        },
-        { id: 'armour-back', key: 'Esc', label: 'Back', disabled: false },
       ];
     }
 
@@ -332,8 +324,7 @@ export function useSetupGameModel({
           label: 'Flares',
           disabled: flares <= 0,
         },
-        { id: 'flares-confirm', key: 'Enter', label: 'Finalize', disabled: false },
-        { id: 'flares-back', key: 'Esc', label: 'Back', disabled: false },
+        { id: 'flares-confirm', key: 'Enter', label: 'Confirm', disabled: false },
       ];
     }
 
@@ -385,12 +376,6 @@ export function useSetupGameModel({
           case 'race-halfling':
             handleRaceSelect(Race.HALFLING);
             return;
-          case 'race-confirm':
-            if (race && baseStats) setStage('allocate');
-            return;
-          case 'race-back':
-            onBack();
-            return;
         }
       }
 
@@ -417,9 +402,6 @@ export function useSetupGameModel({
           case 'alloc-confirm':
             handleAdvanceToShop();
             return;
-          case 'alloc-back':
-            setStage('race');
-            return;
         }
       }
 
@@ -427,24 +409,15 @@ export function useSetupGameModel({
         switch (command.id) {
           case 'weapon-1':
             setWeaponTier(1);
+            setStage('armour');
             return;
           case 'weapon-2':
             setWeaponTier(2);
+            setStage('armour');
             return;
           case 'weapon-3':
             setWeaponTier(3);
-            return;
-          case 'weapon-confirm': {
-            // Drop a now-unaffordable armour choice back to unselected.
-            const left = (gold ?? 0) - WEAPON_PRICES[weaponTier];
-            if (armorTier !== 0 && ARMOR_PRICES[armorTier] > left) {
-              setArmorTier(0);
-            }
             setStage('armour');
-            return;
-          }
-          case 'weapon-back':
-            setStage('allocate');
             return;
         }
       }
@@ -453,19 +426,15 @@ export function useSetupGameModel({
         switch (command.id) {
           case 'armour-1':
             setArmorTier(1);
+            setStage('flares');
             return;
           case 'armour-2':
             setArmorTier(2);
+            setStage('flares');
             return;
           case 'armour-3':
             setArmorTier(3);
-            return;
-          case 'armour-confirm':
-            setFlares((f) => Math.min(f, maxFlares));
             setStage('flares');
-            return;
-          case 'armour-back':
-            setStage('weapon');
             return;
         }
       }
@@ -480,9 +449,6 @@ export function useSetupGameModel({
             return;
           case 'flares-confirm':
             handleFinish();
-            return;
-          case 'flares-back':
-            setStage('armour');
             return;
         }
       }

@@ -74,13 +74,13 @@ export function Lobby({
       <aside className={styles.statsPane}>
         <p className={clsx('ui-panel-title', styles.railTitle)}>Character</p>
         <CharacterReadout
+          stage={model.stage}
           race={model.race}
           derivedStats={model.derivedStats}
           gold={model.gold}
           weaponTier={model.weaponTier}
           armorTier={model.armorTier}
           flares={model.flares}
-          flaresChosen={model.stage === 'flares' || model.stage === 'ready'}
           totalCost={model.totalCost}
         />
       </aside>

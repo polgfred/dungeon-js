@@ -6,31 +6,33 @@ import {
 } from '@dod/core';
 
 import { StatList, StatRow } from './StatList.js';
-import type { Stats } from './SetupGameModel.js';
+import { stageReached, type SetupStage, type Stats } from './SetupGameModel.js';
 
 /** The in-progress character, in the gameplay Status-pane shape. */
 export function CharacterReadout({
+  stage,
   race,
   derivedStats,
   gold,
   weaponTier,
   armorTier,
   flares,
-  flaresChosen,
   totalCost,
 }: {
+  stage: SetupStage;
   race: Race | null;
   derivedStats: Stats | null;
   gold: number | null;
   weaponTier: number;
   armorTier: number;
   flares: number;
-  flaresChosen: boolean;
   totalCost: number;
 }) {
-  const dash = '—';
+  const dash = '-';
   const stat = (value: number | undefined) =>
     derivedStats && value !== undefined ? String(value) : dash;
+  const at = (target: SetupStage, value: string) =>
+    stageReached(stage, target) ? value : dash;
   const remaining = gold !== null ? gold - totalCost : null;
 
   return (
@@ -41,15 +43,9 @@ export function CharacterReadout({
       <StatRow label="Intelligence" value={stat(derivedStats?.IQ)} />
       <StatRow label="Health" value={stat(derivedStats?.HP)} />
       <StatRow label="Gold" value={gold !== null ? String(gold) : dash} />
-      <StatRow
-        label="Weapon"
-        value={weaponTier > 0 ? WEAPON_NAMES[weaponTier] : dash}
-      />
-      <StatRow
-        label="Armour"
-        value={armorTier > 0 ? ARMOR_NAMES[armorTier] : dash}
-      />
-      <StatRow label="Flares" value={flaresChosen ? String(flares) : dash} />
+      <StatRow label="Weapon" value={at('armour', WEAPON_NAMES[weaponTier])} />
+      <StatRow label="Armour" value={at('flares', ARMOR_NAMES[armorTier])} />
+      <StatRow label="Flares" value={at('flares', String(flares))} />
       <StatRow
         label="Remaining"
         value={remaining !== null ? String(remaining) : dash}
