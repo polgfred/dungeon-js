@@ -42,11 +42,6 @@ function StatsReadout({ view }: { view: PlayerView }) {
         <StatRow label="Gold" value={String(s.gold)} />
         <StatRow label="Flares" value={String(s.flares)} />
         <StatRow
-          label="Treasures"
-          value={`${view.treasuresFound}/10`}
-          tone={view.treasuresFound >= 10 ? 'loot' : undefined}
-        />
-        <StatRow
           label="Weapon"
           value={s.weaponName}
           tone={s.weaponBroken ? 'alert' : undefined}
@@ -57,6 +52,11 @@ function StatsReadout({ view }: { view: PlayerView }) {
           value={s.armorName}
           tone={s.armorDamaged ? 'alert' : undefined}
           title={s.armorDamaged ? 'Damaged' : undefined}
+        />
+        <StatRow
+          label="Treasures"
+          value={`${view.treasuresFound}/10`}
+          tone={view.treasuresFound >= 10 ? 'loot' : undefined}
         />
       </StatList>
     </div>

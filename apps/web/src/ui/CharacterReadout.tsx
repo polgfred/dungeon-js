@@ -38,14 +38,14 @@ export function CharacterReadout({
   return (
     <StatList>
       <StatRow label="Race" value={race !== null ? raceName(race) : dash} />
+      <StatRow label="Health" value={stat(derivedStats?.HP)} />
       <StatRow label="Strength" value={stat(derivedStats?.ST)} />
       <StatRow label="Dexterity" value={stat(derivedStats?.DX)} />
       <StatRow label="Intelligence" value={stat(derivedStats?.IQ)} />
-      <StatRow label="Health" value={stat(derivedStats?.HP)} />
       <StatRow label="Gold" value={gold !== null ? String(gold) : dash} />
+      <StatRow label="Flares" value={at('flares', String(flares))} />
       <StatRow label="Weapon" value={at('armor', WEAPON_NAMES[weaponTier])} />
       <StatRow label="Armour" value={at('flares', ARMOR_NAMES[armorTier])} />
-      <StatRow label="Flares" value={at('flares', String(flares))} />
       <StatRow
         label="Remaining"
         value={remaining !== null ? String(remaining) : dash}
