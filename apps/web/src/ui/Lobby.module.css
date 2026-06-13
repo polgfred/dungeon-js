@@ -21,27 +21,7 @@
   color: var(--text-primary);
 }
 
-/* --- feed: chat (bottom left) --- */
-
-.chatLog {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.9rem;
-}
-
-.chatLine {
-  color: var(--text-secondary);
-}
-
-/* Name color is set inline (the player's --chat-N token); message stays dimmer. */
-.chatText {
-  font-style: italic;
-  color: var(--text-secondary);
-}
+/* The feed dock's log is the shared Feed component (Feed.module.css). */
 
 /* --- members: table code + adventurers (bottom right). The shared pane chrome
    is in Layout.module.css; the lobby stacks its sections in a column. --- */

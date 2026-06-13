@@ -13,6 +13,7 @@ import type {
 import { ChatInput } from './ChatInput.js';
 import { chatColorsById } from './chatColors.js';
 import { CharacterReadout } from './CharacterReadout.js';
+import { Feed } from './Feed.js';
 import { LobbyBuilder } from './LobbyBuilder.js';
 import layout from './Layout.module.css';
 import styles from './Lobby.module.css';
@@ -111,20 +112,7 @@ export function Lobby({
       </aside>
 
       <section className={layout.feedDock}>
-        <div className={styles.chatLog}>
-          {feed
-            .filter((item) => item.kind === 'chat')
-            .map((item, i) =>
-              item.kind === 'chat' ? (
-                <div key={i} className={styles.chatLine}>
-                  <span style={{ color: colorOf(item.from) }}>
-                    &lt;{item.name}&gt;
-                  </span>{' '}
-                  <span className={styles.chatText}>{item.text}</span>
-                </div>
-              ) : null
-            )}
-        </div>
+        <Feed feed={feed} members={members} playerId={playerId} />
         <ChatInput onSend={onChat} />
       </section>
 

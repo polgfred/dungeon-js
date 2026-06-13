@@ -1,0 +1,32 @@
+/* The shared chat/event log. */
+.feed {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  overflow-y: auto;
+  min-height: 0;
+  font-size: 0.9rem;
+}
+
+.feedLine {
+  color: var(--text-primary);
+}
+
+.feedLoot {
+  color: var(--loot-main);
+}
+
+.feedCombat {
+  color: var(--combat-main);
+}
+
+.feedError {
+  color: var(--error-light);
+}
+
+/* Chat messages: dimmer and italic, distinct from game events. */
+.chatText {
+  font-style: italic;
+  color: var(--text-secondary);
+}
