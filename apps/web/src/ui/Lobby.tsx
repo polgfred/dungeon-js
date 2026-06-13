@@ -111,7 +111,6 @@ export function Lobby({
       </aside>
 
       <section className={layout.feedDock}>
-        <p className={clsx('ui-panel-title', layout.railTitle)}>Chat</p>
         <div className={styles.chatLog}>
           {feed
             .filter((item) => item.kind === 'chat')
