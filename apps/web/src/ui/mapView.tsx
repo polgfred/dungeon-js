@@ -1,6 +1,9 @@
+import type { CSSProperties } from 'react';
+
 import clsx from 'clsx';
 
 import { Feature, MapTile, type Tile } from '@dod/core';
+import type { Occupant, PlayerId } from '@dod/net/client';
 
 import { GLYPH_PATHS, type GlyphId } from './glyphPaths.js';
 import styles from './Gameplay.module.css';
@@ -60,29 +63,58 @@ function GlyphIcon({ id }: { id: GlyphId }) {
   );
 }
 
+type CellOccupancy = { colors: string[]; isSelf: boolean };
+
+/** The occupant ring fed to CSS: a solid color for one player, a conic split
+ *  for several. CSS masks it to just the border, so the glyph stays readable. */
+function ringStyle(colors: string[]): CSSProperties {
+  const n = colors.length;
+  const ring =
+    n === 1
+      ? colors[0]
+      : `conic-gradient(${colors
+          .map((c, i) => `${c} ${(i / n) * 100}% ${((i + 1) / n) * 100}%`)
+          .join(', ')})`;
+  return { '--ring': ring } as CSSProperties;
+}
+
 export function MapGrid({
   map,
-  selfX,
-  selfY,
+  occupants,
+  playerId,
+  colorOf,
 }: {
   map: Tile[][];
-  selfX: number;
-  selfY: number;
+  occupants: Occupant[];
+  playerId: PlayerId;
+  colorOf: (id: PlayerId) => string;
 }) {
+  // Group occupants by cell so a shared room mixes everyone's colors.
+  const byCell = new Map<string, CellOccupancy>();
+  for (const occ of occupants) {
+    const key = `${occ.x},${occ.y}`;
+    const entry = byCell.get(key) ?? { colors: [], isSelf: false };
+    entry.colors.push(colorOf(occ.id));
+    if (occ.id === playerId) entry.isSelf = true;
+    byCell.set(key, entry);
+  }
+
   return (
     <div className={styles.grid}>
       {map.map((row, y) => (
         <div key={y} className={styles.gridRow}>
           {row.map((tile, x) => {
             const glyph = tileGlyph(tile);
-            const isSelf = x === selfX && y === selfY;
+            const here = byCell.get(`${x},${y}`);
             return (
               <div
                 key={x}
                 data-tip={glyph.tooltip}
+                style={here ? ringStyle(here.colors) : undefined}
                 className={clsx(
                   styles.cell,
-                  isSelf && styles.cellSelf,
+                  here && styles.cellOccupied,
+                  here?.isSelf && styles.cellSelf,
                   tile === MapTile.UNSEEN && styles.cellDim,
                   glyph.danger && styles.cellDanger,
                   glyph.treasure && styles.cellTreasure

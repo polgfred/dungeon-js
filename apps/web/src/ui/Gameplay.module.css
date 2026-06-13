@@ -64,9 +64,39 @@
   color: rgba(var(--text-primary-rgb), 0.22);
 }
 
+/* A player stands here: a 2px ring in their chat colour (a conic split when
+   several share the room). The ring is masked to the border only, so the cell
+   interior stays transparent over the dungeon vignette and the glyph reads
+   cleanly. JS supplies --ring (a colour or conic-gradient); the mix is CSS. */
+.cellOccupied {
+  border-color: transparent;
+}
+
+.cellOccupied::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 2px solid transparent;
+  background: var(--ring) border-box;
+  /* Show the gradient in the border ring only — the "gradient border" trick.
+     Two identical solid mask layers: the first clipped to the padding box (the
+     interior), the second to the border box (the whole element). Compositing
+     them with exclude (XOR) cancels where they overlap (the interior) and keeps
+     where they differ (the 2px border ring), so the gradient is masked to the
+     ring and the cell interior stays transparent. */
+  -webkit-mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
 .cellSelf {
-  border-color: var(--text-secondary);
-  background: rgba(var(--primary-light-rgb), 0.25);
+  background: rgba(var(--primary-light-rgb), 0.18);
 }
 
 .cellDanger {

@@ -394,12 +394,19 @@ export function Gameplay({
     return () => window.removeEventListener('keydown', onKey);
   }, [onAction, onCancel, arrowsMove]);
 
+  const colorOf = chatColorsById(view.party);
+
   return (
     <div className={layout.root}>
       <GlyphDefs />
 
       <section className={clsx(layout.board, styles.board)}>
-        <MapGrid map={view.map} selfX={view.self.x} selfY={view.self.y} />
+        <MapGrid
+          map={view.map}
+          occupants={view.occupants}
+          playerId={playerId}
+          colorOf={colorOf}
+        />
         {view.ended ? (
           <EndOverlay ended={view.ended} />
         ) : (
