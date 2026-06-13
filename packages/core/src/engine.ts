@@ -129,6 +129,15 @@ export class Game {
     return Mode.EXPLORE;
   }
 
+  /** The monster the player currently faces, or null when not in an encounter. */
+  currentMonster(id: PlayerId): string | null {
+    const state = this.state(id);
+    if (!state.encounter) return null;
+    const room = this.currentRoom(state.player);
+    if (room.monsterLevel <= 0) return null;
+    return monsterName(room.monsterLevel);
+  }
+
   static fromSave(
     save: GameSave,
     rng: RandomSource = defaultRandomSource

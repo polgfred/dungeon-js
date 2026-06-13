@@ -50,7 +50,7 @@ export interface PlayerView {
   treasuresFound: number;
   ended: Mode | null;
   party: PartyMember[];
-  /** The current dynamic prompt (spell/vendor menu) the player must answer, if any. */
+  monster: string | null;
   prompt: PromptView | null;
 }
 

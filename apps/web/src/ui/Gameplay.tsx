@@ -291,6 +291,11 @@ function CommandCluster({
   if (view.mode === Mode.ENCOUNTER) {
     return (
       <div className={styles.prompt}>
+        {view.monster && (
+          <p className={styles.promptText}>
+            You are facing an angry {view.monster}!
+          </p>
+        )}
         {ENCOUNTER_COMMANDS.map((command) => (
           <button
             key={command.id}
