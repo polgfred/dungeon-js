@@ -96,20 +96,20 @@ export function AdjustChip({
         <button
           type="button"
           className={styles.adjustBtn}
-          aria-label={`Lower ${label}`}
-          disabled={downDisabled}
-          onClick={onDown}
-        >
-          {'↓'}
-        </button>
-        <button
-          type="button"
-          className={styles.adjustBtn}
           aria-label={`Raise ${label}`}
           disabled={upDisabled}
           onClick={onUp}
         >
           {'↑'}
+        </button>
+        <button
+          type="button"
+          className={styles.adjustBtn}
+          aria-label={`Lower ${label}`}
+          disabled={downDisabled}
+          onClick={onDown}
+        >
+          {'↓'}
         </button>
       </span>
     </div>
