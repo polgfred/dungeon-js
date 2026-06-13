@@ -44,6 +44,7 @@
   }
 
   input {
+    /* Spellcheck is off globally via spellcheck="false" on <body>. */
     /* Retro cursor styling if your browser supports it. */
     caret-color: rgba(var(--text-primary-rgb), 0.75);
     caret-shape: block;
