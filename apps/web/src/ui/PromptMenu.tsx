@@ -6,7 +6,7 @@ import styles from './PromptMenu.module.css';
 
 /** Render a command key as a compact keycap glyph. */
 export function keyCap(key: string): string {
-  if (key === 'Enter') return '⏎'; // ⏎
+  if (key === 'Enter') return '√'; // √
   if (key === 'Esc') return '␛'; // ␛
   if (key.startsWith('Shift+')) return `⇧${key.slice(6)}`; // ⇧X
   return key;
@@ -14,20 +14,34 @@ export function keyCap(key: string): string {
 
 /** The prompt-menu shell: an optional question over a column of chips. Mirrors
  *  the gameplay prompt look so the builder reads like an in-game menu. */
-export function PromptMenu({ children }: { children: ReactNode }) {
-  return <div className={styles.menu}>{children}</div>;
+export function PromptMenu({
+  question,
+  children,
+}: {
+  question?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={styles.menu}>
+      {question && <p className={styles.question}>{question}</p>}
+      <div className={styles.chips}>{children}</div>
+    </div>
+  );
 }
 
-/** A keyed selection chip — `<key> Label`, highlighted when chosen. */
+/** A keyed selection chip — `<key> Label … note`, highlighted when chosen. The
+ *  note (e.g. a price) sits in its own right-aligned column so they line up. */
 export function SelectChip({
   cap,
   label,
+  note,
   active,
   disabled,
   onSelect,
 }: {
   cap: string;
   label: string;
+  note?: string;
   active?: boolean;
   disabled?: boolean;
   onSelect: () => void;
@@ -41,6 +55,7 @@ export function SelectChip({
     >
       <span className={styles.key}>{cap}</span>
       <span className={styles.label}>{label}</span>
+      {note && <span className={styles.note}>{note}</span>}
     </button>
   );
 }
@@ -102,7 +117,7 @@ export function AdjustChip({
           disabled={downDisabled}
           onClick={onDown}
         >
-          {'▾'}
+          {'↓'}
         </button>
         <button
           type="button"
@@ -111,7 +126,7 @@ export function AdjustChip({
           disabled={upDisabled}
           onClick={onUp}
         >
-          {'▴'}
+          {'↑'}
         </button>
       </span>
     </div>

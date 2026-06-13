@@ -9,7 +9,16 @@ import {
 } from '@dod/core';
 import { Player } from '@dod/core';
 import { defaultRandomSource } from '@dod/core';
-import type { Command } from './CommandButton.js';
+
+/** A single keyed choice in the builder's prompt menus. */
+export type SetupCommand = {
+  id: string;
+  key: string;
+  label: string;
+  disabled: boolean;
+  primary?: boolean;
+  note?: string;
+};
 
 export type AllocationKey = 'ST' | 'DX' | 'IQ';
 export type AllocationState = Record<AllocationKey, number>;
@@ -57,7 +66,7 @@ export type SetupGameModel = {
   setupError: string | null;
   player: Player | null;
   derivedStats: Stats | null;
-  commandList: Command[];
+  commandList: SetupCommand[];
   mobileView: 'setup' | 'stats' | 'help';
   setStage: (value: SetupStage) => void;
   setWeaponTier: (value: number) => void;
@@ -68,7 +77,7 @@ export type SetupGameModel = {
   handleAdjust: (key: AllocationKey, delta: number) => void;
   handleAdvanceToShop: () => void;
   handleFinish: () => void;
-  handleTrigger: (command: Command) => void;
+  handleTrigger: (command: SetupCommand) => void;
 };
 
 function normalizeCommandKey(event: KeyboardEvent): string | null {
@@ -242,19 +251,22 @@ export function useSetupGameModel({
         {
           id: 'weapon-1',
           key: 'D',
-          label: `${WEAPON_NAMES[1]} (${WEAPON_PRICES[1]}g)`,
+          label: WEAPON_NAMES[1],
+          note: `${WEAPON_PRICES[1]}g`,
           disabled: WEAPON_PRICES[1] > g,
         },
         {
           id: 'weapon-2',
           key: 'S',
-          label: `${WEAPON_NAMES[2]} (${WEAPON_PRICES[2]}g)`,
+          label: WEAPON_NAMES[2],
+          note: `${WEAPON_PRICES[2]}g`,
           disabled: WEAPON_PRICES[2] > g,
         },
         {
           id: 'weapon-3',
           key: 'B',
-          label: `${WEAPON_NAMES[3]} (${WEAPON_PRICES[3]}g)`,
+          label: WEAPON_NAMES[3],
+          note: `${WEAPON_PRICES[3]}g`,
           disabled: WEAPON_PRICES[3] > g,
         },
         { id: 'weapon-confirm', key: 'Enter', label: 'Confirm', disabled: false },
@@ -269,19 +281,22 @@ export function useSetupGameModel({
         {
           id: 'armour-1',
           key: 'L',
-          label: `${ARMOR_NAMES[1]} (${ARMOR_PRICES[1]}g)`,
+          label: ARMOR_NAMES[1],
+          note: `${ARMOR_PRICES[1]}g`,
           disabled: ARMOR_PRICES[1] > left,
         },
         {
           id: 'armour-2',
           key: 'W',
-          label: `${ARMOR_NAMES[2]} (${ARMOR_PRICES[2]}g)`,
+          label: ARMOR_NAMES[2],
+          note: `${ARMOR_PRICES[2]}g`,
           disabled: ARMOR_PRICES[2] > left,
         },
         {
           id: 'armour-3',
           key: 'C',
-          label: `${ARMOR_NAMES[3]} (${ARMOR_PRICES[3]}g)`,
+          label: ARMOR_NAMES[3],
+          note: `${ARMOR_PRICES[3]}g`,
           disabled: ARMOR_PRICES[3] > left,
         },
         { id: 'armour-confirm', key: 'Enter', label: 'Confirm', disabled: false },
@@ -333,7 +348,7 @@ export function useSetupGameModel({
   ]);
 
   const commandMap = useMemo(() => {
-    const map = new Map<string, Command>();
+    const map = new Map<string, SetupCommand>();
     commandList
       .filter((command) => !command.disabled)
       .forEach((command) => map.set(command.key, command));
@@ -341,7 +356,7 @@ export function useSetupGameModel({
   }, [commandList]);
 
   const handleTrigger = useCallback(
-    (command: Command) => {
+    (command: SetupCommand) => {
       if (stage === 'race') {
         switch (command.id) {
           case 'race-human':

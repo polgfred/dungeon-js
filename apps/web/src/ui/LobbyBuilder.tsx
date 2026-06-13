@@ -7,9 +7,10 @@ import {
   AdjustChip,
   keyCap,
 } from './PromptMenu.js';
-import type {
-  AllocationKey,
-  SetupGameModel,
+import {
+  NARRATION,
+  type AllocationKey,
+  type SetupGameModel,
 } from './SetupGameModel.js';
 
 const RACE_BY_ID: Record<string, Race> = {
@@ -60,6 +61,7 @@ export function LobbyBuilder({ model }: { model: SetupGameModel }) {
         key={id}
         cap={keyCap(command.key)}
         label={command.label}
+        note={command.note}
         active={active}
         disabled={command.disabled}
         onSelect={() => trigger(id)}
@@ -68,7 +70,7 @@ export function LobbyBuilder({ model }: { model: SetupGameModel }) {
   };
 
   return (
-    <PromptMenu>
+    <PromptMenu question={NARRATION[model.stage]}>
       {model.stage === 'race' &&
         Object.entries(RACE_BY_ID).map(([id, value]) =>
           select(id, model.race === value)
