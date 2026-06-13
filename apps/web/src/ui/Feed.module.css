@@ -16,6 +16,10 @@
   text-indent: -2em;
 }
 
+.feedBullet {
+  color: var(--text-disabled);
+}
+
 .feedLoot {
   color: var(--loot-main);
 }
