@@ -21,13 +21,12 @@
   box-sizing: border-box;
 }
 
-/* The board carries only the grid scaffolding — each page supplies its own
-   inner layout (map + legend, or the character builder). */
+/* The board carries only the grid scaffolding.
+   Deliberately does NOT clip: the map's hover tooltips overhang the top row. */
 .board {
   grid-area: board;
   min-width: 0;
   min-height: 0;
-  overflow: auto;
 }
 
 /* The three boxed quadrants share their chrome. */
