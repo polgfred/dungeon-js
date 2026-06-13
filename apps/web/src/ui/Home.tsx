@@ -3,26 +3,17 @@ import { useState } from 'react';
 import clsx from 'clsx';
 
 import styles from './Home.module.css';
-import {
-  generateTableCode,
-  loadPlayerName,
-  normalizeTableCode,
-  savePlayerName,
-} from './table.js';
+import { generateTableCode, normalizeTableCode } from './table.js';
 import { navigate } from './useRoute.js';
 
 export default function Home() {
-  const [name, setName] = useState(() => loadPlayerName());
   const [code, setCode] = useState('');
 
-  const enter = (tableCode: string) => {
-    savePlayerName(name);
+  const go = (tableCode: string) => {
     navigate(`/play/${encodeURIComponent(tableCode)}`);
   };
-
-  const canCreate = name.trim().length > 0;
   const joinCode = normalizeTableCode(code);
-  const canJoin = canCreate && joinCode.length > 0;
+  const canJoin = joinCode.length > 0;
 
   return (
     <div className={styles.root}>
@@ -43,22 +34,10 @@ export default function Home() {
 
         <div className={styles.actions}>
           <div className={styles.entry}>
-            <label className={styles.field}>
-              <span className={styles.label}>Enter thy name</span>
-              <input
-                className={styles.input}
-                value={name}
-                maxLength={20}
-                placeholder="Adventurer"
-                onChange={(event) => setName(event.target.value)}
-              />
-            </label>
-
             <button
               type="button"
               className={clsx('btn', 'btn-contained', styles.action)}
-              disabled={!canCreate}
-              onClick={() => enter(generateTableCode())}
+              onClick={() => go(generateTableCode())}
             >
               Start a game
             </button>
@@ -76,14 +55,14 @@ export default function Home() {
                   placeholder="plum-warden"
                   onChange={(event) => setCode(event.target.value)}
                   onKeyDown={(event) => {
-                    if (event.key === 'Enter' && canJoin) enter(joinCode);
+                    if (event.key === 'Enter' && canJoin) go(joinCode);
                   }}
                 />
                 <button
                   type="button"
                   className={clsx('btn', 'btn-outlined')}
                   disabled={!canJoin}
-                  onClick={() => enter(joinCode)}
+                  onClick={() => go(joinCode)}
                 >
                   Join
                 </button>
