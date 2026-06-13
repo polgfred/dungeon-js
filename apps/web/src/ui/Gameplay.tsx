@@ -28,39 +28,36 @@ import { navigate } from './useRoute.js';
 function StatsReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
-    <div className={styles.stats}>
-      <p className={clsx('ui-panel-title', styles.railTitle)}>Status</p>
-      <StatList>
-        <StatRow label="Race" value={String(raceName(s.race))} />
-        <StatRow
-          label="Health"
-          value={`${s.hp}/${s.mhp}`}
-          tone={s.hp < 10 ? 'alert' : undefined}
-        />
-        <StatRow label="Strength" value={String(s.str)} />
-        <StatRow label="Dexterity" value={String(s.dex)} />
-        <StatRow label="Intelligence" value={String(s.iq)} />
-        <StatRow label="Gold" value={String(s.gold)} />
-        <StatRow
-          label="Weapon"
-          value={s.weaponName}
-          tone={s.weaponBroken ? 'alert' : undefined}
-          title={s.weaponBroken ? 'Broken' : undefined}
-        />
-        <StatRow
-          label="Armour"
-          value={s.armorName}
-          tone={s.armorDamaged ? 'alert' : undefined}
-          title={s.armorDamaged ? 'Damaged' : undefined}
-        />
-        <StatRow label="Flares" value={String(s.flares)} />
-        <StatRow
-          label="Treasures"
-          value={`${view.treasuresFound}/10`}
-          tone={view.treasuresFound >= 10 ? 'loot' : undefined}
-        />
-      </StatList>
-    </div>
+    <StatList>
+      <StatRow label="Race" value={String(raceName(s.race))} />
+      <StatRow
+        label="Health"
+        value={`${s.hp}/${s.mhp}`}
+        tone={s.hp < 10 ? 'alert' : undefined}
+      />
+      <StatRow label="Strength" value={String(s.str)} />
+      <StatRow label="Dexterity" value={String(s.dex)} />
+      <StatRow label="Intellect" value={String(s.iq)} />
+      <StatRow label="Gold" value={String(s.gold)} />
+      <StatRow
+        label="Weapon"
+        value={s.weaponName}
+        tone={s.weaponBroken ? 'alert' : undefined}
+        title={s.weaponBroken ? 'Broken' : undefined}
+      />
+      <StatRow
+        label="Armour"
+        value={s.armorName}
+        tone={s.armorDamaged ? 'alert' : undefined}
+        title={s.armorDamaged ? 'Damaged' : undefined}
+      />
+      <StatRow label="Flares" value={String(s.flares)} />
+      <StatRow
+        label="Treasures"
+        value={`${view.treasuresFound}/10`}
+        tone={view.treasuresFound >= 10 ? 'loot' : undefined}
+      />
+    </StatList>
   );
 }
 
@@ -514,6 +511,7 @@ export function Gameplay({
             {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
           </p>
         )}
+        <p className={clsx('ui-panel-title', styles.railTitle)}>Status</p>
         <StatsReadout view={view} />
       </aside>
 

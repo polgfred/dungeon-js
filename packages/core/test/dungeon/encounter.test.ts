@@ -141,7 +141,7 @@ describe('EncounterSession spells', () => {
     session.step('S');
     const result = session.step('F');
 
-    expectEvent(result.events, 'You have insufficient intelligence.');
+    expectEvent(result.events, 'You have insufficient intellect.');
     expect(player.spells[Spell.FIREBALL]).toBe(1);
   });
 
