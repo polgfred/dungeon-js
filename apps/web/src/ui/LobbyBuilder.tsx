@@ -1,3 +1,5 @@
+import type { ReactElement } from 'react';
+
 import { Race } from '@dod/core';
 
 import {
@@ -5,12 +7,14 @@ import {
   SelectChip,
   ActionChip,
   AdjustChip,
+  AllocateHints,
+  KeyHints,
   keyCap,
 } from './PromptMenu.js';
 import {
-  NARRATION,
   type AllocationKey,
   type SetupGameModel,
+  type SetupStage,
 } from './SetupGameModel.js';
 
 const RACE_BY_ID: Record<string, Race> = {
@@ -27,13 +31,36 @@ const ALLOC_LABEL: Record<AllocationKey, string> = {
   IQ: 'Intelligence',
 };
 
+/** The narrator's voice for each step from the original game. */
+export const NARRATION: Record<SetupStage, string> = {
+  race: 'Now, brave adventurer: prepare to choose thy race.',
+  allocate:
+    'Thy characteristics are as follows. Thou may distribute 5 points among thy strength, dexterity, and intelligence — though none may break 18.',
+  weapon: 'Now then, thou must purchase a weapon.',
+  armour: 'In the DUNGEON of DOOM, armour is a useful commodity...',
+  flares:
+    'Flares cost one gold piece each. How many dost thou wish to purchase?',
+  ready: 'Thy gear outfits thee well. THE DUNGEON awaits thee...',
+};
+
+export const HINT: Record<SetupStage, ReactElement | null> = {
+  race: <KeyHints />,
+  allocate: <AllocateHints />,
+  weapon: <KeyHints />,
+  armour: <KeyHints />,
+  flares: <AllocateHints />,
+  ready: null,
+};
+
 /**
  * The character build as a prompt menu: each stage's keyed choices as chips,
  * driven by the model the way the gameplay menus are. The narrator's prose lives
  * in the feed (see Lobby), so the board carries only the choices.
  */
 export function LobbyBuilder({ model }: { model: SetupGameModel }) {
-  const byId = new Map(model.commandList.map((command) => [command.id, command]));
+  const byId = new Map(
+    model.commandList.map((command) => [command.id, command])
+  );
   const trigger = (id: string) => {
     const command = byId.get(id);
     if (command) model.handleTrigger(command);
@@ -70,7 +97,7 @@ export function LobbyBuilder({ model }: { model: SetupGameModel }) {
   };
 
   return (
-    <PromptMenu question={NARRATION[model.stage]}>
+    <PromptMenu question={NARRATION[model.stage]} aside={HINT[model.stage]}>
       {model.stage === 'race' &&
         Object.entries(RACE_BY_ID).map(([id, value]) =>
           select(id, model.race === value)
@@ -89,7 +116,9 @@ export function LobbyBuilder({ model }: { model: SetupGameModel }) {
               onUp={() => trigger(`alloc-${key.toLowerCase()}-plus`)}
               onDown={() => trigger(`alloc-${key.toLowerCase()}-minus`)}
               upDisabled={byId.get(`alloc-${key.toLowerCase()}-plus`)?.disabled}
-              downDisabled={byId.get(`alloc-${key.toLowerCase()}-minus`)?.disabled}
+              downDisabled={
+                byId.get(`alloc-${key.toLowerCase()}-minus`)?.disabled
+              }
             />
           );
         })}

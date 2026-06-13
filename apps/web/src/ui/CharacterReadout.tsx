@@ -16,6 +16,7 @@ export function CharacterReadout({
   weaponTier,
   armorTier,
   flares,
+  flaresChosen,
   totalCost,
 }: {
   race: Race | null;
@@ -24,6 +25,7 @@ export function CharacterReadout({
   weaponTier: number;
   armorTier: number;
   flares: number;
+  flaresChosen: boolean;
   totalCost: number;
 }) {
   const dash = '—';
@@ -39,9 +41,15 @@ export function CharacterReadout({
       <StatRow label="Intelligence" value={stat(derivedStats?.IQ)} />
       <StatRow label="Health" value={stat(derivedStats?.HP)} />
       <StatRow label="Gold" value={gold !== null ? String(gold) : dash} />
-      <StatRow label="Weapon" value={WEAPON_NAMES[weaponTier]} />
-      <StatRow label="Armour" value={ARMOR_NAMES[armorTier]} />
-      <StatRow label="Flares" value={String(flares)} />
+      <StatRow
+        label="Weapon"
+        value={weaponTier > 0 ? WEAPON_NAMES[weaponTier] : dash}
+      />
+      <StatRow
+        label="Armour"
+        value={armorTier > 0 ? ARMOR_NAMES[armorTier] : dash}
+      />
+      <StatRow label="Flares" value={flaresChosen ? String(flares) : dash} />
       <StatRow
         label="Remaining"
         value={remaining !== null ? String(remaining) : dash}

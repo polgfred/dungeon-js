@@ -12,6 +12,19 @@
   color: var(--text-primary);
 }
 
+/* Choices on the left, the key hint in the dead space to their right. */
+.body {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 3rem;
+}
+
+.aside {
+  max-width: 15rem;
+  padding-top: 0.85rem;
+}
+
 /* The choices, indented under the prose. The column hugs its widest chip and
    stretches the rest to match, so each chip's note/value lands on one edge. */
 .chips {
@@ -26,10 +39,18 @@
 
 /* Secondary text (price/value), pushed to the right by the flexible label. */
 .note {
-  margin-left: 0.8rem;
   flex: none;
   color: var(--text-secondary);
   text-align: right;
+}
+
+/* Dim prose hint for the builder's dead space. */
+.hints {
+  margin: 0.5rem 0 0;
+  width: 22rem;
+  opacity: 0.5;
+  font-size: 0.8rem;
+  line-height: 1.45;
 }
 
 /* keyed chips (select + action) */
@@ -96,7 +117,6 @@
 }
 
 .adjustValue {
-  margin-left: 0.8rem;
   min-width: 2.5ch;
   text-align: right;
   color: var(--text-secondary);

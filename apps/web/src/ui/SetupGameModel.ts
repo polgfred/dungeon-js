@@ -30,18 +30,6 @@ export type SetupStage =
   | 'flares'
   | 'ready';
 
-/** The narrator's voice for each step — the original game's prose, shown in the
- *  feed so the build reads as a conversation (see dungeon.bas 40-84, 845-858). */
-export const NARRATION: Record<SetupStage, string> = {
-  race: 'Now, brave adventurer: prepare to choose thy race.',
-  allocate:
-    'Thy characteristics are as follows. Thou may distribute 5 points among thy strength, dexterity, and intelligence — though none may break 18.',
-  weapon: 'Now then, thou must purchase a weapon.',
-  armour: 'In the DUNGEON of DOOM, armour is a useful commodity...',
-  flares:
-    'Flares cost one gold piece each. How many dost thou wish to purchase?',
-  ready: 'Thy gear outfits thee well. THE DUNGEON awaits thee...',
-};
 export type Stats = {
   ST: number;
   DX: number;
@@ -105,8 +93,10 @@ export function useSetupGameModel({
     IQ: 0,
   });
   const [gold, setGold] = useState<number | null>(null);
-  const [weaponTier, setWeaponTier] = useState(1);
-  const [armorTier, setArmorTier] = useState(1);
+  // 0 = nothing chosen yet (WEAPON_NAMES[0]/ARMOR_NAMES[0] are '(None)'); a real
+  // tier is picked in the shop. Keeps the readout honest without nullable fields.
+  const [weaponTier, setWeaponTier] = useState(0);
+  const [armorTier, setArmorTier] = useState(0);
   const [flares, setFlares] = useState(0);
   const [setupError, setSetupError] = useState<string | null>(null);
   const [player, setPlayer] = useState<Player | null>(null);
@@ -116,8 +106,8 @@ export function useSetupGameModel({
 
   const totalAllocated = allocations.ST + allocations.DX + allocations.IQ;
   const remainingPoints = 5 - totalAllocated;
-  const weaponCost = WEAPON_PRICES[weaponTier];
-  const armorCost = ARMOR_PRICES[armorTier];
+  const weaponCost = weaponTier ? WEAPON_PRICES[weaponTier] : 0;
+  const armorCost = armorTier ? ARMOR_PRICES[armorTier] : 0;
   const goldPool = gold ?? 0;
   const totalCost = weaponCost + armorCost + flares;
   const maxFlares = Math.max(0, goldPool - weaponCost - armorCost);
@@ -130,6 +120,20 @@ export function useSetupGameModel({
         HP: baseStats.HP,
       }
     : null;
+
+  // Wipe back to a fresh, unbuilt character.
+  const reset = () => {
+    setStage('race');
+    setRace(null);
+    setBaseStats(null);
+    setAllocations({ ST: 0, DX: 0, IQ: 0 });
+    setGold(null);
+    setWeaponTier(0);
+    setArmorTier(0);
+    setFlares(0);
+    setSetupError(null);
+    setPlayer(null);
+  };
 
   const handleRaceSelect = (value: Race) => {
     setRace(value);
@@ -269,7 +273,12 @@ export function useSetupGameModel({
           note: `${WEAPON_PRICES[3]}g`,
           disabled: WEAPON_PRICES[3] > g,
         },
-        { id: 'weapon-confirm', key: 'Enter', label: 'Confirm', disabled: false },
+        {
+          id: 'weapon-confirm',
+          key: 'Enter',
+          label: 'Confirm',
+          disabled: weaponTier === 0,
+        },
         { id: 'weapon-back', key: 'Esc', label: 'Back', disabled: false },
       ];
     }
@@ -299,7 +308,12 @@ export function useSetupGameModel({
           note: `${ARMOR_PRICES[3]}g`,
           disabled: ARMOR_PRICES[3] > left,
         },
-        { id: 'armour-confirm', key: 'Enter', label: 'Confirm', disabled: false },
+        {
+          id: 'armour-confirm',
+          key: 'Enter',
+          label: 'Confirm',
+          disabled: armorTier === 0,
+        },
         { id: 'armour-back', key: 'Esc', label: 'Back', disabled: false },
       ];
     }
@@ -421,9 +435,11 @@ export function useSetupGameModel({
             setWeaponTier(3);
             return;
           case 'weapon-confirm': {
-            // Keep the armour choice affordable against the new weapon.
+            // Drop a now-unaffordable armour choice back to unselected.
             const left = (gold ?? 0) - WEAPON_PRICES[weaponTier];
-            if (ARMOR_PRICES[armorTier] > left) setArmorTier(1);
+            if (armorTier !== 0 && ARMOR_PRICES[armorTier] > left) {
+              setArmorTier(0);
+            }
             setStage('armour');
             return;
           }
@@ -474,7 +490,7 @@ export function useSetupGameModel({
       if (stage === 'ready') {
         switch (command.id) {
           case 'ready-reset':
-            setStage('race');
+            reset();
             return;
           case 'ready-enter':
             if (player) onComplete(player);
@@ -497,6 +513,7 @@ export function useSetupGameModel({
       armorTier,
       player,
       onComplete,
+      reset,
     ]
   );
 

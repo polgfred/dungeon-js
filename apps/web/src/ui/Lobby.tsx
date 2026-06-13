@@ -80,6 +80,7 @@ export function Lobby({
           weaponTier={model.weaponTier}
           armorTier={model.armorTier}
           flares={model.flares}
+          flaresChosen={model.stage === 'flares' || model.stage === 'ready'}
           totalCost={model.totalCost}
         />
       </aside>

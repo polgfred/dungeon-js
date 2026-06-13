@@ -4,27 +4,51 @@ import clsx from 'clsx';
 
 import styles from './PromptMenu.module.css';
 
-/** Render a command key as a compact keycap glyph. */
+/** Render a command key as a compact keycap glyph. Enter is the radical symbol
+ *  (`√`) — the Atari font has no usable return glyph and its carriage-return
+ *  mark reads badly, but its radical glyph works well here. */
 export function keyCap(key: string): string {
-  if (key === 'Enter') return '√'; // √
-  if (key === 'Esc') return '␛'; // ␛
-  if (key.startsWith('Shift+')) return `⇧${key.slice(6)}`; // ⇧X
+  if (key === 'Enter') return '√';
+  if (key === 'Esc') return '␛';
+  if (key.startsWith('Shift+')) return `↑${key.slice(6)}`;
   return key;
+}
+
+export function KeyHints() {
+  return (
+    <p className={styles.hints}>
+      Hint: Press the key shown beside an option to select it. Press Enter to
+      confirm your choice.
+    </p>
+  );
+}
+export function AllocateHints() {
+  return (
+    <p className={styles.hints}>
+      Hint: Press the key shown beside an option to raise it. Hold Shift↑ to
+      lower it instead.
+    </p>
+  );
 }
 
 /** The prompt-menu shell: an optional question over a column of chips. Mirrors
  *  the gameplay prompt look so the builder reads like an in-game menu. */
 export function PromptMenu({
   question,
+  aside,
   children,
 }: {
   question?: string;
+  aside?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <div className={styles.menu}>
       {question && <p className={styles.question}>{question}</p>}
-      <div className={styles.chips}>{children}</div>
+      <div className={styles.body}>
+        <div className={styles.chips}>{children}</div>
+        {aside && <div className={styles.aside}>{aside}</div>}
+      </div>
     </div>
   );
 }
