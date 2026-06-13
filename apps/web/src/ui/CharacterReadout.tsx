@@ -42,15 +42,14 @@ export function CharacterReadout({
       <StatRow label="Strength" value={stat(derivedStats?.ST)} />
       <StatRow label="Dexterity" value={stat(derivedStats?.DX)} />
       <StatRow label="Intelligence" value={stat(derivedStats?.IQ)} />
-      <StatRow label="Gold" value={gold !== null ? String(gold) : dash} />
-      <StatRow label="Flares" value={at('flares', String(flares))} />
-      <StatRow label="Weapon" value={at('armor', WEAPON_NAMES[weaponTier])} />
-      <StatRow label="Armour" value={at('flares', ARMOR_NAMES[armorTier])} />
       <StatRow
-        label="Remaining"
+        label="Gold"
         value={remaining !== null ? String(remaining) : dash}
         tone={remaining !== null && remaining < 0 ? 'alert' : undefined}
       />
+      <StatRow label="Weapon" value={at('armor', WEAPON_NAMES[weaponTier])} />
+      <StatRow label="Armour" value={at('flares', ARMOR_NAMES[armorTier])} />
+      <StatRow label="Flares" value={at('flares', String(flares))} />
     </StatList>
   );
 }

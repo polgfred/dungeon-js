@@ -41,7 +41,6 @@ function StatsReadout({ view }: { view: PlayerView }) {
         <StatRow label="Dexterity" value={String(s.dex)} />
         <StatRow label="Intelligence" value={String(s.iq)} />
         <StatRow label="Gold" value={String(s.gold)} />
-        <StatRow label="Flares" value={String(s.flares)} />
         <StatRow
           label="Weapon"
           value={s.weaponName}
@@ -54,6 +53,7 @@ function StatsReadout({ view }: { view: PlayerView }) {
           tone={s.armorDamaged ? 'alert' : undefined}
           title={s.armorDamaged ? 'Damaged' : undefined}
         />
+        <StatRow label="Flares" value={String(s.flares)} />
         <StatRow
           label="Treasures"
           value={`${view.treasuresFound}/10`}
