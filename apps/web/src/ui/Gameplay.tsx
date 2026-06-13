@@ -15,6 +15,7 @@ import { ChatInput } from './ChatInput.js';
 import { chatColorsById } from './chatColors.js';
 import type { Command } from './CommandButton.js';
 import styles from './Gameplay.module.css';
+import layout from './Layout.module.css';
 import {
   ENCOUNTER_COMMANDS,
   FEATURE_COMMANDS,
@@ -74,11 +75,11 @@ function Party({
   return (
     <>
       {status !== 'open' && (
-        <p className={styles.reconnecting}>
+        <p className={layout.reconnecting}>
           {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
         </p>
       )}
-      <p className={clsx('ui-panel-title', styles.railTitle)}>Party</p>
+      <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
       <ul className={styles.partyList}>
         {party.map((member) => (
           <li key={member.id} className={styles.partyRow}>
@@ -500,10 +501,10 @@ export function Gameplay({
   }, [onAction, onCancel, arrowsMove]);
 
   return (
-    <div className={styles.game}>
+    <div className={layout.root}>
       <GlyphDefs />
 
-      <section className={styles.board}>
+      <section className={clsx(layout.board, styles.board)}>
         <MapGrid map={view.map} selfX={view.self.x} selfY={view.self.y} />
         {view.ended ? (
           <EndOverlay ended={view.ended} />
@@ -512,17 +513,17 @@ export function Gameplay({
         )}
       </section>
 
-      <aside className={styles.statsPane}>
-        <p className={clsx('ui-panel-title', styles.railTitle)}>Status</p>
+      <aside className={layout.stats}>
+        <p className={clsx('ui-panel-title', layout.railTitle)}>Status</p>
         <StatsReadout view={view} />
       </aside>
 
-      <section className={styles.feedDock}>
+      <section className={layout.feedDock}>
         <Feed feed={feed} party={view.party} playerId={playerId} />
         <ChatInput onSend={onChat} />
       </section>
 
-      <aside className={styles.members}>
+      <aside className={layout.members}>
         <Party party={view.party} playerId={playerId} status={status} />
       </aside>
     </div>

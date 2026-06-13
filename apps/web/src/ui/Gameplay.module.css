@@ -1,32 +1,14 @@
-.game {
-  display: grid;
-  /* The right column and top row are locked to what their contents need. */
-  grid-template-columns: minmax(0, 1fr) 22rem;
-  grid-template-rows: minmax(0, auto) minmax(0, 1fr);
-  grid-template-areas:
-    'board stats'
-    'feed  members';
-  gap: 1.75rem 2.5rem;
-  padding: 1.75rem 2rem;
+/* The grid shell, panes, .railTitle and .reconnecting live in Layout.module.css;
+   this module supplies only the board's inner layout and gameplay content. */
 
-  /* Page doesn't scroll, the feed scrolls internally */
-  position: absolute;
-  inset: 0;
-  box-sizing: border-box;
-}
-
-/* --- board: map with a slim command legend beneath, no cards --- */
+/* --- board: map with a slim command legend beside it, no cards --- */
 
 .board {
-  grid-area: board;
   display: flex;
   flex-direction: row;
   gap: 4rem;
   align-items: flex-start;
-  min-width: 0;
-  min-height: 0;
-  overflow: auto;
-  padding: 0 6rem;
+  padding-left: 2rem;
 }
 
 .grid {
@@ -227,46 +209,7 @@
   border-color: rgba(var(--primary-light-rgb), 0.2);
 }
 
-/* --- stats readout (top-right) --- */
-
-.statsPane {
-  grid-area: stats;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  overflow-y: auto;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
-  border-radius: 4px;
-  padding: 1rem 1.25rem;
-}
-
-.reconnecting {
-  color: var(--combat-main);
-  font-size: 0.8rem;
-  margin: 0;
-}
-
-/* These panes aren't .ui-panel, so the shared .ui-panel-title's responsive
-   shrink (which is paired with .ui-panel body text) would make the header
-   smaller than its own fixed-size contents below 900px. Pin it instead. */
-.railTitle {
-  margin: 0 0 0.5rem;
-  font-size: 0.95rem;
-}
-
 /* --- members: IRC-style nick column beside the feed (bottom-right) --- */
-
-.members {
-  grid-area: members;
-  min-height: 0;
-  overflow-y: auto;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
-  border-radius: 4px;
-  padding: 1rem 1.25rem;
-}
 
 .partyList {
   list-style: none;
@@ -277,19 +220,7 @@
   gap: 0.25rem;
 }
 
-/* --- feed: full-width bottom dock --- */
-
-.feedDock {
-  grid-area: feed;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  min-height: 0;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
-  border-radius: 4px;
-  padding: 1.25rem 1.5rem;
-}
+/* --- feed: IRC-style log inside the shared bottom dock --- */
 
 /* IRC-style two-column log: right-aligned name column + message column */
 .feed {
@@ -366,19 +297,4 @@
 .endText {
   color: var(--text-primary);
   opacity: 0.75;
-}
-
-@media (max-width: 760px) {
-  .game {
-    position: static;
-    height: auto;
-    min-height: 100vh;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto;
-    grid-template-areas:
-      'board'
-      'stats'
-      'feed'
-      'members';
-  }
 }

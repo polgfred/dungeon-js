@@ -14,6 +14,7 @@ import { ChatInput } from './ChatInput.js';
 import { chatColorsById } from './chatColors.js';
 import { CharacterReadout } from './CharacterReadout.js';
 import { LobbyBuilder } from './LobbyBuilder.js';
+import layout from './Layout.module.css';
 import styles from './Lobby.module.css';
 import { useSetupGameModel } from './SetupGameModel.js';
 
@@ -86,8 +87,8 @@ export function Lobby({
   useEffect(() => () => clearTimeout(copyTimer.current), []);
 
   return (
-    <div className={styles.lobby}>
-      <section className={styles.board}>
+    <div className={layout.root}>
+      <section className={clsx(layout.board, styles.board)}>
         {submitted ? (
           <ReadyCard everyoneReady={everyoneReady} onStart={onStart} />
         ) : (
@@ -95,8 +96,8 @@ export function Lobby({
         )}
       </section>
 
-      <aside className={styles.statsPane}>
-        <p className={clsx('ui-panel-title', styles.railTitle)}>Character</p>
+      <aside className={layout.stats}>
+        <p className={clsx('ui-panel-title', layout.railTitle)}>Character</p>
         <CharacterReadout
           stage={model.stage}
           race={model.race}
@@ -109,8 +110,8 @@ export function Lobby({
         />
       </aside>
 
-      <section className={styles.feedDock}>
-        <p className={clsx('ui-panel-title', styles.railTitle)}>Chat</p>
+      <section className={layout.feedDock}>
+        <p className={clsx('ui-panel-title', layout.railTitle)}>Chat</p>
         <div className={styles.chatLog}>
           {feed
             .filter((item) => item.kind === 'chat')
@@ -131,14 +132,14 @@ export function Lobby({
         <ChatInput onSend={onChat} />
       </section>
 
-      <aside className={styles.members}>
+      <aside className={clsx(layout.members, styles.members)}>
         {status !== 'open' && (
-          <p className={styles.reconnecting}>
+          <p className={layout.reconnecting}>
             {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
           </p>
         )}
         <div className={styles.adventurers}>
-          <p className={clsx('ui-panel-title', styles.railTitle)}>Party</p>
+          <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
           <ul className={styles.party}>
             {members.map((member) => (
               <li key={member.id} className={styles.partyRow}>
@@ -160,7 +161,7 @@ export function Lobby({
         </div>
 
         <div className={styles.tableInfo}>
-          <p className={clsx('ui-panel-title', styles.railTitle)}>Table</p>
+          <p className={clsx('ui-panel-title', layout.railTitle)}>Table</p>
           <p className={styles.code}>{code}</p>
           <button
             type="button"

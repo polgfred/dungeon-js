@@ -1,0 +1,96 @@
+/* Shared table layout: the four-quadrant grid shell (board / stats / feed /
+   members) used by both the lobby and gameplay, plus the boxed-pane chrome.
+   The right column and top row lock to what their contents need; the feed (left
+   column, bottom row) is the one greedy region and can shrink to nothing.
+   Pages compose these with their own module for the divergent bits (the board's
+   inner layout, stats/members extras). */
+
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+  grid-template-areas:
+    'board stats'
+    'feed  members';
+  gap: 1.75rem 2.5rem;
+  padding: 1.75rem 2rem;
+
+  /* Page doesn't scroll; the feed scrolls internally. */
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+}
+
+/* The board carries only the grid scaffolding — each page supplies its own
+   inner layout (map + legend, or the character builder). */
+.board {
+  grid-area: board;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* The three boxed quadrants share their chrome. */
+.stats,
+.feedDock,
+.members {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
+  border-radius: 4px;
+}
+
+.stats {
+  grid-area: stats;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+}
+
+.feedDock {
+  grid-area: feed;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+  padding: 1.25rem 1.5rem;
+}
+
+.members {
+  grid-area: members;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+}
+
+/* These panes aren't .ui-panel, so the shared .ui-panel-title's responsive
+   shrink (paired with .ui-panel body text) would make the header smaller than
+   its own fixed-size contents below 900px. Pin it instead. */
+.railTitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Connection-status banner atop the party readout. */
+.reconnecting {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--combat-main);
+}
+
+@media (max-width: 760px) {
+  .root {
+    position: static;
+    height: auto;
+    min-height: 100vh;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      'board'
+      'stats'
+      'feed'
+      'members';
+  }
+}
