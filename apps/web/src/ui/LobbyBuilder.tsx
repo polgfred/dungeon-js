@@ -145,7 +145,7 @@ function WeaponStage({ model }: StageProps) {
   );
 }
 
-function ArmourStage({ model }: StageProps) {
+function ArmorStage({ model }: StageProps) {
   const { select } = commandHelpers(model);
   return (
     <div className={styles.menu}>
@@ -155,7 +155,7 @@ function ArmourStage({ model }: StageProps) {
       <div className={styles.body}>
         <div className={styles.choices}>
           {[1, 2, 3].map((tier) =>
-            select(`armour-${tier}`, model.armorTier === tier)
+            select(`armor-${tier}`, model.armorTier === tier)
           )}
         </div>
         <p className={styles.hint}>
@@ -214,7 +214,7 @@ const STAGES: Record<SetupStage, (props: StageProps) => ReactElement> = {
   race: RaceStage,
   allocate: AllocateStage,
   weapon: WeaponStage,
-  armour: ArmourStage,
+  armor: ArmorStage,
   flares: FlaresStage,
   ready: ReadyStage,
 };

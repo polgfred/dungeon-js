@@ -43,7 +43,7 @@ export function CharacterReadout({
       <StatRow label="Intelligence" value={stat(derivedStats?.IQ)} />
       <StatRow label="Health" value={stat(derivedStats?.HP)} />
       <StatRow label="Gold" value={gold !== null ? String(gold) : dash} />
-      <StatRow label="Weapon" value={at('armour', WEAPON_NAMES[weaponTier])} />
+      <StatRow label="Weapon" value={at('armor', WEAPON_NAMES[weaponTier])} />
       <StatRow label="Armour" value={at('flares', ARMOR_NAMES[armorTier])} />
       <StatRow label="Flares" value={at('flares', String(flares))} />
       <StatRow

@@ -26,7 +26,7 @@ export type SetupStage =
   | 'race'
   | 'allocate'
   | 'weapon'
-  | 'armour'
+  | 'armor'
   | 'flares'
   | 'ready';
 
@@ -34,7 +34,7 @@ const STAGE_ORDER: SetupStage[] = [
   'race',
   'allocate',
   'weapon',
-  'armour',
+  'armor',
   'flares',
   'ready',
 ];
@@ -282,26 +282,26 @@ export function useSetupGameModel({
       ];
     }
 
-    if (stage === 'armour') {
-      // Gold left after the chosen weapon bounds what armour you can afford.
+    if (stage === 'armor') {
+      // Gold left after the chosen weapon bounds what armor you can afford.
       const left = (gold ?? 0) - WEAPON_PRICES[weaponTier];
       return [
         {
-          id: 'armour-1',
+          id: 'armor-1',
           key: 'L',
           label: ARMOR_NAMES[1],
           note: `${ARMOR_PRICES[1]}g`,
           disabled: ARMOR_PRICES[1] > left,
         },
         {
-          id: 'armour-2',
+          id: 'armor-2',
           key: 'W',
           label: ARMOR_NAMES[2],
           note: `${ARMOR_PRICES[2]}g`,
           disabled: ARMOR_PRICES[2] > left,
         },
         {
-          id: 'armour-3',
+          id: 'armor-3',
           key: 'C',
           label: ARMOR_NAMES[3],
           note: `${ARMOR_PRICES[3]}g`,
@@ -409,30 +409,30 @@ export function useSetupGameModel({
         switch (command.id) {
           case 'weapon-1':
             setWeaponTier(1);
-            setStage('armour');
+            setStage('armor');
             return;
           case 'weapon-2':
             setWeaponTier(2);
-            setStage('armour');
+            setStage('armor');
             return;
           case 'weapon-3':
             setWeaponTier(3);
-            setStage('armour');
+            setStage('armor');
             return;
         }
       }
 
-      if (stage === 'armour') {
+      if (stage === 'armor') {
         switch (command.id) {
-          case 'armour-1':
+          case 'armor-1':
             setArmorTier(1);
             setStage('flares');
             return;
-          case 'armour-2':
+          case 'armor-2':
             setArmorTier(2);
             setStage('flares');
             return;
-          case 'armour-3':
+          case 'armor-3':
             setArmorTier(3);
             setStage('flares');
             return;
