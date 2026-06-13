@@ -1,13 +1,38 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ARMOR_PRICES, WEAPON_PRICES, Race } from '@dod/core';
+import {
+  ARMOR_NAMES,
+  ARMOR_PRICES,
+  WEAPON_NAMES,
+  WEAPON_PRICES,
+  Race,
+} from '@dod/core';
 import { Player } from '@dod/core';
 import { defaultRandomSource } from '@dod/core';
 import type { Command } from './CommandButton.js';
 
 export type AllocationKey = 'ST' | 'DX' | 'IQ';
 export type AllocationState = Record<AllocationKey, number>;
-export type SetupStage = 'race' | 'allocate' | 'shop' | 'ready';
+export type SetupStage =
+  | 'race'
+  | 'allocate'
+  | 'weapon'
+  | 'armour'
+  | 'flares'
+  | 'ready';
+
+/** The narrator's voice for each step — the original game's prose, shown in the
+ *  feed so the build reads as a conversation (see dungeon.bas 40-84, 845-858). */
+export const NARRATION: Record<SetupStage, string> = {
+  race: 'Now, brave adventurer: prepare to choose thy race.',
+  allocate:
+    'Thy characteristics are as follows. Thou may distribute 5 points among thy strength, dexterity, and intelligence — though none may break 18.',
+  weapon: 'Now then, thou must purchase a weapon.',
+  armour: 'In the DUNGEON of DOOM, armour is a useful commodity...',
+  flares:
+    'Flares cost one gold piece each. How many dost thou wish to purchase?',
+  ready: 'Thy gear outfits thee well. THE DUNGEON awaits thee...',
+};
 export type Stats = {
   ST: number;
   DX: number;
@@ -112,9 +137,10 @@ export function useSetupGameModel({
     });
   };
 
+  // Leaving allocation opens the shop; roll the purse on first entry (dungeon.bas 46).
   const handleAdvanceToShop = () => {
     if (remainingPoints === 0) {
-      setStage('shop');
+      setStage('weapon');
       if (gold === null) {
         setGold(rng.randint(50, 60));
       }
@@ -210,52 +236,75 @@ export function useSetupGameModel({
       ];
     }
 
-    if (stage === 'shop') {
-      const confirmDisabled = gold === null || totalCost > gold;
+    if (stage === 'weapon') {
+      const g = gold ?? 0;
       return [
         {
-          id: 'shop-weapon-plus',
+          id: 'weapon-1',
+          key: 'D',
+          label: `${WEAPON_NAMES[1]} (${WEAPON_PRICES[1]}g)`,
+          disabled: WEAPON_PRICES[1] > g,
+        },
+        {
+          id: 'weapon-2',
+          key: 'S',
+          label: `${WEAPON_NAMES[2]} (${WEAPON_PRICES[2]}g)`,
+          disabled: WEAPON_PRICES[2] > g,
+        },
+        {
+          id: 'weapon-3',
+          key: 'B',
+          label: `${WEAPON_NAMES[3]} (${WEAPON_PRICES[3]}g)`,
+          disabled: WEAPON_PRICES[3] > g,
+        },
+        { id: 'weapon-confirm', key: 'Enter', label: 'Confirm', disabled: false },
+        { id: 'weapon-back', key: 'Esc', label: 'Back', disabled: false },
+      ];
+    }
+
+    if (stage === 'armour') {
+      // Gold left after the chosen weapon bounds what armour you can afford.
+      const left = (gold ?? 0) - WEAPON_PRICES[weaponTier];
+      return [
+        {
+          id: 'armour-1',
+          key: 'L',
+          label: `${ARMOR_NAMES[1]} (${ARMOR_PRICES[1]}g)`,
+          disabled: ARMOR_PRICES[1] > left,
+        },
+        {
+          id: 'armour-2',
           key: 'W',
-          label: 'Weapon +',
-          disabled: weaponTier >= 3,
+          label: `${ARMOR_NAMES[2]} (${ARMOR_PRICES[2]}g)`,
+          disabled: ARMOR_PRICES[2] > left,
         },
         {
-          id: 'shop-weapon-minus',
-          key: 'Shift+W',
-          label: 'Weapon -',
-          disabled: weaponTier <= 1,
+          id: 'armour-3',
+          key: 'C',
+          label: `${ARMOR_NAMES[3]} (${ARMOR_PRICES[3]}g)`,
+          disabled: ARMOR_PRICES[3] > left,
         },
+        { id: 'armour-confirm', key: 'Enter', label: 'Confirm', disabled: false },
+        { id: 'armour-back', key: 'Esc', label: 'Back', disabled: false },
+      ];
+    }
+
+    if (stage === 'flares') {
+      return [
         {
-          id: 'shop-armor-plus',
-          key: 'A',
-          label: 'Armour +',
-          disabled: armorTier >= 3,
-        },
-        {
-          id: 'shop-armor-minus',
-          key: 'Shift+A',
-          label: 'Armour -',
-          disabled: armorTier <= 1,
-        },
-        {
-          id: 'shop-flares-plus',
+          id: 'flares-plus',
           key: 'F',
-          label: 'Flares +',
+          label: 'Flares',
           disabled: flares >= maxFlares,
         },
         {
-          id: 'shop-flares-minus',
+          id: 'flares-minus',
           key: 'Shift+F',
-          label: 'Flares -',
+          label: 'Flares',
           disabled: flares <= 0,
         },
-        {
-          id: 'shop-confirm',
-          key: 'Enter',
-          label: 'Finalize',
-          disabled: confirmDisabled,
-        },
-        { id: 'shop-back', key: 'Esc', label: 'Back', disabled: false },
+        { id: 'flares-confirm', key: 'Enter', label: 'Finalize', disabled: false },
+        { id: 'flares-back', key: 'Esc', label: 'Back', disabled: false },
       ];
     }
 
@@ -345,31 +394,64 @@ export function useSetupGameModel({
         }
       }
 
-      if (stage === 'shop') {
+      if (stage === 'weapon') {
         switch (command.id) {
-          case 'shop-weapon-plus':
-            setWeaponTier((prev) => Math.min(3, prev + 1));
+          case 'weapon-1':
+            setWeaponTier(1);
             return;
-          case 'shop-weapon-minus':
-            setWeaponTier((prev) => Math.max(1, prev - 1));
+          case 'weapon-2':
+            setWeaponTier(2);
             return;
-          case 'shop-armor-plus':
-            setArmorTier((prev) => Math.min(3, prev + 1));
+          case 'weapon-3':
+            setWeaponTier(3);
             return;
-          case 'shop-armor-minus':
-            setArmorTier((prev) => Math.max(1, prev - 1));
+          case 'weapon-confirm': {
+            // Keep the armour choice affordable against the new weapon.
+            const left = (gold ?? 0) - WEAPON_PRICES[weaponTier];
+            if (ARMOR_PRICES[armorTier] > left) setArmorTier(1);
+            setStage('armour');
             return;
-          case 'shop-flares-plus':
+          }
+          case 'weapon-back':
+            setStage('allocate');
+            return;
+        }
+      }
+
+      if (stage === 'armour') {
+        switch (command.id) {
+          case 'armour-1':
+            setArmorTier(1);
+            return;
+          case 'armour-2':
+            setArmorTier(2);
+            return;
+          case 'armour-3':
+            setArmorTier(3);
+            return;
+          case 'armour-confirm':
+            setFlares((f) => Math.min(f, maxFlares));
+            setStage('flares');
+            return;
+          case 'armour-back':
+            setStage('weapon');
+            return;
+        }
+      }
+
+      if (stage === 'flares') {
+        switch (command.id) {
+          case 'flares-plus':
             setFlares((prev) => Math.min(maxFlares, prev + 1));
             return;
-          case 'shop-flares-minus':
+          case 'flares-minus':
             setFlares((prev) => Math.max(0, prev - 1));
             return;
-          case 'shop-confirm':
+          case 'flares-confirm':
             handleFinish();
             return;
-          case 'shop-back':
-            setStage('allocate');
+          case 'flares-back':
+            setStage('armour');
             return;
         }
       }
@@ -395,6 +477,9 @@ export function useSetupGameModel({
       handleAdvanceToShop,
       handleFinish,
       maxFlares,
+      gold,
+      weaponTier,
+      armorTier,
       player,
       onComplete,
     ]
@@ -404,6 +489,14 @@ export function useSetupGameModel({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      // Don't hijack typing in the chat box.
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')
+      ) {
+        return;
+      }
       const key = normalizeCommandKey(event);
       if (!key) return;
       const command = commandMap.get(key);

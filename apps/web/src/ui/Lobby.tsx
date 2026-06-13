@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,10 +7,10 @@ import type { FeedItem, LobbyState, PlayerId } from '@dod/net/client';
 
 import { ChatInput } from './ChatInput.js';
 import { chatColorsById } from './chatColors.js';
+import { CharacterReadout } from './CharacterReadout.js';
 import { LobbyBuilder } from './LobbyBuilder.js';
 import styles from './Lobby.module.css';
-import { StatusReadout } from './SetupGame.js';
-import { useSetupGameModel } from './SetupGameModel.js';
+import { NARRATION, useSetupGameModel } from './SetupGameModel.js';
 import { navigate } from './useRoute.js';
 
 function ReadyCard({ onEdit }: { onEdit: () => void }) {
@@ -53,6 +53,16 @@ export function Lobby({
     onBack: () => navigate('/'),
   });
 
+  // Narrator transcript: append the prose for each step as the build advances,
+  // so the feed reads as a conversation with the narrator.
+  const [narration, setNarration] = useState<string[]>([]);
+  const lastStage = useRef<string | null>(null);
+  useEffect(() => {
+    if (lastStage.current === model.stage) return;
+    lastStage.current = model.stage;
+    setNarration((prev) => [...prev, NARRATION[model.stage]]);
+  }, [model.stage]);
+
   const members = lobby?.members ?? [];
   const everyoneReady = members.length > 0 && members.every((m) => m.ready);
   const colorOf = chatColorsById(members);
@@ -73,7 +83,7 @@ export function Lobby({
 
       <aside className={styles.statsPane}>
         <p className={clsx('ui-panel-title', styles.railTitle)}>Character</p>
-        <StatusReadout
+        <CharacterReadout
           race={model.race}
           derivedStats={model.derivedStats}
           gold={model.gold}
@@ -85,8 +95,13 @@ export function Lobby({
       </aside>
 
       <section className={styles.feedDock}>
-        <p className={clsx('ui-panel-title', styles.railTitle)}>Chat</p>
+        <p className={clsx('ui-panel-title', styles.railTitle)}>Narrator</p>
         <div className={styles.chatLog}>
+          {narration.map((line, i) => (
+            <div key={`n${i}`} className={styles.narration}>
+              {line}
+            </div>
+          ))}
           {feed
             .filter((item) => item.kind === 'chat')
             .map((item, i) =>

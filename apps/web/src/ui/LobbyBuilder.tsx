@@ -1,76 +1,156 @@
-import { CommandButton } from './CommandButton.js';
-import {
-  RaceStage,
-  AllocationStage,
-  ShopStage,
-  ReadyStage,
-} from './SetupGame.js';
-import type { SetupGameModel } from './SetupGameModel.js';
-import styles from './Lobby.module.css';
+import { Race } from '@dod/core';
 
-const ACTION_IDS: Record<SetupGameModel['stage'], string[]> = {
-  race: ['race-confirm', 'race-back'],
-  allocate: ['alloc-confirm', 'alloc-back'],
-  shop: ['shop-confirm', 'shop-back'],
-  ready: ['ready-enter', 'ready-reset'],
+import {
+  PromptMenu,
+  SelectChip,
+  ActionChip,
+  AdjustChip,
+  keyCap,
+} from './PromptMenu.js';
+import type {
+  AllocationKey,
+  SetupGameModel,
+} from './SetupGameModel.js';
+
+const RACE_BY_ID: Record<string, Race> = {
+  'race-human': Race.HUMAN,
+  'race-dwarf': Race.DWARF,
+  'race-elf': Race.ELF,
+  'race-halfling': Race.HALFLING,
+};
+
+const ALLOC_KEYS: AllocationKey[] = ['ST', 'DX', 'IQ'];
+const ALLOC_LABEL: Record<AllocationKey, string> = {
+  ST: 'Strength',
+  DX: 'Dexterity',
+  IQ: 'Intelligence',
 };
 
 /**
- * The character build for the lobby's board quadrant: the active stage plus its
- * confirm/back actions. Presentational — the model is owned by `Lobby` so the
- * stats quadrant can read the same in-progress character.
+ * The character build as a prompt menu: each stage's keyed choices as chips,
+ * driven by the model the way the gameplay menus are. The narrator's prose lives
+ * in the feed (see Lobby), so the board carries only the choices.
  */
 export function LobbyBuilder({ model }: { model: SetupGameModel }) {
-  const actions = model.commandList.filter((command) =>
-    ACTION_IDS[model.stage].includes(command.id)
-  );
+  const byId = new Map(model.commandList.map((command) => [command.id, command]));
+  const trigger = (id: string) => {
+    const command = byId.get(id);
+    if (command) model.handleTrigger(command);
+  };
+
+  const action = (id: string) => {
+    const command = byId.get(id);
+    if (!command) return null;
+    return (
+      <ActionChip
+        key={id}
+        cap={keyCap(command.key)}
+        label={command.label}
+        disabled={command.disabled}
+        onTrigger={() => trigger(id)}
+      />
+    );
+  };
+
+  const select = (id: string, active: boolean) => {
+    const command = byId.get(id);
+    if (!command) return null;
+    return (
+      <SelectChip
+        key={id}
+        cap={keyCap(command.key)}
+        label={command.label}
+        active={active}
+        disabled={command.disabled}
+        onSelect={() => trigger(id)}
+      />
+    );
+  };
 
   return (
-    <div className={styles.builder}>
-      <div className={styles.builderStage}>
-        {model.stage === 'race' && (
-          <RaceStage
-            race={model.race}
-            baseStats={model.baseStats}
-            onSelect={model.handleRaceSelect}
-          />
+    <PromptMenu>
+      {model.stage === 'race' &&
+        Object.entries(RACE_BY_ID).map(([id, value]) =>
+          select(id, model.race === value)
         )}
-        {model.stage === 'allocate' && (
-          <AllocationStage
-            baseStats={model.baseStats}
-            allocations={model.allocations}
-            remainingPoints={model.remainingPoints}
-            onAdjust={model.handleAdjust}
-          />
+
+      {model.stage === 'allocate' &&
+        ALLOC_KEYS.map((key) => {
+          const plus = byId.get(`alloc-${key.toLowerCase()}-plus`);
+          const value = model.derivedStats ? model.derivedStats[key] : 0;
+          return (
+            <AdjustChip
+              key={key}
+              cap={plus ? keyCap(plus.key) : key}
+              label={ALLOC_LABEL[key]}
+              value={String(value)}
+              onUp={() => trigger(`alloc-${key.toLowerCase()}-plus`)}
+              onDown={() => trigger(`alloc-${key.toLowerCase()}-minus`)}
+              upDisabled={byId.get(`alloc-${key.toLowerCase()}-plus`)?.disabled}
+              downDisabled={byId.get(`alloc-${key.toLowerCase()}-minus`)?.disabled}
+            />
+          );
+        })}
+
+      {model.stage === 'weapon' &&
+        [1, 2, 3].map((tier) =>
+          select(`weapon-${tier}`, model.weaponTier === tier)
         )}
-        {model.stage === 'shop' && (
-          <ShopStage
-            weaponTier={model.weaponTier}
-            armorTier={model.armorTier}
-            flares={model.flares}
-            maxFlares={model.maxFlares}
-            goldRemaining={
-              model.gold !== null ? model.gold - model.totalCost : null
-            }
-            setupError={model.setupError}
-            onWeaponTier={model.setWeaponTier}
-            onArmorTier={model.setArmorTier}
-            onFlaresChange={model.setFlares}
-          />
+
+      {model.stage === 'armour' &&
+        [1, 2, 3].map((tier) =>
+          select(`armour-${tier}`, model.armorTier === tier)
         )}
-        {model.stage === 'ready' && model.player && (
-          <ReadyStage player={model.player} />
-        )}
-      </div>
-      <div className={styles.builderActions}>
-        {actions.map((command) => (
-          <CommandButton
-            key={command.id}
-            command={command}
-            onTrigger={model.handleTrigger}
-          />
-        ))}
-      </div>
-    </div>
+
+      {model.stage === 'flares' && (
+        <AdjustChip
+          cap={keyCap('F')}
+          label="Flares"
+          value={String(model.flares)}
+          onUp={() => trigger('flares-plus')}
+          onDown={() => trigger('flares-minus')}
+          upDisabled={byId.get('flares-plus')?.disabled}
+          downDisabled={byId.get('flares-minus')?.disabled}
+        />
+      )}
+
+      {/* Per-stage actions: Confirm / Back, or Enter / Reset on the ready step. */}
+      {model.stage === 'race' && (
+        <>
+          {action('race-confirm')}
+          {action('race-back')}
+        </>
+      )}
+      {model.stage === 'allocate' && (
+        <>
+          {action('alloc-confirm')}
+          {action('alloc-back')}
+        </>
+      )}
+      {model.stage === 'weapon' && (
+        <>
+          {action('weapon-confirm')}
+          {action('weapon-back')}
+        </>
+      )}
+      {model.stage === 'armour' && (
+        <>
+          {action('armour-confirm')}
+          {action('armour-back')}
+        </>
+      )}
+      {model.stage === 'flares' && (
+        <>
+          {action('flares-confirm')}
+          {action('flares-back')}
+        </>
+      )}
+      {model.stage === 'ready' && (
+        <>
+          {action('ready-enter')}
+          {action('ready-reset')}
+        </>
+      )}
+    </PromptMenu>
   );
 }

@@ -1,0 +1,105 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+/* keyed chips (select + action) */
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  background: none;
+  border: none;
+  padding: 0.12rem 0.1rem;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.chip:not(:disabled):hover {
+  color: var(--text-secondary);
+}
+
+.chip:disabled {
+  color: var(--text-disabled);
+  cursor: default;
+}
+
+.chipActive {
+  color: var(--loot-main);
+}
+
+.key {
+  flex: none;
+  color: var(--text-secondary);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.4);
+  border-radius: 2px;
+  padding: 0.1rem 0.34rem;
+  min-width: 1.4ch;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.chip:disabled .key,
+.adjust:has(.adjustBtn:disabled) .key {
+  border-color: rgba(var(--primary-light-rgb), 0.2);
+}
+
+.chipActive .key {
+  color: var(--loot-main);
+  border-color: rgba(var(--loot-main-rgb, var(--primary-light-rgb)), 0.6);
+}
+
+.label {
+  flex: 1;
+}
+
+/* adjustable row: key · label · value · ▲▼ */
+.adjust {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.adjustValue {
+  min-width: 2.5ch;
+  text-align: right;
+  color: var(--text-secondary);
+}
+
+.adjustBtns {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+.adjustBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  background: none;
+  border: 1px solid rgba(var(--primary-light-rgb), 0.4);
+  border-radius: 2px;
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  cursor: pointer;
+}
+
+.adjustBtn:not(:disabled):hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.adjustBtn:disabled {
+  color: var(--text-disabled);
+  border-color: rgba(var(--primary-light-rgb), 0.2);
+  cursor: default;
+}

@@ -92,6 +92,12 @@
   font-size: 0.9rem;
 }
 
+/* Narrator prose — the build's conversation, distinct from chat lines. */
+.narration {
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
 .chatLine {
   color: var(--text-secondary);
 }
