@@ -26,12 +26,6 @@ export default function Home() {
       </div>
 
       <div className={styles.intro}>
-        <p className={styles.introText}>
-          Now, brave adventurer:
-          <br />
-          prepare to enter the dungeon.
-        </p>
-
         <div className={styles.actions}>
           <div className={styles.entry}>
             <button
