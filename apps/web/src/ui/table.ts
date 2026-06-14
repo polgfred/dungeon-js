@@ -40,3 +40,16 @@ export function loadPlayerName(): string {
 export function savePlayerName(name: string): void {
   localStorage.setItem(NAME_KEY, name.trim());
 }
+
+/** The name you joined a *specific* table with. */
+function tableNameKey(code: string): string {
+  return `dod.name.${code}`;
+}
+
+export function loadTableName(code: string): string | null {
+  return localStorage.getItem(tableNameKey(code));
+}
+
+export function saveTableName(code: string, name: string): void {
+  localStorage.setItem(tableNameKey(code), name.trim());
+}

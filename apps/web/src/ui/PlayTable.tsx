@@ -8,7 +8,13 @@ import { ActionChip, keyCap } from './Chips.js';
 import { Gameplay } from './Gameplay.js';
 import { Lobby } from './Lobby.js';
 import styles from './Play.module.css';
-import { loadPlayerName, savePlayerName, tableWsUrl } from './table.js';
+import {
+  loadPlayerName,
+  loadTableName,
+  savePlayerName,
+  saveTableName,
+  tableWsUrl,
+} from './table.js';
 import { useTable } from './useTable.js';
 import { navigate } from './useRoute.js';
 
@@ -84,8 +90,7 @@ export default function PlayTable({ code }: { code: string }) {
 
   const playerId = useMemo(() => loadPlayerId(), []);
   // Empty until you name yourself — the first phase, for creators and joiners
-  // alike. You don't appear in the room until you join (below).
-  const [name, setName] = useState('');
+  const [name, setName] = useState(() => loadTableName(code) ?? '');
 
   // Join (or resume) once we have a name and the socket is open — also re-fires
   // on reconnect.
@@ -94,12 +99,13 @@ export default function PlayTable({ code }: { code: string }) {
     if (status === 'open' && name) join(playerId, name);
   }, [status, join, playerId, name]);
 
-  // Name thyself before joining — Back exits to the title (you never joined).
+  // Name yourself before joining — Back exits to the title (you never joined).
   if (!name) {
     return (
       <NamePhase
         onSubmit={(chosen) => {
-          savePlayerName(chosen);
+          savePlayerName(chosen); // update the default for tables you're new to
+          saveTableName(code, chosen); // remember the name for this table
           setName(chosen);
         }}
         onCancel={() => navigate('/')}
