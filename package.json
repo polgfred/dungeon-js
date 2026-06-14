@@ -18,6 +18,7 @@
   "scripts": {
     "typecheck": "npm run typecheck -w @dod/core -w @dod/net -w @dod/web",
     "dev": "npm run dev -w @dod/web",
+    "dev:server": "wrangler dev",
     "build": "npm run build -w @dod/web",
     "preview": "npm run preview -w @dod/web",
     "dist": "./scripts/update-dist-branch.sh",

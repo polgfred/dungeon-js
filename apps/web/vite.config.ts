@@ -30,6 +30,10 @@ export default defineConfig(({}) => {
     },
     server: {
       host: true,
+      // Forward the game socket to the local wrangler dev worker
+      proxy: {
+        '/ws': { target: 'ws://localhost:8787', ws: true },
+      },
     },
     define: {
       'import.meta.env.COMMIT_SHA': JSON.stringify(commitSha),

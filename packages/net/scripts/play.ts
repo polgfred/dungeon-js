@@ -3,7 +3,7 @@
  * WebSocket, no browser required. Point it at a running worker and you join a
  * table, build a throwaway character, and drive your adventurer from the keyboard.
  *
- *   npm run dev  -w @dod/net                     # terminal 1: the worker
+ *   npm run dev:server                            # terminal 1: the worker
  *   npm run play -w @dod/net -- <table> [name]    # terminal 2+: each player
  *
  * At the `> ` prompt:
@@ -145,7 +145,7 @@ function eventsText(from: string, events: Event[]): string {
     .join('\n');
 }
 
-const ws = new WebSocket(`${url}/${table}`);
+const ws = new WebSocket(`${url}/ws/${table}`);
 
 function send(message: ClientMessage): void {
   ws.send(JSON.stringify(message));

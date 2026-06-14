@@ -13,6 +13,7 @@
  */
 import { spawn } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { fileURLToPath } from 'node:url';
 
 import { Player, Race, serializePlayer, defaultRandomSource } from '@dod/core';
 import type { ClientMessage, PlayerView, ServerMessage } from '@dod/net/shared';
@@ -115,7 +116,7 @@ class Client {
 }
 
 async function scenario(): Promise<void> {
-  const url = `${baseUrl}/${table}`;
+  const url = `${baseUrl}/ws/${table}`;
 
   // --- lobby ---
   const alice = new Client('alice', url);
@@ -194,8 +195,10 @@ async function main(): Promise<void> {
   if (EXTERNAL_URL) {
     await scenario();
   } else {
+    // wrangler.jsonc lives at the repo root (one unified Worker config).
+    const repoRoot = fileURLToPath(new URL('../../../', import.meta.url));
     const worker = spawn('wrangler', ['dev', '--port', String(PORT)], {
-      cwd: process.cwd(),
+      cwd: repoRoot,
       detached: true,
       stdio: ['ignore', 'ignore', 'inherit'],
     });

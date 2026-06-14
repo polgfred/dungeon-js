@@ -1,5 +1,19 @@
 {
-  "name": "dungeon-of-doom",
-  "pages_build_output_dir": "dist",
-  "compatibility_date": "2026-06-04"
+  // This name is the deployment target and the public URL.
+  "name": "dungeon-of-doom-mp",
+  "main": "packages/net/src/server/worker.ts",
+  "compatibility_date": "2026-06-04",
+
+  // The built SPA (static files).
+  "assets": {
+    "directory": "apps/web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+
+  // Durable Object with SQLite-backed storage.
+  "durable_objects": {
+    "bindings": [{ "name": "TABLE", "class_name": "TableObject" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["TableObject"] }]
 }
