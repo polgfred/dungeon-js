@@ -9,6 +9,7 @@
  * At the `> ` prompt:
  *   /start            begin the run (once everyone's character is in)
  *   /cancel           back out of a prompt (the Esc equivalent)
+ *   /chat <message>   say something to everyone at the table
  *   /quit             disconnect
  *   anything else     sent as a game command (n/s/e/w, f, l, o, r, p, b, u/d/x,
  *                     and the encounter/prompt keys f/r/s, y/n, ...)
@@ -114,7 +115,11 @@ function viewText(view: PlayerView): string {
   return lines.join('\n');
 }
 
-function formatEvent(event: Event, mine: boolean): string {
+// id → display name, kept current from lobby/view, so events can name <who>
+// acted. (Browser players have opaque ids; the CLI uses its name as its id.)
+const names = new Map<string, string>();
+
+function formatEvent(event: Event, mine: boolean, fromName: string): string {
   if (event.kind === 'PROMPT') {
     const lines = [`  ${event.text}`];
     for (const option of event.data?.options ?? []) {
@@ -124,15 +129,19 @@ function formatEvent(event: Event, mine: boolean): string {
     if (event.data?.hasCancel) lines.push('    [/cancel] back out');
     return lines.join('\n');
   }
-  const tag = event.broadcast && !mine ? '«party» ' : '';
-  return `  ${tag}${event.text}`;
+  // A system bullet, plus the sender's <name> when it isn't you (mirrors the
+  // web feed). We no longer check the broadcast flag — the server only fans
+  // others' broadcast events to us, so `!mine` already means "from someone else".
+  const who = mine ? '' : `<${fromName}> `;
+  return `  * ${who}${event.text}`;
 }
 
 function eventsText(from: string, events: Event[]): string {
   const mine = from === playerId;
+  const fromName = names.get(from) ?? from;
   return events
     .filter((event) => event.kind !== 'DEBUG')
-    .map((event) => formatEvent(event, mine))
+    .map((event) => formatEvent(event, mine, fromName))
     .join('\n');
 }
 
@@ -157,14 +166,23 @@ ws.addEventListener('message', (event) => {
   }
   switch (message.type) {
     case 'lobby':
+      for (const member of message.state.members)
+        names.set(member.id, member.name);
       show(lobbyText(message.state));
       break;
     case 'view':
+      for (const member of message.view.party)
+        names.set(member.id, member.name);
       show(viewText(message.view));
       break;
     case 'events': {
       const text = eventsText(message.from, message.events);
       if (text) show(text);
+      break;
+    }
+    case 'chat': {
+      const who = message.from === playerId ? '' : `<${message.name}> `;
+      show(`  - ${who}${message.text}`);
       break;
     }
     case 'error':
@@ -192,6 +210,9 @@ rl.on('line', (line) => {
     send({ type: 'start' });
   } else if (text === '/cancel') {
     send({ type: 'cancel' });
+  } else if (text.startsWith('/chat')) {
+    const msg = text.slice('/chat'.length).trim();
+    if (msg) send({ type: 'chat', text: msg });
   } else if (text) {
     send({ type: 'action', command: text });
   }
