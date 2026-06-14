@@ -19,10 +19,10 @@ export const TRANSIT_COMMANDS: Command[] = [
 
 export const FEATURE_COMMANDS: Command[] = [
   { id: 'act-flare', key: 'F', label: 'Flare', disabled: false },
-  { id: 'act-mirror', key: 'L', label: 'Mirror', disabled: false },
+  { id: 'act-mirror', key: 'L', label: 'Look', disabled: false },
   { id: 'act-chest', key: 'O', label: 'Open', disabled: false },
   { id: 'act-scroll', key: 'R', label: 'Read', disabled: false },
-  { id: 'act-potion', key: 'P', label: 'Potion', disabled: false },
+  { id: 'act-potion', key: 'P', label: 'Drink', disabled: false },
   { id: 'act-vendor', key: 'B', label: 'Buy', disabled: false },
 ];
 

@@ -110,14 +110,18 @@ function keyCap(command: Command): string {
     : command.key;
 }
 
-/**
- * Whether a command's action can be performed right now — drives the primary vs
- * dimmed look. The current room is the tile under the player (always fresh,
- * since you re-observe it every action), so feature actions key off it.
- */
+/** Whether a command's action can be performed right now. */
 function commandActive(command: Command, view: PlayerView): boolean {
   const here = view.map[view.self.y]?.[view.self.x];
   switch (command.id) {
+    case 'move-n':
+      return view.self.y > 0;
+    case 'move-s':
+      return view.self.y < view.map.length - 1;
+    case 'move-w':
+      return view.self.x > 0;
+    case 'move-e':
+      return view.self.x < view.map[view.self.y].length - 1;
     case 'move-u':
       return here === Feature.STAIRS_UP;
     case 'move-d':
@@ -144,7 +148,7 @@ function commandActive(command: Command, view: PlayerView): boolean {
         Object.values(view.self.spells).some((count) => count > 0)
       );
     default:
-      return true; // movement and Fight are always attemptable
+      return true;
   }
 }
 
@@ -196,41 +200,36 @@ function LegendGroup({
   );
 }
 
-/** Directions as a D-pad cross — arrow keys drive it too, so position carries
- *  the meaning and the labels drop away. */
+/** Directions as legend-style chips laid out in a cross. */
 function CompassCross({
   commands,
+  view,
   onTrigger,
 }: {
   commands: Command[];
+  view: PlayerView;
   onTrigger: (command: Command) => void;
 }) {
   const byKey = Object.fromEntries(commands.map((c) => [c.key, c] as const));
-  const cell = (key: string) => {
+  const chip = (key: string) => {
     const command = byKey[key];
-    if (!command) return <span />;
+    if (!command) return null;
     return (
-      <button
-        type="button"
-        className={styles.compassKey}
-        title={command.label}
-        onClick={() => onTrigger(command)}
-      >
-        {keyCap(command)}
-      </button>
+      <LegendChip
+        command={command}
+        active={commandActive(command, view)}
+        onTrigger={onTrigger}
+      />
     );
   };
   return (
-    <div className={styles.compass}>
-      <span />
-      {cell('N')}
-      <span />
-      {cell('W')}
-      <span />
-      {cell('E')}
-      <span />
-      {cell('S')}
-      <span />
+    <div className={styles.navCross}>
+      <div className={styles.navRow}>{chip('N')}</div>
+      <div className={styles.navRow}>
+        {chip('W')}
+        {chip('E')}
+      </div>
+      <div className={styles.navRow}>{chip('S')}</div>
     </div>
   );
 }
@@ -311,7 +310,7 @@ function CommandCluster({
   return (
     <div className={styles.legend}>
       <div className={styles.navBlock}>
-        <CompassCross commands={NAV_COMMANDS} onTrigger={trigger} />
+        <CompassCross commands={NAV_COMMANDS} view={view} onTrigger={trigger} />
         <LegendGroup
           commands={TRANSIT_COMMANDS}
           view={view}
