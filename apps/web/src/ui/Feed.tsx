@@ -16,21 +16,31 @@ const FEED_KIND_CLASS: Partial<Record<string, string>> = {
 /** Anything with a name and id — a lobby member or a party member alike. */
 type FeedMember = { id: PlayerId; name: string };
 
-/** A single feed line: <name> message, the name in the player's color. */
+/** A single feed line. */
 function NamedLine({
-  textClass,
-  color,
-  name,
-  text,
+  item,
+  playerId,
+  named,
+  colorOf,
 }: {
-  textClass?: string;
-  color: string;
-  name: string;
-  text: string;
+  item: FeedItem;
+  playerId: PlayerId;
+  named: (id: PlayerId) => string;
+  colorOf: (id: PlayerId) => string;
 }) {
+  const mine = item.from === playerId;
+  const bullet = item.kind === 'chat' ? '-' : '*';
+  const text = item.kind === 'chat' ? item.text : item.event.text;
+  const textClass =
+    item.kind === 'chat' ? styles.chatText : FEED_KIND_CLASS[item.event.kind];
   return (
     <div className={styles.feedLine}>
-      <span style={{ color }}>&lt;{name}&gt;</span>{' '}
+      <span className={styles.feedBullet}>{bullet} </span>
+      {!mine && (
+        <span style={{ color: colorOf(item.from) }}>
+          &lt;{named(item.from)}&gt;{' '}
+        </span>
+      )}
       <span className={textClass}>{text}</span>
     </div>
   );
@@ -63,42 +73,15 @@ export function Feed({
 
   return (
     <div ref={scroller} className={styles.feed}>
-      {lines.map((item, i) => {
-        if (item.kind === 'chat') {
-          return (
-            <NamedLine
-              key={i}
-              textClass={styles.chatText}
-              color={colorOf(item.from)}
-              name={item.name}
-              text={item.text}
-            />
-          );
-        }
-        const mine = item.from === playerId;
-        // Another player's broadcast: their name in their color, the message in
-        // its normal type color (combat/loot/error).
-        if (item.event.broadcast && !mine) {
-          return (
-            <NamedLine
-              key={i}
-              textClass={FEED_KIND_CLASS[item.event.kind]}
-              color={colorOf(item.from)}
-              name={named(item.from)}
-              text={item.event.text}
-            />
-          );
-        }
-        // Nameless game/system events: just the message, in its standard color.
-        return (
-          <div
-            key={i}
-            className={clsx(styles.feedLine, FEED_KIND_CLASS[item.event.kind])}
-          >
-            <span className={styles.feedBullet}>*</span> {item.event.text}
-          </div>
-        );
-      })}
+      {lines.map((item, i) => (
+        <NamedLine
+          key={i}
+          item={item}
+          playerId={playerId}
+          named={named}
+          colorOf={colorOf}
+        />
+      ))}
     </div>
   );
 }
