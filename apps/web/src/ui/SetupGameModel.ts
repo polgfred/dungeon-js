@@ -321,7 +321,12 @@ export function useSetupGameModel({
           label: 'Flares',
           disabled: flares <= 0,
         },
-        { id: 'flares-confirm', key: 'Enter', label: 'Confirm', disabled: false },
+        {
+          id: 'flares-confirm',
+          key: 'Enter',
+          label: 'Confirm',
+          disabled: false,
+        },
       ];
     }
 

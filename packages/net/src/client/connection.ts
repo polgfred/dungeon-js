@@ -1,6 +1,10 @@
 import type { PlayerSave } from '@dod/core';
 
-import type { ClientMessage, PlayerId, ServerMessage } from '../shared/index.js';
+import type {
+  ClientMessage,
+  PlayerId,
+  ServerMessage,
+} from '../shared/index.js';
 
 export type ConnectionStatus = 'connecting' | 'open' | 'closed';
 

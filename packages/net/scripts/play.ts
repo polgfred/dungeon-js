@@ -61,7 +61,10 @@ function show(block: string): void {
 }
 
 function makeCharacter() {
-  const [st, dx, iq, hp] = Player.rollBaseStats(defaultRandomSource, Race.HUMAN);
+  const [st, dx, iq, hp] = Player.rollBaseStats(
+    defaultRandomSource,
+    Race.HUMAN
+  );
   const player = Player.create({
     race: Race.HUMAN,
     baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },

@@ -43,7 +43,12 @@ export function tileGlyph(tile: Tile): TileGlyph {
 /** Inline <symbol> defs for every glyph; render once per screen. */
 export function GlyphDefs() {
   return (
-    <svg width={0} height={0} aria-hidden="true" style={{ position: 'absolute' }}>
+    <svg
+      width={0}
+      height={0}
+      aria-hidden="true"
+      style={{ position: 'absolute' }}
+    >
       <defs>
         {Object.entries(GLYPH_PATHS).map(([id, d]) => (
           <symbol key={id} id={`glyph-${id}`} viewBox="0 0 8 8">

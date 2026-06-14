@@ -60,8 +60,16 @@ describe('tableReducer', () => {
     });
 
     expect(next.feed).toEqual([
-      { kind: 'event', from: 'alice', event: { kind: 'INFO', text: 'a door creaks' } },
-      { kind: 'event', from: 'alice', event: { kind: 'LOOT', text: 'you find gold' } },
+      {
+        kind: 'event',
+        from: 'alice',
+        event: { kind: 'INFO', text: 'a door creaks' },
+      },
+      {
+        kind: 'event',
+        from: 'alice',
+        event: { kind: 'LOOT', text: 'you find gold' },
+      },
     ]);
   });
 

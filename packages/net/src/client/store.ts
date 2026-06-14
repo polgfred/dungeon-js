@@ -36,7 +36,10 @@ export type TableAction =
   | ServerMessage
   | { type: 'status'; status: ConnectionStatus };
 
-export function tableReducer(state: TableState, action: TableAction): TableState {
+export function tableReducer(
+  state: TableState,
+  action: TableAction
+): TableState {
   switch (action.type) {
     case 'status':
       return { ...state, status: action.status };

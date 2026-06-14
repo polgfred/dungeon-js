@@ -95,9 +95,7 @@ export function Feed({
             key={i}
             className={clsx(styles.feedLine, FEED_KIND_CLASS[item.event.kind])}
           >
-            <span className={styles.feedBullet}>*</span>
-            {' '}
-            {item.event.text}
+            <span className={styles.feedBullet}>*</span> {item.event.text}
           </div>
         );
       })}

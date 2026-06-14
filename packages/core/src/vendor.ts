@@ -363,10 +363,26 @@ export class VendorSession {
     return Event.prompt('He is selling:', {
       hasCancel: true,
       options: [
-        { key: 'W', label: 'Weapons', disabled: this.cannotAfford(cheapest(WEAPON_PRICES)) },
-        { key: 'A', label: 'Armour', disabled: this.cannotAfford(cheapest(ARMOR_PRICES)) },
-        { key: 'S', label: 'Scrolls', disabled: this.cannotAfford(cheapest(SPELL_PRICES)) },
-        { key: 'P', label: 'Potions', disabled: this.cannotAfford(cheapest(POTION_PRICES)) },
+        {
+          key: 'W',
+          label: 'Weapons',
+          disabled: this.cannotAfford(cheapest(WEAPON_PRICES)),
+        },
+        {
+          key: 'A',
+          label: 'Armour',
+          disabled: this.cannotAfford(cheapest(ARMOR_PRICES)),
+        },
+        {
+          key: 'S',
+          label: 'Scrolls',
+          disabled: this.cannotAfford(cheapest(SPELL_PRICES)),
+        },
+        {
+          key: 'P',
+          label: 'Potions',
+          disabled: this.cannotAfford(cheapest(POTION_PRICES)),
+        },
         { key: 'F', label: 'Flares', disabled: this.cannotAfford(FLARE_PRICE) },
       ],
     });

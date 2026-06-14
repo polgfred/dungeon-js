@@ -131,7 +131,9 @@ export function Lobby({
                   {member.ready ? '√' : '·'}
                 </span>
                 <span className={styles.partyName}>
-                  <span style={{ color: colorOf(member.id) }}>{member.name}</span>
+                  <span style={{ color: colorOf(member.id) }}>
+                    {member.name}
+                  </span>
                   {member.id === playerId ? ' (you)' : ''}
                 </span>
               </li>

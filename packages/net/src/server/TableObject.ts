@@ -70,7 +70,8 @@ export class TableObject extends HydratableObject<TableSnapshot> {
   override webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer) {
     let message: ClientMessage;
     try {
-      const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw);
+      const text =
+        typeof raw === 'string' ? raw : new TextDecoder().decode(raw);
       message = JSON.parse(text) as ClientMessage;
     } catch {
       this.send(ws, { type: 'error', message: 'Malformed message.' });
@@ -146,7 +147,10 @@ export class TableObject extends HydratableObject<TableSnapshot> {
           events: this.game.resumeEvents(playerId),
         });
       } else {
-        this.send(ws, { type: 'error', message: 'This game has already begun.' });
+        this.send(ws, {
+          type: 'error',
+          message: 'This game has already begun.',
+        });
       }
     } else {
       this.broadcastLobby();

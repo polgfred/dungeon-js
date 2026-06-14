@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EncounterSession } from '../../src/encounter.js';
-import {
-  ARMOR_NAMES,
-  Spell,
-  WEAPON_NAMES,
-} from '../../src/constants.js';
+import { ARMOR_NAMES, Spell, WEAPON_NAMES } from '../../src/constants.js';
 import type { DebugEvent, Event } from '../../src/types.js';
 import { buildPlayer, buildRoom } from '../helpers/factories.js';
 import { ScriptedRng } from '../helpers/rng.js';

@@ -1,9 +1,4 @@
-import {
-  ARMOR_NAMES,
-  WEAPON_NAMES,
-  raceName,
-  type Race,
-} from '@dod/core';
+import { ARMOR_NAMES, WEAPON_NAMES, raceName, type Race } from '@dod/core';
 
 import { StatList, StatRow } from './StatList.js';
 import { stageReached, type SetupStage, type Stats } from './SetupGameModel.js';

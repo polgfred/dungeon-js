@@ -1,7 +1,4 @@
-import {
-  EncounterSession,
-  rollMonsterVitality,
-} from '../../src/encounter.js';
+import { EncounterSession, rollMonsterVitality } from '../../src/encounter.js';
 import { createSpellCounts, Player, type Room } from '../../src/model.js';
 import { Feature, Race, Spell } from '../../src/constants.js';
 import type { Event, PromptData } from '../../src/types.js';

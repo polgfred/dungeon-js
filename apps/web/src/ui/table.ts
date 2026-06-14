@@ -3,12 +3,40 @@
 // /play/<code> session.
 
 const ADJECTIVES = [
-  'amber', 'azure', 'brass', 'coral', 'dusk', 'ember', 'frost', 'garnet',
-  'ivory', 'jade', 'onyx', 'plum', 'rust', 'sable', 'teal', 'umber',
+  'amber',
+  'azure',
+  'brass',
+  'coral',
+  'dusk',
+  'ember',
+  'frost',
+  'garnet',
+  'ivory',
+  'jade',
+  'onyx',
+  'plum',
+  'rust',
+  'sable',
+  'teal',
+  'umber',
 ];
 const NOUNS = [
-  'adze', 'bolt', 'cairn', 'dirk', 'flask', 'gate', 'helm', 'keep',
-  'lyre', 'moat', 'rune', 'sigil', 'torch', 'vault', 'warden', 'wyrm',
+  'adze',
+  'bolt',
+  'cairn',
+  'dirk',
+  'flask',
+  'gate',
+  'helm',
+  'keep',
+  'lyre',
+  'moat',
+  'rune',
+  'sigil',
+  'torch',
+  'vault',
+  'warden',
+  'wyrm',
 ];
 
 function pick(list: readonly string[]): string {
@@ -22,7 +50,10 @@ export function generateTableCode(): string {
 
 /** Sanitize a typed/pasted code down to the characters a code can contain. */
 export function normalizeTableCode(input: string): string {
-  return input.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+  return input
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '');
 }
 
 /** The worker WebSocket URL for a table. Dev defaults to the local wrangler port. */

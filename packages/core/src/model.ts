@@ -33,7 +33,7 @@ export function createSpellCounts(): SpellCounts {
     [Spell.LIGHTNING]: 0,
     [Spell.WEAKEN]: 0,
     [Spell.TELEPORT]: 0,
-  }
+  };
 }
 
 export class Player {

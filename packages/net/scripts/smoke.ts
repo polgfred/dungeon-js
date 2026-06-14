@@ -15,11 +15,7 @@ import { spawn } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 import { Player, Race, serializePlayer, defaultRandomSource } from '@dod/core';
-import type {
-  ClientMessage,
-  PlayerView,
-  ServerMessage,
-} from '@dod/net/shared';
+import type { ClientMessage, PlayerView, ServerMessage } from '@dod/net/shared';
 
 const PORT = Number(process.env.DOD_PORT ?? 8799);
 const EXTERNAL_URL = process.env.DOD_URL;
@@ -34,7 +30,10 @@ function check(condition: boolean, label: string): void {
 }
 
 function character() {
-  const [st, dx, iq, hp] = Player.rollBaseStats(defaultRandomSource, Race.HUMAN);
+  const [st, dx, iq, hp] = Player.rollBaseStats(
+    defaultRandomSource,
+    Race.HUMAN
+  );
   return serializePlayer(
     Player.create({
       race: Race.HUMAN,
@@ -52,7 +51,10 @@ function character() {
 class Client {
   private ws: WebSocket;
   private queue: ServerMessage[] = [];
-  private waiters: { match: (m: ServerMessage) => boolean; resolve: (m: ServerMessage) => void }[] = [];
+  private waiters: {
+    match: (m: ServerMessage) => boolean;
+    resolve: (m: ServerMessage) => void;
+  }[] = [];
 
   constructor(
     readonly name: string,
@@ -70,7 +72,9 @@ class Client {
   open(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.ws.addEventListener('open', () => resolve());
-      this.ws.addEventListener('error', () => reject(new Error(`${this.name}: connection failed`)));
+      this.ws.addEventListener('error', () =>
+        reject(new Error(`${this.name}: connection failed`))
+      );
     });
   }
 
@@ -83,14 +87,22 @@ class Client {
     predicate?: (m: Extract<ServerMessage, { type: T }>) => boolean,
     timeoutMs = 8000
   ): Promise<Extract<ServerMessage, { type: T }>> {
-    const match = (m: ServerMessage): m is Extract<ServerMessage, { type: T }> =>
-      m.type === type && (!predicate || predicate(m as Extract<ServerMessage, { type: T }>));
+    const match = (
+      m: ServerMessage
+    ): m is Extract<ServerMessage, { type: T }> =>
+      m.type === type &&
+      (!predicate || predicate(m as Extract<ServerMessage, { type: T }>));
     const queued = this.queue.findIndex(match);
     if (queued >= 0) {
-      return this.queue.splice(queued, 1)[0] as Extract<ServerMessage, { type: T }>;
+      return this.queue.splice(queued, 1)[0] as Extract<
+        ServerMessage,
+        { type: T }
+      >;
     }
     return (await Promise.race([
-      new Promise<ServerMessage>((resolve) => this.waiters.push({ match, resolve })),
+      new Promise<ServerMessage>((resolve) =>
+        this.waiters.push({ match, resolve })
+      ),
       sleep(timeoutMs).then(() => {
         throw new Error(`${this.name}: timed out waiting for "${type}"`);
       }),
@@ -123,7 +135,10 @@ async function scenario(): Promise<void> {
     'lobby',
     (m) => m.state.members.length === 2 && m.state.members.every((x) => x.ready)
   );
-  check(lobby.state.members.length === 2, 'both players appear in the lobby, ready');
+  check(
+    lobby.state.members.length === 2,
+    'both players appear in the lobby, ready'
+  );
 
   // --- start ---
   alice.send({ type: 'start' });
@@ -134,14 +149,14 @@ async function scenario(): Promise<void> {
     v.map.every((row) => row.length === 7) &&
     v.party.length === 2 &&
     [1, 2, 3, 4].includes(v.mode);
-  check(validView(aliceStart.view), "start delivers Alice a well-formed view");
-  check(validView(bobStart.view), "start delivers Bob a well-formed view");
+  check(validView(aliceStart.view), 'start delivers Alice a well-formed view');
+  check(validView(bobStart.view), 'start delivers Bob a well-formed view');
 
   // --- a turn (fan-out: everyone gets a fresh view) ---
   alice.send({ type: 'action', command: 'n' });
   const aliceTurn = await alice.waitFor('view');
   const bobTurn = await bob.waitFor('view');
-  check(!!aliceTurn, "the acting player receives an updated view");
+  check(!!aliceTurn, 'the acting player receives an updated view');
   check(!!bobTurn, "a teammate's view refreshes on someone else's turn");
 
   // --- reconnect (same id resumes the seat) ---
@@ -204,7 +219,9 @@ async function main(): Promise<void> {
 main().then(
   () => process.exit(0),
   (error) => {
-    console.error(`\nnetwork smoke: ${error instanceof Error ? error.message : error}`);
+    console.error(
+      `\nnetwork smoke: ${error instanceof Error ? error.message : error}`
+    );
     process.exit(1);
   }
 );

@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  generateDungeon,
-  validateDungeon,
-} from '../../src/generation.js';
+import { generateDungeon, validateDungeon } from '../../src/generation.js';
 import { defaultRandomSource } from '../../src/rng.js';
 
 describe('Dungeon generation invariants', () => {

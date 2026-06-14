@@ -60,13 +60,7 @@ function NamePhase({
   );
 }
 
-function Notice({
-  title,
-  message,
-}: {
-  title: string;
-  message?: string;
-}) {
+function Notice({ title, message }: { title: string; message?: string }) {
   return (
     <div className={styles.notice}>
       <div className={clsx('ui-panel', styles.noticePanel)}>
