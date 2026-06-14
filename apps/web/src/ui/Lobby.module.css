@@ -21,6 +21,37 @@
   color: var(--text-primary);
 }
 
+.readyTextCallout {
+  margin: 0 auto;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  font-weight: bold;
+}
+
+/* Waiting state: "Awaiting the party" with 1→2→3 dots cycling. */
+.awaiting {
+  margin: 1rem 0;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.dots::after {
+  content: '.';
+  animation: dot-cycle 2.5s steps(1, end) infinite;
+}
+
+@keyframes dot-cycle {
+  0% {
+    content: '.';
+  }
+  33% {
+    content: '..';
+  }
+  66% {
+    content: '...';
+  }
+}
+
 /* The feed dock's log is the shared Feed component (Feed.module.css). */
 
 /* --- sidebar sections: character / party / table (shared .sidebar chrome and
@@ -74,5 +105,6 @@
 
 /* Start lives in the ready card now, as the phase's single action. */
 .startBtn {
-  align-self: flex-start;
+  margin: 1rem;
+  align-self: center;
 }

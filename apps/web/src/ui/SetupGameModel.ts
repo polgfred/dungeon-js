@@ -334,7 +334,7 @@ export function useSetupGameModel({
       {
         id: 'ready-enter',
         key: 'Enter',
-        label: 'Enter Dungeon',
+        label: 'Confirm',
         disabled: false,
         primary: true,
       },

@@ -1,14 +1,10 @@
 import type { ReactElement } from 'react';
 
-import { Race } from '@dod/core';
+import { Race, raceName } from '@dod/core';
 
 import { SelectChip, ActionChip, AdjustChip, keyCap } from './Chips.js';
 import styles from './LobbyBuilder.module.css';
-import {
-  type AllocationKey,
-  type SetupGameModel,
-  type SetupStage,
-} from './SetupGameModel.js';
+import { type AllocationKey, type SetupGameModel } from './SetupGameModel.js';
 
 const RACE_BY_ID: Record<string, Race> = {
   'race-human': Race.HUMAN,
@@ -197,10 +193,12 @@ function FlaresStage({ model }: StageProps) {
 
 function ReadyStage({ model }: StageProps) {
   const { action } = commandHelpers(model);
+  const name = raceName(model.race!).toLowerCase();
   return (
     <div className={styles.menu}>
       <p className={styles.question}>
-        Thy gear outfits thee well. THE DUNGEON awaits thee...
+        Brave {name}: art thou certain of thy worthiness, or would another
+        character perhaps suit thee better?
       </p>
       <div className={styles.choices}>
         {action('ready-enter')}
@@ -210,17 +208,19 @@ function ReadyStage({ model }: StageProps) {
   );
 }
 
-const STAGES: Record<SetupStage, (props: StageProps) => ReactElement> = {
-  race: RaceStage,
-  allocate: AllocateStage,
-  weapon: WeaponStage,
-  armor: ArmorStage,
-  flares: FlaresStage,
-  ready: ReadyStage,
-};
-
-/** Dispatches to the active stage's component. Each stage owns its own layout. */
 export function LobbyBuilder({ model }: { model: SetupGameModel }) {
-  const Stage = STAGES[model.stage];
-  return <Stage model={model} />;
+  switch (model.stage) {
+    case 'race':
+      return <RaceStage model={model} />;
+    case 'allocate':
+      return <AllocateStage model={model} />;
+    case 'weapon':
+      return <WeaponStage model={model} />;
+    case 'armor':
+      return <ArmorStage model={model} />;
+    case 'flares':
+      return <FlaresStage model={model} />;
+    case 'ready':
+      return <ReadyStage model={model} />;
+  }
 }

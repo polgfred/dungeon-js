@@ -26,21 +26,34 @@ function ReadyCard({
   everyoneReady: boolean;
   onStart: () => void;
 }) {
-  return (
-    <div className={styles.ready}>
-      <p className={styles.readyText}>
-        Thy adventurer stands ready. THE DUNGEON awaits the whole party...
-      </p>
-      <button
-        type="button"
-        className={clsx('btn', 'btn-contained', styles.startBtn)}
-        disabled={!everyoneReady}
-        onClick={onStart}
-      >
-        {everyoneReady ? 'Begin the descent' : 'Awaiting the party...'}
-      </button>
-    </div>
-  );
+  if (everyoneReady) {
+    return (
+      <div className={styles.ready}>
+        <p className={styles.readyTextCallout}>THE DUNGEON AWAITS YOU...</p>
+        <button
+          type="button"
+          className={clsx('btn', 'btn-contained', styles.startBtn)}
+          onClick={onStart}
+        >
+          Enter the dungeon
+        </button>
+      </div>
+    );
+  } else {
+    return (
+      <div className={styles.ready}>
+        <p className={styles.readyText}>
+          The virtue of patience shall stand thee in good stead at this point: I
+          must needs prepare the dungeon. When the entire party is ready, the
+          quest may begin.
+        </p>
+        <p className={styles.awaiting}>
+          Awaiting the party<span className={styles.dots} aria-hidden="true" />
+        </p>
+      </div>
+    );
+  }
+
 }
 
 export function Lobby({

@@ -56,10 +56,10 @@ export function normalizeTableCode(input: string): string {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-/** The worker WebSocket URL for a table. Dev defaults to the local wrangler port. */
+/** The worker WebSocket URL for a table. */
 export function tableWsUrl(code: string): string {
-  const base = import.meta.env.VITE_WS_BASE ?? 'ws://localhost:8787';
-  return `${base}/${encodeURIComponent(code)}`;
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${proto}//${location.host}/ws/${encodeURIComponent(code)}`;
 }
 
 const NAME_KEY = 'dod.playerName';
