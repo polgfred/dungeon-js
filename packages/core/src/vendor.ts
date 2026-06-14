@@ -319,13 +319,13 @@ export class VendorSession {
       case 'I':
         target = 'IQ';
         break;
-      case 'M':
+      case 'H':
         target = 'MHP';
         break;
       default:
         return {
           events: [
-            Event.error('Choose S/D/I/M or Esc.'),
+            Event.error('Choose S/D/I/H or Esc.'),
             this.attributePrompt(),
           ],
         };
@@ -490,7 +490,7 @@ export class VendorSession {
         { key: 'S', label: 'Strength', disabled: false },
         { key: 'D', label: 'Dexterity', disabled: false },
         { key: 'I', label: 'Intellect', disabled: false },
-        { key: 'M', label: 'Max HP', disabled: false },
+        { key: 'H', label: 'Max Health', disabled: false },
       ],
     });
   }
