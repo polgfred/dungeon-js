@@ -89,6 +89,22 @@ describe('tableReducer', () => {
     expect(first.feed).toHaveLength(1); // prior state untouched (immutable fold)
   });
 
+  it('caps the scrollback at 256, dropping the oldest', () => {
+    const events = Array.from({ length: 300 }, (_, i) => Event.info(`m${i}`));
+    const next = tableReducer(initialTableState, {
+      type: 'events',
+      from: 'alice',
+      events,
+    });
+
+    expect(next.feed).toHaveLength(256);
+    const first = next.feed[0];
+    const last = next.feed[255];
+    // oldest 44 dropped (300 - 256), newest retained
+    expect(first.kind === 'event' && first.event.text).toBe('m44');
+    expect(last.kind === 'event' && last.event.text).toBe('m299');
+  });
+
   it('appends chat to the same feed, attributed by name', () => {
     const next = tableReducer(initialTableState, {
       type: 'chat',

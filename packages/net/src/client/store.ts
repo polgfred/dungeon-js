@@ -36,6 +36,13 @@ export type TableAction =
   | ServerMessage
   | { type: 'status'; status: ConnectionStatus };
 
+const MAX_FEED = 256;
+
+function appendFeed(feed: FeedItem[], items: FeedItem[]): FeedItem[] {
+  const next = [...feed, ...items];
+  return next.length > MAX_FEED ? next.slice(-MAX_FEED) : next;
+}
+
 export function tableReducer(
   state: TableState,
   action: TableAction
@@ -50,27 +57,26 @@ export function tableReducer(
     case 'events':
       return {
         ...state,
-        feed: [
-          ...state.feed,
-          ...action.events.map((event) => ({
+        feed: appendFeed(
+          state.feed,
+          action.events.map((event) => ({
             kind: 'event' as const,
             from: action.from,
             event,
-          })),
-        ],
+          }))
+        ),
       };
     case 'chat':
       return {
         ...state,
-        feed: [
-          ...state.feed,
+        feed: appendFeed(state.feed, [
           {
             kind: 'chat',
             from: action.from,
             name: action.name,
             text: action.text,
           },
-        ],
+        ]),
       };
     case 'error':
       return { ...state, error: action.message };
