@@ -321,24 +321,25 @@ function CommandCluster({
     );
   }
 
-  // Explore: a nav block (cross + U/D/X) over the room actions. Kept shorter
+  // Explore: the compass cross centered above two columns of slim chips —
+  // room actions (F/L/O/R/P/B) beside the transit keys (U/D/X). Kept shorter
   // than the map so the map sets the board height — no reflow when the mode
   // (and this whole cluster) changes.
   return (
     <div className={styles.legend}>
-      <div className={styles.navBlock}>
-        <CompassCross commands={NAV_COMMANDS} view={view} onTrigger={trigger} />
+      <CompassCross commands={NAV_COMMANDS} view={view} onTrigger={trigger} />
+      <div className={styles.actionColumns}>
+        <LegendGroup
+          commands={FEATURE_COMMANDS}
+          view={view}
+          onTrigger={trigger}
+        />
         <LegendGroup
           commands={TRANSIT_COMMANDS}
           view={view}
           onTrigger={trigger}
         />
       </div>
-      <LegendGroup
-        commands={FEATURE_COMMANDS}
-        view={view}
-        onTrigger={trigger}
-      />
     </div>
   );
 }
