@@ -89,9 +89,28 @@ describe('Game interactions', () => {
 
       expect(result.mode).toBe(Mode.GAME_OVER);
       expect(result.events[0].text).toBe(
-        'The perverse thing explodes as you open it, wounding you!'
+        'The perverse thing explodes as you open it, killing you!'
       );
       expect(result.events[1].text).toBe('YOU HAVE DIED.');
+      expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
+    });
+
+    it('opens a chest and is wounded but survives when unarmored', () => {
+      const rng = new ScriptedRng({ random: [0.05], randint: [2] });
+      const { game, player, dungeon } = setupGame({
+        feature: Feature.CHEST,
+        rng,
+      });
+      player.armorTier = 0;
+      player.hp = 10;
+
+      const result = game.step(ID, 'O');
+
+      expect(result.mode).toBe(Mode.EXPLORE);
+      expect(result.events[0].text).toBe(
+        'The perverse thing explodes as you open it, wounding you!'
+      );
+      expect(player.hp).toBe(5);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
 
