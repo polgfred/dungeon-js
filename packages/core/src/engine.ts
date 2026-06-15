@@ -218,7 +218,11 @@ export class Game {
   }
 
   startEvents(id: PlayerId): Event[] {
-    return this.enterRoom(this.state(id));
+    const state = this.state(id);
+    const events = this.enterRoom(state);
+    // Update the map on start
+    this.observe(state);
+    return events;
   }
 
   private stepResult(id: PlayerId, events: Event[]): StepResult {
@@ -226,6 +230,14 @@ export class Game {
   }
 
   step(id: PlayerId, command: string): StepResult {
+    const result = this.runStep(id, command);
+    const state = this.players.get(id);
+    // Update the map after each turn
+    if (state) this.observe(state);
+    return result;
+  }
+
+  private runStep(id: PlayerId, command: string): StepResult {
     const state = this.state(id);
     const raw = command.trim().toUpperCase();
     if (!raw) {
@@ -455,7 +467,6 @@ export class Game {
   }
 
   private enterRoom(state: PlayerState): Event[] {
-    const events: Event[] = [];
     const player = state.player;
     const room = this.currentRoom(player);
 
@@ -469,115 +480,95 @@ export class Game {
         room,
         debug: this.debug,
       });
-      events.push(...state.encounter.viewEvents());
-    } else if (room.treasureId) {
-      events.push(...this.awardTreasure(room.treasureId));
-      room.treasureId = 0;
-    } else {
-      switch (room.feature) {
-        case Feature.FLARES: {
-          const gained = this.rng.randint(1, 5);
-          player.flares += gained;
-          room.feature = Feature.EMPTY;
-          events.push(Event.info('You pick up some flares here.'));
-          break;
-        }
-        case Feature.THIEF: {
-          room.feature = Feature.EMPTY;
-          if (player.gold === 0) {
-            const damage = this.rng.randint(2, 4);
-            player.hp = Math.max(0, player.hp - damage);
-            events.push(
-              Event.info('A thief sneaks from the shadows and attacks you!')
-            );
-            if (player.hp <= 0) {
-              events.push(Event.broadcast(Event.info('YOU HAVE DIED.')));
-              this.endMode = Mode.GAME_OVER;
-            }
-            break;
-          }
-          const stolen = Math.min(this.rng.randint(1, 50), player.gold);
-          player.gold -= stolen;
-          events.push(
-            Event.info(
-              `A thief sneaks from the shadows and removes ${stolen} gold ${pluralize(stolen, 'piece')} ` +
-                `from your possession.`
-            )
-          );
-          break;
-        }
-        case Feature.WARP:
-          room.feature = Feature.EMPTY;
-          events.push(
-            Event.info(
-              'This room contains a warp. Before you realize what is going on, you appear elsewhere...'
-            )
-          );
-          this.observe(state);
-          this.randomRelocate(state, {
-            anyFloor: true,
-            avoidMonsters: false,
-          });
-          events.push(...this.enterRoom(state));
-          return events;
-        default:
-          events.push(...this.describeRoom(room));
-          break;
-      }
+      return state.encounter.viewEvents();
     }
 
-    this.observe(state);
-    return events;
+    if (room.treasureId) {
+      const treasureId = room.treasureId;
+      room.treasureId = 0;
+      return this.awardTreasure(treasureId);
+    }
+
+    switch (room.feature) {
+      case Feature.FLARES: {
+        const gained = this.rng.randint(1, 5);
+        player.flares += gained;
+        room.feature = Feature.EMPTY;
+        return [Event.info('You pick up some flares here.')];
+      }
+      case Feature.THIEF: {
+        room.feature = Feature.EMPTY;
+        if (player.gold === 0) {
+          const damage = this.rng.randint(2, 4);
+          player.hp = Math.max(0, player.hp - damage);
+          const events: Event[] = [
+            Event.info('A thief sneaks from the shadows and attacks you!'),
+          ];
+          if (player.hp <= 0) {
+            events.push(Event.broadcast(Event.info('YOU HAVE DIED.')));
+            this.endMode = Mode.GAME_OVER;
+          }
+          return events;
+        }
+        const stolen = Math.min(this.rng.randint(1, 50), player.gold);
+        player.gold -= stolen;
+        return [
+          Event.info(
+            `A thief sneaks from the shadows and removes ${stolen} gold ${pluralize(stolen, 'piece')} ` +
+              `from your possession.`
+          ),
+        ];
+      }
+      case Feature.WARP: {
+        room.feature = Feature.EMPTY;
+        const events: Event[] = [
+          Event.info(
+            'This room contains a warp. Before you realize what is going on, you appear elsewhere...'
+          ),
+        ];
+        // Observe the departed warp room before we relocate away
+        this.observe(state);
+        this.randomRelocate(state, { anyFloor: true, avoidMonsters: false });
+        events.push(...this.enterRoom(state));
+        return events;
+      }
+      default:
+        return this.describeRoom(room);
+    }
   }
 
   private describeRoom(room: Room): Event[] {
-    const events: Event[] = [];
-
     if (room.monsterLevel > 0) {
       const name = monsterName(room.monsterLevel);
-      events.push(Event.combat(`You are facing an angry ${name}!`));
-      return events;
+      return [Event.combat(`You are facing an angry ${name}!`)];
     }
 
     switch (room.feature) {
       case Feature.MIRROR:
-        events.push(
-          Event.info('There is a magic mirror mounted on the wall here.')
-        );
-        break;
+        return [
+          Event.info('There is a magic mirror mounted on the wall here.'),
+        ];
       case Feature.SCROLL:
-        events.push(Event.info('There is a spell scroll here.'));
-        break;
+        return [Event.info('There is a spell scroll here.')];
       case Feature.CHEST:
-        events.push(Event.info('There is a chest here.'));
-        break;
+        return [Event.info('There is a chest here.')];
       case Feature.POTION:
-        events.push(Event.info('There is a magic potion here.'));
-        break;
+        return [Event.info('There is a magic potion here.')];
       case Feature.VENDOR:
-        events.push(
+        return [
           Event.info(
             'There is a vendor here. Do you wish to purchase something?'
-          )
-        );
-        break;
+          ),
+        ];
       case Feature.STAIRS_UP:
-        events.push(Event.info('There are stairs up here.'));
-        break;
+        return [Event.info('There are stairs up here.')];
       case Feature.STAIRS_DOWN:
-        events.push(Event.info('There are stairs down here.'));
-        break;
+        return [Event.info('There are stairs down here.')];
       case Feature.EXIT:
-        events.push(
-          Event.info('You see the exit to the DUNGEON of DOOM here.')
-        );
-        break;
+        return [Event.info('You see the exit to the DUNGEON of DOOM here.')];
       default:
-        events.push(Event.info('This room is empty.'));
-        break;
+        return [Event.info('This room is empty.')];
     }
-
-    return events;
   }
 
   private attemptExit(state: PlayerState): Event[] {
@@ -647,7 +638,6 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
-    this.observe(state);
 
     const visions = [
       'The mirror is cloudy and yields no vision.',
@@ -714,7 +704,6 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
-    this.observe(state);
 
     const rand = this.rng.random();
     if (rand < 0.1) {
@@ -775,7 +764,6 @@ export class Game {
     room.feature = Feature.EMPTY;
     const spell = this.rng.randint(1, 5) as Spell;
     player.spells[spell] = (player.spells[spell] ?? 0) + 1;
-    this.observe(state);
 
     return [
       Event.info(
@@ -792,7 +780,6 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
-    this.observe(state);
 
     const roll = this.rng.randint(1, 5);
     if (roll === 1) {
