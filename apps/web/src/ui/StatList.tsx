@@ -15,6 +15,34 @@ export function StatList({ children }: { children: ReactNode }) {
   return <dl className={styles.list}>{children}</dl>;
 }
 
+function shortLabel(label: string) {
+  switch (label) {
+    case 'Strength':
+      return 'Str';
+    case 'Dexterity':
+      return 'Dex';
+    case 'Intellect':
+      return 'Int';
+    case 'Treasures':
+      return 'Treas';
+    default:
+      return label;
+  }
+}
+
+function shortValue(gear: string) {
+  switch (gear) {
+    case 'Short sword':
+      return 'Sh. sword';
+    case 'Broadsword':
+      return 'B. sword';
+    case 'Chain mail':
+      return 'Ch. mail';
+    default:
+      return gear;
+  }
+}
+
 export function StatRow({
   label,
   value,
@@ -28,9 +56,9 @@ export function StatRow({
 }) {
   return (
     <div className={styles.row}>
-      <dt className={styles.label}>{label}</dt>
+      <dt className={styles.label}>{shortLabel(label)}</dt>
       <dd className={clsx(styles.value, tone && TONE[tone])} title={title}>
-        {value}
+        {shortValue(value)}
       </dd>
     </div>
   );

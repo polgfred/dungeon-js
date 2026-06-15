@@ -75,13 +75,14 @@
   margin: 0 0 0.5rem;
 }
 
-.party {
+.partyList {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.25rem;
+  font-size: 0.9rem;
 }
 
 .partyRow {

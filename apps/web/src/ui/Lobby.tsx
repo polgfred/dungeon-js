@@ -132,7 +132,7 @@ export function Lobby({
 
         <div className={styles.adventurers}>
           <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
-          <ul className={styles.party}>
+          <ul className={styles.partyList}>
             {members.map((member) => (
               <li key={member.id} className={styles.partyRow}>
                 <span
@@ -141,7 +141,7 @@ export function Lobby({
                     !member.ready && styles.partyMarkPending
                   )}
                 >
-                  {member.ready ? '√' : '·'}
+                  {member.ready ? (member.id === playerId ? '*' : '√') : '·'}
                 </span>
                 <span
                   className={clsx(
@@ -152,7 +152,6 @@ export function Lobby({
                   <span style={{ color: colorOf(member.id) }}>
                     {member.name}
                   </span>
-                  {member.id === playerId ? ' (you)' : ''}
                 </span>
               </li>
             ))}

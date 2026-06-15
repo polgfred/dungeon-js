@@ -63,6 +63,16 @@ function StatsReadout({ view }: { view: PlayerView }) {
   );
 }
 
+function LocationReadout({ view }: { view: PlayerView }) {
+  const s = view.self;
+  return (
+    <StatList>
+      <StatRow label="Level" value={String(s.z + 1)} />
+      <StatRow label="Room" value={`${s.y + 1},${s.x + 1}`} />
+    </StatList>
+  );
+}
+
 function Party({
   party,
   playerId,
@@ -77,7 +87,9 @@ function Party({
       <ul className={styles.partyList}>
         {party.map((member) => (
           <li key={member.id} className={styles.partyRow}>
-            <span className={styles.partyMark}>√</span>
+            <span className={styles.partyMark}>
+              {member.id === playerId ? '*' : '√'}
+            </span>
             <span
               className={clsx(
                 styles.partyName,
@@ -85,7 +97,6 @@ function Party({
               )}
             >
               <span style={{ color: colorOf(member.id) }}>{member.name}</span>
-              {member.id === playerId ? ' (you)' : ''}
             </span>
           </li>
         ))}
@@ -431,9 +442,7 @@ export function Gameplay({
         </section>
         <section>
           <p className={clsx('ui-panel-title', layout.railTitle)}>Location</p>
-          <p className={styles.location}>
-            Floor {view.self.z + 1} · Room {view.self.y + 1},{view.self.x + 1}
-          </p>
+          <LocationReadout view={view} />
         </section>
         <Party party={view.party} playerId={playerId} />
       </aside>

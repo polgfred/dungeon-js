@@ -7,12 +7,12 @@
 
 .root {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 22rem;
+  grid-template-columns: minmax(0, 1fr) 18rem;
   grid-template-rows: minmax(0, auto) minmax(0, 1fr);
   grid-template-areas:
     'board sidebar'
     'feed  sidebar';
-  gap: 1.75rem 2.5rem;
+  gap: 1.75rem;
   padding: 1.75rem 2rem;
 
   /* Page doesn't scroll; the feed scrolls internally. */
