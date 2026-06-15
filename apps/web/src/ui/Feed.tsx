@@ -53,7 +53,9 @@ function NamedLine({
       {parts.map((part, i) => (
         <Fragment key={i}>
           {i > 0 && (
-            <span style={{ color: colorOf(item.from) }}>{named(item.from)}</span>
+            <span style={{ color: colorOf(item.from) }}>
+              {named(item.from)}
+            </span>
           )}
           {part && <span className={textClass}>{part}</span>}
         </Fragment>

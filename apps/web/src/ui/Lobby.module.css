@@ -25,7 +25,7 @@
   margin: 0 auto;
   line-height: 1.4;
   color: var(--text-secondary);
-  font-weight: bold;
+  font-size: 1.25em;
 }
 
 /* Waiting state: "Awaiting the party" with 1→2→3 dots cycling. */
