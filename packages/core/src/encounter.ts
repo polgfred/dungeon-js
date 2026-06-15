@@ -307,7 +307,7 @@ export class EncounterSession {
       );
     }
     if (this.player.hp <= 0) {
-      events.push(Event.broadcast(Event.info('YOU HAVE DIED.')));
+      events.push(Event.info('YOU HAVE DIED.', true));
       return {
         events,
         done: true,
@@ -317,9 +317,7 @@ export class EncounterSession {
   }
 
   private handleMonsterDeath(events: Event[]): EncounterResult {
-    events.push(
-      Event.broadcast(Event.combat(`The foul ${this.monsterName} expires.`))
-    );
+    events.push(Event.combat(`The foul ${this.monsterName} expires.`, true));
     if (this.rng.random() > 0.7) {
       events.push(
         Event.combat(

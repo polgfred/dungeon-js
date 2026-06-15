@@ -505,7 +505,7 @@ export class Game {
             Event.info('A thief sneaks from the shadows and attacks you!'),
           ];
           if (player.hp <= 0) {
-            events.push(Event.broadcast(Event.info('YOU HAVE DIED.')));
+            events.push(Event.info('YOU HAVE DIED.', true));
             this.endMode = Mode.GAME_OVER;
           }
           return events;
@@ -588,7 +588,7 @@ export class Game {
     state.exited = true;
     if (this.allExited()) {
       this.endMode = Mode.VICTORY;
-      return [Event.broadcast(Event.info('ALL HAIL THE VICTOR!'))];
+      return [Event.info('ALL HAIL THE VICTOR!', true)];
     }
 
     return [
@@ -736,7 +736,7 @@ export class Game {
           Event.info(
             'The perverse thing explodes as you open it, wounding you!'
           ),
-          Event.broadcast(Event.info('YOU HAVE DIED.')),
+          Event.info('YOU HAVE DIED.', true),
         ];
       }
 
@@ -850,9 +850,7 @@ export class Game {
     }
 
     this.treasuresFound.add(treasureId);
-    return [
-      Event.broadcast(Event.loot(`You find the ${treasureName(treasureId)}!`)),
-    ];
+    return [Event.loot(`You find the ${treasureName(treasureId)}!`, true)];
   }
 
   private clearEncountersAt(z: number, y: number, x: number): void {

@@ -51,26 +51,31 @@ export type Event =
   | PromptEvent;
 
 export const Event = {
-  info(text: string): InfoEvent {
-    return { kind: 'INFO', text };
+  info(text: string, broadcast = false): InfoEvent {
+    return broadcast
+      ? { kind: 'INFO', text, broadcast }
+      : { kind: 'INFO', text };
   },
-  error(text: string): ErrorEvent {
-    return { kind: 'ERROR', text };
+  error(text: string, broadcast = false): ErrorEvent {
+    return broadcast
+      ? { kind: 'ERROR', text, broadcast }
+      : { kind: 'ERROR', text };
   },
-  combat(text: string): CombatEvent {
-    return { kind: 'COMBAT', text };
+  combat(text: string, broadcast = false): CombatEvent {
+    return broadcast
+      ? { kind: 'COMBAT', text, broadcast }
+      : { kind: 'COMBAT', text };
   },
-  loot(text: string): LootEvent {
-    return { kind: 'LOOT', text };
+  loot(text: string, broadcast = false): LootEvent {
+    return broadcast
+      ? { kind: 'LOOT', text, broadcast }
+      : { kind: 'LOOT', text };
   },
   prompt(text: string, data?: PromptData): PromptEvent {
     return data ? { kind: 'PROMPT', text, data } : { kind: 'PROMPT', text };
   },
   debug(data: DebugData): DebugEvent {
     return { kind: 'DEBUG', text: '', data };
-  },
-  broadcast<E extends Event>(event: E): E {
-    return { ...event, broadcast: true };
   },
 };
 
