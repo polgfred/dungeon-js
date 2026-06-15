@@ -17,6 +17,7 @@
 import { clearLine, createInterface, cursorTo } from 'node:readline';
 
 import {
+  ACTOR_TOKEN,
   Player,
   Race,
   serializePlayer,
@@ -129,11 +130,8 @@ function formatEvent(event: Event, mine: boolean, fromName: string): string {
     if (event.data?.hasCancel) lines.push('    [/cancel] back out');
     return lines.join('\n');
   }
-  // A system bullet, plus the sender's <name> when it isn't you (mirrors the
-  // web feed). We no longer check the broadcast flag — the server only fans
-  // others' broadcast events to us, so `!mine` already means "from someone else".
-  const who = mine ? '' : `<${fromName}> `;
-  return `  * ${who}${event.text}`;
+  // A game event embeds the actor's name as ACTOR_TOKEN.
+  return `  * ${event.text.replaceAll(ACTOR_TOKEN, fromName)}`;
 }
 
 function eventsText(from: string, events: Event[]): string {

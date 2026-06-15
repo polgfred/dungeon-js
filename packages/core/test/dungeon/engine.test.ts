@@ -456,14 +456,16 @@ describe('Game interactions', () => {
 
       const result = game.step(ID, 'F');
 
-      const slain = result.events.find(
+      // Each party-wide moment is emitted as a pair (actor copy + broadcast
+      // copy); the broadcast copy is the one teammates receive.
+      const slain = result.events.filter(
         (event) => event.text === 'The foul Skeleton expires.'
       );
-      const found = result.events.find(
+      const found = result.events.filter(
         (event) => event.text === 'You find the Gold Fleece!'
       );
-      expect(slain?.broadcast).toBe(true);
-      expect(found?.broadcast).toBe(true);
+      expect(slain.some((event) => event.broadcast)).toBe(true);
+      expect(found.some((event) => event.broadcast)).toBe(true);
     });
   });
 

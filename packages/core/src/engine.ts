@@ -287,7 +287,10 @@ export class Game {
               const gold = 5 * monsterLevel + this.rng.randint(0, 20);
               state.player.gold += gold;
               events.push(
-                Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}.`)
+                Event.loot(
+                  `You find ${gold} gold ${pluralize(gold, 'piece')}.`,
+                  `<@> finds ${gold} gold ${pluralize(gold, 'piece')}.`
+                )
               );
             }
           }
@@ -505,7 +508,7 @@ export class Game {
             Event.info('A thief sneaks from the shadows and attacks you!'),
           ];
           if (player.hp <= 0) {
-            events.push(Event.info('YOU HAVE DIED.', true));
+            events.push(Event.info('YOU HAVE DIED.', '<@> HAS DIED.'));
             this.endMode = Mode.GAME_OVER;
           }
           return events;
@@ -588,12 +591,13 @@ export class Game {
     state.exited = true;
     if (this.allExited()) {
       this.endMode = Mode.VICTORY;
-      return [Event.info('ALL HAIL THE VICTOR!', true)];
+      return [Event.info('ALL HAIL THE VICTOR!', 'ALL HAIL THE VICTOR!')];
     }
 
     return [
       Event.info(
-        'You step out of the DUNGEON of DOOM and await your companions.'
+        'You step out of the DUNGEON of DOOM and await your companions.',
+        '<@> steps out of the DUNGEON of DOOM.'
       ),
     ];
   }
@@ -714,7 +718,8 @@ export class Game {
           player.armorDamaged = false;
           return [
             Event.info(
-              'The perverse thing explodes as you open it, destroying your armour!'
+              'The perverse thing explodes as you open it, destroying your armour!',
+              "An exploding chest destroys <@>'s armour!"
             ),
           ];
         }
@@ -722,7 +727,8 @@ export class Game {
         player.armorDamaged = true;
         return [
           Event.info(
-            'The perverse thing explodes as you open it, damaging your armour!'
+            'The perverse thing explodes as you open it, damaging your armour!',
+            "An exploding chest damages <@>'s armour!"
           ),
         ];
       }
@@ -734,14 +740,18 @@ export class Game {
         this.endMode = Mode.GAME_OVER;
         return [
           Event.info(
-            'The perverse thing explodes as you open it, wounding you!'
+            'The perverse thing explodes as you open it, killing you!',
+            'An exploding chest kills <@>!'
           ),
-          Event.info('YOU HAVE DIED.', true),
+          Event.info('YOU HAVE DIED.', '<@> HAS DIED.'),
         ];
       }
 
       return [
-        Event.info('The perverse thing explodes as you open it, wounding you!'),
+        Event.info(
+          'The perverse thing explodes as you open it, wounding you!',
+          'An exploding chest wounds <@>!'
+        ),
       ];
     }
 
@@ -751,7 +761,12 @@ export class Game {
 
     const gold = 10 + this.rng.randint(0, 20);
     player.gold += gold;
-    return [Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}!`)];
+    return [
+      Event.loot(
+        `You find ${gold} gold ${pluralize(gold, 'piece')}!`,
+        `<@> finds ${gold} gold ${pluralize(gold, 'piece')}!`
+      ),
+    ];
   }
 
   private readScroll(state: PlayerState): Event[] {
@@ -850,7 +865,12 @@ export class Game {
     }
 
     this.treasuresFound.add(treasureId);
-    return [Event.loot(`You find the ${treasureName(treasureId)}!`, true)];
+    return [
+      Event.loot(
+        `You find the ${treasureName(treasureId)}!`,
+        `<@> finds the ${treasureName(treasureId)}!`
+      ),
+    ];
   }
 
   private clearEncountersAt(z: number, y: number, x: number): void {

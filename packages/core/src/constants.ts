@@ -1,3 +1,6 @@
+/** Placeholder for name inside a broadcast event's text. */
+export const ACTOR_TOKEN = '<@>';
+
 export const enum Feature {
   EMPTY = 0,
   MIRROR = 1,

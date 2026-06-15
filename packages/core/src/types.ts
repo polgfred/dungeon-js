@@ -10,7 +10,8 @@ export type EventKind =
   | 'PROMPT'
   | 'DEBUG';
 
-export type Broadcastable = { broadcast?: boolean };
+/** When set, `broadcast` is the line the rest of the party sees instead. */
+export type Broadcastable = { broadcast?: string };
 
 export type InfoEvent = { kind: 'INFO'; text: string } & Broadcastable;
 export type ErrorEvent = { kind: 'ERROR'; text: string } & Broadcastable;
@@ -20,7 +21,7 @@ export type DebugValue = string | number | boolean | null;
 export type DebugData = Record<string, DebugValue>;
 export type DebugEvent = {
   kind: 'DEBUG';
-  text: '';
+  text: string;
   data: DebugData;
 } & Broadcastable;
 
@@ -51,25 +52,25 @@ export type Event =
   | PromptEvent;
 
 export const Event = {
-  info(text: string, broadcast = false): InfoEvent {
-    return broadcast
-      ? { kind: 'INFO', text, broadcast }
-      : { kind: 'INFO', text };
+  info(text: string, broadcast?: string): InfoEvent {
+    return broadcast === undefined
+      ? { kind: 'INFO', text }
+      : { kind: 'INFO', text, broadcast };
   },
-  error(text: string, broadcast = false): ErrorEvent {
-    return broadcast
-      ? { kind: 'ERROR', text, broadcast }
-      : { kind: 'ERROR', text };
+  error(text: string, broadcast?: string): ErrorEvent {
+    return broadcast === undefined
+      ? { kind: 'ERROR', text }
+      : { kind: 'ERROR', text, broadcast };
   },
-  combat(text: string, broadcast = false): CombatEvent {
-    return broadcast
-      ? { kind: 'COMBAT', text, broadcast }
-      : { kind: 'COMBAT', text };
+  combat(text: string, broadcast?: string): CombatEvent {
+    return broadcast === undefined
+      ? { kind: 'COMBAT', text }
+      : { kind: 'COMBAT', text, broadcast };
   },
-  loot(text: string, broadcast = false): LootEvent {
-    return broadcast
-      ? { kind: 'LOOT', text, broadcast }
-      : { kind: 'LOOT', text };
+  loot(text: string, broadcast?: string): LootEvent {
+    return broadcast === undefined
+      ? { kind: 'LOOT', text }
+      : { kind: 'LOOT', text, broadcast };
   },
   prompt(text: string, data?: PromptData): PromptEvent {
     return data ? { kind: 'PROMPT', text, data } : { kind: 'PROMPT', text };

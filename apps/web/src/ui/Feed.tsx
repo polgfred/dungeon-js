@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { Fragment, useEffect, useRef } from 'react';
 
-import clsx from 'clsx';
-
+import { ACTOR_TOKEN } from '@dod/core';
 import type { FeedItem, PlayerId } from '@dod/net/client';
 
 import { chatColorsById } from './chatColors.js';
@@ -29,19 +28,36 @@ function NamedLine({
   colorOf: (id: PlayerId) => string;
 }) {
   const mine = item.from === playerId;
-  const bullet = item.kind === 'chat' ? '-' : '*';
-  const text = item.kind === 'chat' ? item.text : item.event.text;
-  const textClass =
-    item.kind === 'chat' ? styles.chatText : FEED_KIND_CLASS[item.event.kind];
+
+  // Chat stays a tagged quote: "- <name> message".
+  if (item.kind === 'chat') {
+    return (
+      <div className={styles.feedLine}>
+        <span className={styles.feedBullet}>- </span>
+        {!mine && (
+          <span style={{ color: colorOf(item.from) }}>
+            &lt;{named(item.from)}&gt;{' '}
+          </span>
+        )}
+        <span className={styles.chatText}>{item.text}</span>
+      </div>
+    );
+  }
+
+  // Game events: replace ACTOR_TOKEN with player name.
+  const textClass = FEED_KIND_CLASS[item.event.kind];
+  const parts = item.event.text.split(ACTOR_TOKEN);
   return (
     <div className={styles.feedLine}>
-      <span className={styles.feedBullet}>{bullet} </span>
-      {!mine && (
-        <span style={{ color: colorOf(item.from) }}>
-          &lt;{named(item.from)}&gt;{' '}
-        </span>
-      )}
-      <span className={textClass}>{text}</span>
+      <span className={styles.feedBullet}>* </span>
+      {parts.map((part, i) => (
+        <Fragment key={i}>
+          {i > 0 && (
+            <span style={{ color: colorOf(item.from) }}>{named(item.from)}</span>
+          )}
+          {part && <span className={textClass}>{part}</span>}
+        </Fragment>
+      ))}
     </div>
   );
 }

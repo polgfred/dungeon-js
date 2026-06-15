@@ -238,12 +238,15 @@ export class TableObject extends HydratableObject<TableSnapshot> {
   }
 
   /**
-   * Deliver the results of one player's turn: the actor sees everything that
-   * happened; everyone else sees only the broadcast-flagged events (attributed to
-   * the actor). Every connected player gets a refreshed view afterward.
+   * Deliver the results of one player's turn: the actor sees each event's own
+   * text; everyone else sees only the events that carry a `broadcast` line, with
+   * that string swapped in as the text (attributed to the actor). Every connected
+   * player gets a refreshed view afterward.
    */
   private fanOut(result: StepResult) {
-    const broadcast = result.events.filter((event) => event.broadcast);
+    const forOthers = result.events
+      .filter((event) => event.broadcast !== undefined)
+      .map(({ broadcast, ...event }) => ({ ...event, text: broadcast! }));
     for (const ws of this.ctx.getWebSockets()) {
       const playerId = this.playerIdOf(ws);
       if (!playerId || !this.game?.hasPlayer(playerId)) continue;
@@ -253,11 +256,11 @@ export class TableObject extends HydratableObject<TableSnapshot> {
           from: result.playerId,
           events: result.events,
         });
-      } else if (broadcast.length) {
+      } else if (forOthers.length) {
         this.send(ws, {
           type: 'events',
           from: result.playerId,
-          events: broadcast,
+          events: forOthers,
         });
       }
       this.send(ws, { type: 'view', view: this.viewFor(playerId) });

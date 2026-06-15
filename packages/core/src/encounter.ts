@@ -100,7 +100,10 @@ export class EncounterSession {
       return [Event.prompt('Choose a spell:', this.spellMenu())];
     }
     const events: Event[] = [
-      Event.combat(`You are facing an angry ${this.monsterName}!`),
+      Event.combat(
+        `You are facing an angry ${this.monsterName}!`,
+        `<@> is facing an angry ${this.monsterName}!`
+      ),
     ];
     if (this.debug) {
       events.push(this.debugMonsterEvent());
@@ -192,7 +195,12 @@ export class EncounterSession {
       );
     }
     if (roll > attackScore) {
-      events.push(Event.combat(`The ${this.monsterName} evades your blow!`));
+      events.push(
+        Event.combat(
+          `The ${this.monsterName} evades your blow!`,
+          `<@> misses the ${this.monsterName}!`
+        )
+      );
     } else {
       const damage = Math.max(
         this.player.weaponTier +
@@ -202,7 +210,12 @@ export class EncounterSession {
         1
       );
       this.vitality -= damage;
-      events.push(Event.combat(`You hit the ${this.monsterName}!`));
+      events.push(
+        Event.combat(
+          `You hit the ${this.monsterName}!`,
+          `<@> hits the ${this.monsterName}!`
+        )
+      );
       if (this.debug) {
         events.push(
           Event.debug({
@@ -219,7 +232,12 @@ export class EncounterSession {
       if (this.rng.random() < 0.05 && this.player.weaponTier > 0) {
         this.player.weaponTier = 0;
         this.player.weaponBroken = true;
-        events.push(Event.info('Your weapon breaks with the impact!'));
+        events.push(
+          Event.info(
+            'Your weapon breaks with the impact!',
+            "<@>'s weapon breaks with the impact!"
+          )
+        );
       }
     }
 
@@ -242,7 +260,8 @@ export class EncounterSession {
     if (this.rng.random() < 0.4) {
       const events = [
         Event.info(
-          `You turn and flee, the vile ${this.monsterName} following close behind.`
+          `You turn and flee, the vile ${this.monsterName} following close behind.`,
+          `<@> flees the ${this.monsterName}.`
         ),
         Event.info(
           `Suddenly, you realize that the ${this.monsterName} is no longer following you.`
@@ -261,7 +280,8 @@ export class EncounterSession {
     return {
       events: [
         Event.info(
-          'Although you run your hardest, your efforts to escape are made in vain.'
+          'Although you run your hardest, your efforts to escape are made in vain.',
+          `<@> is unable to flee the ${this.monsterName}.`
         ),
       ],
     };
@@ -285,7 +305,9 @@ export class EncounterSession {
       );
     }
     if (roll <= dodgeScore) {
-      events.push(Event.combat('You deftly dodge the blow!'));
+      events.push(
+        Event.combat('You deftly dodge the blow!', '<@> deftly dodges the blow!')
+      );
       return { events };
     }
 
@@ -295,7 +317,12 @@ export class EncounterSession {
       0
     );
     this.player.hp = Math.max(0, this.player.hp - damage);
-    events.push(Event.combat(`The ${this.monsterName} hits you!`));
+    events.push(
+      Event.combat(
+        `The ${this.monsterName} hits you!`,
+        `The ${this.monsterName} hits <@>!`
+      )
+    );
     if (this.debug) {
       events.push(
         Event.debug({
@@ -307,7 +334,7 @@ export class EncounterSession {
       );
     }
     if (this.player.hp <= 0) {
-      events.push(Event.info('YOU HAVE DIED.', true));
+      events.push(Event.info('YOU HAVE DIED.', '<@> HAS DIED.'));
       return {
         events,
         done: true,
@@ -317,7 +344,12 @@ export class EncounterSession {
   }
 
   private handleMonsterDeath(events: Event[]): EncounterResult {
-    events.push(Event.combat(`The foul ${this.monsterName} expires.`, true));
+    events.push(
+      Event.combat(
+        `The foul ${this.monsterName} expires.`,
+        `<@> slays the foul ${this.monsterName}.`
+      )
+    );
     if (this.rng.random() > 0.7) {
       events.push(
         Event.combat(
@@ -390,13 +422,11 @@ export class EncounterSession {
     switch (spell) {
       case Spell.PROTECTION: {
         this.player.tempArmorBonus += 3;
-        events.push(
+        const protection =
           this.player.armorTier > 0
-            ? Event.info('Your armour glows briefly in response to your spell.')
-            : Event.info(
-                'Your clothes glow briefly, becoming, temporarily, armour.'
-              )
-        );
+            ? 'Your armour glows briefly in response to your spell.'
+            : 'Your clothes glow briefly, becoming, temporarily, armour.';
+        events.push(Event.info(protection, `<@> casts a protection spell.`));
         if (this.debug) {
           events.push(
             Event.debug({
@@ -427,7 +457,8 @@ export class EncounterSession {
         }
         events.push(
           Event.combat(
-            `A glowing ball of fire converges with the ${this.monsterName}.`
+            `A glowing ball of fire converges with the ${this.monsterName}.`,
+            `<@> casts a fireball spell.`
           )
         );
         break;
@@ -464,7 +495,8 @@ export class EncounterSession {
         }
         events.push(
           Event.combat(
-            `A green mist envelops the ${this.monsterName}, depriving him of half his vitality.`
+            `A green mist envelops the ${this.monsterName}, depriving him of half his vitality.`,
+            `<@> casts a weaken spell.`
           )
         );
         break;
@@ -472,7 +504,8 @@ export class EncounterSession {
       case Spell.TELEPORT: {
         events.push(
           Event.info(
-            'Thy surroundings vibrate momentarily, as you are magically transported elsewhere...'
+            'Thy surroundings vibrate momentarily, as you are magically transported elsewhere...',
+            `<@> casts a teleport spell.`
           )
         );
         resetPlayerAfterEncounter(this.player);
