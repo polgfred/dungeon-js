@@ -77,9 +77,10 @@ export class TableConnection {
   }
 
   private scheduleReconnect() {
-    const delay = this.attempt < 5
-      ? RECONNECT_BASE_MS * 2 ** this.attempt
-      : RECONNECT_MAX_MS;
+    const delay =
+      this.attempt < 5
+        ? RECONNECT_BASE_MS * 2 ** this.attempt
+        : RECONNECT_MAX_MS;
     this.attempt += 1;
     clearTimeout(this.retryTimer);
     this.retryTimer = setTimeout(() => this.open(), delay);

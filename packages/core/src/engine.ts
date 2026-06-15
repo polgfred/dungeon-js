@@ -670,7 +670,9 @@ export class Game {
       const ty = this.rng.randint(1, Game.SIZE);
       const tz = this.rng.randint(1, Game.SIZE);
       return [
-        Event.info(`You see the ${treasureName(treasure)} at ${tz},${ty},${tx}!`),
+        Event.info(
+          `You see the ${treasureName(treasure)} at ${tz},${ty},${tx}!`
+        ),
       ];
     }
 
