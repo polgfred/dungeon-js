@@ -314,7 +314,7 @@ export class EncounterSession {
       events.push(
         Event.combat(
           'You deftly dodge the blow!',
-          '<@> deftly dodges the blow!'
+          `The ${this.monsterName} misses <@>!`
         )
       );
       return { events };
@@ -364,7 +364,8 @@ export class EncounterSession {
           `As he dies, though, he launches one final desperate attack.`
         )
       );
-      events.push(...this.monsterAttack().events);
+      const attackResult = this.monsterAttack();
+      events.push(...attackResult.events);
     }
     this.vitality = 0;
     resetPlayerAfterEncounter(this.player);
