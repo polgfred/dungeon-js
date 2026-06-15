@@ -287,8 +287,7 @@ export class EncounterSession {
     return {
       events: [
         Event.info(
-          'Although you run your hardest, your efforts to escape are made in vain.',
-          `<@> is unable to flee the ${this.monsterName}.`
+          'Although you run your hardest, your efforts to escape are made in vain.'
         ),
       ],
     };
@@ -313,7 +312,10 @@ export class EncounterSession {
     }
     if (roll <= dodgeScore) {
       events.push(
-        Event.combat('You deftly dodge the blow!', '<@> deftly dodges the blow!')
+        Event.combat(
+          'You deftly dodge the blow!',
+          '<@> deftly dodges the blow!'
+        )
       );
       return { events };
     }

@@ -505,7 +505,10 @@ export class Game {
           const damage = this.rng.randint(2, 4);
           player.hp = Math.max(0, player.hp - damage);
           const events: Event[] = [
-            Event.info('A thief sneaks from the shadows and attacks you!'),
+            Event.info(
+              'A thief sneaks from the shadows and attacks you!',
+              '<@> is attacked by a thief!'
+            ),
           ];
           if (player.hp <= 0) {
             events.push(Event.info('YOU HAVE DIED.', '<@> HAS DIED.'));
@@ -518,7 +521,8 @@ export class Game {
         return [
           Event.info(
             `A thief sneaks from the shadows and removes ${stolen} gold ${pluralize(stolen, 'piece')} ` +
-              `from your possession.`
+              `from your possession.`,
+            `<@> is robbed by a thief.`
           ),
         ];
       }
@@ -526,7 +530,8 @@ export class Game {
         room.feature = Feature.EMPTY;
         const events: Event[] = [
           Event.info(
-            'This room contains a warp. Before you realize what is going on, you appear elsewhere...'
+            'This room contains a warp. Before you realize what is going on, you appear elsewhere...',
+            '<@> is warped away...'
           ),
         ];
         // Observe the departed warp room before we relocate away
@@ -583,7 +588,8 @@ export class Game {
     if (this.treasuresFound.size < 10) {
       return [
         Event.info(
-          'What? Wilt thou abandon thy quest before it is accomplished?'
+          'What? And wilt thou abandon thy quest before it is accomplished? ' +
+            'Verily thy triumph is incomplete!'
         ),
       ];
     }
