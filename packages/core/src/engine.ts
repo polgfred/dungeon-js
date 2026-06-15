@@ -374,11 +374,6 @@ export class Game {
     return this.describeRoom(this.currentRoom(state.player));
   }
 
-  /**
-   * The player's current dynamic prompt — a spell menu mid-encounter, or a
-   * vendor menu — so a view fully describes what they can choose right now
-   * (combat's Fight/Run/Spell are static, defined client-side). Null otherwise.
-   */
   currentPrompt(id: PlayerId): PromptEvent | null {
     for (const event of this.resumeEvents(id)) {
       if (event.kind === 'PROMPT') return event;
