@@ -94,9 +94,7 @@ export function Feed({
     members.find((member) => member.id === id)?.name ?? id;
   const colorOf = chatColorsById(members);
   const lines = feed.filter(
-    (item) =>
-      item.kind !== 'event' ||
-      (item.event.kind !== 'PROMPT' && item.event.kind !== 'DEBUG')
+    (item) => item.kind !== 'event' || item.event.kind !== 'PROMPT'
   );
 
   return (

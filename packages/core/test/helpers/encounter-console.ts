@@ -7,7 +7,6 @@ import type { RandomSource } from '../../src/rng.js';
 type RunOptions = {
   seed: number;
   commands: string[];
-  debug: boolean;
 };
 
 class SeededRng implements RandomSource {
@@ -48,7 +47,6 @@ function parseArgs(argv: string[]): RunOptions {
   const options: RunOptions = {
     seed: 1,
     commands: ['F', 'F', 'S', 'F', 'F', 'R'],
-    debug: true,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -69,10 +67,6 @@ function parseArgs(argv: string[]): RunOptions {
       }
       options.commands = next.split(',').map((value) => value.trim());
       i += 1;
-      continue;
-    }
-    if (arg === '--no-debug') {
-      options.debug = false;
       continue;
     }
   }
@@ -100,10 +94,6 @@ function printEvents(events: Event[]): void {
       if (event.data?.hasCancel) {
         console.log('  - Esc: Cancel');
       }
-      continue;
-    }
-    if (event.kind === 'DEBUG') {
-      console.log(`[${event.kind}] ${JSON.stringify(event.data)}`);
       continue;
     }
     console.log(`[${event.kind}] ${event.text}`);
@@ -150,7 +140,6 @@ function runEncounter(options: RunOptions): void {
     rng,
     player,
     room,
-    debug: options.debug,
   });
 
   console.log('=== Encounter start ===');

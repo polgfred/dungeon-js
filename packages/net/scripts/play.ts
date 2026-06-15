@@ -138,7 +138,6 @@ function eventsText(from: string, events: Event[]): string {
   const mine = from === playerId;
   const fromName = names.get(from) ?? from;
   return events
-    .filter((event) => event.kind !== 'DEBUG')
     .map((event) => formatEvent(event, mine, fromName))
     .join('\n');
 }

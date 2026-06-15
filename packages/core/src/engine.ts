@@ -65,19 +65,16 @@ export class Game {
   treasuresFound: Set<number>;
   endMode: Mode.GAME_OVER | Mode.VICTORY | null = null;
   private players: Map<PlayerId, PlayerState> = new Map();
-  private debug: boolean;
 
   constructor(options: {
     seed?: number;
     rng?: RandomSource | null;
-    debug?: boolean;
     dungeon?: Dungeon;
     treasuresFound?: Set<number>;
   }) {
     this.rng = options.rng ?? defaultRandomSource;
     this.dungeon = options.dungeon ?? generateDungeon(this.rng);
     this.treasuresFound = options.treasuresFound ?? new Set<number>();
-    this.debug = options.debug ?? false;
   }
 
   addPlayer(id: PlayerId, player: Player): PlayerState {
@@ -154,7 +151,6 @@ export class Game {
     const game = new Game({
       rng,
       dungeon,
-      debug: save.debug,
       treasuresFound: new Set(save.treasuresFound),
     });
     game.saveVersion = save.version;
@@ -178,7 +174,6 @@ export class Game {
           rng,
           player,
           room: dungeon.rooms[player.z][player.y][player.x],
-          debug: game.debug,
           save: entry.encounter,
         });
       } else if (entry.vendor) {
@@ -208,7 +203,6 @@ export class Game {
         vendor: state.vendor ? state.vendor.toSave() : null,
         exited: state.exited,
       })),
-      debug: this.debug,
     };
   }
 
@@ -481,7 +475,6 @@ export class Game {
         rng: this.rng,
         player,
         room,
-        debug: this.debug,
       });
       return state.encounter.viewEvents();
     }

@@ -40,7 +40,6 @@ export class EncounterSession {
   private player: Player;
   private room: Room;
   private awaitingSpell = false;
-  private debug: boolean;
 
   private get monsterLevel(): number {
     return this.room.monsterLevel;
@@ -62,35 +61,31 @@ export class EncounterSession {
     rng: RandomSource;
     player: Player;
     room: Room;
-    debug: boolean;
   }) {
     this.rng = options.rng;
     this.player = options.player;
     this.room = options.room;
-    this.debug = options.debug;
   }
 
   static start(options: {
     rng: RandomSource;
     player: Player;
     room: Room;
-    debug: boolean;
   }): EncounterSession {
-    const { rng, player, room, debug } = options;
+    const { rng, player, room } = options;
     player.fatigued = false;
     player.tempArmorBonus = 0;
-    return new EncounterSession({ rng, player, room, debug });
+    return new EncounterSession({ rng, player, room });
   }
 
   static resume(options: {
     rng: RandomSource;
     player: Player;
     room: Room;
-    debug: boolean;
     save: EncounterSave;
   }): EncounterSession {
-    const { rng, player, room, debug, save } = options;
-    const session = new EncounterSession({ rng, player, room, debug });
+    const { rng, player, room, save } = options;
+    const session = new EncounterSession({ rng, player, room });
     session.awaitingSpell = save.awaitingSpell;
     return session;
   }
@@ -99,16 +94,12 @@ export class EncounterSession {
     if (this.awaitingSpell) {
       return [Event.prompt('Choose a spell:', this.spellMenu())];
     }
-    const events: Event[] = [
+    return [
       Event.combat(
         `You are facing an angry ${this.monsterName}!`,
         `<@> is facing an angry ${this.monsterName}!`
       ),
     ];
-    if (this.debug) {
-      events.push(this.debugMonsterEvent());
-    }
-    return events;
   }
 
   toSave(): EncounterSave {
@@ -119,59 +110,31 @@ export class EncounterSession {
 
   step(raw: string): EncounterResult {
     if (this.awaitingSpell) {
-      return this.withDebug(this.handleSpellChoice(raw));
+      return this.handleSpellChoice(raw);
     }
     if (!raw) {
-      return this.withDebug({
-        events: [Event.error("I don't understand that.")],
-      });
+      return { events: [Event.error("I don't understand that.")] };
     }
     const key = raw[0];
     switch (key) {
       case 'F':
-        return this.withDebug(this.fightRound());
+        return this.fightRound();
       case 'R':
-        return this.withDebug(this.runAttempt());
+        return this.runAttempt();
       case 'S':
         this.awaitingSpell = true;
-        return this.withDebug({
-          events: [Event.prompt('Choose a spell:', this.spellMenu())],
-        });
+        return { events: [Event.prompt('Choose a spell:', this.spellMenu())] };
       default:
-        return this.withDebug({
-          events: [Event.error("I don't understand that.")],
-        });
+        return { events: [Event.error("I don't understand that.")] };
     }
   }
 
   attemptCancel(): EncounterCancelResult {
     if (!this.awaitingSpell) {
-      return this.withDebug({
-        events: [Event.info("I don't understand that.")],
-      });
+      return { events: [Event.info("I don't understand that.")] };
     }
     this.awaitingSpell = false;
-    return this.withDebug({
-      events: [],
-    });
-  }
-
-  private withDebug(result: EncounterResult): EncounterResult {
-    if (!this.debug) {
-      return result;
-    }
-    result.events.push(this.debugMonsterEvent());
-    return result;
-  }
-
-  private debugMonsterEvent(): Event {
-    return Event.debug({
-      scope: 'monster',
-      action: 'state',
-      name: this.monsterName,
-      level: this.monsterLevel,
-      vitality: this.vitality,
-    });
+    return { events: [] };
   }
 
   private fightRound(): EncounterResult {
@@ -181,19 +144,6 @@ export class EncounterSession {
       20 + 5 * (11 - level) + this.player.dex + 3 * this.player.weaponTier;
 
     const roll = this.rng.randint(1, 100);
-    if (this.debug) {
-      events.push(
-        Event.debug({
-          scope: 'fight',
-          action: 'attack_roll',
-          attackScore,
-          roll,
-          weaponTier: this.player.weaponTier,
-          st: this.player.str,
-          dx: this.player.dex,
-        })
-      );
-    }
     if (roll > attackScore) {
       events.push(
         Event.combat(
@@ -216,16 +166,6 @@ export class EncounterSession {
           `<@> hits the ${this.monsterName}!`
         )
       );
-      if (this.debug) {
-        events.push(
-          Event.debug({
-            scope: 'fight',
-            action: 'damage',
-            damage,
-            vitality: this.vitality,
-          })
-        );
-      }
       if (this.vitality <= 0) {
         return this.defeatMonster(
           events,
@@ -298,18 +238,6 @@ export class EncounterSession {
     const level = this.monsterLevel;
     const dodgeScore = 20 + 5 * (11 - level) + 2 * this.player.dex;
     const roll = this.rng.randint(1, 100);
-    if (this.debug) {
-      events.push(
-        Event.debug({
-          scope: 'monster',
-          action: 'dodge_roll',
-          dodgeScore,
-          roll,
-          armorTier: this.player.armorTier,
-          tempArmorBonus: this.player.tempArmorBonus,
-        })
-      );
-    }
     if (roll <= dodgeScore) {
       events.push(
         Event.combat(
@@ -332,16 +260,6 @@ export class EncounterSession {
         `The ${this.monsterName} hits <@>!`
       )
     );
-    if (this.debug) {
-      events.push(
-        Event.debug({
-          scope: 'monster',
-          action: 'damage',
-          damage,
-          hp: this.player.hp,
-        })
-      );
-    }
     if (this.player.hp <= 0) {
       events.push(Event.info('YOU HAVE DIED.', '<@> HAS DIED.'));
       return {
@@ -422,34 +340,12 @@ export class EncounterSession {
             ? 'Your armour glows briefly in response to your spell.'
             : 'Your clothes glow briefly, becoming, temporarily, armour.';
         events.push(Event.info(protection, `<@> casts a protection spell.`));
-        if (this.debug) {
-          events.push(
-            Event.debug({
-              scope: 'spell',
-              spell: 'protection',
-              protectionBonus: 3,
-              tempArmorBonus: this.player.tempArmorBonus,
-            })
-          );
-        }
         break;
       }
       case Spell.FIREBALL: {
         const roll = this.rng.randint(1, 5);
         const damage = roll + Math.floor(this.player.iq / 3);
         this.vitality -= damage;
-        if (this.debug) {
-          events.push(
-            Event.debug({
-              scope: 'spell',
-              spell: 'fireball',
-              roll,
-              damage,
-              iq: this.player.iq,
-              vitality: this.vitality,
-            })
-          );
-        }
         events.push(
           Event.combat(
             `A glowing ball of fire converges with the ${this.monsterName}.`,
@@ -471,18 +367,6 @@ export class EncounterSession {
         const roll = this.rng.randint(1, 10);
         const damage = roll + Math.floor(this.player.iq / 2);
         this.vitality -= damage;
-        if (this.debug) {
-          events.push(
-            Event.debug({
-              scope: 'spell',
-              spell: 'lightning',
-              roll,
-              damage,
-              iq: this.player.iq,
-              vitality: this.vitality,
-            })
-          );
-        }
         events.push(
           Event.combat(
             `The ${this.monsterName} is thunderstruck!`,
@@ -502,15 +386,6 @@ export class EncounterSession {
       }
       case Spell.WEAKEN: {
         this.vitality = Math.floor(this.vitality / 2);
-        if (this.debug) {
-          events.push(
-            Event.debug({
-              scope: 'spell',
-              spell: 'weaken',
-              vitality: this.vitality,
-            })
-          );
-        }
         events.push(
           Event.combat(
             `A green mist envelops the ${this.monsterName}, depriving him of half his vitality.`,
@@ -536,14 +411,6 @@ export class EncounterSession {
           )
         );
         resetPlayerAfterEncounter(this.player);
-        if (this.debug) {
-          events.push(
-            Event.debug({
-              scope: 'spell',
-              spell: 'teleport',
-            })
-          );
-        }
         return {
           events,
           done: true,

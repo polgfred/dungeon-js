@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { EncounterSession } from '../../src/encounter.js';
 import { ARMOR_NAMES, Spell, WEAPON_NAMES } from '../../src/constants.js';
-import type { DebugEvent, Event } from '../../src/types.js';
+import type { Event } from '../../src/types.js';
 import { buildPlayer, buildRoom } from '../helpers/factories.js';
 import { ScriptedRng } from '../helpers/rng.js';
 import { defaultRandomSource } from '../../src/rng.js';
@@ -14,22 +14,11 @@ function expectEvent(events: Event[], text: string): void {
   expect(eventTexts(events)).toContain(text);
 }
 
-function findDebugEvent(
-  events: Event[],
-  predicate: (data: DebugEvent['data']) => boolean
-): DebugEvent | undefined {
-  return events.find(
-    (event): event is DebugEvent =>
-      event.kind === 'DEBUG' && predicate(event.data)
-  );
-}
-
 function createSession(options: {
   rng: ScriptedRng;
   playerOverrides?: Parameters<typeof buildPlayer>[0];
   vitality?: number;
   awaitingSpell?: boolean;
-  debug?: boolean;
 }) {
   const monsterLevel = 5;
   const player = buildPlayer(options.playerOverrides);
@@ -41,7 +30,6 @@ function createSession(options: {
     rng: options.rng,
     player,
     room,
-    debug: options.debug ?? false,
     save: {
       awaitingSpell: options.awaitingSpell ?? false,
     },
@@ -171,63 +159,35 @@ describe('EncounterSession spells', () => {
   });
 
   it('casts fireball and applies damage formula', () => {
+    // iq 14 → +4; roll 3 → 7 damage; 20 − 7 = 13 vitality remaining.
     const rng = new ScriptedRng({ randint: [3, 10] });
-    const { session } = createSession({ rng, debug: true, vitality: 20 });
+    const { session, room } = createSession({ rng, vitality: 20 });
 
     session.step('S');
-    const result = session.step('F');
+    session.step('F');
 
-    const debugEvent = findDebugEvent(
-      result.events,
-      (data) => data.scope === 'spell' && data.spell === 'fireball'
-    );
-    expect(debugEvent?.data).toMatchObject({
-      scope: 'spell',
-      spell: 'fireball',
-      roll: 3,
-      iq: 14,
-      damage: 7,
-      vitality: 13,
-    });
+    expect(room.monsterVitality).toBe(13);
   });
 
   it('casts lightning and applies damage formula', () => {
+    // iq 14 → +7; roll 6 → 13 damage; 20 − 13 = 7 vitality remaining.
     const rng = new ScriptedRng({ randint: [6, 10] });
-    const { session } = createSession({ rng, debug: true, vitality: 20 });
+    const { session, room } = createSession({ rng, vitality: 20 });
 
     session.step('S');
-    const result = session.step('L');
+    session.step('L');
 
-    const debugEvent = findDebugEvent(
-      result.events,
-      (data) => data.scope === 'spell' && data.spell === 'lightning'
-    );
-    expect(debugEvent?.data).toMatchObject({
-      scope: 'spell',
-      spell: 'lightning',
-      roll: 6,
-      iq: 14,
-      damage: 13,
-      vitality: 7,
-    });
+    expect(room.monsterVitality).toBe(7);
   });
 
   it('casts weaken and halves vitality', () => {
     const rng = new ScriptedRng({ randint: [10] });
-    const { session } = createSession({ rng, debug: true, vitality: 11 });
+    const { session, room } = createSession({ rng, vitality: 11 });
 
     session.step('S');
-    const result = session.step('W');
+    session.step('W');
 
-    const debugEvent = findDebugEvent(
-      result.events,
-      (data) => data.scope === 'spell' && data.spell === 'weaken'
-    );
-    expect(debugEvent?.data).toMatchObject({
-      scope: 'spell',
-      spell: 'weaken',
-      vitality: 5,
-    });
+    expect(room.monsterVitality).toBe(5);
   });
 
   // The kill-flavour tests deliberately supply no `random` queue: a spell kill
@@ -304,6 +264,7 @@ describe('EncounterSession real RNG bounds', () => {
       const monsterLevel = rng.randint(1, 10);
       const minDamage = Math.max(weaponTier + Math.floor(str / 3) - 2, 1);
       const maxDamage = weaponTier + Math.floor(str / 3) + 2;
+      const room = buildRoom({ monsterLevel, monsterVitality: 999 });
       const session = EncounterSession.resume({
         rng,
         player: buildPlayer({
@@ -312,23 +273,17 @@ describe('EncounterSession real RNG bounds', () => {
           weaponTier,
           weaponName: WEAPON_NAMES[weaponTier],
         }),
-        room: buildRoom({ monsterLevel, monsterVitality: 999 }),
-        debug: true,
+        room,
         save: {
           awaitingSpell: false,
         },
       });
 
-      const result = session.step('F');
-      const damageEvent = findDebugEvent(
-        result.events,
-        (data) => data.scope === 'fight' && data.action === 'damage'
-      );
-      if (!damageEvent) {
-        continue;
-      }
-      const { damage } = damageEvent.data;
-      if (typeof damage !== 'number') {
+      session.step('F');
+      // Only the player's hit changes monster vitality; an unchanged value
+      // means the player missed, so there's no damage sample this round.
+      const damage = 999 - room.monsterVitality;
+      if (damage <= 0) {
         continue;
       }
       expect(damage).toBeGreaterThanOrEqual(minDamage);
@@ -356,35 +311,28 @@ describe('EncounterSession real RNG bounds', () => {
         level - 1 + Math.floor(2.5 + level / 3) - totalArmor,
         0
       );
+      const player = buildPlayer({
+        dex: rng.randint(1, 18),
+        armorTier: armor,
+        armorName: ARMOR_NAMES[armor],
+        tempArmorBonus,
+        hp: 999,
+        mhp: 999,
+        weaponTier: 0,
+        weaponName: '(None)',
+      });
       const session = EncounterSession.resume({
         rng: rng,
-        player: buildPlayer({
-          dex: rng.randint(1, 18),
-          armorTier: armor,
-          armorName: ARMOR_NAMES[armor],
-          tempArmorBonus,
-          hp: 999,
-          mhp: 999,
-          weaponTier: 0,
-          weaponName: '(None)',
-        }),
+        player,
         room: buildRoom({ monsterLevel: level, monsterVitality: 999 }),
-        debug: true,
         save: {
           awaitingSpell: false,
         },
       });
 
-      const result = session.step('F');
-      const damageEvent = findDebugEvent(
-        result.events,
-        (data) => data.scope === 'monster' && data.action === 'damage'
-      );
-      if (!damageEvent) {
-        continue;
-      }
-      const { damage } = damageEvent.data;
-      if (typeof damage !== 'number') {
+      session.step('F');
+      const damage = 999 - player.hp;
+      if (damage <= 0) {
         continue;
       }
       expect(damage).toBeGreaterThanOrEqual(minDamage);

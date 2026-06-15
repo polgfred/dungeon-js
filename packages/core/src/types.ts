@@ -2,13 +2,7 @@ import type { Mode } from './constants.js';
 
 export type PlayerId = string;
 
-export type EventKind =
-  | 'INFO'
-  | 'ERROR'
-  | 'COMBAT'
-  | 'LOOT'
-  | 'PROMPT'
-  | 'DEBUG';
+export type EventKind = 'INFO' | 'ERROR' | 'COMBAT' | 'LOOT' | 'PROMPT';
 
 /** When set, `broadcast` is the line the rest of the party sees instead. */
 export type Broadcastable = { broadcast?: string };
@@ -17,13 +11,6 @@ export type InfoEvent = { kind: 'INFO'; text: string } & Broadcastable;
 export type ErrorEvent = { kind: 'ERROR'; text: string } & Broadcastable;
 export type CombatEvent = { kind: 'COMBAT'; text: string } & Broadcastable;
 export type LootEvent = { kind: 'LOOT'; text: string } & Broadcastable;
-export type DebugValue = string | number | boolean | null;
-export type DebugData = Record<string, DebugValue>;
-export type DebugEvent = {
-  kind: 'DEBUG';
-  text: string;
-  data: DebugData;
-} & Broadcastable;
 
 export type PromptOption = {
   key: string;
@@ -48,7 +35,6 @@ export type Event =
   | ErrorEvent
   | CombatEvent
   | LootEvent
-  | DebugEvent
   | PromptEvent;
 
 export const Event = {
@@ -74,9 +60,6 @@ export const Event = {
   },
   prompt(text: string, data?: PromptData): PromptEvent {
     return data ? { kind: 'PROMPT', text, data } : { kind: 'PROMPT', text };
-  },
-  debug(data: DebugData): DebugEvent {
-    return { kind: 'DEBUG', text: '', data };
   },
 };
 

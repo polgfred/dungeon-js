@@ -53,7 +53,6 @@ export type GameSave = {
   treasuresFound: number[];
   endMode: Mode | null;
   players: PlayerEntrySave[];
-  debug: boolean;
 };
 
 export function serializePlayer(player: Player): PlayerSave {
