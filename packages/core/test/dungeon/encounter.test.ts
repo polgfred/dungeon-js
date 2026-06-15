@@ -230,6 +230,50 @@ describe('EncounterSession spells', () => {
     });
   });
 
+  // The kill-flavour tests deliberately supply no `random` queue: a spell kill
+  // must NOT roll the melee-only desperate attack, or ScriptedRng would throw.
+  it('a fireball kill shows the pyrotechnic death, no desperate attack', () => {
+    const rng = new ScriptedRng({ randint: [1] }); // fireball roll → 1 + 4 dmg
+    const { session } = createSession({ rng, vitality: 3 });
+
+    session.step('S');
+    const result = session.step('F');
+
+    expectEvent(
+      result.events,
+      'The Troll evaporates in a magnificent pyrotechnic display.'
+    );
+    expect(result.defeatedMonster).toBe(true);
+  });
+
+  it('a lightning kill shows the lethal-charge death', () => {
+    const rng = new ScriptedRng({ randint: [1] }); // lightning roll → 1 + 7 dmg
+    const { session } = createSession({ rng, vitality: 3 });
+
+    session.step('S');
+    const result = session.step('L');
+
+    expectEvent(
+      result.events,
+      'The massive electrical charge proves lethal to the Troll.'
+    );
+    expect(result.defeatedMonster).toBe(true);
+  });
+
+  it('a weaken kill shows the no-surprise death', () => {
+    const rng = new ScriptedRng(); // weaken consumes no rng; just halves vitality
+    const { session } = createSession({ rng, vitality: 1 });
+
+    session.step('S');
+    const result = session.step('W');
+
+    expectEvent(
+      result.events,
+      'Seeing that the Troll had barely any energy to begin with, its death is no surprise.'
+    );
+    expect(result.defeatedMonster).toBe(true);
+  });
+
   it('casts teleport and ends encounter', () => {
     const rng = new ScriptedRng();
     const { session, player } = createSession({ rng });

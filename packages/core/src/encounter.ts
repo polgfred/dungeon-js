@@ -227,7 +227,14 @@ export class EncounterSession {
         );
       }
       if (this.vitality <= 0) {
-        return this.handleMonsterDeath(events);
+        return this.defeatMonster(
+          events,
+          Event.combat(
+            `The foul ${this.monsterName} expires.`,
+            `<@> slays the foul ${this.monsterName}.`
+          ),
+          { desperateAttack: true }
+        );
       }
       if (this.rng.random() < 0.05 && this.player.weaponTier > 0) {
         this.player.weaponTier = 0;
@@ -343,38 +350,23 @@ export class EncounterSession {
     return { events };
   }
 
-  private handleMonsterDeath(events: Event[]): EncounterResult {
-    events.push(
-      Event.combat(
-        `The foul ${this.monsterName} expires.`,
-        `<@> slays the foul ${this.monsterName}.`
-      )
-    );
-    if (this.rng.random() > 0.7) {
+  private defeatMonster(
+    events: Event[],
+    death: Event,
+    opts: { desperateAttack?: boolean } = {}
+  ): EncounterResult {
+    events.push(death);
+    if (opts.desperateAttack && this.rng.random() > 0.7) {
       events.push(
         Event.combat(
           `As he dies, though, he launches one final desperate attack.`
         )
       );
-      const attackResult = this.monsterAttack();
-      events.push(...attackResult.events);
-      if (attackResult.done) {
-        this.vitality = 0;
-        return {
-          events,
-          done: true,
-          defeatedMonster: true,
-        };
-      }
+      events.push(...this.monsterAttack().events);
     }
-
     this.vitality = 0;
     resetPlayerAfterEncounter(this.player);
-    return {
-      events,
-      done: true,
-      defeatedMonster: true,
-    };
+    return { events, done: true, defeatedMonster: true };
   }
 
   private handleSpellChoice(raw: string): EncounterResult {
@@ -461,6 +453,15 @@ export class EncounterSession {
             `<@> casts a fireball spell.`
           )
         );
+        if (this.vitality <= 0) {
+          return this.defeatMonster(
+            events,
+            Event.combat(
+              `The ${this.monsterName} evaporates in a magnificent pyrotechnic display.`,
+              `<@> slays the foul ${this.monsterName}.`
+            )
+          );
+        }
         break;
       }
       case Spell.LIGHTNING: {
@@ -479,7 +480,21 @@ export class EncounterSession {
             })
           );
         }
-        events.push(Event.combat(`The ${this.monsterName} is thunderstruck!`));
+        events.push(
+          Event.combat(
+            `The ${this.monsterName} is thunderstruck!`,
+            `<@> casts a lightning spell.`
+          )
+        );
+        if (this.vitality <= 0) {
+          return this.defeatMonster(
+            events,
+            Event.combat(
+              `The massive electrical charge proves lethal to the ${this.monsterName}.`,
+              `<@> slays the foul ${this.monsterName}.`
+            )
+          );
+        }
         break;
       }
       case Spell.WEAKEN: {
@@ -499,6 +514,15 @@ export class EncounterSession {
             `<@> casts a weaken spell.`
           )
         );
+        if (this.vitality <= 0) {
+          return this.defeatMonster(
+            events,
+            Event.combat(
+              `Seeing that the ${this.monsterName} had barely any energy to begin with, its death is no surprise.`,
+              `<@> slays the foul ${this.monsterName}.`
+            )
+          );
+        }
         break;
       }
       case Spell.TELEPORT: {
@@ -530,9 +554,7 @@ export class EncounterSession {
         break;
     }
 
-    if (this.vitality <= 0) {
-      return this.handleMonsterDeath(events);
-    }
+    // The spell didn't kill (or protection) — the monster strikes back.
     const attackResult = this.monsterAttack();
     events.push(...attackResult.events);
     return {
