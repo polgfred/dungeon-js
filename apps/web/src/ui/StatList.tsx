@@ -21,7 +21,7 @@ function shortLabel(label: string) {
       return 'Str';
     case 'Dexterity':
       return 'Dex';
-    case 'Intellect':
+    case 'Intelligence':
       return 'Int';
     case 'Treasures':
       return 'Treas';

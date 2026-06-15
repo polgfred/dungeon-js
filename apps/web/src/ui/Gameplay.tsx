@@ -39,7 +39,7 @@ function StatsReadout({ view }: { view: PlayerView }) {
       />
       <StatRow label="Strength" value={String(s.str)} />
       <StatRow label="Dexterity" value={String(s.dex)} />
-      <StatRow label="Intellect" value={String(s.iq)} />
+      <StatRow label="Intelligence" value={String(s.iq)} />
       <StatRow label="Gold" value={String(s.gold)} />
       <StatRow
         label="Weapon"

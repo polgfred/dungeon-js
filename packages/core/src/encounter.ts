@@ -383,7 +383,7 @@ export class EncounterSession {
     const charges = this.player.spells[spell] ?? 0;
     if (this.player.iq < SPELL_MIN_IQ) {
       return {
-        events: [Event.info('You have insufficient intellect.')],
+        events: [Event.info('You have insufficient intelligence.')],
       };
     }
     if (charges <= 0) {

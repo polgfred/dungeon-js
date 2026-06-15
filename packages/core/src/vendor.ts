@@ -489,7 +489,7 @@ export class VendorSession {
       options: [
         { key: 'S', label: 'Strength', disabled: false },
         { key: 'D', label: 'Dexterity', disabled: false },
-        { key: 'I', label: 'Intellect', disabled: false },
+        { key: 'I', label: 'Intelligence', disabled: false },
         { key: 'H', label: 'Max Health', disabled: false },
       ],
     });

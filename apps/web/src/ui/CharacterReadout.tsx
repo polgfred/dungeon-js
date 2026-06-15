@@ -36,7 +36,7 @@ export function CharacterReadout({
       <StatRow label="Health" value={stat(derivedStats?.HP)} />
       <StatRow label="Strength" value={stat(derivedStats?.ST)} />
       <StatRow label="Dexterity" value={stat(derivedStats?.DX)} />
-      <StatRow label="Intellect" value={stat(derivedStats?.IQ)} />
+      <StatRow label="Intelligence" value={stat(derivedStats?.IQ)} />
       <StatRow
         label="Gold"
         value={remaining !== null ? String(remaining) : dash}
