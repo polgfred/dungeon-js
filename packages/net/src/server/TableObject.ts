@@ -35,6 +35,8 @@ interface SocketAttachment {
 export class TableObject extends HydratableObject<TableSnapshot> {
   private members = new Map<PlayerId, Member>();
   private game: Game | null = null;
+  // Keep track of disconnecting sockets until they're gone
+  private departed = new WeakSet<WebSocket>();
 
   constructor(ctx: DurableObjectState, env: unknown) {
     super(ctx, env);
@@ -65,6 +67,20 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     const { 0: client, 1: server } = new WebSocketPair();
     this.ctx.acceptWebSocket(server);
     return new Response(null, { status: 101, webSocket: client });
+  }
+
+  override webSocketClose(ws: WebSocket) {
+    this.announceDeparture(ws);
+  }
+
+  override webSocketError(ws: WebSocket) {
+    this.announceDeparture(ws);
+  }
+
+  private announceDeparture(ws: WebSocket) {
+    this.departed.add(ws);
+    if (this.game) this.pushViews();
+    else this.broadcastLobby();
   }
 
   override webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer) {
@@ -139,8 +155,9 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
     if (this.game) {
       if (this.game.hasPlayer(playerId)) {
-        this.send(ws, { type: 'view', view: this.viewFor(playerId) });
-        // Re-describe the current room
+        // Refresh everyone's roster on reconnect.
+        this.pushViews();
+        // Re-describe the current room to the returning player.
         this.send(ws, {
           type: 'events',
           from: playerId,
@@ -252,6 +269,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
   private viewFor(playerId: PlayerId): PlayerView {
     const game = this.game!;
     const self = game.getPlayer(playerId);
+    const connected = this.connectedIds();
     return {
       self: serializePlayer(self),
       mode: game.mode(playerId),
@@ -262,6 +280,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
         id,
         name: this.members.get(id)?.name ?? id,
         alive: game.getPlayer(id).hp > 0,
+        connected: connected.has(id),
       })),
       occupants: game.playerIds
         .map((id) => ({ id, player: game.getPlayer(id) }))
@@ -284,6 +303,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
   private pushViews() {
     for (const ws of this.ctx.getWebSockets()) {
+      if (this.departed.has(ws)) continue;
       const playerId = this.playerIdOf(ws);
       if (playerId && this.game?.hasPlayer(playerId)) {
         this.send(ws, { type: 'view', view: this.viewFor(playerId) });
@@ -291,15 +311,28 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     }
   }
 
+  private connectedIds(): Set<PlayerId> {
+    const ids = new Set<PlayerId>();
+    for (const ws of this.ctx.getWebSockets()) {
+      if (this.departed.has(ws)) continue;
+      const id = this.playerIdOf(ws);
+      if (id) ids.add(id);
+    }
+    return ids;
+  }
+
   private broadcastLobby() {
+    const connected = this.connectedIds();
     const state: LobbyState = {
       members: [...this.members.values()].map((member) => ({
         id: member.id,
         name: member.name,
         ready: member.character !== null,
+        connected: connected.has(member.id),
       })),
     };
     for (const ws of this.ctx.getWebSockets()) {
+      if (this.departed.has(ws)) continue;
       this.send(ws, { type: 'lobby', state });
     }
   }

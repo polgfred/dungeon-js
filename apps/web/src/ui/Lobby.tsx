@@ -48,12 +48,12 @@ function ReadyCard({
           quest may begin.
         </p>
         <p className={styles.awaiting}>
-          Awaiting the party<span className={styles.dots} aria-hidden="true" />
+          Awaiting the party
+          <span className={styles.dots} aria-hidden="true" />
         </p>
       </div>
     );
   }
-
 }
 
 export function Lobby({
@@ -143,7 +143,12 @@ export function Lobby({
                 >
                   {member.ready ? '√' : '·'}
                 </span>
-                <span className={styles.partyName}>
+                <span
+                  className={clsx(
+                    styles.partyName,
+                    !member.connected && styles.partyOffline
+                  )}
+                >
                   <span style={{ color: colorOf(member.id) }}>
                     {member.name}
                   </span>

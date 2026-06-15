@@ -243,6 +243,25 @@
   gap: 0.25rem;
 }
 
+.partyRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.partyMark {
+  color: var(--text-primary);
+  width: 1ch;
+}
+
+.partyName {
+  flex: 1;
+}
+
+.partyOffline {
+  opacity: 0.4;
+}
+
 /* The feed log lives in Feed.module.css (shared with the lobby). */
 
 /* --- end overlay --- */

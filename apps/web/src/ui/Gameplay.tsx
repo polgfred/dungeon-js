@@ -77,10 +77,16 @@ function Party({
       <ul className={styles.partyList}>
         {party.map((member) => (
           <li key={member.id} className={styles.partyRow}>
-            <span style={{ color: colorOf(member.id) }}>{member.name}</span>
-            {member.id === playerId ? ' (you)' : ''}
-            {/* Only ever set on the terminal game-over frame — marks who fell. */}
-            {!member.alive && ' †'}
+            <span className={styles.partyMark}>√</span>
+            <span
+              className={clsx(
+                styles.partyName,
+                !member.connected && styles.partyOffline
+              )}
+            >
+              <span style={{ color: colorOf(member.id) }}>{member.name}</span>
+              {member.id === playerId ? ' (you)' : ''}
+            </span>
           </li>
         ))}
       </ul>

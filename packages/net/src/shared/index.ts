@@ -24,6 +24,7 @@ export interface LobbyMember {
   id: PlayerId;
   name: string;
   ready: boolean;
+  connected: boolean;
 }
 
 export interface LobbyState {
@@ -34,6 +35,7 @@ export interface PartyMember {
   id: PlayerId;
   name: string;
   alive: boolean;
+  connected: boolean;
 }
 
 export interface Occupant {

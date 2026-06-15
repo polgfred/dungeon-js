@@ -160,9 +160,16 @@ async function scenario(): Promise<void> {
   check(!!aliceTurn, 'the acting player receives an updated view');
   check(!!bobTurn, "a teammate's view refreshes on someone else's turn");
 
-  // --- reconnect (same id resumes the seat) ---
+  // --- disconnect is visible to teammates ---
   alice.close();
-  await sleep(250);
+  await bob.waitFor(
+    'view',
+    (m) => m.view.party.some((p) => p.id === 'alice' && !p.connected),
+    4000
+  );
+  check(true, 'a teammate sees a dropped player as offline');
+
+  // --- reconnect (same id resumes the seat) ---
   const aliceAgain = new Client('alice', url);
   await aliceAgain.open();
   aliceAgain.send({ type: 'join', playerId: 'alice', name: 'Alice' });
@@ -171,6 +178,13 @@ async function scenario(): Promise<void> {
     resumed.view.party.some((p) => p.id === 'alice'),
     'reconnecting with the same id resumes the player'
   );
+
+  await bob.waitFor(
+    'view',
+    (m) => m.view.party.some((p) => p.id === 'alice' && p.connected),
+    4000
+  );
+  check(true, 'teammates see a reconnected player come back online');
 
   aliceAgain.close();
   bob.close();

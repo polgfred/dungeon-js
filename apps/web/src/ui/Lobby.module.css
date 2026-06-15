@@ -103,6 +103,11 @@
   flex: 1;
 }
 
+/* Disconnected: fade the whole name (dims its chat color too). */
+.partyOffline {
+  opacity: 0.4;
+}
+
 /* Start lives in the ready card now, as the phase's single action. */
 .startBtn {
   margin: 1rem;
