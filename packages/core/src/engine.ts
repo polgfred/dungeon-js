@@ -590,6 +590,7 @@ export class Game {
     if (room.feature !== Feature.EXIT) {
       return [Event.info('There is no exit here.')];
     }
+
     if (this.treasuresFound.size < 10) {
       return [
         Event.info(
@@ -597,11 +598,13 @@ export class Game {
         ),
       ];
     }
+
     state.exited = true;
     if (this.allExited()) {
       this.endMode = Mode.VICTORY;
       return [Event.broadcast(Event.info('ALL HAIL THE VICTOR!'))];
     }
+
     return [
       Event.info(
         'You step out of the DUNGEON of DOOM and await your companions.'
@@ -623,6 +626,7 @@ export class Game {
     if (player.flares < 1) {
       return [Event.info('Thou hast no flares.')];
     }
+
     player.flares -= 1;
     for (const dy of [-1, 0, 1]) {
       for (const dx of [-1, 0, 1]) {
@@ -636,6 +640,7 @@ export class Game {
         }
       }
     }
+
     return [Event.info('The flare illuminates nearby rooms.')];
   }
 
@@ -646,6 +651,9 @@ export class Game {
       return [Event.info('There is no mirror here.')];
     }
 
+    room.feature = Feature.EMPTY;
+    this.observe(state);
+
     const visions = [
       'The mirror is cloudy and yields no vision.',
       'You see yourself dead and lying in a black coffin.',
@@ -653,54 +661,52 @@ export class Game {
       'You see the three heads of a chimaera grinning at you.',
       'You see the exit on the 7th floor, big and friendly-looking.',
     ];
-    const events: Event[] = [];
+
     if (this.treasuresFound.size === 10) {
-      events.push(Event.info(this.rng.choice(visions)));
-    } else if (this.rng.randint(1, 50) > player.iq) {
+      return [Event.info(this.rng.choice(visions))];
+    }
+
+    if (this.rng.randint(1, 50) > player.iq) {
       if (this.rng.randint(1, 10) <= 5) {
-        events.push(Event.info(this.rng.choice(visions)));
-      } else {
-        const treasure = this.rng.randint(1, 10);
-        const tx = this.rng.randint(1, Game.SIZE);
-        const ty = this.rng.randint(1, Game.SIZE);
-        const tz = this.rng.randint(1, Game.SIZE);
-        events.push(
-          Event.info(
-            `You see the ${treasureName(treasure)} at ${tz},${ty},${tx}!`
-          )
-        );
+        return [Event.info(this.rng.choice(visions))];
       }
-    } else {
-      const remaining = 10 - this.treasuresFound.size;
-      const target = this.rng.randint(1, remaining);
-      let seen = 0;
-      outer: for (let z = 0; z < this.dungeon.rooms.length; z += 1) {
-        const floor = this.dungeon.rooms[z];
-        for (let y = 0; y < floor.length; y += 1) {
-          const row = floor[y];
-          for (let x = 0; x < row.length; x += 1) {
-            const candidate = row[x];
-            if (
-              candidate.treasureId &&
-              !this.treasuresFound.has(candidate.treasureId)
-            ) {
-              seen += 1;
-              if (seen === target) {
-                events.push(
-                  Event.info(
-                    `You see the ${treasureName(candidate.treasureId)} at ${z + 1},${y + 1},${x + 1}!`
-                  )
-                );
-                break outer;
-              }
+      const treasure = this.rng.randint(1, 10);
+      const tx = this.rng.randint(1, Game.SIZE);
+      const ty = this.rng.randint(1, Game.SIZE);
+      const tz = this.rng.randint(1, Game.SIZE);
+      return [
+        Event.info(`You see the ${treasureName(treasure)} at ${tz},${ty},${tx}!`),
+      ];
+    }
+
+    const remaining = 10 - this.treasuresFound.size;
+    const target = this.rng.randint(1, remaining);
+    let seen = 0;
+    for (let z = 0; z < this.dungeon.rooms.length; z += 1) {
+      const floor = this.dungeon.rooms[z];
+      for (let y = 0; y < floor.length; y += 1) {
+        const row = floor[y];
+        for (let x = 0; x < row.length; x += 1) {
+          const candidate = row[x];
+          if (
+            candidate.treasureId &&
+            !this.treasuresFound.has(candidate.treasureId)
+          ) {
+            seen += 1;
+            if (seen === target) {
+              return [
+                Event.info(
+                  `You see the ${treasureName(candidate.treasureId)} at ${z + 1},${y + 1},${x + 1}!`
+                ),
+              ];
             }
           }
         }
       }
     }
-    room.feature = Feature.EMPTY;
-    this.observe(state);
-    return events;
+
+    // Technically shouldn't be able to get here
+    return [Event.info(this.rng.choice(visions))];
   }
 
   private openChest(state: PlayerState): Event[] {
@@ -709,7 +715,10 @@ export class Game {
     if (room.feature !== Feature.CHEST) {
       return [Event.info('There is no chest here.')];
     }
+
     room.feature = Feature.EMPTY;
+    this.observe(state);
+
     const rand = this.rng.random();
     if (rand < 0.1) {
       if (player.armorTier > 0) {
@@ -723,6 +732,7 @@ export class Game {
             ),
           ];
         }
+
         player.armorDamaged = true;
         return [
           Event.info(
@@ -730,6 +740,7 @@ export class Game {
           ),
         ];
       }
+
       player.armorName = ARMOR_NAMES[0];
       player.armorDamaged = false;
       player.hp -= this.rng.randint(0, 4) + 3;
@@ -742,17 +753,18 @@ export class Game {
           Event.broadcast(Event.info('YOU HAVE DIED.')),
         ];
       }
+
       return [
         Event.info('The perverse thing explodes as you open it, wounding you!'),
       ];
     }
+
     if (rand < 0.4) {
       return [Event.info('It containeth naught.')];
     }
 
     const gold = 10 + this.rng.randint(0, 20);
     player.gold += gold;
-    this.observe(state);
     return [Event.loot(`You find ${gold} gold ${pluralize(gold, 'piece')}!`)];
   }
 
@@ -762,10 +774,12 @@ export class Game {
     if (room.feature !== Feature.SCROLL) {
       return [Event.info('Sorry. There is nothing to read here.')];
     }
+
     room.feature = Feature.EMPTY;
     const spell = this.rng.randint(1, 5) as Spell;
     player.spells[spell] = (player.spells[spell] ?? 0) + 1;
     this.observe(state);
+
     return [
       Event.info(
         `The scroll contains the ${spellName(spell).toLowerCase()} spell.`
@@ -779,7 +793,10 @@ export class Game {
     if (room.feature !== Feature.POTION) {
       return [Event.info('There is no potion here, I fear.')];
     }
+
     room.feature = Feature.EMPTY;
+    this.observe(state);
+
     const roll = this.rng.randint(1, 5);
     if (roll === 1) {
       const heal = 5 + this.rng.randint(1, 10);
@@ -795,8 +812,8 @@ export class Game {
     if (this.rng.random() > 0.5) {
       change = -change;
     }
+
     player.applyAttributeChange({ target: effect, change });
-    this.observe(state);
     return drinkAttributePotionEvents({ target: effect, change });
   }
 
@@ -805,6 +822,7 @@ export class Game {
     if (room.feature !== Feature.VENDOR) {
       return [Event.info('There is no vendor here.')];
     }
+
     state.vendor = new VendorSession({
       rng: this.rng,
       player: state.player,
@@ -823,6 +841,7 @@ export class Game {
     if (options.anyFloor) {
       player.z = this.rng.randrange(Game.SIZE);
     }
+
     while (true) {
       const ny = this.rng.randrange(Game.SIZE);
       const nx = this.rng.randrange(Game.SIZE);
@@ -845,6 +864,7 @@ export class Game {
     if (this.treasuresFound.has(treasureId)) {
       return [];
     }
+
     this.treasuresFound.add(treasureId);
     return [
       Event.broadcast(Event.loot(`You find the ${treasureName(treasureId)}!`)),

@@ -94,6 +94,20 @@ describe('Game interactions', () => {
       expect(result.events[1].text).toBe('YOU HAVE DIED.');
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
+
+    it('clears the chest from the map even when it contains nothing', () => {
+      // 0.1 <= rand < 0.4 is the "naught" branch, which returns early — the
+      // observed tile must still refresh, or the chest lingers on the map.
+      const rng = new ScriptedRng({ random: [0.2] });
+      const { game } = setupGame({ feature: Feature.CHEST, rng });
+
+      game.startEvents(ID); // observe the room: the chest is on the map
+      expect(game.mapView(ID)[0][0]).toBe(Feature.CHEST);
+
+      const result = game.step(ID, 'O');
+      expect(result.events[0].text).toBe('It containeth naught.');
+      expect(game.mapView(ID)[0][0]).toBe(Feature.EMPTY);
+    });
   });
 
   describe('mirrors', () => {
@@ -144,6 +158,19 @@ describe('Game interactions', () => {
       expect(result.events[1].text).toBe('Healing results.');
       expect(player.hp).toBe(20);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
+    });
+
+    it('clears the potion from the map when it only heals', () => {
+      // roll === 1 is the healing branch, which returns early — the observed
+      // tile must still refresh, or the drained potion lingers on the map.
+      const rng = new ScriptedRng({ randint: [1, 5] });
+      const { game } = setupGame({ feature: Feature.POTION, rng });
+
+      game.startEvents(ID); // observe the room: the potion is on the map
+      expect(game.mapView(ID)[0][0]).toBe(Feature.POTION);
+
+      game.step(ID, 'P');
+      expect(game.mapView(ID)[0][0]).toBe(Feature.EMPTY);
     });
 
     it('drinks a potion and changes an attribute', () => {
