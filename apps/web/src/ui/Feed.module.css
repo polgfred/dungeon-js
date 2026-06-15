@@ -37,3 +37,9 @@
   font-style: italic;
   color: var(--text-secondary);
 }
+
+/* Local connection notices: meta, not in-world — muted and italic. */
+.noticeText {
+  font-style: italic;
+  color: var(--text-disabled);
+}

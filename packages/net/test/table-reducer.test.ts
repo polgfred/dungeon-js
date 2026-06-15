@@ -117,6 +117,30 @@ describe('tableReducer', () => {
     ]);
   });
 
+  it('posts a Connected notice on each open transition, not on every status', () => {
+    // connecting → open: one notice.
+    const open = tableReducer(initialTableState, {
+      type: 'status',
+      status: 'open',
+    });
+    expect(open.feed).toEqual([{ kind: 'notice', text: 'Connected.' }]);
+
+    // open → closed → connecting: no new notices while away.
+    const dropped = tableReducer(open, { type: 'status', status: 'closed' });
+    const retrying = tableReducer(dropped, {
+      type: 'status',
+      status: 'connecting',
+    });
+    expect(retrying.feed).toHaveLength(1);
+
+    // back to open: a second notice.
+    const back = tableReducer(retrying, { type: 'status', status: 'open' });
+    expect(back.feed).toEqual([
+      { kind: 'notice', text: 'Connected.' },
+      { kind: 'notice', text: 'Connected.' },
+    ]);
+  });
+
   it('surfaces server errors', () => {
     const next = tableReducer(initialTableState, {
       type: 'error',

@@ -27,6 +27,16 @@ function NamedLine({
   named: (id: PlayerId) => string;
   colorOf: (id: PlayerId) => string;
 }) {
+  // A local notice (connection dropped/restored): no actor, dim framing.
+  if (item.kind === 'notice') {
+    return (
+      <div className={styles.feedLine}>
+        <span className={styles.feedBullet}>= </span>
+        <span className={styles.noticeText}>{item.text}</span>
+      </div>
+    );
+  }
+
   const mine = item.from === playerId;
 
   // Chat stays a tagged quote: "- <name> message".
@@ -85,7 +95,7 @@ export function Feed({
   const colorOf = chatColorsById(members);
   const lines = feed.filter(
     (item) =>
-      item.kind === 'chat' ||
+      item.kind !== 'event' ||
       (item.event.kind !== 'PROMPT' && item.event.kind !== 'DEBUG')
   );
 

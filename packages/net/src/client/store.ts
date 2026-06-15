@@ -12,7 +12,8 @@ export type TablePhase = 'lobby' | 'play';
 
 export type FeedItem =
   | { kind: 'event'; from: PlayerId; event: Event }
-  | { kind: 'chat'; from: PlayerId; name: string; text: string };
+  | { kind: 'chat'; from: PlayerId; name: string; text: string }
+  | { kind: 'notice'; text: string };
 
 export interface TableState {
   status: ConnectionStatus;
@@ -48,8 +49,19 @@ export function tableReducer(
   action: TableAction
 ): TableState {
   switch (action.type) {
-    case 'status':
+    case 'status': {
+      // Mark each (re)connection in the scrollback
+      if (action.status === 'open' && state.status !== 'open') {
+        return {
+          ...state,
+          status: action.status,
+          feed: appendFeed(state.feed, [
+            { kind: 'notice', text: 'Connected.' },
+          ]),
+        };
+      }
       return { ...state, status: action.status };
+    }
     case 'lobby':
       return { ...state, lobby: action.state, error: null };
     case 'view':
