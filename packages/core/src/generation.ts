@@ -1,5 +1,5 @@
 import { Feature } from './constants.js';
-import { Dungeon, type Room } from './model.js';
+import { createDungeon, Dungeon, type Room } from './model.js';
 import type { RandomSource } from './rng.js';
 
 const SIZE = 7;
@@ -15,7 +15,7 @@ export function generateDungeon(rng: RandomSource): Dungeon {
   placeStairs(rng, rooms);
   placeExit(rng, rooms);
 
-  return new Dungeon(rooms);
+  return createDungeon(rooms);
 }
 
 function createRoom(rng: RandomSource, floor: number): Room {

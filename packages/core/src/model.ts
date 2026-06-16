@@ -16,12 +16,12 @@ export interface Room {
   monsterVitality: number;
 }
 
-export class Dungeon {
+export interface Dungeon {
   rooms: Room[][][];
+}
 
-  constructor(rooms: Room[][][]) {
-    this.rooms = rooms;
-  }
+export function createDungeon(rooms: Room[][][]): Dungeon {
+  return { rooms };
 }
 
 export type SpellCounts = Record<Spell, number>;

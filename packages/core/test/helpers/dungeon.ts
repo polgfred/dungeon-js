@@ -1,8 +1,8 @@
-import { Dungeon, type Room } from '../../src/model.js';
+import { createDungeon, type Room } from '../../src/model.js';
 import { Feature } from '../../src/constants.js';
 import { Game } from '../../src/engine.js';
 
-export function createEmptyDungeon(): Dungeon {
+export function createEmptyDungeon() {
   const rooms: Room[][][] = Array.from({ length: Game.SIZE }, () =>
     Array.from({ length: Game.SIZE }, () =>
       Array.from({ length: Game.SIZE }, () => ({
@@ -13,5 +13,5 @@ export function createEmptyDungeon(): Dungeon {
       }))
     )
   );
-  return new Dungeon(rooms);
+  return createDungeon(rooms);
 }
