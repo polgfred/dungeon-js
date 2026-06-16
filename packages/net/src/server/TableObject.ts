@@ -57,14 +57,23 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
   protected hydrate(snapshot: TableSnapshot | undefined) {
     if (!snapshot) return;
-    this.state =
-      snapshot.kind === 'lobby'
-        ? { kind: 'lobby', members: snapshot.members }
-        : {
-            kind: 'play',
-            names: snapshot.names,
-            game: Game.fromSave(snapshot.game),
-          };
+    if (snapshot.kind === 'lobby') {
+      this.state = { kind: 'lobby', members: snapshot.members };
+      return;
+    }
+
+    try {
+      this.state = {
+        kind: 'play',
+        names: snapshot.names,
+        game: Game.fromSave(snapshot.game),
+      };
+    } catch (error) {
+      // An unreadable save (e.g. a SAVE_VERSION bump) — abandon the game and
+      // come up as a fresh lobby rather than crashing the object on construction.
+      console.error('Discarding unreadable game snapshot:', error);
+      this.state = { kind: 'lobby', members: new Map() };
+    }
   }
 
   protected snapshot(): TableSnapshot {
