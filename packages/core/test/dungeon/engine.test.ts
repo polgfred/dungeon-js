@@ -15,7 +15,7 @@ function setupGame(options: { feature: Feature; rng: ScriptedRng }) {
     hp: 10,
     mhp: 20,
   });
-  const game = new Game({ seed: 0 });
+  const game = new Game();
   game.addPlayer(ID, player);
   const dungeon = createEmptyDungeon();
   dungeon.rooms[0][0][0].feature = options.feature;
@@ -295,7 +295,7 @@ describe('Game interactions', () => {
         mhp: 20,
         ...options.playerOverrides,
       });
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer(ID, player);
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = options.monsterLevel;
@@ -394,7 +394,7 @@ describe('Game interactions', () => {
     function twoPlayerGame() {
       const a = buildPlayer({ z: 0, y: 0, x: 0, hp: 4 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer('a', a);
       game.addPlayer('b', b);
       const dungeon = createEmptyDungeon();
@@ -440,7 +440,7 @@ describe('Game interactions', () => {
     it('clears the encounter for every co-fighter the instant the monster dies', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 0 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer('a', a);
       game.addPlayer('b', b);
       const dungeon = createEmptyDungeon();
@@ -464,7 +464,7 @@ describe('Game interactions', () => {
 
     it('broadcasts treasure-found and monster-slain to the whole party', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer(ID, player);
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
@@ -491,7 +491,7 @@ describe('Game interactions', () => {
   describe('save rehydration mode', () => {
     it('restores GAME_OVER and VICTORY from serialized end state', () => {
       const losePlayer = buildPlayer({ z: 0, y: 0, x: 0, hp: 4 });
-      const loseGame = new Game({ seed: 0 });
+      const loseGame = new Game();
       loseGame.addPlayer(ID, losePlayer);
       const loseDungeon = createEmptyDungeon();
       loseDungeon.rooms[0][0][0].feature = Feature.THIEF;
@@ -501,7 +501,7 @@ describe('Game interactions', () => {
       expect(loseGame.mode(ID)).toBe(Mode.GAME_OVER);
 
       const winPlayer = buildPlayer({ z: 0, y: 0, x: 0 });
-      const winGame = new Game({ seed: 0 });
+      const winGame = new Game();
       winGame.addPlayer(ID, winPlayer);
       winGame.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       const winDungeon = createEmptyDungeon();
@@ -517,7 +517,7 @@ describe('Game interactions', () => {
 
     it('derives mode from per-player encounter session, not a stored mode', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer(ID, player);
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
@@ -537,7 +537,7 @@ describe('Game interactions', () => {
 
     it('resumes in encounter spell selection with spell prompt events', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer(ID, player);
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
@@ -559,7 +559,7 @@ describe('Game interactions', () => {
 
     it('resumes in vendor item selection with vendor intro and item prompt', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0, gold: 100 });
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer(ID, player);
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].feature = Feature.VENDOR;
@@ -582,7 +582,7 @@ describe('Game interactions', () => {
     });
 
     it('throws when save version is missing', () => {
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer(ID, buildPlayer());
       const save = game.toSave() as Record<string, unknown>;
       delete save.version;
@@ -593,7 +593,7 @@ describe('Game interactions', () => {
     });
 
     it('throws when save version does not match', () => {
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer(ID, buildPlayer());
       const save = game.toSave();
       save.version = Game.SAVE_VERSION + 1;
@@ -606,7 +606,7 @@ describe('Game interactions', () => {
     it('refreshes every co-fighter in the room the instant the monster dies', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 0 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer('a', a);
       game.addPlayer('b', b);
       const dungeon = createEmptyDungeon();
@@ -630,7 +630,7 @@ describe('Game interactions', () => {
     it('re-scouts a stale tile when a flare relights a cleared room', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 1 });
       const b = buildPlayer({ z: 0, y: 0, x: 0, flares: 5 });
-      const game = new Game({ seed: 0 });
+      const game = new Game();
       game.addPlayer('a', a);
       game.addPlayer('b', b);
       const dungeon = createEmptyDungeon();

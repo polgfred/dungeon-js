@@ -66,11 +66,10 @@ export class Game {
   private players: Map<PlayerId, PlayerState> = new Map();
 
   constructor(options: {
-    seed?: number;
     rng?: RandomSource | null;
     dungeon?: Dungeon;
     treasuresFound?: Set<number>;
-  }) {
+  } = {}) {
     this.rng = options.rng ?? defaultRandomSource;
     this.dungeon = options.dungeon ?? generateDungeon(this.rng);
     this.treasuresFound = options.treasuresFound ?? new Set<number>();
