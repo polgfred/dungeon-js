@@ -40,20 +40,7 @@ function ReadyCard({
     return () => window.removeEventListener('keydown', onKey);
   }, [everyoneReady, onStart]);
 
-  if (everyoneReady) {
-    return (
-      <div className={styles.ready}>
-        <p className={styles.readyTextCallout}>THE DUNGEON AWAITS YOU...</p>
-        <button
-          type="button"
-          className={clsx('btn', 'btn-contained', styles.startBtn)}
-          onClick={onStart}
-        >
-          Enter the dungeon
-        </button>
-      </div>
-    );
-  } else {
+  if (!everyoneReady) {
     return (
       <div className={styles.ready}>
         <p className={styles.readyText}>
@@ -68,6 +55,19 @@ function ReadyCard({
       </div>
     );
   }
+
+  return (
+    <div className={styles.ready}>
+      <p className={styles.readyTextCallout}>THE DUNGEON AWAITS YOU...</p>
+      <button
+        type="button"
+        className={clsx('btn', 'btn-contained', styles.startBtn)}
+        onClick={onStart}
+      >
+        Enter the dungeon
+      </button>
+    </div>
+  );
 }
 
 export function Lobby({
@@ -90,8 +90,6 @@ export function Lobby({
   onChat: (text: string) => void;
 }) {
   const [submitted, setSubmitted] = useState(false);
-  // The build model lives here so the stats quadrant can read the character as
-  // it's assembled, mirroring the gameplay Status pane.
   const model = useSetupGameModel({
     onComplete: (player) => {
       onSetCharacter(player);
@@ -103,7 +101,6 @@ export function Lobby({
   const everyoneReady = members.length > 0 && members.every((m) => m.ready);
   const colorOf = chatColorsById(members);
 
-  // If we've readied a character, we should be back in the ready state
   const myCharacter = lobby?.character ?? null;
   const iAmReady = myCharacter !== null;
   const showReady = submitted || iAmReady;

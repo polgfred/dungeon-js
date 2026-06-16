@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import {
   ARMOR_NAMES,
@@ -80,6 +80,7 @@ export type SetupGameModel = {
   handleAdvanceToShop: () => void;
   handleFinish: () => void;
   handleTrigger: (command: SetupCommand) => void;
+  handleKeyDown: (event: KeyboardEvent) => void;
 };
 
 function normalizeCommandKey(event: KeyboardEvent): string | null {
@@ -485,29 +486,17 @@ export function useSetupGameModel({
     ]
   );
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat) return;
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      // Don't hijack typing in the chat box.
-      const target = event.target as HTMLElement | null;
-      if (
-        target &&
-        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')
-      ) {
-        return;
-      }
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
       const key = normalizeCommandKey(event);
       if (!key) return;
       const command = commandMap.get(key);
       if (!command) return;
       event.preventDefault();
       handleTrigger(command);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [commandMap, handleTrigger]);
+    },
+    [commandMap, handleTrigger]
+  );
 
   return {
     onComplete,
@@ -537,5 +526,6 @@ export function useSetupGameModel({
     handleAdvanceToShop,
     handleFinish,
     handleTrigger,
+    handleKeyDown,
   };
 }

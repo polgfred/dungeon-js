@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { useEffect, type ReactElement } from 'react';
 
 import { Race, raceName } from '@dod/core';
 
@@ -209,6 +209,24 @@ function ReadyStage({ model }: StageProps) {
 }
 
 export function LobbyBuilder({ model }: { model: SetupGameModel }) {
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.repeat) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      // Don't hijack typing in the chat box.
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')
+      ) {
+        return;
+      }
+      model.handleKeyDown(event);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [model.handleKeyDown]);
+
   switch (model.stage) {
     case 'race':
       return <RaceStage model={model} />;
