@@ -103,10 +103,14 @@ export function Lobby({
   const everyoneReady = members.length > 0 && members.every((m) => m.ready);
   const colorOf = chatColorsById(members);
 
+  // If we've readied a character, we should be back in the ready state
+  const iAmReady = members.some((m) => m.id === playerId && m.ready);
+  const showReady = submitted || iAmReady;
+
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const copyLink = () => {
-    void navigator.clipboard?.writeText(window.location.href).then(() => {
+    navigator.clipboard?.writeText(window.location.href).then(() => {
       setCopied(true);
       clearTimeout(copyTimer.current);
       copyTimer.current = setTimeout(() => setCopied(false), 1500);
@@ -117,7 +121,7 @@ export function Lobby({
   return (
     <div className={layout.root}>
       <section className={clsx(layout.board, styles.board)}>
-        {submitted ? (
+        {showReady ? (
           <ReadyCard everyoneReady={everyoneReady} onStart={onStart} />
         ) : (
           <LobbyBuilder model={model} />
