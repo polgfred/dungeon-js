@@ -78,10 +78,10 @@ function formatPrompt(data?: PromptData): string[] {
   if (!data?.options) {
     return [];
   }
-  return data.options.map(
-    (option) =>
-      `  - ${option.key}: ${option.label}${option.disabled ? ' (disabled)' : ''}`
-  );
+  return data.options.map((option) => {
+    const note = option.note ? ` ${option.note}` : '';
+    return `  - ${option.key}: ${option.label}${note}${option.disabled ? ' (disabled)' : ''}`;
+  });
 }
 
 function printEvents(events: Event[]): void {

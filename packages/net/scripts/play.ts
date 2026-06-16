@@ -124,8 +124,9 @@ function formatEvent(event: Event, mine: boolean, fromName: string): string {
   if (event.kind === 'PROMPT') {
     const lines = [`  ${event.text}`];
     for (const option of event.data?.options ?? []) {
+      const note = option.note ? ` ${option.note}` : '';
       const dim = option.disabled ? ' (unavailable)' : '';
-      lines.push(`    [${option.key}] ${option.label}${dim}`);
+      lines.push(`    [${option.key}] ${option.label}${note}${dim}`);
     }
     if (event.data?.hasCancel) lines.push('    [/cancel] back out');
     return lines.join('\n');

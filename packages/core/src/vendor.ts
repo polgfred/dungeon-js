@@ -396,17 +396,20 @@ export class VendorSession {
           options: [
             {
               key: 'D',
-              label: `Dagger (${WEAPON_PRICES[1]}g)`,
+              label: 'Dagger',
+              note: `${WEAPON_PRICES[1]}`,
               disabled: this.player.gold < WEAPON_PRICES[1],
             },
             {
               key: 'S',
-              label: `Short sword (${WEAPON_PRICES[2]}g)`,
+              label: 'Short sword',
+              note: `${WEAPON_PRICES[2]}`,
               disabled: this.player.gold < WEAPON_PRICES[2],
             },
             {
               key: 'B',
-              label: `Broadsword (${WEAPON_PRICES[3]}g)`,
+              label: 'Broadsword',
+              note: `${WEAPON_PRICES[3]}`,
               disabled: this.player.gold < WEAPON_PRICES[3],
             },
           ],
@@ -417,17 +420,20 @@ export class VendorSession {
           options: [
             {
               key: 'L',
-              label: `Leather (${ARMOR_PRICES[1]}g)`,
+              label: 'Leather',
+              note: `${ARMOR_PRICES[1]}`,
               disabled: this.player.gold < ARMOR_PRICES[1],
             },
             {
               key: 'W',
-              label: `Wooden (${ARMOR_PRICES[2]}g)`,
+              label: 'Wooden',
+              note: `${ARMOR_PRICES[2]}`,
               disabled: this.player.gold < ARMOR_PRICES[2],
             },
             {
               key: 'C',
-              label: `Chain mail (${ARMOR_PRICES[3]}g)`,
+              label: 'Chain mail',
+              note: `${ARMOR_PRICES[3]}`,
               disabled: this.player.gold < ARMOR_PRICES[3],
             },
           ],
@@ -438,27 +444,32 @@ export class VendorSession {
           options: [
             {
               key: 'P',
-              label: `Protection (${SPELL_PRICES[Spell.PROTECTION]}g)`,
+              label: 'Protection',
+              note: `${SPELL_PRICES[Spell.PROTECTION]}`,
               disabled: this.player.gold < SPELL_PRICES[Spell.PROTECTION],
             },
             {
               key: 'F',
-              label: `Fireball (${SPELL_PRICES[Spell.FIREBALL]}g)`,
+              label: 'Fireball',
+              note: `${SPELL_PRICES[Spell.FIREBALL]}`,
               disabled: this.player.gold < SPELL_PRICES[Spell.FIREBALL],
             },
             {
               key: 'L',
-              label: `Lightning (${SPELL_PRICES[Spell.LIGHTNING]}g)`,
+              label: 'Lightning',
+              note: `${SPELL_PRICES[Spell.LIGHTNING]}`,
               disabled: this.player.gold < SPELL_PRICES[Spell.LIGHTNING],
             },
             {
               key: 'W',
-              label: `Weaken (${SPELL_PRICES[Spell.WEAKEN]}g)`,
+              label: 'Weaken',
+              note: `${SPELL_PRICES[Spell.WEAKEN]}`,
               disabled: this.player.gold < SPELL_PRICES[Spell.WEAKEN],
             },
             {
               key: 'T',
-              label: `Teleport (${SPELL_PRICES[Spell.TELEPORT]}g)`,
+              label: 'Teleport',
+              note: `${SPELL_PRICES[Spell.TELEPORT]}`,
               disabled: this.player.gold < SPELL_PRICES[Spell.TELEPORT],
             },
           ],
@@ -470,12 +481,14 @@ export class VendorSession {
           options: [
             {
               key: 'H',
-              label: `Healing (${POTION_PRICES['HEALING']}g)`,
+              label: 'Healing',
+              note: `${POTION_PRICES['HEALING']}`,
               disabled: this.player.gold < POTION_PRICES['HEALING'],
             },
             {
               key: 'A',
-              label: `Attribute enhancer (${POTION_PRICES['ATTRIBUTE']}g)`,
+              label: 'Attribute enhancer',
+              note: `${POTION_PRICES['ATTRIBUTE']}`,
               disabled: this.player.gold < POTION_PRICES['ATTRIBUTE'],
             },
           ],

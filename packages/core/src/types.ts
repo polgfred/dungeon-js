@@ -15,6 +15,7 @@ export type LootEvent = { kind: 'LOOT'; text: string } & Broadcastable;
 export type PromptOption = {
   key: string;
   label: string;
+  note?: string;
   disabled: boolean;
 };
 

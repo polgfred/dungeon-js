@@ -278,7 +278,10 @@ function CommandCluster({
             onClick={() => onAction(option.key)}
           >
             <span className={styles.legendKey}>{option.key}</span>
-            <span>{option.label}</span>
+            <span className={styles.promptLabel}>{option.label}</span>
+            {option.note && (
+              <span className={styles.promptNote}>{option.note}</span>
+            )}
           </button>
         ))}
         {view.prompt.hasCancel && (
