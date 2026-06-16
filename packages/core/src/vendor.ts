@@ -11,6 +11,7 @@ import {
   raceName,
 } from './constants.js';
 import type { VendorSave } from './serialization.js';
+import { applyAttributeChange } from './model.js';
 import type { Player } from './model.js';
 import { Event } from './types.js';
 import type { RandomSource } from './rng.js';
@@ -346,7 +347,7 @@ export class VendorSession {
     if (target === 'MHP') {
       change *= 2;
     }
-    this.player.applyAttributeChange({ target, change });
+    applyAttributeChange(this.player, { target, change });
     return {
       events: drinkAttributePotionEvents({ target, change }),
       done: true,

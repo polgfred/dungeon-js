@@ -12,6 +12,7 @@ import {
 } from './constants.js';
 import { EncounterSession, rollMonsterVitality } from './encounter.js';
 import { generateDungeon } from './generation.js';
+import { applyAttributeChange } from './model.js';
 import type { Dungeon, Player, Room } from './model.js';
 import {
   type GameSave,
@@ -811,7 +812,7 @@ export class Game {
       change = -change;
     }
 
-    player.applyAttributeChange({ target: effect, change });
+    applyAttributeChange(player, { target: effect, change });
     return drinkAttributePotionEvents({ target: effect, change });
   }
 

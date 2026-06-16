@@ -15,7 +15,7 @@ import { spawn } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
-import { Player, Race, serializePlayer, defaultRandomSource } from '@dod/core';
+import { Race, serializePlayer, defaultRandomSource, rollBaseStats, createPlayer } from '@dod/core';
 import type { ClientMessage, PlayerView, ServerMessage } from '@dod/net/shared';
 
 const PORT = Number(process.env.DOD_PORT ?? 8799);
@@ -31,19 +31,19 @@ function check(condition: boolean, label: string): void {
 }
 
 function character() {
-  const [st, dx, iq, hp] = Player.rollBaseStats(
+  const [st, dx, iq, hp] = rollBaseStats(
     defaultRandomSource,
     Race.HUMAN
   );
   return serializePlayer(
-    Player.create({
+    createPlayer({
       race: Race.HUMAN,
       baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },
-      gold: 100,
       allocations: { ST: 2, DX: 2, IQ: 1 },
+      gold: 100,
+      flares: 5,
       weaponTier: 1,
       armorTier: 1,
-      flareCount: 5,
     })
   );
 }

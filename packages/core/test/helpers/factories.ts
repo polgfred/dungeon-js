@@ -1,7 +1,13 @@
-import { createSpellCounts, Player, type Room } from '../../src/model.js';
+import {
+  createSpellCounts,
+  makePlayer,
+  type Player,
+  type PlayerInit,
+  type Room,
+} from '../../src/model.js';
 import { Feature, Race, Spell } from '../../src/constants.js';
 
-export type PlayerOptions = ConstructorParameters<typeof Player>[0];
+export type PlayerOptions = PlayerInit;
 
 export function buildPlayer(options: Partial<PlayerOptions> = {}): Player {
   const defaultSpells = createSpellCounts();
@@ -11,7 +17,7 @@ export function buildPlayer(options: Partial<PlayerOptions> = {}): Player {
   defaultSpells[Spell.WEAKEN] = 1;
   defaultSpells[Spell.TELEPORT] = 1;
 
-  return new Player({
+  return makePlayer({
     z: 0,
     y: 0,
     x: 0,

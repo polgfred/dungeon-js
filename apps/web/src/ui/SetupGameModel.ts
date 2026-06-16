@@ -6,6 +6,8 @@ import {
   WEAPON_NAMES,
   WEAPON_PRICES,
   Race,
+  rollBaseStats,
+  createPlayer,
 } from '@dod/core';
 import { Player } from '@dod/core';
 import { defaultRandomSource } from '@dod/core';
@@ -146,8 +148,8 @@ export function useSetupGameModel({
   };
 
   const handleRaceSelect = (value: Race) => {
+    const [st, dx, iq, hp] = rollBaseStats(rng, value);
     setRace(value);
-    const [st, dx, iq, hp] = Player.rollBaseStats(rng, value);
     setBaseStats({ ST: st, DX: dx, IQ: iq, HP: hp });
     setAllocations({ ST: 0, DX: 0, IQ: 0 });
     setSetupError(null);
@@ -161,7 +163,6 @@ export function useSetupGameModel({
     });
   };
 
-  // Leaving allocation opens the shop; roll the purse on first entry (dungeon.bas 46).
   const handleAdvanceToShop = () => {
     if (remainingPoints === 0) {
       setStage('weapon');
@@ -175,14 +176,14 @@ export function useSetupGameModel({
     if (!race || !baseStats || gold === null) return;
     setSetupError(null);
     try {
-      const created = Player.create({
+      const created = createPlayer({
         race,
         baseStats,
-        gold,
         allocations,
+        gold,
         weaponTier,
         armorTier,
-        flareCount: flares,
+        flares,
       });
       setPlayer(created);
       setStage('ready');

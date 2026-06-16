@@ -1,5 +1,11 @@
 import type { Mode, Race, Spell, Tile } from './constants.js';
-import { Dungeon, Player, createSpellCounts, type Room } from './model.js';
+import {
+  Dungeon,
+  createSpellCounts,
+  makePlayer,
+  type Player,
+  type Room,
+} from './model.js';
 
 type RoomPacked = number;
 
@@ -87,7 +93,7 @@ export function deserializePlayer(save: PlayerSave): Player {
     if (Number.isNaN(spell)) continue;
     spells[spell] = value;
   }
-  return new Player({
+  return makePlayer({
     z: save.z,
     y: save.y,
     x: save.x,
