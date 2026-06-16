@@ -147,6 +147,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
   private handleChat(playerId: PlayerId, text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
+    this.touch(); // chatting keeps the table alive
     const name = this.nameOf(playerId);
     const message = {
       type: 'chat',
