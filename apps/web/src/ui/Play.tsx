@@ -78,7 +78,7 @@ function Notice({ title, message }: { title: string; message?: string }) {
   );
 }
 
-export default function PlayTable({ code }: { code: string }) {
+export default function Play({ code }: { code: string }) {
   const url = useMemo(() => tableWsUrl(code), [code]);
   const table = useTable(url);
 
