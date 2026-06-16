@@ -2,9 +2,7 @@ import clsx from 'clsx';
 
 import styles from './Chips.module.css';
 
-/** Render a command key as a compact keycap glyph. Enter is the radical symbol
- *  (`√`) — the Atari font has no usable return glyph and its carriage-return
- *  mark reads badly, but its radical glyph works well here. */
+/** Render a command key as a compact keycap glyph. */
 export function keyCap(key: string): string {
   if (key === 'Enter') return '√';
   if (key === 'Esc') return '␛';
@@ -12,8 +10,7 @@ export function keyCap(key: string): string {
   return key;
 }
 
-/** A keyed selection chip — `<key> Label … note`, highlighted when chosen. The
- *  note (e.g. a price) sits in its own right-aligned column so they line up. */
+/** A keyed selection chip — `<key> Label … note`, highlighted when chosen. */
 export function SelectChip({
   cap,
   label,
@@ -68,8 +65,7 @@ export function ActionChip({
   );
 }
 
-/** An adjustable: a label + value with clickable ▲/▼ sides. The matching key
- *  raises and Shift+key lowers it from the keyboard (shown as the keycap). */
+/** An adjustable label + value with clickable ▲/▼ sides. */
 export function AdjustChip({
   cap,
   label,

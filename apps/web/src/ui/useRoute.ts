@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
 
-// A two-route hand-rolled router — home and /play/<code>. No dependency needed
-// for this little surface; pushState + a popstate listener is the whole thing.
-
 export type Route = { name: 'home' } | { name: 'play'; code: string };
 
 function parse(pathname: string): Route {

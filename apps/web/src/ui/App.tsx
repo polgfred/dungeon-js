@@ -1,6 +1,6 @@
 import styles from './App.module.css';
 import Home from './Home.js';
-import PlayTable from './PlayTable.js';
+import Play from './Play.js';
 import { useAttractMode } from './useAttractMode.js';
 import { useRoute } from './useRoute.js';
 
@@ -10,7 +10,7 @@ export default function App() {
 
   return (
     <main className={styles.screen}>
-      {route.name === 'home' ? <Home /> : <PlayTable code={route.code} />}
+      {route.name === 'home' ? <Home /> : <Play code={route.code} />}
     </main>
   );
 }
