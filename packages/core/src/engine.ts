@@ -164,7 +164,7 @@ export class Game {
       const state: PlayerState = {
         id: entry.id,
         player,
-        observed: structuredClone(entry.observed),
+        observed: entry.observed.map((level) => level.map((row) => [...row])),
         encounter: null,
         vendor: null,
         exited: entry.exited,
@@ -195,10 +195,10 @@ export class Game {
       dungeon: serializeDungeon(this.dungeon),
       treasuresFound: [...this.treasuresFound],
       endMode: this.endMode,
-      players: [...this.players.values()].map((state) => ({
+      players: Array.from(this.players.values(), (state) => ({
         id: state.id,
         player: serializePlayer(state.player),
-        observed: structuredClone(state.observed),
+        observed: state.observed.map((level) => level.map((row) => [...row])),
         encounter: state.encounter ? state.encounter.toSave() : null,
         vendor: state.vendor ? state.vendor.toSave() : null,
         exited: state.exited,

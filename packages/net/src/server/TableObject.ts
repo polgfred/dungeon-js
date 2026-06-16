@@ -10,7 +10,6 @@ import {
 
 import type {
   ClientMessage,
-  LobbyMember,
   PlayerId,
   PlayerView,
   ServerMessage,
@@ -331,7 +330,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
       name: member.name,
       ready: member.character !== null,
       connected: connected.has(member.id),
-    })) satisfies LobbyMember[];
+    }));
     for (const ws of this.ctx.getWebSockets()) {
       if (this.departed.has(ws)) continue;
       const viewerId = this.playerIdOf(ws);
