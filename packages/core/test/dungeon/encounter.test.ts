@@ -26,7 +26,7 @@ function createSession(options: {
     monsterLevel,
     monsterVitality: options.vitality ?? 12,
   });
-  const session = EncounterSession.resume({
+  const session = EncounterSession.fromSave({
     rng: options.rng,
     player,
     room,
@@ -265,7 +265,7 @@ describe('EncounterSession real RNG bounds', () => {
       const minDamage = Math.max(weaponTier + Math.floor(str / 3) - 2, 1);
       const maxDamage = weaponTier + Math.floor(str / 3) + 2;
       const room = buildRoom({ monsterLevel, monsterVitality: 999 });
-      const session = EncounterSession.resume({
+      const session = EncounterSession.fromSave({
         rng,
         player: buildPlayer({
           str,
@@ -321,7 +321,7 @@ describe('EncounterSession real RNG bounds', () => {
         weaponTier: 0,
         weaponName: '(None)',
       });
-      const session = EncounterSession.resume({
+      const session = EncounterSession.fromSave({
         rng: rng,
         player,
         room: buildRoom({ monsterLevel: level, monsterVitality: 999 }),

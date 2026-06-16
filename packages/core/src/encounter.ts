@@ -78,16 +78,25 @@ export class EncounterSession {
     return new EncounterSession({ rng, player, room });
   }
 
-  static resume(options: {
+  static fromSave(options: {
     rng: RandomSource;
     player: Player;
     room: Room;
     save: EncounterSave;
   }): EncounterSession {
-    const { rng, player, room, save } = options;
-    const session = new EncounterSession({ rng, player, room });
-    session.awaitingSpell = save.awaitingSpell;
+    const session = new EncounterSession({
+      rng: options.rng,
+      player: options.player,
+      room: options.room
+    });
+    session.awaitingSpell = options.save.awaitingSpell;
     return session;
+  }
+
+  toSave(): EncounterSave {
+    return {
+      awaitingSpell: this.awaitingSpell,
+    };
   }
 
   viewEvents(): Event[] {
@@ -100,12 +109,6 @@ export class EncounterSession {
         `<@> is facing an angry ${this.monsterName}!`
       ),
     ];
-  }
-
-  toSave(): EncounterSave {
-    return {
-      awaitingSpell: this.awaitingSpell,
-    };
   }
 
   step(raw: string): EncounterResult {

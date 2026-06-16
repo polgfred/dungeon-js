@@ -37,7 +37,7 @@ export class VendorSession {
     this.player = options.player;
   }
 
-  static resume(options: {
+  static fromSave(options: {
     rng: RandomSource;
     player: Player;
     save: VendorSave;
@@ -51,6 +51,13 @@ export class VendorSession {
     return session;
   }
 
+  toSave(): VendorSave {
+    return {
+      phase: this.phase,
+      category: this.category,
+    };
+  }
+
   viewEvents(): Event[] {
     switch (this.phase) {
       case 'item':
@@ -61,13 +68,6 @@ export class VendorSession {
       default:
         return [this.categoryPrompt()];
     }
-  }
-
-  toSave(): VendorSave {
-    return {
-      phase: this.phase,
-      category: this.category,
-    };
   }
 
   step(raw: string): VendorResult {

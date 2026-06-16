@@ -124,15 +124,6 @@ export class Game {
     return Mode.EXPLORE;
   }
 
-  /** The monster the player currently faces, or null when not in an encounter. */
-  currentMonster(id: PlayerId): string | null {
-    const state = this.state(id);
-    if (!state.encounter) return null;
-    const room = this.currentRoom(state.player);
-    if (room.monsterLevel <= 0) return null;
-    return monsterName(room.monsterLevel);
-  }
-
   static fromSave(
     save: GameSave,
     rng: RandomSource = defaultRandomSource
@@ -158,24 +149,24 @@ export class Game {
         : null;
 
     for (const entry of save.players) {
-      const player = entry.player;
+      const { player } = entry;
       const state: PlayerState = {
         id: entry.id,
         player,
-        observed: entry.observed.map((level) => level.map((row) => [...row])),
+        observed: entry.observed,
         encounter: null,
         vendor: null,
         exited: entry.exited,
       };
       if (entry.encounter) {
-        state.encounter = EncounterSession.resume({
+        state.encounter = EncounterSession.fromSave({
           rng,
           player,
           room: dungeon.rooms[player.z][player.y][player.x],
           save: entry.encounter,
         });
       } else if (entry.vendor) {
-        state.vendor = VendorSession.resume({
+        state.vendor = VendorSession.fromSave({
           rng,
           player,
           save: entry.vendor,
@@ -196,7 +187,7 @@ export class Game {
       players: Array.from(this.players.values(), (state) => ({
         id: state.id,
         player: state.player,
-        observed: state.observed.map((level) => level.map((row) => [...row])),
+        observed: state.observed,
         encounter: state.encounter ? state.encounter.toSave() : null,
         vendor: state.vendor ? state.vendor.toSave() : null,
         exited: state.exited,
@@ -341,7 +332,8 @@ export class Game {
 
   mapView(id: PlayerId): Tile[][] {
     const state = this.state(id);
-    return state.observed[state.player.z].map((row) => [...row]);
+    // Only ever used for sending JSON over a socket, so don't need to defensively copy
+    return state.observed[state.player.z];
   }
 
   private resolveTile(room: Room): Tile {
@@ -390,6 +382,14 @@ export class Game {
 
   private currentRoom(player: Player): Room {
     return this.dungeon.rooms[player.z][player.y][player.x];
+  }
+
+  currentMonster(id: PlayerId): string | null {
+    const state = this.state(id);
+    if (!state.encounter) return null;
+    const room = this.currentRoom(state.player);
+    if (room.monsterLevel <= 0) return null;
+    return monsterName(room.monsterLevel);
   }
 
   private handleExplore(state: PlayerState, key: string): Event[] {
