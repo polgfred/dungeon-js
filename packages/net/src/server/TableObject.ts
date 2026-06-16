@@ -10,7 +10,7 @@ import {
 
 import type {
   ClientMessage,
-  LobbyState,
+  LobbyMember,
   PlayerId,
   PlayerView,
   ServerMessage,
@@ -326,17 +326,19 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
   private broadcastLobby() {
     const connected = this.connectedIds();
-    const state: LobbyState = {
-      members: [...this.members.values()].map((member) => ({
-        id: member.id,
-        name: member.name,
-        ready: member.character !== null,
-        connected: connected.has(member.id),
-      })),
-    };
+    const members = Array.from(this.members.values(), (member) => ({
+      id: member.id,
+      name: member.name,
+      ready: member.character !== null,
+      connected: connected.has(member.id),
+    })) satisfies LobbyMember[];
     for (const ws of this.ctx.getWebSockets()) {
       if (this.departed.has(ws)) continue;
-      this.send(ws, { type: 'lobby', state });
+      const viewerId = this.playerIdOf(ws);
+      const character = viewerId
+        ? (this.members.get(viewerId)?.character ?? null)
+        : null;
+      this.send(ws, { type: 'lobby', state: { members, character } });
     }
   }
 

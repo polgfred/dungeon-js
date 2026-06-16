@@ -104,8 +104,37 @@ export function Lobby({
   const colorOf = chatColorsById(members);
 
   // If we've readied a character, we should be back in the ready state
-  const iAmReady = members.some((m) => m.id === playerId && m.ready);
+  const myCharacter = lobby?.character ?? null;
+  const iAmReady = myCharacter !== null;
   const showReady = submitted || iAmReady;
+
+  // Render the Character pane from the server's character when we have one.
+  const readout = myCharacter
+    ? {
+        stage: 'ready' as const,
+        race: myCharacter.race,
+        derivedStats: {
+          ST: myCharacter.str,
+          DX: myCharacter.dex,
+          IQ: myCharacter.iq,
+          HP: myCharacter.mhp,
+        },
+        gold: myCharacter.gold,
+        totalCost: 0,
+        weaponTier: myCharacter.weaponTier,
+        armorTier: myCharacter.armorTier,
+        flares: myCharacter.flares,
+      }
+    : {
+        stage: model.stage,
+        race: model.race,
+        derivedStats: model.derivedStats,
+        gold: model.gold,
+        totalCost: model.totalCost,
+        weaponTier: model.weaponTier,
+        armorTier: model.armorTier,
+        flares: model.flares,
+      };
 
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -137,14 +166,14 @@ export function Lobby({
         <section>
           <p className={clsx('ui-panel-title', layout.railTitle)}>Character</p>
           <CharacterReadout
-            stage={model.stage}
-            race={model.race}
-            derivedStats={model.derivedStats}
-            gold={model.gold}
-            weaponTier={model.weaponTier}
-            armorTier={model.armorTier}
-            flares={model.flares}
-            totalCost={model.totalCost}
+            stage={readout.stage}
+            race={readout.race}
+            derivedStats={readout.derivedStats}
+            gold={readout.gold}
+            weaponTier={readout.weaponTier}
+            armorTier={readout.armorTier}
+            flares={readout.flares}
+            totalCost={readout.totalCost}
           />
         </section>
 

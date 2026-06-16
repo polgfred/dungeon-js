@@ -29,6 +29,7 @@ export interface LobbyMember {
 
 export interface LobbyState {
   members: LobbyMember[];
+  character: PlayerSave | null;
 }
 
 export interface PartyMember {
