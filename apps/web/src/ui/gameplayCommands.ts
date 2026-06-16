@@ -1,8 +1,6 @@
-import type { Command } from './CommandButton.js';
+import type { Command } from './Gameplay.js';
 
-// Static command sets, keyed exactly as the engine expects (single chars sent to
-// step()). Grouped for the legend: directions, level transitions, room actions.
-// `move-*` ids make CommandButton / the legend render arrow glyphs.
+// Static command sets, keyed to what the engine expects. */
 
 export const NAV_COMMANDS: Command[] = [
   { id: 'move-n', key: 'N', label: 'North', disabled: false },

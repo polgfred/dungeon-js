@@ -13,7 +13,6 @@ import type {
 
 import { ChatInput } from './ChatInput.js';
 import { chatColorsById } from './chatColors.js';
-import type { Command } from './CommandButton.js';
 import { Feed } from './Feed.js';
 import styles from './Gameplay.module.css';
 import layout from './Layout.module.css';
@@ -26,6 +25,14 @@ import {
 import { GlyphDefs, MapGrid } from './mapView.js';
 import { StatList, StatRow } from './StatList.js';
 import { navigate } from './useRoute.js';
+
+export type Command = {
+  id: string;
+  key: string;
+  label: string;
+  disabled: boolean;
+  primary?: boolean;
+};
 
 function StatsReadout({ view }: { view: PlayerView }) {
   const s = view.self;
