@@ -26,6 +26,20 @@ function ReadyCard({
   everyoneReady: boolean;
   onStart: () => void;
 }) {
+  useEffect(() => {
+    if (!everyoneReady) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter') return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const tag = (event.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON') return;
+      event.preventDefault();
+      onStart();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [everyoneReady, onStart]);
+
   if (everyoneReady) {
     return (
       <div className={styles.ready}>

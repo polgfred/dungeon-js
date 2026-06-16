@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -9,11 +9,24 @@ import { navigate } from './useRoute.js';
 export default function Home() {
   const [code, setCode] = useState('');
 
-  const go = (tableCode: string) => {
+  const go = useCallback((tableCode: string) => {
     navigate(`/play/${encodeURIComponent(tableCode)}`);
-  };
+  }, []);
   const joinCode = normalizeTableCode(code);
   const canJoin = joinCode.length > 0;
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter') return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const tag = (event.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON') return;
+      event.preventDefault();
+      go(generateTableCode());
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [go]);
 
   return (
     <div className={styles.root}>
