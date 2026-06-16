@@ -320,7 +320,8 @@ export class EncounterSession {
     const iqTooLow = this.player.iq < SPELL_MIN_IQ;
     const options = Object.entries(spellMap).map(([key, spell]) => ({
       key,
-      label: `${spellName(spell)} (${spells[spell] ?? 0})`,
+      label: spellName(spell),
+      note: `${spells[spell] ?? 0}`,
       disabled: iqTooLow || (spells[spell] ?? 0) <= 0,
     }));
     return {
