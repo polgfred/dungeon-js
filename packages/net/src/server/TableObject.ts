@@ -20,18 +20,21 @@ interface Member {
   character: Player | null;
 }
 
-interface TableSnapshot {
-  members: Map<PlayerId, Member>;
-  game: GameSave | null;
-}
+/** Lobby and play are mutually exclusive phases. */
+type TableState =
+  | { kind: 'lobby'; members: Map<PlayerId, Member> }
+  | { kind: 'play'; names: Map<PlayerId, string>; game: Game };
+
+type TableSnapshot =
+  | { kind: 'lobby'; members: Map<PlayerId, Member> }
+  | { kind: 'play'; names: Map<PlayerId, string>; game: GameSave };
 
 interface SocketAttachment {
   playerId: PlayerId;
 }
 
 export class TableObject extends HydratableObject<TableSnapshot> {
-  private members = new Map<PlayerId, Member>();
-  private game: Game | null = null;
+  private state: TableState = { kind: 'lobby', members: new Map() };
   // Keep track of disconnecting sockets until they're gone
   private departed = new WeakSet<WebSocket>();
 
@@ -40,17 +43,38 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     this.restore();
   }
 
+  /** The engine, or null while we're still in the lobby. */
+  private get game(): Game | null {
+    return this.state.kind === 'lobby' ? null : this.state.game;
+  }
+
+  /** A player's display name, wherever it lives for the current phase. */
+  private nameOf(playerId: PlayerId): string {
+    return this.state.kind === 'lobby'
+      ? (this.state.members.get(playerId)?.name ?? playerId)
+      : (this.state.names.get(playerId) ?? playerId);
+  }
+
   protected hydrate(snapshot: TableSnapshot | undefined) {
     if (!snapshot) return;
-    this.members = snapshot.members;
-    this.game = snapshot.game ? Game.fromSave(snapshot.game) : null;
+    this.state =
+      snapshot.kind === 'lobby'
+        ? { kind: 'lobby', members: snapshot.members }
+        : {
+            kind: 'play',
+            names: snapshot.names,
+            game: Game.fromSave(snapshot.game),
+          };
   }
 
   protected snapshot(): TableSnapshot {
-    return {
-      members: this.members,
-      game: this.game ? this.game.toSave() : null,
-    };
+    return this.state.kind === 'lobby'
+      ? { kind: 'lobby', members: this.state.members }
+      : {
+          kind: 'play',
+          names: this.state.names,
+          game: this.state.game.toSave(),
+        };
   }
 
   // --- connection lifecycle -------------------------------------------------
@@ -74,7 +98,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
   private announceDeparture(ws: WebSocket) {
     this.departed.add(ws);
-    if (this.game) this.pushViews();
+    if (this.state.kind === 'play') this.pushViews();
     else this.broadcastLobby();
   }
 
@@ -119,12 +143,11 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     }
   }
 
-  /** Chat is a pure pass-through — not game state, so it doesn't touch the
-   *  engine or persistence. Fan out to everyone at the table (lobby or play). */
+  /** Fan out chat messages to everyone at the table. */
   private handleChat(playerId: PlayerId, text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
-    const name = this.members.get(playerId)?.name ?? playerId;
+    const name = this.nameOf(playerId);
     const message = {
       type: 'chat',
       from: playerId,
@@ -140,41 +163,46 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
   private handleJoin(ws: WebSocket, playerId: PlayerId, name: string) {
     ws.serializeAttachment({ playerId } satisfies SocketAttachment);
-    const existing = this.members.get(playerId);
-    if (existing) {
-      existing.name = name; // reconnect / rename
-    } else {
-      this.members.set(playerId, { id: playerId, name, character: null });
-    }
-    this.persist();
 
-    if (this.game) {
-      if (this.game.hasPlayer(playerId)) {
-        // Refresh everyone's roster on reconnect.
-        this.pushViews();
-        // Re-describe the current room to the returning player.
-        this.send(ws, {
-          type: 'events',
-          from: playerId,
-          events: this.game.resumeEvents(playerId),
-        });
+    if (this.state.kind === 'lobby') {
+      const { members } = this.state;
+      const existing = members.get(playerId);
+      if (existing) {
+        existing.name = name; // reconnect / rename
       } else {
-        this.send(ws, {
-          type: 'error',
-          message: 'This game has already begun.',
-        });
+        members.set(playerId, { id: playerId, name, character: null });
       }
-    } else {
+      this.persist();
       this.broadcastLobby();
+      return;
     }
+
+    const { game, names } = this.state;
+    if (!game.hasPlayer(playerId)) {
+      this.send(ws, {
+        type: 'error',
+        message: 'This game has already begun.',
+      });
+      return;
+    }
+
+    names.set(playerId, name); // reconnect / rename
+    this.persist();
+    this.pushViews();
+    this.send(ws, {
+      type: 'events',
+      from: playerId,
+      events: game.resumeEvents(playerId),
+    });
   }
 
   private handleSetCharacter(playerId: PlayerId, character: Player) {
-    if (this.game) {
+    if (this.state.kind !== 'lobby') {
       this.sendError(playerId, 'The game has already begun.');
       return;
     }
-    const member = this.members.get(playerId);
+
+    const member = this.state.members.get(playerId);
     if (!member) return;
     member.character = character;
     this.persist();
@@ -182,18 +210,20 @@ export class TableObject extends HydratableObject<TableSnapshot> {
   }
 
   private handleStart() {
-    if (this.game) return; // already underway
+    if (this.state.kind !== 'lobby') return; // already underway
 
-    const members = [...this.members.values()];
-    // Wait for everyone: don't start until every member has readied a character.
+    const members = [...this.state.members.values()];
+    // Don't start until every member has readied a character.
     if (members.length === 0 || members.some((m) => !m.character)) return;
 
     const game = new Game({ rng: defaultRandomSource });
+    const names = new Map<PlayerId, string>();
     for (const member of members) {
       game.addPlayer(member.id, member.character!);
+      names.set(member.id, member.name);
     }
 
-    this.game = game;
+    this.state = { kind: 'play', game, names };
     for (const id of game.playerIds) {
       const events = game.startEvents(id);
       for (const ws of this.socketsOf(id)) {
@@ -220,23 +250,23 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     this.persist();
   }
 
-  private requireSeated(playerId: PlayerId) {
-    if (!this.game) {
+  private requireSeated(playerId: PlayerId): Game | null {
+    if (this.state.kind === 'lobby') {
       this.sendError(playerId, 'The game has not started yet.');
       return null;
     }
-    if (!this.game.hasPlayer(playerId)) {
+
+    if (!this.state.game.hasPlayer(playerId)) {
       this.sendError(playerId, 'You are not playing in this game.');
       return null;
     }
-    return this.game;
+    return this.state.game;
   }
 
   /**
    * Deliver the results of one player's turn: the actor sees each event's own
    * text; everyone else sees only the events that carry a `broadcast` line, with
-   * that string swapped in as the text (attributed to the actor). Every connected
-   * player gets a refreshed view afterward.
+   * that string swapped in as the text (attributed to the actor).
    */
   private fanOut(result: StepResult) {
     const forOthers = result.events
@@ -276,7 +306,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
       ended: game.endMode,
       party: game.playerIds.map((id) => ({
         id,
-        name: this.members.get(id)?.name ?? id,
+        name: this.nameOf(id),
         alive: game.getPlayer(id).hp > 0,
         connected: connected.has(id),
       })),
@@ -320,20 +350,24 @@ export class TableObject extends HydratableObject<TableSnapshot> {
   }
 
   private broadcastLobby() {
+    if (this.state.kind !== 'lobby') return;
+
+    const { members } = this.state;
     const connected = this.connectedIds();
-    const members = Array.from(this.members.values(), (member) => ({
+    const roster = Array.from(members.values(), (member) => ({
       id: member.id,
       name: member.name,
       ready: member.character !== null,
       connected: connected.has(member.id),
     }));
+
     for (const ws of this.ctx.getWebSockets()) {
       if (this.departed.has(ws)) continue;
       const viewerId = this.playerIdOf(ws);
       const character = viewerId
-        ? (this.members.get(viewerId)?.character ?? null)
+        ? (members.get(viewerId)?.character ?? null)
         : null;
-      this.send(ws, { type: 'lobby', state: { members, character } });
+      this.send(ws, { type: 'lobby', state: { members: roster, character } });
     }
   }
 
