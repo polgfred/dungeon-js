@@ -56,7 +56,7 @@ function createObservedGrid(): Tile[][][] {
 
 export class Game {
   static readonly SIZE = 7;
-  static readonly SAVE_VERSION = 5;
+  static readonly SAVE_VERSION = 6;
 
   saveVersion = Game.SAVE_VERSION;
   rng: RandomSource;
@@ -140,7 +140,7 @@ export class Game {
     const game = new Game({
       rng,
       dungeon,
-      treasuresFound: new Set(save.treasuresFound),
+      treasuresFound: save.treasuresFound,
     });
     game.saveVersion = save.version;
     game.endMode =
@@ -179,10 +179,10 @@ export class Game {
 
   toSave(): GameSave {
     return {
+      savedAt: new Date(),
       version: this.saveVersion,
-      savedAt: new Date().toISOString(),
       dungeon: serializeDungeon(this.dungeon),
-      treasuresFound: [...this.treasuresFound],
+      treasuresFound: this.treasuresFound,
       endMode: this.endMode,
       players: Array.from(this.players.values(), (state) => ({
         id: state.id,

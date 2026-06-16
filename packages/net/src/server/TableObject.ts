@@ -21,7 +21,7 @@ interface Member {
 }
 
 interface TableSnapshot {
-  members: Member[];
+  members: Map<PlayerId, Member>;
   game: GameSave | null;
 }
 
@@ -42,15 +42,13 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
   protected hydrate(snapshot: TableSnapshot | undefined) {
     if (!snapshot) return;
-    for (const member of snapshot.members) {
-      this.members.set(member.id, { ...member });
-    }
+    this.members = snapshot.members;
     this.game = snapshot.game ? Game.fromSave(snapshot.game) : null;
   }
 
   protected snapshot(): TableSnapshot {
     return {
-      members: [...this.members.values()],
+      members: this.members,
       game: this.game ? this.game.toSave() : null,
     };
   }

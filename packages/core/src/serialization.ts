@@ -29,10 +29,10 @@ export type PlayerEntrySave = {
 };
 
 export type GameSave = {
+  savedAt: Date;
   version: number;
-  savedAt: string;
   dungeon: DungeonSave;
-  treasuresFound: number[];
+  treasuresFound: Set<number>;
   endMode: Mode | null;
   players: PlayerEntrySave[];
 };
