@@ -59,8 +59,7 @@ export interface Player {
   tempArmorBonus: number;
 }
 
-/** Options for {@link makePlayer}: equipment and flag fields default to empty. */
-export interface PlayerInit {
+interface PlayerInit {
   z: number;
   y: number;
   x: number;

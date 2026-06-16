@@ -1,21 +1,18 @@
 import {
-  createSpellCounts,
   makePlayer,
   type Player,
-  type PlayerInit,
   type Room,
 } from '../../src/model.js';
 import { Feature, Race, Spell } from '../../src/constants.js';
 
-export type PlayerOptions = PlayerInit;
-
-export function buildPlayer(options: Partial<PlayerOptions> = {}): Player {
-  const defaultSpells = createSpellCounts();
-  defaultSpells[Spell.PROTECTION] = 1;
-  defaultSpells[Spell.FIREBALL] = 1;
-  defaultSpells[Spell.LIGHTNING] = 1;
-  defaultSpells[Spell.WEAKEN] = 1;
-  defaultSpells[Spell.TELEPORT] = 1;
+export function buildPlayer(options: Partial<Player> = {}): Player {
+  const defaultSpells = {
+    [Spell.PROTECTION]: 1,
+    [Spell.FIREBALL]: 1,
+    [Spell.LIGHTNING]: 1,
+    [Spell.WEAKEN]: 1,
+    [Spell.TELEPORT]: 1,
+  };
 
   return makePlayer({
     z: 0,
