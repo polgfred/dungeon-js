@@ -19,7 +19,6 @@ import { clearLine, createInterface, cursorTo } from 'node:readline';
 import {
   ACTOR_TOKEN,
   Race,
-  serializePlayer,
   tileSymbol,
   defaultRandomSource,
   type Event,
@@ -68,7 +67,7 @@ function makeCharacter() {
     defaultRandomSource,
     Race.HUMAN
   );
-  const player = createPlayer({
+  return createPlayer({
     race: Race.HUMAN,
     baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },
     allocations: { ST: 2, DX: 2, IQ: 1 },
@@ -77,7 +76,6 @@ function makeCharacter() {
     weaponTier: 1,
     armorTier: 1,
   });
-  return serializePlayer(player);
 }
 
 function lobbyText(state: LobbyState): string {

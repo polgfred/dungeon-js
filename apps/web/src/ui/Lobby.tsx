@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
-import { serializePlayer, type PlayerSave } from '@dod/core';
 import type {
   ConnectionStatus,
   FeedItem,
@@ -18,6 +17,7 @@ import { LobbyBuilder } from './LobbyBuilder.js';
 import layout from './Layout.module.css';
 import styles from './Lobby.module.css';
 import { useSetupGameModel } from './SetupGameModel.js';
+import type { Player } from '@dod/core';
 
 function ReadyCard({
   everyoneReady,
@@ -85,7 +85,7 @@ export function Lobby({
   playerId: PlayerId;
   status: ConnectionStatus;
   feed: FeedItem[];
-  onSetCharacter: (character: PlayerSave) => void;
+  onSetCharacter: (character: Player) => void;
   onStart: () => void;
   onChat: (text: string) => void;
 }) {
@@ -94,7 +94,7 @@ export function Lobby({
   // it's assembled, mirroring the gameplay Status pane.
   const model = useSetupGameModel({
     onComplete: (player) => {
-      onSetCharacter(serializePlayer(player));
+      onSetCharacter(player);
       setSubmitted(true);
     },
   });

@@ -1,10 +1,8 @@
 import {
   Game,
   defaultRandomSource,
-  deserializePlayer,
-  serializePlayer,
   type GameSave,
-  type PlayerSave,
+  type Player,
   type StepResult,
 } from '@dod/core';
 
@@ -19,7 +17,7 @@ import { HydratableObject } from './HydratableObject.js';
 interface Member {
   id: PlayerId;
   name: string;
-  character: PlayerSave | null;
+  character: Player | null;
 }
 
 interface TableSnapshot {
@@ -173,7 +171,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     }
   }
 
-  private handleSetCharacter(playerId: PlayerId, character: PlayerSave) {
+  private handleSetCharacter(playerId: PlayerId, character: Player) {
     if (this.game) {
       this.sendError(playerId, 'The game has already begun.');
       return;
@@ -194,7 +192,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
     const game = new Game({ rng: defaultRandomSource });
     for (const member of members) {
-      game.addPlayer(member.id, deserializePlayer(member.character!));
+      game.addPlayer(member.id, member.character!);
     }
 
     this.game = game;
@@ -273,7 +271,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     const self = game.getPlayer(playerId);
     const connected = this.connectedIds();
     return {
-      self: serializePlayer(self),
+      self,
       mode: game.mode(playerId),
       map: game.mapView(playerId),
       treasuresFound: game.treasuresFound.size,

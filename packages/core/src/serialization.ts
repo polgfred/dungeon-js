@@ -11,29 +11,6 @@ type RoomPacked = number;
 
 type DungeonSave = RoomPacked[][][];
 
-export type PlayerSave = {
-  z: number;
-  y: number;
-  x: number;
-  race: Race;
-  str: number;
-  dex: number;
-  iq: number;
-  hp: number;
-  mhp: number;
-  gold: number;
-  flares: number;
-  weaponTier: number;
-  armorTier: number;
-  weaponName: string;
-  weaponBroken: boolean;
-  armorName: string;
-  armorDamaged: boolean;
-  spells: Record<number, number>;
-  fatigued: boolean;
-  tempArmorBonus: number;
-};
-
 export type EncounterSave = {
   awaitingSpell: boolean;
 };
@@ -45,7 +22,7 @@ export type VendorSave = {
 
 export type PlayerEntrySave = {
   id: string;
-  player: PlayerSave;
+  player: Player;
   observed: Tile[][][];
   encounter: EncounterSave | null;
   vendor: VendorSave | null;
@@ -60,62 +37,6 @@ export type GameSave = {
   endMode: Mode | null;
   players: PlayerEntrySave[];
 };
-
-export function serializePlayer(player: Player): PlayerSave {
-  return {
-    z: player.z,
-    y: player.y,
-    x: player.x,
-    race: player.race,
-    str: player.str,
-    dex: player.dex,
-    iq: player.iq,
-    hp: player.hp,
-    mhp: player.mhp,
-    gold: player.gold,
-    flares: player.flares,
-    weaponTier: player.weaponTier,
-    armorTier: player.armorTier,
-    weaponName: player.weaponName,
-    weaponBroken: player.weaponBroken,
-    armorName: player.armorName,
-    armorDamaged: player.armorDamaged,
-    spells: player.spells,
-    fatigued: player.fatigued,
-    tempArmorBonus: player.tempArmorBonus,
-  };
-}
-
-export function deserializePlayer(save: PlayerSave): Player {
-  const spells = createSpellCounts();
-  for (const [key, value] of Object.entries(save.spells)) {
-    const spell = Number(key) as Spell;
-    if (Number.isNaN(spell)) continue;
-    spells[spell] = value;
-  }
-  return makePlayer({
-    z: save.z,
-    y: save.y,
-    x: save.x,
-    race: save.race,
-    str: save.str,
-    dex: save.dex,
-    iq: save.iq,
-    hp: save.hp,
-    mhp: save.mhp,
-    gold: save.gold,
-    flares: save.flares,
-    weaponTier: save.weaponTier,
-    armorTier: save.armorTier,
-    weaponName: save.weaponName,
-    weaponBroken: save.weaponBroken,
-    armorName: save.armorName,
-    armorDamaged: save.armorDamaged,
-    fatigued: save.fatigued,
-    tempArmorBonus: save.tempArmorBonus,
-    spells,
-  });
-}
 
 export function serializeDungeon(dungeon: Dungeon): DungeonSave {
   return dungeon.rooms.map((floor) => floor.map((row) => row.map(encodeRoom)));

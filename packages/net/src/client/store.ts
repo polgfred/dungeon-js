@@ -1,4 +1,4 @@
-import type { Event, PlayerSave } from '@dod/core';
+import type { Event, Player } from '@dod/core';
 
 import type {
   LobbyState,
@@ -136,7 +136,7 @@ export class TableStore {
   join = (playerId: PlayerId, name: string) => {
     this.connection?.join(playerId, name);
   };
-  setCharacter = (character: PlayerSave) => {
+  setCharacter = (character: Player) => {
     this.connection?.setCharacter(character);
   };
   start = () => {

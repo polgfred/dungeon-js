@@ -15,7 +15,7 @@ import { spawn } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
-import { Race, serializePlayer, defaultRandomSource, rollBaseStats, createPlayer } from '@dod/core';
+import { Race, defaultRandomSource, rollBaseStats, createPlayer } from '@dod/core';
 import type { ClientMessage, PlayerView, ServerMessage } from '@dod/net/shared';
 
 const PORT = Number(process.env.DOD_PORT ?? 8799);
@@ -35,17 +35,15 @@ function character() {
     defaultRandomSource,
     Race.HUMAN
   );
-  return serializePlayer(
-    createPlayer({
-      race: Race.HUMAN,
-      baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },
-      allocations: { ST: 2, DX: 2, IQ: 1 },
-      gold: 100,
-      flares: 5,
-      weaponTier: 1,
-      armorTier: 1,
-    })
-  );
+  return createPlayer({
+    race: Race.HUMAN,
+    baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },
+    allocations: { ST: 2, DX: 2, IQ: 1 },
+    gold: 100,
+    flares: 5,
+    weaponTier: 1,
+    armorTier: 1,
+  });
 }
 
 /** A test client that queues server messages and lets you await specific ones. */

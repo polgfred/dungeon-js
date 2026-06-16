@@ -18,9 +18,7 @@ import {
   type GameSave,
   type EncounterSave,
   deserializeDungeon,
-  deserializePlayer,
   serializeDungeon,
-  serializePlayer,
 } from './serialization.js';
 import {
   Event,
@@ -161,7 +159,7 @@ export class Game {
         : null;
 
     for (const entry of save.players) {
-      const player = deserializePlayer(entry.player);
+      const player = entry.player;
       const state: PlayerState = {
         id: entry.id,
         player,
@@ -198,7 +196,7 @@ export class Game {
       endMode: this.endMode,
       players: Array.from(this.players.values(), (state) => ({
         id: state.id,
-        player: serializePlayer(state.player),
+        player: state.player,
         observed: state.observed.map((level) => level.map((row) => [...row])),
         encounter: state.encounter ? state.encounter.toSave() : null,
         vendor: state.vendor ? state.vendor.toSave() : null,
