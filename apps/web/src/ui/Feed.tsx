@@ -85,10 +85,17 @@ export function Feed({
   playerId: PlayerId;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
+  // Only autoscroll when the reader is already parked at the bottom.
+  const pinned = useRef(true);
+  const onScroll = () => {
+    const el = scroller.current;
+    if (el)
+      pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 32;
+  };
   useEffect(() => {
     const el = scroller.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [feed.length]);
+    if (el && pinned.current) el.scrollTop = el.scrollHeight;
+  }, [feed]);
 
   const named = (id: PlayerId) =>
     members.find((member) => member.id === id)?.name ?? id;
@@ -98,7 +105,7 @@ export function Feed({
   );
 
   return (
-    <div ref={scroller} className={styles.feed}>
+    <div ref={scroller} className={styles.feed} onScroll={onScroll}>
       {lines.map((item, i) => (
         <NamedLine
           key={i}
