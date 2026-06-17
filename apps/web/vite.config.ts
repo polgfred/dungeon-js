@@ -30,6 +30,7 @@ export default defineConfig(({}) => {
     },
     server: {
       host: true,
+      port: Number(process.env.PORT ?? '5173'),
       // Forward the game socket to the local wrangler dev worker
       proxy: {
         '/ws': { target: 'ws://localhost:8787', ws: true },
