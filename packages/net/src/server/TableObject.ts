@@ -230,6 +230,10 @@ export class TableObject extends HydratableObject<TableSnapshot> {
       rng: defaultRandomSource,
       players: members.map((m) => ({ id: m.id, player: m.character! })),
     });
+    // Spread a multi-player party out.
+    if (members.length > 1) {
+      game.scatterParty();
+    }
     const names = new Map<PlayerId, string>();
     for (const member of members) {
       names.set(member.id, member.name);

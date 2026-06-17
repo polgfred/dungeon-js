@@ -15,8 +15,7 @@ function setupGame(options: { feature: Feature; rng: ScriptedRng }) {
     hp: 10,
     mhp: 20,
   });
-  const game = new Game();
-  game.addPlayer(ID, player);
+  const game = new Game({ players: [{ id: ID, player }] });
   const dungeon = createEmptyDungeon();
   dungeon.rooms[0][0][0].feature = options.feature;
   game.dungeon = dungeon;
@@ -295,8 +294,7 @@ describe('Game interactions', () => {
         mhp: 20,
         ...options.playerOverrides,
       });
-      const game = new Game();
-      game.addPlayer(ID, player);
+      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = options.monsterLevel;
       dungeon.rooms[0][0][0].treasureId = options.treasureId ?? 0;
@@ -394,9 +392,12 @@ describe('Game interactions', () => {
     function twoPlayerGame() {
       const a = buildPlayer({ z: 0, y: 0, x: 0, hp: 4 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game();
-      game.addPlayer('a', a);
-      game.addPlayer('b', b);
+      const game = new Game({
+        players: [
+          { id: 'a', player: a },
+          { id: 'b', player: b },
+        ],
+      });
       const dungeon = createEmptyDungeon();
       game.dungeon = dungeon;
       return { game, dungeon };
@@ -440,9 +441,12 @@ describe('Game interactions', () => {
     it('clears the encounter for every co-fighter the instant the monster dies', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 0 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game();
-      game.addPlayer('a', a);
-      game.addPlayer('b', b);
+      const game = new Game({
+        players: [
+          { id: 'a', player: a },
+          { id: 'b', player: b },
+        ],
+      });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
       game.dungeon = dungeon;
@@ -464,8 +468,7 @@ describe('Game interactions', () => {
 
     it('broadcasts treasure-found and monster-slain to the whole party', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game();
-      game.addPlayer(ID, player);
+      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
       dungeon.rooms[0][0][0].treasureId = 1;
@@ -491,8 +494,7 @@ describe('Game interactions', () => {
   describe('save rehydration mode', () => {
     it('restores GAME_OVER and VICTORY from serialized end state', () => {
       const losePlayer = buildPlayer({ z: 0, y: 0, x: 0, hp: 4 });
-      const loseGame = new Game();
-      loseGame.addPlayer(ID, losePlayer);
+      const loseGame = new Game({ players: [{ id: ID, player: losePlayer }] });
       const loseDungeon = createEmptyDungeon();
       loseDungeon.rooms[0][0][0].feature = Feature.THIEF;
       loseGame.dungeon = loseDungeon;
@@ -501,8 +503,7 @@ describe('Game interactions', () => {
       expect(loseGame.mode(ID)).toBe(Mode.GAME_OVER);
 
       const winPlayer = buildPlayer({ z: 0, y: 0, x: 0 });
-      const winGame = new Game();
-      winGame.addPlayer(ID, winPlayer);
+      const winGame = new Game({ players: [{ id: ID, player: winPlayer }] });
       winGame.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       const winDungeon = createEmptyDungeon();
       winDungeon.rooms[0][0][0].feature = Feature.EXIT;
@@ -517,8 +518,7 @@ describe('Game interactions', () => {
 
     it('derives mode from per-player encounter session, not a stored mode', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game();
-      game.addPlayer(ID, player);
+      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
       game.dungeon = dungeon;
@@ -537,8 +537,7 @@ describe('Game interactions', () => {
 
     it('resumes in encounter spell selection with spell prompt events', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game();
-      game.addPlayer(ID, player);
+      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
       game.dungeon = dungeon;
@@ -559,8 +558,7 @@ describe('Game interactions', () => {
 
     it('resumes in vendor item selection with vendor intro and item prompt', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0, gold: 100 });
-      const game = new Game();
-      game.addPlayer(ID, player);
+      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].feature = Feature.VENDOR;
       game.dungeon = dungeon;
@@ -582,8 +580,7 @@ describe('Game interactions', () => {
     });
 
     it('throws when save version is missing', () => {
-      const game = new Game();
-      game.addPlayer(ID, buildPlayer());
+      const game = new Game({ players: [{ id: ID, player: buildPlayer() }] });
       const save = game.toSave() as Record<string, unknown>;
       delete save.version;
 
@@ -593,8 +590,7 @@ describe('Game interactions', () => {
     });
 
     it('throws when save version does not match', () => {
-      const game = new Game();
-      game.addPlayer(ID, buildPlayer());
+      const game = new Game({ players: [{ id: ID, player: buildPlayer() }] });
       const save = game.toSave();
       save.version = Game.SAVE_VERSION + 1;
 
@@ -606,9 +602,12 @@ describe('Game interactions', () => {
     it('refreshes every co-fighter in the room the instant the monster dies', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 0 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game();
-      game.addPlayer('a', a);
-      game.addPlayer('b', b);
+      const game = new Game({
+        players: [
+          { id: 'a', player: a },
+          { id: 'b', player: b },
+        ],
+      });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
       game.dungeon = dungeon;
@@ -630,9 +629,12 @@ describe('Game interactions', () => {
     it('re-scouts a stale tile when a flare relights a cleared room', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 1 });
       const b = buildPlayer({ z: 0, y: 0, x: 0, flares: 5 });
-      const game = new Game();
-      game.addPlayer('a', a);
-      game.addPlayer('b', b);
+      const game = new Game({
+        players: [
+          { id: 'a', player: a },
+          { id: 'b', player: b },
+        ],
+      });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][1].monsterLevel = 1;
       game.dungeon = dungeon;
@@ -679,11 +681,11 @@ describe('Party setup', () => {
     expect({ y: a.y, x: a.x }).toEqual({ y: 3, x: 3 });
   });
 
-  it('scatters a party across distinct first-floor rooms', () => {
+  it('scatters a party across distinct first-floor rooms on demand', () => {
     const rng = new ScriptedRng({ randint: [1, 2, 5, 6] });
     const a = buildPlayer({ z: 0, y: 3, x: 3 });
     const b = buildPlayer({ z: 0, y: 3, x: 3 });
-    new Game({
+    const game = new Game({
       dungeon: createEmptyDungeon(),
       rng,
       players: [
@@ -691,7 +693,9 @@ describe('Party setup', () => {
         { id: 'b', player: b },
       ],
     });
+    expect({ y: a.y, x: a.x }).toEqual({ y: 3, x: 3 });
 
+    game.scatterParty();
     expect({ z: a.z, y: a.y, x: a.x }).toEqual({ z: 0, y: 1, x: 2 });
     expect({ z: b.z, y: b.y, x: b.x }).toEqual({ z: 0, y: 5, x: 6 });
   });
@@ -701,7 +705,7 @@ describe('Party setup', () => {
     const rng = new ScriptedRng({ randint: [1, 2, 1, 2, 3, 4] });
     const a = buildPlayer({ z: 0, y: 3, x: 3 });
     const b = buildPlayer({ z: 0, y: 3, x: 3 });
-    new Game({
+    const game = new Game({
       dungeon: createEmptyDungeon(),
       rng,
       players: [
@@ -710,6 +714,7 @@ describe('Party setup', () => {
       ],
     });
 
+    game.scatterParty();
     expect({ y: a.y, x: a.x }).toEqual({ y: 1, x: 2 });
     expect({ y: b.y, x: b.x }).toEqual({ y: 3, x: 4 });
   });

@@ -77,13 +77,17 @@ export class Game {
     const roster = options.players ?? [];
     this.dungeon =
       options.dungeon ?? generateDungeon(this.rng, dungeonDepth(roster.length));
-    this.treasuresFound = options.treasuresFound ?? new Set<number>();
+    this.treasuresFound = options.treasuresFound ?? new Set();
 
     for (const { id, player } of roster) {
-      this.addPlayer(id, player);
-    }
-    if (roster.length > 1) {
-      this.scatterParty();
+      this.players.set(id, {
+        id,
+        player,
+        observed: createObservedGrid(this.depth),
+        encounter: null,
+        vendor: null,
+        exited: false,
+      });
     }
   }
 
@@ -91,21 +95,8 @@ export class Game {
     return this.dungeon.rooms.length;
   }
 
-  addPlayer(id: PlayerId, player: Player): PlayerState {
-    const state: PlayerState = {
-      id,
-      player,
-      observed: createObservedGrid(this.depth),
-      encounter: null,
-      vendor: null,
-      exited: false,
-    };
-    this.players.set(id, state);
-    return state;
-  }
-
-  /** Scatter players fairly for multiplayer games. */
-  private scatterParty(): void {
+  /** Scatter every player onto a distinct, monster-free first-floor room. */
+  scatterParty(): void {
     const taken = new Set<string>();
     for (const { player } of this.players.values()) {
       player.z = 0;
@@ -120,10 +111,6 @@ export class Game {
         break;
       }
     }
-  }
-
-  removePlayer(id: PlayerId): void {
-    this.players.delete(id);
   }
 
   hasPlayer(id: PlayerId): boolean {
