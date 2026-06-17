@@ -193,7 +193,7 @@ function FlaresStage({ model }: StageProps) {
 
 function ReadyStage({ model }: StageProps) {
   const { action } = commandHelpers(model);
-  const name = raceName(model.race!).toLowerCase();
+  const name = raceName(model.race!);
   return (
     <div className={styles.menu}>
       <p className={styles.question}>

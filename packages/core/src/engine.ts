@@ -795,11 +795,7 @@ export class Game {
     const spell = this.rng.randint(1, 5) as Spell;
     player.spells[spell] = (player.spells[spell] ?? 0) + 1;
 
-    return [
-      Event.info(
-        `The scroll contains the ${spellName(spell).toLowerCase()} spell.`
-      ),
-    ];
+    return [Event.info(`The scroll contains the ${spellName(spell)} spell.`)];
   }
 
   private drinkPotion(state: PlayerState): Event[] {
