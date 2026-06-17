@@ -9,7 +9,7 @@ import { writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import * as glyphs from '../src/ui/mapGlyphs.js';
+import * as glyphs from '../apps/web/src/ui/mapGlyphs.js';
 
 type Bitmap = readonly string[];
 
