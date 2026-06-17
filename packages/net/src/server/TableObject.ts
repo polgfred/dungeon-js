@@ -226,10 +226,12 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     // Don't start until every member has readied a character.
     if (members.length === 0 || members.some((m) => !m.character)) return;
 
-    const game = new Game({ rng: defaultRandomSource });
+    const game = new Game({
+      rng: defaultRandomSource,
+      players: members.map((m) => ({ id: m.id, player: m.character! })),
+    });
     const names = new Map<PlayerId, string>();
     for (const member of members) {
-      game.addPlayer(member.id, member.character!);
       names.set(member.id, member.name);
     }
 

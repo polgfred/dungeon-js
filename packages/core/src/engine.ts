@@ -11,7 +11,7 @@ import {
   type Tile,
 } from './constants.js';
 import { EncounterSession, rollMonsterVitality } from './encounter.js';
-import { generateDungeon } from './generation.js';
+import { dungeonDepth, generateDungeon } from './generation.js';
 import { applyAttributeChange } from './model.js';
 import type { Dungeon, Player, Room } from './model.js';
 import {
@@ -46,8 +46,8 @@ export interface PlayerState {
   exited: boolean;
 }
 
-function createObservedGrid(): Tile[][][] {
-  return Array.from({ length: Game.SIZE }, () =>
+function createObservedGrid(depth: number): Tile[][][] {
+  return Array.from({ length: depth }, () =>
     Array.from({ length: Game.SIZE }, () =>
       Array.from({ length: Game.SIZE }, () => MapTile.UNSEEN as Tile)
     )
@@ -65,27 +65,61 @@ export class Game {
   endMode: Mode.GAME_OVER | Mode.VICTORY | null = null;
   private players: Map<PlayerId, PlayerState> = new Map();
 
-  constructor(options: {
-    rng?: RandomSource | null;
-    dungeon?: Dungeon;
-    treasuresFound?: Set<number>;
-  } = {}) {
+  constructor(
+    options: {
+      rng?: RandomSource | null;
+      dungeon?: Dungeon;
+      treasuresFound?: Set<number>;
+      players?: Array<{ id: PlayerId; player: Player }>;
+    } = {}
+  ) {
     this.rng = options.rng ?? defaultRandomSource;
-    this.dungeon = options.dungeon ?? generateDungeon(this.rng);
+    const roster = options.players ?? [];
+    this.dungeon =
+      options.dungeon ?? generateDungeon(this.rng, dungeonDepth(roster.length));
     this.treasuresFound = options.treasuresFound ?? new Set<number>();
+
+    for (const { id, player } of roster) {
+      this.addPlayer(id, player);
+    }
+    if (roster.length > 1) {
+      this.scatterParty();
+    }
+  }
+
+  get depth(): number {
+    return this.dungeon.rooms.length;
   }
 
   addPlayer(id: PlayerId, player: Player): PlayerState {
     const state: PlayerState = {
       id,
       player,
-      observed: createObservedGrid(),
+      observed: createObservedGrid(this.depth),
       encounter: null,
       vendor: null,
       exited: false,
     };
     this.players.set(id, state);
     return state;
+  }
+
+  /** Scatter players fairly for multiplayer games. */
+  private scatterParty(): void {
+    const taken = new Set<string>();
+    for (const { player } of this.players.values()) {
+      player.z = 0;
+      while (true) {
+        const y = this.rng.randrange(Game.SIZE);
+        const x = this.rng.randrange(Game.SIZE);
+        if (taken.has(`${y},${x}`)) continue;
+        if (this.dungeon.rooms[0][y][x].monsterLevel > 0) continue;
+        taken.add(`${y},${x}`);
+        player.y = y;
+        player.x = x;
+        break;
+      }
+    }
   }
 
   removePlayer(id: PlayerId): void {
@@ -645,7 +679,7 @@ export class Game {
       'You see yourself dead and lying in a black coffin.',
       'You see a dragon beckoning to you.',
       'You see the three heads of a chimaera grinning at you.',
-      'You see the exit on the 7th floor, big and friendly-looking.',
+      `You see the exit on the ${this.depth}th floor, big and friendly-looking.`,
     ];
 
     if (this.treasuresFound.size === 10) {
@@ -659,7 +693,7 @@ export class Game {
       const treasure = this.rng.randint(1, 10);
       const tx = this.rng.randint(1, Game.SIZE);
       const ty = this.rng.randint(1, Game.SIZE);
-      const tz = this.rng.randint(1, Game.SIZE);
+      const tz = this.rng.randint(1, this.depth);
       return [
         Event.info(
           `You see the ${treasureName(treasure)} at ${tz},${ty},${tx}!`
@@ -835,7 +869,7 @@ export class Game {
   ): void {
     const player = state.player;
     if (options.anyFloor) {
-      player.z = this.rng.randrange(Game.SIZE);
+      player.z = this.rng.randrange(this.depth);
     }
 
     while (true) {

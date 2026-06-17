@@ -655,3 +655,62 @@ describe('Game interactions', () => {
     });
   });
 });
+
+describe('Party setup', () => {
+  function roster(count: number) {
+    return Array.from({ length: count }, (_, i) => ({
+      id: `p${i}`,
+      player: buildPlayer({ z: 0, y: 3, x: 3 }),
+    }));
+  }
+
+  it('deepens the dungeon for a larger party', () => {
+    expect(new Game().depth).toBe(7);
+    expect(new Game({ players: roster(2) }).depth).toBe(9);
+    expect(new Game({ players: roster(4) }).depth).toBe(13);
+  });
+
+  it('keeps a solo adventurer at their character start', () => {
+    const a = buildPlayer({ z: 0, y: 3, x: 3 });
+    const game = new Game({
+      dungeon: createEmptyDungeon(),
+      players: [{ id: ID, player: a }],
+    });
+    expect({ y: a.y, x: a.x }).toEqual({ y: 3, x: 3 });
+  });
+
+  it('scatters a party across distinct first-floor rooms', () => {
+    const rng = new ScriptedRng({ randint: [1, 2, 5, 6] });
+    const a = buildPlayer({ z: 0, y: 3, x: 3 });
+    const b = buildPlayer({ z: 0, y: 3, x: 3 });
+    new Game({
+      dungeon: createEmptyDungeon(),
+      rng,
+      players: [
+        { id: 'a', player: a },
+        { id: 'b', player: b },
+      ],
+    });
+
+    expect({ z: a.z, y: a.y, x: a.x }).toEqual({ z: 0, y: 1, x: 2 });
+    expect({ z: b.z, y: b.y, x: b.x }).toEqual({ z: 0, y: 5, x: 6 });
+  });
+
+  it('re-rolls when a scattered start collides with an earlier one', () => {
+    // a -> (1,2); b rolls (1,2) first (taken), then (3,4).
+    const rng = new ScriptedRng({ randint: [1, 2, 1, 2, 3, 4] });
+    const a = buildPlayer({ z: 0, y: 3, x: 3 });
+    const b = buildPlayer({ z: 0, y: 3, x: 3 });
+    new Game({
+      dungeon: createEmptyDungeon(),
+      rng,
+      players: [
+        { id: 'a', player: a },
+        { id: 'b', player: b },
+      ],
+    });
+
+    expect({ y: a.y, x: a.x }).toEqual({ y: 1, x: 2 });
+    expect({ y: b.y, x: b.x }).toEqual({ y: 3, x: 4 });
+  });
+});
