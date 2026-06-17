@@ -5,5 +5,6 @@ export default defineConfig({
     name: 'core',
     environment: 'node',
     include: ['test/**/*.test.ts'],
+    execArgv: ['--allow-natives-syntax'],
   },
 });
