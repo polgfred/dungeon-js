@@ -173,7 +173,10 @@ export class Game {
       const state: PlayerState = {
         id: entry.id,
         player,
-        observed: entry.observed,
+        // Repack the map after hydration.
+        observed: entry.observed.map((floor) =>
+          floor.map((row) => row.map((tile) => tile))
+        ),
         encounter: null,
         vendor: null,
         exited: entry.exited,
