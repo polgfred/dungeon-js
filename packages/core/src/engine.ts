@@ -11,7 +11,7 @@ import {
   type Tile,
 } from './constants.js';
 import { EncounterSession, rollMonsterVitality } from './encounter.js';
-import { dungeonDepth, generateDungeon } from './generation.js';
+import { FLOOR_SIZE, dungeonDepth, generateDungeon } from './generation.js';
 import { applyAttributeChange } from './model.js';
 import type { Dungeon, Player, Room } from './model.js';
 import {
@@ -48,14 +48,13 @@ export interface PlayerState {
 
 function createObservedGrid(depth: number): Tile[][][] {
   return Array.from({ length: depth }, () =>
-    Array.from({ length: Game.SIZE }, () =>
-      Array.from({ length: Game.SIZE }, () => MapTile.UNSEEN as Tile)
+    Array.from({ length: FLOOR_SIZE }, () =>
+      Array.from({ length: FLOOR_SIZE }, () => MapTile.UNSEEN as Tile)
     )
   );
 }
 
 export class Game {
-  static readonly SIZE = 7;
   static readonly SAVE_VERSION = 6;
 
   saveVersion = Game.SAVE_VERSION;
@@ -101,8 +100,8 @@ export class Game {
     for (const { player } of this.players.values()) {
       player.z = 0;
       while (true) {
-        const y = this.rng.randrange(Game.SIZE);
-        const x = this.rng.randrange(Game.SIZE);
+        const y = this.rng.randrange(FLOOR_SIZE);
+        const x = this.rng.randrange(FLOOR_SIZE);
         if (taken.has(`${y},${x}`)) continue;
         if (this.dungeon.rooms[0][y][x].monsterLevel > 0) continue;
         taken.add(`${y},${x}`);
@@ -450,7 +449,7 @@ export class Game {
     const player = state.player;
     const ny = player.y + dy;
     const nx = player.x + dx;
-    if (ny < 0 || ny >= Game.SIZE || nx < 0 || nx >= Game.SIZE) {
+    if (ny < 0 || ny >= FLOOR_SIZE || nx < 0 || nx >= FLOOR_SIZE) {
       return [Event.info('A wall interposes itself.')];
     }
     player.y = ny;
@@ -641,7 +640,7 @@ export class Game {
         if (dy === 0 && dx === 0) continue;
         const ny = player.y + dy;
         const nx = player.x + dx;
-        if (ny >= 0 && ny < Game.SIZE && nx >= 0 && nx < Game.SIZE) {
+        if (ny >= 0 && ny < FLOOR_SIZE && nx >= 0 && nx < FLOOR_SIZE) {
           this.observe(state, player.z, ny, nx);
         }
       }
@@ -676,8 +675,8 @@ export class Game {
         return [Event.info(this.rng.choice(visions))];
       }
       const treasure = this.rng.randint(1, 10);
-      const tx = this.rng.randint(1, Game.SIZE);
-      const ty = this.rng.randint(1, Game.SIZE);
+      const tx = this.rng.randint(1, FLOOR_SIZE);
+      const ty = this.rng.randint(1, FLOOR_SIZE);
       const tz = this.rng.randint(1, this.depth);
       return [
         Event.info(
@@ -858,8 +857,8 @@ export class Game {
     }
 
     while (true) {
-      const ny = this.rng.randrange(Game.SIZE);
-      const nx = this.rng.randrange(Game.SIZE);
+      const ny = this.rng.randrange(FLOOR_SIZE);
+      const nx = this.rng.randrange(FLOOR_SIZE);
       if (ny === player.y && nx === player.x) continue;
       if (
         options.avoidMonsters &&

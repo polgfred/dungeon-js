@@ -15,11 +15,13 @@ function setupGame(options: { feature: Feature; rng: ScriptedRng }) {
     hp: 10,
     mhp: 20,
   });
-  const game = new Game({ players: [{ id: ID, player }] });
   const dungeon = createEmptyDungeon();
   dungeon.rooms[0][0][0].feature = options.feature;
-  game.dungeon = dungeon;
-  game.rng = options.rng;
+  const game = new Game({
+    rng: options.rng,
+    dungeon,
+    players: [{ id: ID, player }],
+  });
   return { game, player, dungeon };
 }
 
@@ -294,12 +296,14 @@ describe('Game interactions', () => {
         mhp: 20,
         ...options.playerOverrides,
       });
-      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = options.monsterLevel;
       dungeon.rooms[0][0][0].treasureId = options.treasureId ?? 0;
-      game.dungeon = dungeon;
-      game.rng = options.rng;
+      const game = new Game({
+        rng: options.rng,
+        dungeon,
+        players: [{ id: ID, player }],
+      });
       game.startEvents(ID);
       return { game, player, dungeon };
     }
@@ -389,24 +393,26 @@ describe('Game interactions', () => {
   });
 
   describe('party end state', () => {
-    function twoPlayerGame() {
+    function twoPlayerGame(rng?: ScriptedRng) {
       const a = buildPlayer({ z: 0, y: 0, x: 0, hp: 4 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
+      const dungeon = createEmptyDungeon();
       const game = new Game({
+        rng,
+        dungeon,
         players: [
           { id: 'a', player: a },
           { id: 'b', player: b },
         ],
       });
-      const dungeon = createEmptyDungeon();
-      game.dungeon = dungeon;
       return { game, dungeon };
     }
 
     it('ends the game for the whole party when any one player dies', () => {
-      const { game, dungeon } = twoPlayerGame();
+      const { game, dungeon } = twoPlayerGame(
+        new ScriptedRng({ randint: [4] })
+      );
       dungeon.rooms[0][0][0].feature = Feature.THIEF;
-      game.rng = new ScriptedRng({ randint: [4] });
 
       game.startEvents('a');
 
@@ -441,18 +447,18 @@ describe('Game interactions', () => {
     it('clears the encounter for every co-fighter the instant the monster dies', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 0 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][0].monsterLevel = 1;
+      // vitality roll (a enters) = 3; attack roll hits; damage 4 kills; no dying
+      // attack; then a gold roll for the loot.
       const game = new Game({
+        rng: new ScriptedRng({ randint: [0, 1, 0, 5], random: [0.1] }),
+        dungeon,
         players: [
           { id: 'a', player: a },
           { id: 'b', player: b },
         ],
       });
-      const dungeon = createEmptyDungeon();
-      dungeon.rooms[0][0][0].monsterLevel = 1;
-      game.dungeon = dungeon;
-      // vitality roll (a enters) = 3; attack roll hits; damage 4 kills; no dying
-      // attack; then a gold roll for the loot.
-      game.rng = new ScriptedRng({ randint: [0, 1, 0, 5], random: [0.1] });
 
       game.startEvents('a');
       game.startEvents('b');
@@ -468,12 +474,14 @@ describe('Game interactions', () => {
 
     it('broadcasts treasure-found and monster-slain to the whole party', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
       dungeon.rooms[0][0][0].treasureId = 1;
-      game.dungeon = dungeon;
-      game.rng = new ScriptedRng({ randint: [0, 1, 0], random: [0.1] });
+      const game = new Game({
+        rng: new ScriptedRng({ randint: [0, 1, 0], random: [0.1] }),
+        dungeon,
+        players: [{ id: ID, player }],
+      });
       game.startEvents(ID);
 
       const result = game.step(ID, 'F');
@@ -494,20 +502,24 @@ describe('Game interactions', () => {
   describe('save rehydration mode', () => {
     it('restores GAME_OVER and VICTORY from serialized end state', () => {
       const losePlayer = buildPlayer({ z: 0, y: 0, x: 0, hp: 4 });
-      const loseGame = new Game({ players: [{ id: ID, player: losePlayer }] });
       const loseDungeon = createEmptyDungeon();
       loseDungeon.rooms[0][0][0].feature = Feature.THIEF;
-      loseGame.dungeon = loseDungeon;
-      loseGame.rng = new ScriptedRng({ randint: [4] });
+      const loseGame = new Game({
+        rng: new ScriptedRng({ randint: [4] }),
+        dungeon: loseDungeon,
+        players: [{ id: ID, player: losePlayer }],
+      });
       loseGame.startEvents(ID);
       expect(loseGame.mode(ID)).toBe(Mode.GAME_OVER);
 
       const winPlayer = buildPlayer({ z: 0, y: 0, x: 0 });
-      const winGame = new Game({ players: [{ id: ID, player: winPlayer }] });
-      winGame.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       const winDungeon = createEmptyDungeon();
       winDungeon.rooms[0][0][0].feature = Feature.EXIT;
-      winGame.dungeon = winDungeon;
+      const winGame = new Game({
+        dungeon: winDungeon,
+        players: [{ id: ID, player: winPlayer }],
+      });
+      winGame.treasuresFound = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       expect(winGame.step(ID, 'X').mode).toBe(Mode.VICTORY);
 
       const resumedLose = Game.fromSave(loseGame.toSave());
@@ -518,10 +530,9 @@ describe('Game interactions', () => {
 
     it('derives mode from per-player encounter session, not a stored mode', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
-      game.dungeon = dungeon;
+      const game = new Game({ dungeon, players: [{ id: ID, player }] });
       game.startEvents(ID);
 
       const encounterSave = game.toSave();
@@ -537,11 +548,13 @@ describe('Game interactions', () => {
 
     it('resumes in encounter spell selection with spell prompt events', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
-      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
-      game.dungeon = dungeon;
-      game.rng = new ScriptedRng({ randint: [0] });
+      const game = new Game({
+        rng: new ScriptedRng({ randint: [0] }),
+        dungeon,
+        players: [{ id: ID, player }],
+      });
       game.startEvents(ID);
       game.step(ID, 'S');
 
@@ -558,10 +571,9 @@ describe('Game interactions', () => {
 
     it('resumes in vendor item selection with vendor intro and item prompt', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0, gold: 100 });
-      const game = new Game({ players: [{ id: ID, player }] });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].feature = Feature.VENDOR;
-      game.dungeon = dungeon;
+      const game = new Game({ dungeon, players: [{ id: ID, player }] });
       game.step(ID, 'B');
       game.step(ID, 'W');
 
@@ -602,17 +614,17 @@ describe('Game interactions', () => {
     it('refreshes every co-fighter in the room the instant the monster dies', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 0 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][0].monsterLevel = 1;
+      // a enters (vitality 0), then a's attack kills (1, 0) and loots gold (5).
       const game = new Game({
+        rng: new ScriptedRng({ randint: [0, 1, 0, 5], random: [0.1] }),
+        dungeon,
         players: [
           { id: 'a', player: a },
           { id: 'b', player: b },
         ],
       });
-      const dungeon = createEmptyDungeon();
-      dungeon.rooms[0][0][0].monsterLevel = 1;
-      game.dungeon = dungeon;
-      // a enters (vitality 0), then a's attack kills (1, 0) and loots gold (5).
-      game.rng = new ScriptedRng({ randint: [0, 1, 0, 5], random: [0.1] });
 
       game.startEvents('a');
       game.startEvents('b');
@@ -629,16 +641,16 @@ describe('Game interactions', () => {
     it('re-scouts a stale tile when a flare relights a cleared room', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 1 });
       const b = buildPlayer({ z: 0, y: 0, x: 0, flares: 5 });
+      const dungeon = createEmptyDungeon();
+      dungeon.rooms[0][0][1].monsterLevel = 1;
       const game = new Game({
+        rng: new ScriptedRng({ randint: [0, 1, 0, 5], random: [0.1] }),
+        dungeon,
         players: [
           { id: 'a', player: a },
           { id: 'b', player: b },
         ],
       });
-      const dungeon = createEmptyDungeon();
-      dungeon.rooms[0][0][1].monsterLevel = 1;
-      game.dungeon = dungeon;
-      game.rng = new ScriptedRng({ randint: [0, 1, 0, 5], random: [0.1] });
 
       game.startEvents('a');
       game.startEvents('b');
@@ -686,8 +698,8 @@ describe('Party setup', () => {
     const a = buildPlayer({ z: 0, y: 3, x: 3 });
     const b = buildPlayer({ z: 0, y: 3, x: 3 });
     const game = new Game({
-      dungeon: createEmptyDungeon(),
       rng,
+      dungeon: createEmptyDungeon(),
       players: [
         { id: 'a', player: a },
         { id: 'b', player: b },
@@ -706,8 +718,8 @@ describe('Party setup', () => {
     const a = buildPlayer({ z: 0, y: 3, x: 3 });
     const b = buildPlayer({ z: 0, y: 3, x: 3 });
     const game = new Game({
-      dungeon: createEmptyDungeon(),
       rng,
+      dungeon: createEmptyDungeon(),
       players: [
         { id: 'a', player: a },
         { id: 'b', player: b },
