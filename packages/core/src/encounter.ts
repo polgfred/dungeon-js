@@ -87,7 +87,7 @@ export class EncounterSession {
     const session = new EncounterSession({
       rng: options.rng,
       player: options.player,
-      room: options.room
+      room: options.room,
     });
     session.awaitingSpell = options.save.awaitingSpell;
     return session;
@@ -148,12 +148,7 @@ export class EncounterSession {
 
     const roll = this.rng.randint(1, 100);
     if (roll > attackScore) {
-      events.push(
-        Event.combat(
-          `The ${this.monsterName} evades your blow!`,
-          `<@> misses the ${this.monsterName}!`
-        )
-      );
+      events.push(Event.combat(`The ${this.monsterName} evades your blow!`));
     } else {
       const damage = Math.max(
         this.player.weaponTier +
@@ -163,12 +158,7 @@ export class EncounterSession {
         1
       );
       this.vitality -= damage;
-      events.push(
-        Event.combat(
-          `You hit the ${this.monsterName}!`,
-          `<@> hits the ${this.monsterName}!`
-        )
-      );
+      events.push(Event.combat(`You hit the ${this.monsterName}!`));
       if (this.vitality <= 0) {
         return this.defeatMonster(
           events,
@@ -182,12 +172,7 @@ export class EncounterSession {
       if (this.rng.random() < 0.05 && this.player.weaponTier > 0) {
         this.player.weaponTier = 0;
         this.player.weaponBroken = true;
-        events.push(
-          Event.info(
-            'Your weapon breaks with the impact!',
-            "<@>'s weapon breaks with the impact!"
-          )
-        );
+        events.push(Event.info('Your weapon breaks with the impact!'));
       }
     }
 
@@ -242,12 +227,7 @@ export class EncounterSession {
     const dodgeScore = 20 + 5 * (11 - level) + 2 * this.player.dex;
     const roll = this.rng.randint(1, 100);
     if (roll <= dodgeScore) {
-      events.push(
-        Event.combat(
-          'You deftly dodge the blow!',
-          `The ${this.monsterName} misses <@>!`
-        )
-      );
+      events.push(Event.combat('You deftly dodge the blow!'));
       return { events };
     }
 
@@ -257,12 +237,7 @@ export class EncounterSession {
       0
     );
     this.player.hp = Math.max(0, this.player.hp - damage);
-    events.push(
-      Event.combat(
-        `The ${this.monsterName} hits you!`,
-        `The ${this.monsterName} hits <@>!`
-      )
-    );
+    events.push(Event.combat(`The ${this.monsterName} hits you!`));
     if (this.player.hp <= 0) {
       events.push(Event.info('YOU HAVE DIED.', '<@> HAS DIED.'));
       return {
@@ -339,11 +314,13 @@ export class EncounterSession {
     switch (spell) {
       case Spell.PROTECTION: {
         this.player.tempArmorBonus += 3;
-        const protection =
-          this.player.armorTier > 0
-            ? 'Your armour glows briefly in response to your spell.'
-            : 'Your clothes glow briefly, becoming, temporarily, armour.';
-        events.push(Event.info(protection, `<@> casts a protection spell.`));
+        events.push(
+          Event.info(
+            this.player.armorTier > 0
+              ? 'Your armour glows briefly in response to your spell.'
+              : 'Your clothes glow briefly, becoming, temporarily, armour.'
+          )
+        );
         break;
       }
       case Spell.FIREBALL: {
@@ -352,8 +329,7 @@ export class EncounterSession {
         this.vitality -= damage;
         events.push(
           Event.combat(
-            `A glowing ball of fire converges with the ${this.monsterName}.`,
-            `<@> casts a fireball spell.`
+            `A glowing ball of fire converges with the ${this.monsterName}.`
           )
         );
         if (this.vitality <= 0) {
@@ -361,7 +337,7 @@ export class EncounterSession {
             events,
             Event.combat(
               `The ${this.monsterName} evaporates in a magnificent pyrotechnic display.`,
-              `<@> slays the foul ${this.monsterName}.`
+              `<@> slays the ${this.monsterName} with a fireball spell.`
             )
           );
         }
@@ -371,18 +347,13 @@ export class EncounterSession {
         const roll = this.rng.randint(1, 10);
         const damage = roll + Math.floor(this.player.iq / 2);
         this.vitality -= damage;
-        events.push(
-          Event.combat(
-            `The ${this.monsterName} is thunderstruck!`,
-            `<@> casts a lightning spell.`
-          )
-        );
+        events.push(Event.combat(`The ${this.monsterName} is thunderstruck!`));
         if (this.vitality <= 0) {
           return this.defeatMonster(
             events,
             Event.combat(
               `The massive electrical charge proves lethal to the ${this.monsterName}.`,
-              `<@> slays the foul ${this.monsterName}.`
+              `<@> slays the ${this.monsterName} with a lightning spell.`
             )
           );
         }
@@ -392,8 +363,7 @@ export class EncounterSession {
         this.vitality = Math.floor(this.vitality / 2);
         events.push(
           Event.combat(
-            `A green mist envelops the ${this.monsterName}, depriving him of half his vitality.`,
-            `<@> casts a weaken spell.`
+            `A green mist envelops the ${this.monsterName}, depriving him of half his vitality.`
           )
         );
         if (this.vitality <= 0) {
@@ -401,7 +371,7 @@ export class EncounterSession {
             events,
             Event.combat(
               `Seeing that the ${this.monsterName} had barely any energy to begin with, its death is no surprise.`,
-              `<@> slays the foul ${this.monsterName}.`
+              `<@> slays the ${this.monsterName} with a weaken spell.`
             )
           );
         }
@@ -410,8 +380,7 @@ export class EncounterSession {
       case Spell.TELEPORT: {
         events.push(
           Event.info(
-            'Thy surroundings vibrate momentarily, as you are magically transported elsewhere...',
-            `<@> casts a teleport spell.`
+            'Thy surroundings vibrate momentarily, as you are magically transported elsewhere...'
           )
         );
         resetPlayerAfterEncounter(this.player);
