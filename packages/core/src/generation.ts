@@ -59,12 +59,8 @@ function placeTreasures(rng: RandomSource, rooms: Room[][][]): void {
     const y = rng.randrange(FLOOR_SIZE);
     const x = rng.randrange(FLOOR_SIZE);
     const room = rooms[z][y][x];
-    if (room.treasureId !== 0) {
-      continue;
-    }
-    if (room.feature !== Feature.EMPTY) {
-      continue;
-    }
+    if (room.treasureId !== 0) continue;
+    if (room.feature !== Feature.EMPTY) continue;
     placed += 1;
     room.treasureId = placed;
   }
@@ -77,15 +73,9 @@ function placeStairs(rng: RandomSource, rooms: Room[][][]): void {
       const x = rng.randrange(FLOOR_SIZE);
       const room = rooms[z][y][x];
       const roomAbove = rooms[z + 1][y][x];
-      if (room.treasureId > 0 || room.monsterLevel > 0) {
-        continue;
-      }
-      if (roomAbove.treasureId > 0 || roomAbove.monsterLevel > 0) {
-        continue;
-      }
-      if (room.feature === Feature.STAIRS_DOWN) {
-        continue;
-      }
+      if (room.treasureId > 0 || room.monsterLevel > 0) continue;
+      if (roomAbove.treasureId > 0 || roomAbove.monsterLevel > 0) continue;
+      if (room.feature === Feature.STAIRS_DOWN) continue;
       room.feature = Feature.STAIRS_UP;
       roomAbove.feature = Feature.STAIRS_DOWN;
       break;
@@ -99,16 +89,13 @@ function placeExit(rng: RandomSource, rooms: Room[][][]): void {
     const y = rng.randrange(FLOOR_SIZE);
     const x = rng.randrange(FLOOR_SIZE);
     const room = rooms[z][y][x];
-    if (room.treasureId > 0 || room.monsterLevel > 0) {
-      continue;
-    }
+    if (room.treasureId > 0 || room.monsterLevel > 0) continue;
     if (
       room.feature === Feature.STAIRS_UP ||
       room.feature === Feature.STAIRS_DOWN ||
       room.feature === Feature.EXIT
-    ) {
+    )
       continue;
-    }
     room.feature = Feature.EXIT;
     break;
   }

@@ -651,9 +651,7 @@ export class Game {
     player.flares -= 1;
     for (const dy of [-1, 0, 1]) {
       for (const dx of [-1, 0, 1]) {
-        if (dy === 0 && dx === 0) {
-          continue;
-        }
+        if (dy === 0 && dx === 0) continue;
         const ny = player.y + dy;
         const nx = player.x + dx;
         if (ny >= 0 && ny < Game.SIZE && nx >= 0 && nx < Game.SIZE) {
@@ -875,15 +873,12 @@ export class Game {
     while (true) {
       const ny = this.rng.randrange(Game.SIZE);
       const nx = this.rng.randrange(Game.SIZE);
-      if (ny === player.y && nx === player.x) {
-        continue;
-      }
+      if (ny === player.y && nx === player.x) continue;
       if (
         options.avoidMonsters &&
         this.dungeon.rooms[player.z][ny][nx].monsterLevel > 0
-      ) {
+      )
         continue;
-      }
       player.y = ny;
       player.x = nx;
       return;

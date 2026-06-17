@@ -283,9 +283,7 @@ describe('EncounterSession real RNG bounds', () => {
       // Only the player's hit changes monster vitality; an unchanged value
       // means the player missed, so there's no damage sample this round.
       const damage = 999 - room.monsterVitality;
-      if (damage <= 0) {
-        continue;
-      }
+      if (damage <= 0) continue;
       expect(damage).toBeGreaterThanOrEqual(minDamage);
       expect(damage).toBeLessThanOrEqual(maxDamage);
       samples += 1;
@@ -332,9 +330,7 @@ describe('EncounterSession real RNG bounds', () => {
 
       session.step('F');
       const damage = 999 - player.hp;
-      if (damage <= 0) {
-        continue;
-      }
+      if (damage <= 0) continue;
       expect(damage).toBeGreaterThanOrEqual(minDamage);
       expect(damage).toBeLessThanOrEqual(maxDamage);
       samples += 1;
