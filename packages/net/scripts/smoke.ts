@@ -15,7 +15,12 @@ import { spawn } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
-import { Race, defaultRandomSource, rollBaseStats, createPlayer } from '@dod/core';
+import {
+  Race,
+  defaultRandomSource,
+  rollBaseStats,
+  createPlayer,
+} from '@dod/core';
 import type { ClientMessage, PlayerView, ServerMessage } from '@dod/net/shared';
 
 const PORT = Number(process.env.DOD_PORT ?? 8799);
@@ -31,10 +36,7 @@ function check(condition: boolean, label: string): void {
 }
 
 function character() {
-  const [st, dx, iq, hp] = rollBaseStats(
-    defaultRandomSource,
-    Race.HUMAN
-  );
+  const [st, dx, iq, hp] = rollBaseStats(defaultRandomSource, Race.HUMAN);
   return createPlayer({
     race: Race.HUMAN,
     baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },

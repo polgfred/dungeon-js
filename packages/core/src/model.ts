@@ -139,15 +139,8 @@ export function createPlayer(options: {
   armorTier: number;
   flares: number;
 }): Player {
-  const {
-    race,
-    baseStats,
-    gold,
-    allocations,
-    weaponTier,
-    armorTier,
-    flares,
-  } = options;
+  const { race, baseStats, gold, allocations, weaponTier, armorTier, flares } =
+    options;
   let { ST: str, DX: dex, IQ: iq, HP: hp } = baseStats;
 
   const stAdd = Number(allocations['ST']);

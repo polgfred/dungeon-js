@@ -63,10 +63,7 @@ function show(block: string): void {
 }
 
 function makeCharacter() {
-  const [st, dx, iq, hp] = rollBaseStats(
-    defaultRandomSource,
-    Race.HUMAN
-  );
+  const [st, dx, iq, hp] = rollBaseStats(defaultRandomSource, Race.HUMAN);
   return createPlayer({
     race: Race.HUMAN,
     baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },
@@ -137,9 +134,7 @@ function formatEvent(event: Event, mine: boolean, fromName: string): string {
 function eventsText(from: string, events: Event[]): string {
   const mine = from === playerId;
   const fromName = names.get(from) ?? from;
-  return events
-    .map((event) => formatEvent(event, mine, fromName))
-    .join('\n');
+  return events.map((event) => formatEvent(event, mine, fromName)).join('\n');
 }
 
 const ws = new WebSocket(`${url}/ws/${table}`);

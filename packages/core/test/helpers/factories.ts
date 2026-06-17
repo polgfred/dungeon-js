@@ -1,8 +1,4 @@
-import {
-  makePlayer,
-  type Player,
-  type Room,
-} from '../../src/model.js';
+import { makePlayer, type Player, type Room } from '../../src/model.js';
 import { Feature, Race, Spell } from '../../src/constants.js';
 
 export function buildPlayer(options: Partial<Player> = {}): Player {
