@@ -41,7 +41,7 @@ const elemKind = (a: unknown) =>
 
 const mk = (i: number) =>
   createPlayer({
-    race: ((i % 4) + 1) as unknown as Race,
+    race: ((i % 4) + 1) as Race,
     baseStats: { ST: 9, DX: 9, IQ: 12, HP: 20 },
     allocations: { ST: 2, DX: 1, IQ: 2 },
     gold: 1000,
@@ -58,7 +58,7 @@ test('hydrated Game matches the live V8 representation', () => {
   for (let s = 0; s < 300; s++) {
     for (const { id } of roster) {
       if (!live.endMode)
-        live.step(id, moves[(Math.random() * moves.length) | 0]!);
+        live.step(id, moves[(Math.random() * moves.length) | 0]);
     }
   }
 
@@ -70,13 +70,12 @@ test('hydrated Game matches the live V8 representation', () => {
   const hp = hyd.getPlayer(id);
   const ld = live.dungeon.rooms;
   const hd = hyd.dungeon.rooms;
-  // @ts-expect-error private method
   const lo = live.state(id).observed;
-  // @ts-expect-error private method
   const ho = hyd.state(id).observed;
 
   const checks: [string, string, string][] = [
     ['Game properties', props(live), props(hyd)],
+    ['Game.players elements', props(live.players), props(hyd.players)],
     ['Player properties', props(lp), props(hp)],
     ['Player.spells elements', elemKind(lp.spells), elemKind(hp.spells)],
     ['Room properties', props(ld[0][0][0]), props(hd[0][0][0])],
