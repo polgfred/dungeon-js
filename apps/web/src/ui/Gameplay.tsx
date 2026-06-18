@@ -169,7 +169,7 @@ function commandActive(command: Command, view: PlayerView): boolean {
     case 'spell':
       return (
         view.self.iq >= SPELL_MIN_IQ &&
-        Object.values(view.self.spells).some((count) => count > 0)
+        view.self.spells.some((count) => count > 0)
       );
     default:
       return true;

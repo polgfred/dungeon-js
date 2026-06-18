@@ -24,16 +24,16 @@ export function createDungeon(rooms: Room[][][]): Dungeon {
   return { rooms };
 }
 
-export type SpellCounts = Record<Spell, number>;
+export type SpellCounts = Map<Spell, number>;
 
 export function createSpellCounts(): SpellCounts {
-  return {
-    [Spell.PROTECTION]: 0,
-    [Spell.FIREBALL]: 0,
-    [Spell.LIGHTNING]: 0,
-    [Spell.WEAKEN]: 0,
-    [Spell.TELEPORT]: 0,
-  };
+  const counts: SpellCounts = new Map();
+  counts.set(Spell.PROTECTION, 0);
+  counts.set(Spell.FIREBALL, 0);
+  counts.set(Spell.LIGHTNING, 0);
+  counts.set(Spell.WEAKEN, 0);
+  counts.set(Spell.TELEPORT, 0);
+  return counts;
 }
 
 export interface Player {

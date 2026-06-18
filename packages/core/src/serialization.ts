@@ -1,6 +1,8 @@
-import type { Mode, Tile } from './constants.js';
+import { Spell, type Mode, type Race, type Tile } from './constants.js';
 import {
   createDungeon,
+  makePlayer,
+  type SpellCounts,
   type Dungeon,
   type Player,
   type Room,
@@ -19,9 +21,32 @@ export type VendorSave = {
   category: string | null;
 };
 
+export type PlayerSave = {
+  z: number;
+  y: number;
+  x: number;
+  race: Race;
+  str: number;
+  dex: number;
+  iq: number;
+  hp: number;
+  mhp: number;
+  gold: number;
+  flares: number;
+  weaponTier: number;
+  armorTier: number;
+  weaponName: string;
+  weaponBroken: boolean;
+  armorName: string;
+  armorDamaged: boolean;
+  spells: number[];
+  fatigued: boolean;
+  tempArmorBonus: number;
+};
+
 export type PlayerEntrySave = {
   id: string;
-  player: Player;
+  player: PlayerSave;
   observed: Tile[][][];
   encounter: EncounterSave | null;
   vendor: VendorSave | null;
@@ -36,6 +61,30 @@ export type GameSave = {
   endMode: Mode | null;
   players: PlayerEntrySave[];
 };
+
+export function serializePlayer(player: Player): PlayerSave {
+  return {
+    ...player,
+    spells: [
+      // Make sure these are in order
+      player.spells.get(Spell.PROTECTION) ?? 0,
+      player.spells.get(Spell.FIREBALL) ?? 0,
+      player.spells.get(Spell.LIGHTNING) ?? 0,
+      player.spells.get(Spell.WEAKEN) ?? 0,
+      player.spells.get(Spell.TELEPORT) ?? 0,
+    ],
+  };
+}
+
+export function deserializePlayer(save: PlayerSave): Player {
+  const spells: SpellCounts = new Map();
+  spells.set(Spell.PROTECTION, save.spells[0]);
+  spells.set(Spell.FIREBALL, save.spells[1]);
+  spells.set(Spell.LIGHTNING, save.spells[2]);
+  spells.set(Spell.WEAKEN, save.spells[3]);
+  spells.set(Spell.TELEPORT, save.spells[4]);
+  return makePlayer({ ...save, spells });
+}
 
 export function serializeDungeon(dungeon: Dungeon): DungeonSave {
   return dungeon.rooms.map((floor) => floor.map((row) => row.map(encodeRoom)));

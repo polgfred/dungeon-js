@@ -40,7 +40,7 @@ describe('Game interactions', () => {
       expect(result.events[0].text).toBe(
         'The scroll contains the Fireball spell.'
       );
-      expect(player.spells[Spell.FIREBALL]).toBe(2);
+      expect(player.spells.get(Spell.FIREBALL)).toBe(2);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
   });

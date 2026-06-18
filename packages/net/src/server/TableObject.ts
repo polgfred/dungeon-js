@@ -1,8 +1,10 @@
 import {
   Game,
   defaultRandomSource,
+  deserializePlayer,
+  serializePlayer,
   type GameSave,
-  type Player,
+  type PlayerSave,
   type StepResult,
 } from '@dod/core';
 
@@ -17,7 +19,7 @@ import { HydratableObject } from './HydratableObject.js';
 interface Member {
   id: PlayerId;
   name: string;
-  character: Player | null;
+  character: PlayerSave | null;
 }
 
 /** Lobby and play are mutually exclusive phases. */
@@ -206,7 +208,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     });
   }
 
-  private handleSetCharacter(playerId: PlayerId, character: Player) {
+  private handleSetCharacter(playerId: PlayerId, character: PlayerSave) {
     if (this.state.kind !== 'lobby') {
       this.sendError(playerId, 'The game has already begun.');
       return;
@@ -228,7 +230,10 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
     const game = new Game({
       rng: defaultRandomSource,
-      players: members.map((m) => ({ id: m.id, player: m.character! })),
+      players: members.map((m) => ({
+        id: m.id,
+        player: deserializePlayer(m.character!),
+      })),
     });
     // Spread a multi-player party out.
     if (members.length > 1) {
@@ -315,7 +320,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     const self = game.getPlayer(playerId);
     const connected = this.connectedIds();
     return {
-      self,
+      self: serializePlayer(self),
       mode: game.mode(playerId),
       map: game.mapView(playerId),
       treasuresFound: game.treasuresFound.size,

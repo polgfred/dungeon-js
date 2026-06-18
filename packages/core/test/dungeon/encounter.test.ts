@@ -126,7 +126,7 @@ describe('EncounterSession spells', () => {
     const result = session.step('F');
 
     expectEvent(result.events, 'You have insufficient intelligence.');
-    expect(player.spells[Spell.FIREBALL]).toBe(1);
+    expect(player.spells.get(Spell.FIREBALL)).toBe(1);
   });
 
   it('rejects spells with no charges', () => {
@@ -135,7 +135,7 @@ describe('EncounterSession spells', () => {
       rng,
       playerOverrides: {
         iq: 14,
-        spells: { ...buildPlayer().spells, [Spell.FIREBALL]: 0 },
+        spells: new Map([[Spell.FIREBALL, 0]]),
       },
     });
 
@@ -143,7 +143,7 @@ describe('EncounterSession spells', () => {
     const result = session.step('F');
 
     expectEvent(result.events, 'You know not that spell.');
-    expect(player.spells[Spell.FIREBALL]).toBe(0);
+    expect(player.spells.get(Spell.FIREBALL)).toBe(0);
   });
 
   it('casts protection and reduces damage with armor bonus', () => {

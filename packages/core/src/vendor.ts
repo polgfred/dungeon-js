@@ -234,7 +234,7 @@ export class VendorSession {
       };
     }
     this.player.gold -= price;
-    this.player.spells[spell] = (this.player.spells[spell] ?? 0) + 1;
+    this.player.spells.set(spell, (this.player.spells.get(spell) ?? 0) + 1);
     return {
       events: [],
       done: true,

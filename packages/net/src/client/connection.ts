@@ -1,4 +1,4 @@
-import type { Player } from '@dod/core';
+import type { PlayerSave } from '@dod/core';
 import type {
   ClientMessage,
   PlayerId,
@@ -95,8 +95,8 @@ export class TableConnection {
     this.send({ type: 'join', playerId, name });
   }
 
-  setCharacter(character: Player) {
-    this.send({ type: 'setCharacter', character });
+  setCharacter(character: PlayerSave) {
+    this.send({ type: 'setCharacter', character: character });
   }
 
   start() {

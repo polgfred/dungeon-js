@@ -24,6 +24,7 @@ import {
   type Event,
   rollBaseStats,
   createPlayer,
+  serializePlayer,
 } from '@dod/core';
 import type {
   ClientMessage,
@@ -64,15 +65,17 @@ function show(block: string): void {
 
 function makeCharacter() {
   const [st, dx, iq, hp] = rollBaseStats(defaultRandomSource, Race.HUMAN);
-  return createPlayer({
-    race: Race.HUMAN,
-    baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },
-    allocations: { ST: 2, DX: 2, IQ: 1 },
-    gold: 100,
-    flares: 5,
-    weaponTier: 1,
-    armorTier: 1,
-  });
+  return serializePlayer(
+    createPlayer({
+      race: Race.HUMAN,
+      baseStats: { ST: st, DX: dx, IQ: iq, HP: hp },
+      allocations: { ST: 2, DX: 2, IQ: 1 },
+      gold: 100,
+      flares: 5,
+      weaponTier: 1,
+      armorTier: 1,
+    })
+  );
 }
 
 function lobbyText(state: LobbyState): string {

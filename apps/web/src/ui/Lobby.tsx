@@ -17,7 +17,7 @@ import { LobbyBuilder } from './LobbyBuilder.js';
 import layout from './Layout.module.css';
 import styles from './Lobby.module.css';
 import { useSetupGameModel } from './SetupGameModel.js';
-import type { Player } from '@dod/core';
+import { serializePlayer, type PlayerSave } from '@dod/core';
 
 function ReadyCard({
   everyoneReady,
@@ -85,14 +85,14 @@ export function Lobby({
   playerId: PlayerId;
   status: ConnectionStatus;
   feed: FeedItem[];
-  onSetCharacter: (character: Player) => void;
+  onSetCharacter: (character: PlayerSave) => void;
   onStart: () => void;
   onChat: (text: string) => void;
 }) {
   const [submitted, setSubmitted] = useState(false);
   const model = useSetupGameModel({
     onComplete: (player) => {
-      onSetCharacter(player);
+      onSetCharacter(serializePlayer(player));
       setSubmitted(true);
     },
   });

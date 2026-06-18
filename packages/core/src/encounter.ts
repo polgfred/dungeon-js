@@ -277,7 +277,7 @@ export class EncounterSession {
         events: [Event.error('Choose P/F/L/W/T or Esc to cancel.')],
       };
     }
-    const charges = this.player.spells[spell] ?? 0;
+    const charges = this.player.spells.get(spell) ?? 0;
     if (this.player.iq < SPELL_MIN_IQ) {
       return {
         events: [Event.info('You have insufficient intelligence.')],
@@ -289,7 +289,7 @@ export class EncounterSession {
       };
     }
 
-    this.player.spells[spell] = charges - 1;
+    this.player.spells.set(spell, charges - 1);
     return this.castSpell(spell);
   }
 
@@ -299,8 +299,8 @@ export class EncounterSession {
     const options = Object.entries(spellMap).map(([key, spell]) => ({
       key,
       label: spellName(spell),
-      note: `${spells[spell] ?? 0}`,
-      disabled: iqTooLow || (spells[spell] ?? 0) <= 0,
+      note: `${spells.get(spell) ?? 0}`,
+      disabled: iqTooLow || (spells.get(spell) ?? 0) <= 0,
     }));
     return {
       type: 'spell',

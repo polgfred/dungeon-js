@@ -19,6 +19,8 @@ import {
   type EncounterSave,
   deserializeDungeon,
   serializeDungeon,
+  deserializePlayer,
+  serializePlayer,
 } from './serialization.js';
 import {
   Event,
@@ -55,7 +57,7 @@ function createObservedGrid(depth: number): Tile[][][] {
 }
 
 export class Game {
-  static readonly SAVE_VERSION = 6;
+  static readonly SAVE_VERSION = 7;
 
   saveVersion = Game.SAVE_VERSION;
   rng: RandomSource;
@@ -169,7 +171,7 @@ export class Game {
         : null;
 
     for (const entry of save.players) {
-      const { player } = entry;
+      const player = deserializePlayer(entry.player);
       const state: PlayerState = {
         id: entry.id,
         player,
@@ -209,7 +211,7 @@ export class Game {
       endMode: this.endMode,
       players: Array.from(this.players.values(), (state) => ({
         id: state.id,
-        player: state.player,
+        player: serializePlayer(state.player),
         observed: state.observed,
         encounter: state.encounter ? state.encounter.toSave() : null,
         vendor: state.vendor ? state.vendor.toSave() : null,
@@ -796,7 +798,7 @@ export class Game {
 
     room.feature = Feature.EMPTY;
     const spell = this.rng.randint(1, 5) as Spell;
-    player.spells[spell] = (player.spells[spell] ?? 0) + 1;
+    player.spells.set(spell, (player.spells.get(spell) ?? 0) + 1);
 
     return [Event.info(`The scroll contains the ${spellName(spell)} spell.`)];
   }

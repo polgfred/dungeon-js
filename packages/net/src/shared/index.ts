@@ -1,4 +1,4 @@
-import type { Event, Mode, Player, PromptOption, Tile } from '@dod/core';
+import type { Event, Mode, PlayerSave, PromptOption, Tile } from '@dod/core';
 
 /**
  * Wire protocol between the browser client and the table Durable Object, plus the
@@ -12,7 +12,7 @@ export type PlayerId = string;
 
 export type ClientMessage =
   | { type: 'join'; playerId: PlayerId; name: string }
-  | { type: 'setCharacter'; character: Player }
+  | { type: 'setCharacter'; character: PlayerSave }
   | { type: 'start' }
   | { type: 'action'; command: string }
   | { type: 'cancel' }
@@ -29,7 +29,7 @@ export interface LobbyMember {
 
 export interface LobbyState {
   members: LobbyMember[];
-  character: Player | null;
+  character: PlayerSave | null;
 }
 
 export interface PartyMember {
@@ -52,7 +52,7 @@ export interface PromptView {
 }
 
 export interface PlayerView {
-  self: Player;
+  self: PlayerSave;
   mode: Mode;
   map: Tile[][];
   treasuresFound: number;
