@@ -290,6 +290,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
    * that string swapped in as the text (attributed to the actor).
    */
   private fanOut(result: StepResult) {
+    const forMe = result.events.map(({ broadcast, ...event }) => event);
     const forOthers = result.events
       .filter((event) => event.broadcast !== undefined)
       .map(({ broadcast, ...event }) => ({ ...event, text: broadcast! }));
@@ -300,7 +301,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
         this.send(ws, {
           type: 'events',
           from: result.playerId,
-          events: result.events,
+          events: forMe,
         });
       } else if (forOthers.length) {
         this.send(ws, {
