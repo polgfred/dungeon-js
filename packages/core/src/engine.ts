@@ -64,7 +64,7 @@ export class Game {
   dungeon: Dungeon;
   treasuresFound: Set<number>;
   endMode: Mode.GAME_OVER | Mode.VICTORY | null = null;
-  private players: Map<PlayerId, PlayerState> = new Map();
+  players: Map<PlayerId, PlayerState> = new Map();
 
   constructor(
     options: {
@@ -126,7 +126,7 @@ export class Game {
     return this.state(id).player;
   }
 
-  private state(id: PlayerId): PlayerState {
+  state(id: PlayerId): PlayerState {
     const state = this.players.get(id);
     if (!state) {
       throw new Error(`Unknown player: ${id}`);
