@@ -1,0 +1,128 @@
+/* The player-facing instruction sheet. Reuses the home title frame, then a
+   single readable column of the rules in the game's voice. */
+
+.root {
+  margin: 0 auto;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  max-width: 840px;
+}
+
+.titleFrame {
+  padding: 12px 24px;
+  width: 100%;
+  border: 1px solid rgba(var(--primary-light-rgb), 0.55);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, .14);
+  box-shadow: 0 0 24px var(--primary-dark);
+}
+
+.titleImage {
+  display: block;
+  width: 100%;
+  aspect-ratio: 8 / 1;
+  background-color: var(--text-primary);
+  opacity: 0.75;
+  mask: url(../assets/DofDTitleFlat.png) center / contain no-repeat;
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.36);
+  border: 1px solid rgba(var(--primary-light-rgb), 0.15);
+  border-radius: 4px;
+}
+
+.subtitle {
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.lede {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+@media (min-width: 900px) {
+  .lede {
+    font-size: 17px;
+  }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+}
+@media (min-width: 900px) {
+  .section p {
+    font-size: 16px;
+  }
+}
+
+.heading {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+@media (min-width: 900px) {
+  .heading {
+    font-size: 18px;
+  }
+}
+
+.verbs {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+@media (min-width: 900px) {
+  .verbs {
+    font-size: 16px;
+  }
+}
+
+.verbs strong {
+  color: var(--text-secondary);
+}
+
+.hail {
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--loot-main);
+  font-size: 15px;
+}
+@media (min-width: 900px) {
+  .hail {
+    font-size: 18px;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 16px;
+}

@@ -75,6 +75,14 @@ export default function Home() {
                 </button>
               </div>
             </label>
+
+            <button
+              type="button"
+              className={styles.howTo}
+              onClick={() => navigate('/help')}
+            >
+              How to play
+            </button>
           </div>
         </div>
       </div>

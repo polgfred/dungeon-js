@@ -1,4 +1,5 @@
 import styles from './App.module.css';
+import Help from './Help.js';
 import Home from './Home.js';
 import Play from './Play.js';
 import { useAttractMode } from './useAttractMode.js';
@@ -10,7 +11,13 @@ export default function App() {
 
   return (
     <main className={styles.screen}>
-      {route.name === 'home' ? <Home /> : <Play code={route.code} />}
+      {route.name === 'home' ? (
+        <Home />
+      ) : route.name === 'help' ? (
+        <Help />
+      ) : (
+        <Play code={route.code} />
+      )}
     </main>
   );
 }

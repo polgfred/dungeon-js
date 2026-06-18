@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 
-export type Route = { name: 'home' } | { name: 'play'; code: string };
+export type Route =
+  | { name: 'home' }
+  | { name: 'help' }
+  | { name: 'play'; code: string };
 
 function parse(pathname: string): Route {
   const match = pathname.match(/^\/play\/([^/]+)\/?$/);
   if (match) return { name: 'play', code: decodeURIComponent(match[1]) };
+  if (/^\/help\/?$/.test(pathname)) return { name: 'help' };
   return { name: 'home' };
 }
 
