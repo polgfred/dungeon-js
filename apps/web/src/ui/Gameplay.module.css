@@ -274,6 +274,70 @@
   opacity: 0.4;
 }
 
+/* --- help dialog: the controls reference (rendered by <HelpControls />) --- */
+
+.helpDoc {
+  font-size: 0.9rem;
+  line-height: 1.55;
+
+  .lede {
+    margin: 0 0 0.5rem;
+    color: var(--text-secondary);
+  }
+
+  h3 {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  /* Wrapped lines indent under the text, clear of the leading key cap. */
+  li {
+    padding-left: 2.4em;
+    text-indent: -2.4em;
+  }
+
+  kbd {
+    display: inline-block;
+    font-family: inherit;
+    color: var(--text-secondary);
+    border: 1px solid rgba(var(--primary-light-rgb), 0.4);
+    border-radius: 2px;
+    padding: 0.04rem 0.34rem;
+    min-width: 1.5ch;
+    text-align: center;
+    /* reset the text-indent that inherits from li */
+    text-indent: 0;
+  }
+
+  .hint {
+    margin: 1rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-disabled);
+  }
+
+  .more {
+    margin: 1.5rem 0 0.5rem;
+
+    a {
+      color: var(--text-secondary);
+      text-underline-offset: 3px;
+    }
+  }
+}
+
 /* The feed log lives in Feed.module.css (shared with the lobby). */
 
 /* --- end overlay --- */

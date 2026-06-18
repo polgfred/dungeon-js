@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -13,12 +13,19 @@ import type {
 
 import { ChatInput } from './ChatInput.js';
 import { chatColorsById } from './chatColors.js';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  dialogStyles,
+} from './Dialog.js';
 import { Feed } from './Feed.js';
 import styles from './Gameplay.module.css';
 import layout from './Layout.module.css';
 import {
   ENCOUNTER_COMMANDS,
   FEATURE_COMMANDS,
+  HELP_COMMAND,
   NAV_COMMANDS,
   TRANSIT_COMMANDS,
 } from './gameplayCommands.js';
@@ -266,12 +273,17 @@ function CommandCluster({
   view,
   onAction,
   onCancel,
+  onHelp,
 }: {
   view: PlayerView;
   onAction: (command: string) => void;
   onCancel: () => void;
+  onHelp: () => void;
 }) {
-  const trigger = (command: Command) => onAction(command.key);
+  const trigger = (command: Command) => {
+    if (command.id === HELP_COMMAND.id) return onHelp();
+    onAction(command.key);
+  };
 
   // Dynamic menus you can't memorize (spell list, vendor): same slim chips as
   // everything else, but full-color (not dimmed) since they're the live choice.
@@ -349,12 +361,98 @@ function CommandCluster({
           onTrigger={trigger}
         />
         <LegendGroup
-          commands={TRANSIT_COMMANDS}
+          commands={[...TRANSIT_COMMANDS, HELP_COMMAND]}
           view={view}
           onTrigger={trigger}
         />
       </div>
     </div>
+  );
+}
+
+/** The in-game controls reference shown in the help dialog. */
+function HelpControls() {
+  return (
+    <>
+      <p className={styles.lede}>
+        The dungeon does nothing until you act — there are no turns to wait for,
+        and no clock to race. Move, search, and take counsel at your own pace.
+      </p>
+
+      <h3>Moving</h3>
+      <ul>
+        <li>
+          <kbd>N</kbd> <kbd>S</kbd> <kbd>E</kbd> <kbd>W</kbd> — walk the halls
+          (the arrow keys move too)
+        </li>
+        <li>
+          <kbd>U</kbd> — climb the stairs up
+        </li>
+        <li>
+          <kbd>D</kbd> — descend the stairs down
+        </li>
+        <li>
+          <kbd>X</kbd> — take the exit, once your work is done
+        </li>
+      </ul>
+
+      <h3>Where you stand</h3>
+      <ul>
+        <li>
+          <kbd>F</kbd> — burn a flare to reveal the rooms nearby
+        </li>
+        <li>
+          <kbd>L</kbd> — look into a mirror
+        </li>
+        <li>
+          <kbd>O</kbd> — open a chest
+        </li>
+        <li>
+          <kbd>R</kbd> — read a scroll
+        </li>
+        <li>
+          <kbd>P</kbd> — drink a potion
+        </li>
+        <li>
+          <kbd>B</kbd> — buy from a vendor
+        </li>
+      </ul>
+      <p className={styles.hint}>
+        A command only lights up when there is something here to use it on.
+      </p>
+
+      <h3>In a fight</h3>
+      <ul>
+        <li>
+          <kbd>F</kbd> — stand and fight
+        </li>
+        <li>
+          <kbd>R</kbd> — run
+        </li>
+        <li>
+          <kbd>S</kbd> — cast a spell
+        </li>
+      </ul>
+
+      <h3>Anytime</h3>
+      <ul>
+        <li>
+          <kbd>?</kbd> — show this help
+        </li>
+        <li>
+          <kbd>␛</kbd> — back out of a prompt
+        </li>
+        <li>
+          <kbd>/</kbd> — chat with your party
+        </li>
+      </ul>
+
+      <p className={styles.more}>
+        <a href="/help" target="_blank" rel="noopener">
+          Read the full instruction sheet →
+        </a>
+      </p>
+    </>
   );
 }
 
@@ -396,6 +494,8 @@ export function Gameplay({
   onCancel: () => void;
   onChat: (text: string) => void;
 }) {
+  const [helpOpen, setHelpOpen] = useState(false);
+
   // Whether arrows are allowed to substitute for N/S/E/W
   const arrowsMove = !view.prompt && view.mode === Mode.EXPLORE;
   useEffect(() => {
@@ -407,6 +507,13 @@ export function Gameplay({
         (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')
       )
         return;
+      // Help is always reachable; while it's open the dialog owns the
+      // keyboard (Esc closes it natively) so game keys don't leak through.
+      if (event.key === '?') {
+        setHelpOpen(true);
+        return;
+      }
+      if (helpOpen) return;
       if (event.key === 'Escape') {
         onCancel();
         return;
@@ -423,7 +530,7 @@ export function Gameplay({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onAction, onCancel, arrowsMove]);
+  }, [onAction, onCancel, arrowsMove, helpOpen]);
 
   const colorOf = chatColorsById(view.party);
 
@@ -441,7 +548,12 @@ export function Gameplay({
         {view.ended ? (
           <EndOverlay ended={view.ended} />
         ) : (
-          <CommandCluster view={view} onAction={onAction} onCancel={onCancel} />
+          <CommandCluster
+            view={view}
+            onAction={onAction}
+            onCancel={onCancel}
+            onHelp={() => setHelpOpen(true)}
+          />
         )}
       </section>
 
@@ -466,6 +578,17 @@ export function Gameplay({
         <Feed feed={feed} members={view.party} playerId={playerId} />
         <ChatInput onSend={onChat} />
       </section>
+
+      <Dialog
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        className={dialogStyles.bluePaper}
+      >
+        <DialogTitle onClose={() => setHelpOpen(false)}>How to Play</DialogTitle>
+        <DialogContent dividers className={styles.helpDoc}>
+          <HelpControls />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -60,7 +60,7 @@ export function DialogTitle({
           className={styles.close}
           onClick={onClose}
         >
-          X
+          ␛
         </button>
       )}
     </div>

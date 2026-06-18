@@ -15,6 +15,15 @@ export const TRANSIT_COMMANDS: Command[] = [
   { id: 'exit', key: 'X', label: 'Exit', disabled: false },
 ];
 
+// Client-only: opens the help dialog rather than sending to the engine. Always
+// available, so it sits below the transit keys and its key (?) always fires.
+export const HELP_COMMAND: Command = {
+  id: 'help',
+  key: '?',
+  label: 'Help',
+  disabled: false,
+};
+
 export const FEATURE_COMMANDS: Command[] = [
   { id: 'act-flare', key: 'F', label: 'Flare', disabled: false },
   { id: 'act-mirror', key: 'L', label: 'Look', disabled: false },
