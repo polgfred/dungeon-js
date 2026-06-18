@@ -62,6 +62,10 @@ function StatsReadout({ view }: { view: PlayerView }) {
       />
       <StatRow label="Flares" value={String(s.flares)} />
       <StatRow
+        label="Spells"
+        value={String(s.spells.reduce((total, count) => total + count, 0))}
+      />
+      <StatRow
         label="Treasures"
         value={`${view.treasuresFound}/10`}
         tone={view.treasuresFound >= 10 ? 'loot' : undefined}
