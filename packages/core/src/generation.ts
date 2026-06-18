@@ -1,5 +1,5 @@
 import { Feature } from './constants.js';
-import { createDungeon, Dungeon, type Room } from './model.js';
+import { makeDungeon, Dungeon, type Room } from './model.js';
 import type { RandomSource } from './rng.js';
 
 /** Rooms along each edge of a floor (the y/x dimensions). */
@@ -26,7 +26,7 @@ export function generateDungeon(
   placeStairs(rng, rooms);
   placeExit(rng, rooms);
 
-  return createDungeon(rooms);
+  return makeDungeon(rooms);
 }
 
 function createRoom(rng: RandomSource, floor: number): Room {

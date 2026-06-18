@@ -1,6 +1,6 @@
 import { FLOOR_SIZE } from '@dod/core';
 
-import { createDungeon, type Room } from '../../src/model.js';
+import { makeDungeon, type Room } from '../../src/model.js';
 import { Feature } from '../../src/constants.js';
 
 export function createEmptyDungeon() {
@@ -14,5 +14,5 @@ export function createEmptyDungeon() {
       }))
     )
   );
-  return createDungeon(rooms);
+  return makeDungeon(rooms);
 }

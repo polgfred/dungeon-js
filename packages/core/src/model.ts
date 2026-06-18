@@ -20,13 +20,13 @@ export interface Dungeon {
   rooms: Room[][][];
 }
 
-export function createDungeon(rooms: Room[][][]): Dungeon {
+export function makeDungeon(rooms: Room[][][]): Dungeon {
   return { rooms };
 }
 
 export type SpellCounts = Map<Spell, number>;
 
-export function createSpellCounts(): SpellCounts {
+export function makeSpellCounts(): SpellCounts {
   const counts: SpellCounts = new Map();
   counts.set(Spell.PROTECTION, 0);
   counts.set(Spell.FIREBALL, 0);
@@ -101,7 +101,7 @@ export function makePlayer(options: PlayerInit): Player {
     weaponBroken: options.weaponBroken ?? false,
     armorName: options.armorName ?? 'none',
     armorDamaged: options.armorDamaged ?? false,
-    spells: options.spells ?? createSpellCounts(),
+    spells: options.spells ?? makeSpellCounts(),
     fatigued: options.fatigued ?? false,
     tempArmorBonus: options.tempArmorBonus ?? 0,
   };

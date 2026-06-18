@@ -1,6 +1,6 @@
 import { Spell, type Mode, type Race, type Tile } from './constants.js';
 import {
-  createDungeon,
+  makeDungeon,
   makePlayer,
   type SpellCounts,
   type Dungeon,
@@ -92,7 +92,7 @@ export function serializeDungeon(dungeon: Dungeon): DungeonSave {
 
 export function deserializeDungeon(save: DungeonSave): Dungeon {
   const rooms = save.map((floor) => floor.map((row) => row.map(decodeRoom)));
-  return createDungeon(rooms);
+  return makeDungeon(rooms);
 }
 
 const FEATURE_SHIFT = 0;
