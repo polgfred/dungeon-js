@@ -158,6 +158,7 @@ export class Game {
         `Unsupported save version ${save.version}. Expected ${Game.SAVE_VERSION}.`
       );
     }
+
     const dungeon = deserializeDungeon(save.dungeon);
     const game = new Game({
       rng,
@@ -199,6 +200,7 @@ export class Game {
       }
       game.players.set(entry.id, state);
     }
+
     return game;
   }
 
@@ -323,6 +325,7 @@ export class Game {
           this.endMode = Mode.GAME_OVER;
         }
       }
+
       return this.stepResult(id, events);
     }
 

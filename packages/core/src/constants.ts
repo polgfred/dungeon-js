@@ -155,8 +155,6 @@ export const FEATURE_SYMBOLS: Record<Feature, string> = {
   [Feature.EXIT]: 'X',
 };
 
-/** A single map cell, as last observed by a player. */
-/** Minimum IQ required to cast any spell in an encounter. */
 export const SPELL_MIN_IQ = 12;
 
 export const enum MapTile {
@@ -173,7 +171,6 @@ const TILE_SYMBOLS: Record<MapTile, string> = {
   [MapTile.TREASURE]: 'T',
 };
 
-/** The single glyph for a map cell — feature symbol, or a monster/treasure/unseen marker. */
 export function tileSymbol(tile: Tile): string {
   if (
     tile === MapTile.UNSEEN ||
