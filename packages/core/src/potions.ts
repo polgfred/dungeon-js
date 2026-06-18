@@ -9,22 +9,21 @@ function potionAttributeOutcomeText(options: {
   const { target, change } = options;
   switch (target) {
     case 'ST':
-      return `The potion ${change >= 0 ? 'increases' : 'decreases'} your strength.`;
+      return `it ${change >= 0 ? 'increases' : 'decreases'} your strength.`;
     case 'DX':
-      return `The potion ${change >= 0 ? 'increases' : 'decreases'} your dexterity.`;
+      return `it ${change >= 0 ? 'increases' : 'decreases'} your dexterity.`;
     case 'IQ':
-      return `The potion makes you ${change >= 0 ? 'smarter' : 'dumber'}.`;
+      return `it makes you ${change >= 0 ? 'smarter' : 'dumber'}.`;
     case 'MHP':
       return change >= 0
-        ? 'Strange energies surge through you.'
-        : 'You feel weaker.';
+        ? 'strange energies surge through you.'
+        : 'you feel weaker.';
   }
 }
 
 export function drinkHealingPotionEvents() {
   return [
-    Event.info('You drink the potion...'),
-    Event.info('Healing results.'),
+    Event.info('You drink the potion... healing results.'),
   ];
 }
 
@@ -33,7 +32,8 @@ export function drinkAttributePotionEvents(options: {
   change: number;
 }) {
   return [
-    Event.info('You drink the potion...'),
-    Event.info(potionAttributeOutcomeText(options)),
+    Event.info(
+      `You drink the potion... ${potionAttributeOutcomeText(options)}`
+    ),
   ];
 }

@@ -174,8 +174,9 @@ describe('Game interactions', () => {
 
       const result = game.step(ID, 'P');
 
-      expect(result.events[0].text).toBe('You drink the potion...');
-      expect(result.events[1].text).toBe('Healing results.');
+      expect(result.events[0].text).toBe(
+        'You drink the potion... healing results.'
+      );
       expect(player.hp).toBe(20);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
@@ -202,8 +203,9 @@ describe('Game interactions', () => {
 
       const result = game.step(ID, 'P');
 
-      expect(result.events[0].text).toBe('You drink the potion...');
-      expect(result.events[1].text).toBe('The potion makes you dumber.');
+      expect(result.events[0].text).toBe(
+        'You drink the potion... it makes you dumber.'
+      );
       expect(player.iq).toBe(11);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
     });
@@ -217,8 +219,9 @@ describe('Game interactions', () => {
 
       const result = game.step(ID, 'P');
 
-      expect(result.events[0].text).toBe('You drink the potion...');
-      expect(result.events[1].text).toBe('Strange energies surge through you.');
+      expect(result.events[0].text).toBe(
+        'You drink the potion... strange energies surge through you.'
+      );
       expect(player.mhp).toBe(26);
       expect(player.hp).toBe(16);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
@@ -233,8 +236,9 @@ describe('Game interactions', () => {
 
       const result = game.step(ID, 'P');
 
-      expect(result.events[0].text).toBe('You drink the potion...');
-      expect(result.events[1].text).toBe('You feel weaker.');
+      expect(result.events[0].text).toBe(
+        'You drink the potion... you feel weaker.'
+      );
       expect(player.mhp).toBe(14);
       expect(player.hp).toBe(4);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
