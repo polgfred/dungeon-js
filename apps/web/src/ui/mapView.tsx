@@ -89,8 +89,8 @@ export function MapGrid({
   playerId,
   colorOf,
 }: {
-  map: Tile[][];
-  occupants: Occupant[];
+  map: readonly Tile[][];
+  occupants: readonly Occupant[];
   playerId: PlayerId;
   colorOf: (id: PlayerId) => string;
 }) {

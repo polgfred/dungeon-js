@@ -541,6 +541,7 @@ describe('Game interactions', () => {
       expect(resumedEncounter.mode(ID)).toBe(Mode.ENCOUNTER);
 
       const exploreSave = game.toSave();
+      // @ts-expect-error readonly
       exploreSave.players[0].encounter = null;
       const resumedExplore = Game.fromSave(exploreSave);
       expect(resumedExplore.mode(ID)).toBe(Mode.EXPLORE);
@@ -604,6 +605,7 @@ describe('Game interactions', () => {
     it('throws when save version does not match', () => {
       const game = new Game({ players: [{ id: ID, player: buildPlayer() }] });
       const save = game.toSave();
+      // @ts-expect-error readonly
       save.version = Game.SAVE_VERSION + 1;
 
       expect(() => Game.fromSave(save)).toThrow('Unsupported save version');

@@ -12,16 +12,16 @@ type RoomPacked = number;
 
 type DungeonSave = RoomPacked[][][];
 
-export type EncounterSave = {
+export type EncounterSave = Readonly<{
   awaitingSpell: boolean;
-};
+}>;
 
-export type VendorSave = {
+export type VendorSave = Readonly<{
   phase: 'category' | 'item' | 'attribute';
   category: string | null;
-};
+}>;
 
-export type PlayerSave = {
+export type PlayerSave = Readonly<{
   z: number;
   y: number;
   x: number;
@@ -39,28 +39,28 @@ export type PlayerSave = {
   weaponBroken: boolean;
   armorName: string;
   armorDamaged: boolean;
-  spells: number[];
+  spells: readonly number[];
   fatigued: boolean;
   tempArmorBonus: number;
-};
+}>;
 
-export type PlayerEntrySave = {
+export type PlayerEntrySave = Readonly<{
   id: string;
   player: PlayerSave;
-  observed: Tile[][][];
+  observed: readonly Tile[][][];
   encounter: EncounterSave | null;
   vendor: VendorSave | null;
   exited: boolean;
-};
+}>;
 
-export type GameSave = {
+export type GameSave = Readonly<{
   savedAt: Date;
   version: number;
   dungeon: DungeonSave;
   treasuresFound: Set<number>;
   endMode: Mode | null;
-  players: PlayerEntrySave[];
-};
+  players: readonly PlayerEntrySave[];
+}>;
 
 export function serializePlayer(player: Player): PlayerSave {
   return {

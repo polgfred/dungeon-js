@@ -11,61 +11,61 @@ export type PlayerId = string;
 // --- client -> server -------------------------------------------------------
 
 export type ClientMessage =
-  | { type: 'join'; playerId: PlayerId; name: string }
-  | { type: 'setCharacter'; character: PlayerSave }
-  | { type: 'start' }
-  | { type: 'action'; command: string }
-  | { type: 'cancel' }
-  | { type: 'chat'; text: string };
+  | Readonly<{ type: 'join'; playerId: PlayerId; name: string }>
+  | Readonly<{ type: 'setCharacter'; character: PlayerSave }>
+  | Readonly<{ type: 'start' }>
+  | Readonly<{ type: 'action'; command: string }>
+  | Readonly<{ type: 'cancel' }>
+  | Readonly<{ type: 'chat'; text: string }>;
 
 // --- server -> client -------------------------------------------------------
 
-export interface LobbyMember {
+export type LobbyMember = Readonly<{
   id: PlayerId;
   name: string;
   ready: boolean;
   connected: boolean;
-}
+}>;
 
-export interface LobbyState {
-  members: LobbyMember[];
+export type LobbyState = Readonly<{
+  members: readonly LobbyMember[];
   character: PlayerSave | null;
-}
+}>;
 
-export interface PartyMember {
+export type PartyMember = Readonly<{
   id: PlayerId;
   name: string;
   alive: boolean;
   connected: boolean;
-}
+}>;
 
-export interface Occupant {
+export type Occupant = Readonly<{
   id: PlayerId;
   x: number;
   y: number;
-}
+}>;
 
-export interface PromptView {
+export type PromptView = Readonly<{
   text: string;
-  options: PromptOption[];
+  options: readonly PromptOption[];
   hasCancel: boolean;
-}
+}>;
 
-export interface PlayerView {
+export type PlayerView = Readonly<{
   self: PlayerSave;
   mode: Mode;
-  map: Tile[][];
+  map: readonly Tile[][];
   treasuresFound: number;
   ended: Mode | null;
-  party: PartyMember[];
-  occupants: Occupant[];
+  party: readonly PartyMember[];
+  occupants: readonly Occupant[];
   monster: string | null;
   prompt: PromptView | null;
-}
+}>;
 
 export type ServerMessage =
-  | { type: 'lobby'; state: LobbyState }
-  | { type: 'view'; view: PlayerView }
-  | { type: 'events'; from: PlayerId; events: Event[] }
-  | { type: 'chat'; from: PlayerId; name: string; text: string }
-  | { type: 'error'; message: string };
+  | Readonly<{ type: 'lobby'; state: LobbyState }>
+  | Readonly<{ type: 'view'; view: PlayerView }>
+  | Readonly<{ type: 'events'; from: PlayerId; events: Event[] }>
+  | Readonly<{ type: 'chat'; from: PlayerId; name: string; text: string }>
+  | Readonly<{ type: 'error'; message: string }>;

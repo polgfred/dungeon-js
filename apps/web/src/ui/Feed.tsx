@@ -80,8 +80,8 @@ export function Feed({
   members,
   playerId,
 }: {
-  feed: FeedItem[];
-  members: FeedMember[];
+  feed: readonly FeedItem[];
+  members: readonly FeedMember[];
   playerId: PlayerId;
 }) {
   const scroller = useRef<HTMLDivElement>(null);

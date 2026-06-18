@@ -84,7 +84,7 @@ function Party({
   party,
   playerId,
 }: {
-  party: PartyMember[];
+  party: readonly PartyMember[];
   playerId: PlayerId;
 }) {
   const colorOf = chatColorsById(party);
