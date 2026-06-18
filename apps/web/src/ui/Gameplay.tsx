@@ -13,12 +13,7 @@ import type {
 
 import { ChatInput } from './ChatInput.js';
 import { chatColorsById } from './chatColors.js';
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  dialogStyles,
-} from './Dialog.js';
+import { Dialog, DialogContent, DialogTitle, dialogStyles } from './Dialog.js';
 import { Feed } from './Feed.js';
 import styles from './Gameplay.module.css';
 import layout from './Layout.module.css';
@@ -584,7 +579,9 @@ export function Gameplay({
         onClose={() => setHelpOpen(false)}
         className={dialogStyles.bluePaper}
       >
-        <DialogTitle onClose={() => setHelpOpen(false)}>How to Play</DialogTitle>
+        <DialogTitle onClose={() => setHelpOpen(false)}>
+          How to Play
+        </DialogTitle>
         <DialogContent dividers className={styles.helpDoc}>
           <HelpControls />
         </DialogContent>
