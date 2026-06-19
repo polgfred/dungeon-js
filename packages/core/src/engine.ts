@@ -274,13 +274,6 @@ export class Game {
 
     if (state.encounter) {
       const room = this.currentRoom(state.player);
-      // The monster may have been slain by another player who shared this room.
-      if (room.monsterLevel <= 0) {
-        state.encounter = null;
-        this.observe(state);
-        return this.stepResult(id, this.describeRoom(room));
-      }
-
       const result = state.encounter.step(raw);
       const events = result.events;
       if (result.done) {
