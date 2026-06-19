@@ -31,7 +31,6 @@ function NamedLine({
     case 'notice':
       return (
         <div className={styles.feedLine}>
-          <span className={styles.feedBullet}>= </span>
           <span className={styles.noticeText}>{item.text}</span>
         </div>
       );
@@ -39,7 +38,6 @@ function NamedLine({
       const mine = item.from === playerId;
       return (
         <div className={styles.feedLine}>
-          <span className={styles.feedBullet}>- </span>
           {!mine && (
             <span style={{ color: colorOf(item.from) }}>
               &lt;{named(item.from)}&gt;{' '}
@@ -54,7 +52,6 @@ function NamedLine({
       const parts = item.event.text.split(ACTOR_TOKEN);
       return (
         <div className={styles.feedLine}>
-          <span className={styles.feedBullet}>* </span>
           {parts.map((part, i) => (
             <Fragment key={i}>
               {i > 0 && (

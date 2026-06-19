@@ -71,20 +71,21 @@ export function tableReducer(
       return { ...state, lobby: action.state, error: null };
     case 'view':
       return { ...state, phase: 'play', view: action.view, error: null };
-    case 'events':
+    case 'events': {
+      const events = action.events.filter((event) => event.kind !== 'PROMPT');
+      if (events.length === 0) return state;
       return {
         ...state,
         feed: appendFeed(
           state.feed,
-          action.events
-            .filter((event) => event.kind !== 'PROMPT')
-            .map((event) => ({
-              kind: 'event' as const,
-              from: action.from,
-              event,
-            }))
+          events.map((event) => ({
+            kind: 'event' as const,
+            from: action.from,
+            event,
+          }))
         ),
       };
+    }
     case 'chat':
       return {
         ...state,

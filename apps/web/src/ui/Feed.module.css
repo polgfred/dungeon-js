@@ -3,28 +3,52 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  /* Spacing between groups. */
+  gap: 0.5rem;
   overflow-y: auto;
   min-height: 0;
   font-size: 0.9rem;
 }
 
 .feedGroup {
+  /* The left margin the rail and per-line ticks share. Drives both the group
+     padding and each tick's reach, so they can't drift apart. */
+  --feed-gutter: 1.25rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Spacing between lines within one turn. */
+  gap: 0.2rem;
+  padding-left: var(--feed-gutter);
+}
+
+.feedGroup::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.25em;
+  bottom: 0.15em;
+  width: 3px;
+  background: rgba(var(--text-primary-rgb), 0.22);
 }
 
 .feedLine {
+  position: relative;
   color: var(--text-primary);
   /* Hanging indent */
-  padding-left: 2em;
+  padding-left: 1.75em;
   text-indent: -2em;
-
-  &:not(:first-child) {
-
-  }
 }
 
-.feedBullet {
-  color: var(--text-disabled);
+/* A short tick off the rail at the start of the first line. */
+.feedLine:first-child::before {
+  content: '';
+  position: absolute;
+  left: calc(3px - var(--feed-gutter));
+  width: 0.3rem;
+  top: 0.75em;
+  height: 2px;
+  background: rgba(var(--text-primary-rgb), 0.22);
 }
 
 .feedLoot {
