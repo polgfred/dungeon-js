@@ -328,16 +328,18 @@ export class TableObject extends HydratableObject<TableSnapshot> {
       map: game.mapView(playerId),
       treasuresFound: game.treasuresFound.size,
       ended: game.endMode,
-      party: game.playerIds.map((id) => ({
-        id,
-        name: this.nameOf(id),
-        alive: game.getPlayer(id).hp > 0,
-        connected: connected.has(id),
-      })),
-      occupants: game.playerIds
-        .map((id) => ({ id, player: game.getPlayer(id) }))
-        .filter(({ player }) => player.z === self.z)
-        .map(({ id, player }) => ({ id, x: player.x, y: player.y })),
+      party: game.playerIds.map((id) => {
+        const player = game.getPlayer(id);
+        return {
+          id,
+          name: this.nameOf(id),
+          alive: player.hp > 0,
+          connected: connected.has(id),
+          z: player.z,
+          y: player.y,
+          x: player.x,
+        };
+      }),
       monster: game.currentMonster(playerId),
       prompt: this.promptView(playerId),
     };

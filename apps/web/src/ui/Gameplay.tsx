@@ -538,7 +538,8 @@ export function Gameplay({
       <section className={clsx(layout.board, styles.board)}>
         <MapGrid
           map={view.map}
-          occupants={view.occupants}
+          floor={view.self.z}
+          party={view.party}
           playerId={playerId}
           colorOf={colorOf}
         />

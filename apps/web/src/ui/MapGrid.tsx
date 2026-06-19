@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import clsx from 'clsx';
 
 import { Feature, MapTile, type Tile } from '@dod/core';
-import type { Occupant, PlayerId } from '@dod/net/client';
+import type { PartyMember, PlayerId } from '@dod/net/client';
 
 import { GLYPH_PATHS, type GlyphId } from './glyphPaths.js';
 import styles from './MapGrid.module.css';
@@ -85,22 +85,25 @@ function ringStyle(colors: string[]): CSSProperties {
 
 export function MapGrid({
   map,
-  occupants,
+  floor,
+  party,
   playerId,
   colorOf,
 }: {
   map: readonly Tile[][];
-  occupants: readonly Occupant[];
+  floor: number;
+  party: readonly PartyMember[];
   playerId: PlayerId;
   colorOf: (id: PlayerId) => string;
 }) {
   // Group occupants by cell so a shared room mixes everyone's colors.
   const byCell = new Map<string, CellOccupancy>();
-  for (const occ of occupants) {
-    const key = `${occ.x},${occ.y}`;
+  for (const member of party) {
+    if (member.z !== floor) continue;
+    const key = `${member.x},${member.y}`;
     const entry = byCell.get(key) ?? { colors: [], isSelf: false };
-    entry.colors.push(colorOf(occ.id));
-    if (occ.id === playerId) entry.isSelf = true;
+    entry.colors.push(colorOf(member.id));
+    if (member.id === playerId) entry.isSelf = true;
     byCell.set(key, entry);
   }
 

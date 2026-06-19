@@ -17,7 +17,6 @@ function makeView(overrides: Partial<PlayerView> = {}): PlayerView {
     treasuresFound: 0,
     ended: null,
     party: [],
-    occupants: [],
     monster: null,
     prompt: null,
     ...overrides,

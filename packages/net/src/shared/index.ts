@@ -37,12 +37,9 @@ export type PartyMember = Readonly<{
   name: string;
   alive: boolean;
   connected: boolean;
-}>;
-
-export type Occupant = Readonly<{
-  id: PlayerId;
-  x: number;
+  z: number;
   y: number;
+  x: number;
 }>;
 
 export type PromptView = Readonly<{
@@ -58,7 +55,6 @@ export type PlayerView = Readonly<{
   treasuresFound: number;
   ended: Mode | null;
   party: readonly PartyMember[];
-  occupants: readonly Occupant[];
   monster: string | null;
   prompt: PromptView | null;
 }>;
