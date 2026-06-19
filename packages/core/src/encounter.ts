@@ -307,7 +307,6 @@ export class EncounterSession {
       disabled: iqTooLow || (spells.get(spell) ?? 0) <= 0,
     }));
     return {
-      type: 'spell',
       options,
       hasCancel: true,
     };
