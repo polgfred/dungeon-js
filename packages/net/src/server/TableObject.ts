@@ -286,18 +286,18 @@ export class TableObject extends HydratableObject<TableSnapshot> {
 
   /**
    * Deliver the results of one player's turn: the actor sees each event's own
-   * text; everyone else sees only the events that carry a `broadcast` line, with
-   * that string swapped in as the text (attributed to the actor).
+   * text; everyone else sees only the events that carry a `broadcast` line.
    */
   private fanOut(result: StepResult) {
-    const forMe = result.events.map(({ broadcast, ...event }) => event);
-    const forOthers = result.events
+    const events = result.events.filter(event => event.kind !== 'PROMPT');
+    const forMe = events.map(({ broadcast, ...event }) => event);
+    const forOthers = events
       .filter((event) => event.broadcast !== undefined)
       .map(({ broadcast, ...event }) => ({ ...event, text: broadcast! }));
     for (const ws of this.ctx.getWebSockets()) {
       const playerId = this.playerIdOf(ws);
-      if (!playerId || !this.game?.hasPlayer(playerId)) continue;
-      if (playerId === result.playerId) {
+      if (!playerId || !this.game!.hasPlayer(playerId)) continue;
+      if (playerId === result.playerId && forMe.length) {
         this.send(ws, {
           type: 'events',
           from: result.playerId,
