@@ -6,7 +6,7 @@ import { Feature, MapTile, type Tile } from '@dod/core';
 import type { Occupant, PlayerId } from '@dod/net/client';
 
 import { GLYPH_PATHS, type GlyphId } from './glyphPaths.js';
-import styles from './Gameplay.module.css';
+import styles from './MapGrid.module.css';
 
 type TileGlyph = {
   id?: GlyphId;
