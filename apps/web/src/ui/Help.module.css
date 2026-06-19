@@ -12,7 +12,7 @@
 }
 
 .titleFrame {
-  padding: 12px 24px;
+  padding: 24px 36px;
   width: 100%;
   border: 1px solid rgba(var(--primary-light-rgb), 0.55);
   border-radius: 4px;
@@ -23,10 +23,10 @@
 .titleImage {
   display: block;
   width: 100%;
-  aspect-ratio: 8 / 1;
+  aspect-ratio: 9 / 1;
   background-color: var(--text-primary);
   opacity: 0.75;
-  mask: url(../assets/DofDTitleFlat.png) center / contain no-repeat;
+  mask: url(../assets/DofDTitleFlat.svg) center / contain no-repeat;
 }
 
 .sheet {
