@@ -1,54 +1,58 @@
 /* The shared chat/event log. */
 .feed {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  /* Spacing between groups. */
-  gap: 0.5rem;
+  /* The scroll viewport only — it clips the rail; the rail itself lives on the
+     content-sized inner wrapper so it spans the full feed, not just this box. */
   overflow-y: auto;
   min-height: 0;
   font-size: 0.9rem;
 }
 
-.feedGroup {
-  /* The left margin the rail and per-line ticks share. Drives both the group
-     padding and each tick's reach, so they can't drift apart. */
+.feedInner {
   --feed-gutter: 1.25rem;
   position: relative;
   display: flex;
   flex-direction: column;
-  /* Spacing between lines within one turn. */
-  gap: 0.2rem;
-  padding-left: var(--feed-gutter);
+  /* Spacing between groups. */
+  gap: 0.5rem;
 }
 
-.feedGroup::before {
+/* The single rail, full height of the feed contents. */
+.feedInner::before {
   content: '';
   position: absolute;
   left: 0;
   top: 0.25em;
   bottom: 0.15em;
-  width: 3px;
-  background: rgba(var(--text-primary-rgb), 0.22);
+  width: 4px;
+  background: rgba(var(--text-primary-rgb), 0.18);
+}
+
+.feedGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Spacing between lines within one turn. */
+  gap: 0.2rem;
+  padding-left: 1.5rem;
+}
+
+/* A short tick off the rail at the start of the first line. */
+.feedGroup::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  width: 0.4rem;
+  top: 0.65em;
+  height: 4px;
+  background: rgba(var(--text-primary-rgb), 0.18);
 }
 
 .feedLine {
-  position: relative;
   color: var(--text-primary);
   /* Hanging indent */
   padding-left: 1.75em;
   text-indent: -2em;
-}
-
-/* A short tick off the rail at the start of the first line. */
-.feedLine:first-child::before {
-  content: '';
-  position: absolute;
-  left: calc(3px - var(--feed-gutter));
-  width: 0.3rem;
-  top: 0.75em;
-  height: 2px;
-  background: rgba(var(--text-primary-rgb), 0.22);
 }
 
 .feedLoot {

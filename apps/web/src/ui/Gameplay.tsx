@@ -6,7 +6,6 @@ import { Feature, Mode, raceName, SPELL_MIN_IQ } from '@dod/core';
 import type {
   ConnectionStatus,
   FeedGroup,
-  FeedItem,
   PartyMember,
   PlayerId,
   PlayerView,

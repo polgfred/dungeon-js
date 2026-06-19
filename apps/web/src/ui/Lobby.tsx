@@ -12,7 +12,7 @@ import {
 } from '@dod/core';
 import type {
   ConnectionStatus,
-  FeedItem,
+  FeedGroup,
   LobbyState,
   PlayerId,
 } from '@dod/net/client';
@@ -142,7 +142,7 @@ export function Lobby({
   lobby: LobbyState | null;
   playerId: PlayerId;
   status: ConnectionStatus;
-  feed: readonly FeedItem[];
+  feed: readonly FeedGroup[];
   onSetCharacter: (character: PlayerSave) => void;
   onStart: () => void;
   onChat: (text: string) => void;

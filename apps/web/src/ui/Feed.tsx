@@ -97,19 +97,21 @@ export function Feed({
 
   return (
     <div ref={scroller} className={styles.feed} onScroll={onScroll}>
-      {feed.map((group, i) => (
-        <div className={styles.feedGroup} key={i}>
-          {group.map((item, j) => (
-            <NamedLine
-              key={j}
-              item={item}
-              playerId={playerId}
-              named={named}
-              colorOf={colorOf}
-            />
-          ))}
-        </div>
-      ))}
+      <div className={styles.feedInner}>
+        {feed.map((group, i) => (
+          <div className={styles.feedGroup} key={i}>
+            {group.map((item, j) => (
+              <NamedLine
+                key={j}
+                item={item}
+                playerId={playerId}
+                named={named}
+                colorOf={colorOf}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
