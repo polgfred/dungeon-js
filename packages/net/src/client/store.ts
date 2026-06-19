@@ -15,12 +15,14 @@ export type FeedItem =
   | Readonly<{ kind: 'chat'; from: PlayerId; name: string; text: string }>
   | Readonly<{ kind: 'notice'; text: string }>;
 
+export type FeedGroup = readonly FeedItem[];
+
 export type TableState = Readonly<{
   status: ConnectionStatus;
   phase: TablePhase;
   lobby: LobbyState | null;
   view: PlayerView | null;
-  feed: readonly FeedItem[];
+  feed: readonly FeedGroup[];
   error: string | null;
 }>;
 
@@ -40,10 +42,10 @@ export type TableAction =
 const MAX_FEED = 256;
 
 function appendFeed(
-  feed: readonly FeedItem[],
+  feed: readonly FeedGroup[],
   items: readonly FeedItem[]
-): readonly FeedItem[] {
-  const next = [...feed, ...items];
+): readonly FeedGroup[] {
+  const next = [...feed, items];
   return next.length > MAX_FEED ? next.slice(-MAX_FEED) : next;
 }
 
@@ -74,11 +76,13 @@ export function tableReducer(
         ...state,
         feed: appendFeed(
           state.feed,
-          action.events.map((event) => ({
-            kind: 'event' as const,
-            from: action.from,
-            event,
-          }))
+          action.events
+            .filter((event) => event.kind !== 'PROMPT')
+            .map((event) => ({
+              kind: 'event' as const,
+              from: action.from,
+              event,
+            }))
         ),
       };
     case 'chat':

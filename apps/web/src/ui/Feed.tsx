@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef } from 'react';
 
 import { ACTOR_TOKEN } from '@dod/core';
-import type { FeedItem, PlayerId } from '@dod/net/client';
+import type { FeedGroup, FeedItem, PlayerId } from '@dod/net/client';
 
 import { chatColorsById } from './chatColors.js';
 import styles from './Feed.module.css';
@@ -27,51 +27,48 @@ function NamedLine({
   named: (id: PlayerId) => string;
   colorOf: (id: PlayerId) => string;
 }) {
-  // A local notice (connection dropped/restored): no actor, dim framing.
-  if (item.kind === 'notice') {
-    return (
-      <div className={styles.feedLine}>
-        <span className={styles.feedBullet}>= </span>
-        <span className={styles.noticeText}>{item.text}</span>
-      </div>
-    );
-  }
-
-  const mine = item.from === playerId;
-
-  // Chat stays a tagged quote: "- <name> message".
-  if (item.kind === 'chat') {
-    return (
-      <div className={styles.feedLine}>
-        <span className={styles.feedBullet}>- </span>
-        {!mine && (
-          <span style={{ color: colorOf(item.from) }}>
-            &lt;{named(item.from)}&gt;{' '}
-          </span>
-        )}
-        <span className={styles.chatText}>{item.text}</span>
-      </div>
-    );
-  }
-
-  // Game events: replace ACTOR_TOKEN with player name.
-  const textClass = FEED_KIND_CLASS[item.event.kind];
-  const parts = item.event.text.split(ACTOR_TOKEN);
-  return (
-    <div className={styles.feedLine}>
-      <span className={styles.feedBullet}>* </span>
-      {parts.map((part, i) => (
-        <Fragment key={i}>
-          {i > 0 && (
+  switch (item.kind) {
+    case 'notice':
+      return (
+        <div className={styles.feedLine}>
+          <span className={styles.feedBullet}>= </span>
+          <span className={styles.noticeText}>{item.text}</span>
+        </div>
+      );
+    case 'chat': {
+      const mine = item.from === playerId;
+      return (
+        <div className={styles.feedLine}>
+          <span className={styles.feedBullet}>- </span>
+          {!mine && (
             <span style={{ color: colorOf(item.from) }}>
-              {named(item.from)}
+              &lt;{named(item.from)}&gt;{' '}
             </span>
           )}
-          {part && <span className={textClass}>{part}</span>}
-        </Fragment>
-      ))}
-    </div>
-  );
+          <span className={styles.chatText}>{item.text}</span>
+        </div>
+      );
+    }
+    case 'event': {
+      const textClass = FEED_KIND_CLASS[item.event.kind];
+      const parts = item.event.text.split(ACTOR_TOKEN);
+      return (
+        <div className={styles.feedLine}>
+          <span className={styles.feedBullet}>* </span>
+          {parts.map((part, i) => (
+            <Fragment key={i}>
+              {i > 0 && (
+                <span style={{ color: colorOf(item.from) }}>
+                  {named(item.from)}
+                </span>
+              )}
+              {part && <span className={textClass}>{part}</span>}
+            </Fragment>
+          ))}
+        </div>
+      );
+    }
+  }
 }
 
 /** The scrolling chat/event log, shared by the lobby and gameplay */
@@ -80,7 +77,7 @@ export function Feed({
   members,
   playerId,
 }: {
-  feed: readonly FeedItem[];
+  feed: readonly FeedGroup[];
   members: readonly FeedMember[];
   playerId: PlayerId;
 }) {
@@ -97,23 +94,24 @@ export function Feed({
     if (el && pinned.current) el.scrollTop = el.scrollHeight;
   }, [feed]);
 
+  const colorOf = chatColorsById(members);
   const named = (id: PlayerId) =>
     members.find((member) => member.id === id)?.name ?? id;
-  const colorOf = chatColorsById(members);
-  const lines = feed.filter(
-    (item) => item.kind !== 'event' || item.event.kind !== 'PROMPT'
-  );
 
   return (
     <div ref={scroller} className={styles.feed} onScroll={onScroll}>
-      {lines.map((item, i) => (
-        <NamedLine
-          key={i}
-          item={item}
-          playerId={playerId}
-          named={named}
-          colorOf={colorOf}
-        />
+      {feed.map((group, i) => (
+        <div className={styles.feedGroup} key={i}>
+          {group.map((item, j) => (
+            <NamedLine
+              key={j}
+              item={item}
+              playerId={playerId}
+              named={named}
+              colorOf={colorOf}
+            />
+          ))}
+        </div>
       ))}
     </div>
   );

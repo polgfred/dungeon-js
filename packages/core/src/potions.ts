@@ -22,9 +22,7 @@ function potionAttributeOutcomeText(options: {
 }
 
 export function drinkHealingPotionEvents() {
-  return [
-    Event.info('You drink the potion... healing results.'),
-  ];
+  return [Event.info('You drink the potion... healing results.')];
 }
 
 export function drinkAttributePotionEvents(options: {

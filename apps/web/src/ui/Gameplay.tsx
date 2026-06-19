@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Feature, Mode, raceName, SPELL_MIN_IQ } from '@dod/core';
 import type {
   ConnectionStatus,
+  FeedGroup,
   FeedItem,
   PartyMember,
   PlayerId,
@@ -482,7 +483,7 @@ export function Gameplay({
   onChat,
 }: {
   view: PlayerView;
-  feed: readonly FeedItem[];
+  feed: readonly FeedGroup[];
   status: ConnectionStatus;
   playerId: PlayerId;
   onAction: (command: string) => void;
