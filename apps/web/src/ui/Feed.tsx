@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import { Fragment, useEffect, useRef } from 'react';
 
 import { ACTOR_TOKEN } from '@dod/core';
@@ -5,6 +6,12 @@ import type { FeedGroup, PlayerId } from '@dod/net/client';
 
 import { chatColorsById } from './chatColors.js';
 import styles from './Feed.module.css';
+
+const FEED_GROUP_MARK: Partial<Record<FeedGroup['kind'], string>> = {
+  notice: '=',
+  chat: '-',
+  event: '>',
+};
 
 const FEED_KIND_CLASS: Partial<Record<string, string>> = {
   LOOT: styles.feedLoot,
@@ -105,6 +112,9 @@ export function Feed({
       <div className={styles.feedInner}>
         {feed.map((group, i) => (
           <div className={styles.feedTurn} key={i}>
+            <div className={styles.feedGroupMark}>
+              {FEED_GROUP_MARK[group.kind]}
+            </div>
             <FeedTurn
               group={group}
               playerId={playerId}

@@ -23,8 +23,7 @@
   padding-left: 1.5rem;
 }
 
-.feedTurn::before {
-  content: '>';
+.feedGroupMark {
   position: absolute;
   left: 4px;
   color: rgba(var(--text-primary-rgb), 0.22);
