@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef } from 'react';
 
 import { ACTOR_TOKEN } from '@dod/core';
-import type { FeedGroup, FeedItem, PlayerId } from '@dod/net/client';
+import type { FeedGroup, PlayerId } from '@dod/net/client';
 
 import { chatColorsById } from './chatColors.js';
 import styles from './Feed.module.css';
@@ -15,56 +15,61 @@ const FEED_KIND_CLASS: Partial<Record<string, string>> = {
 /** Anything with a name and id — a lobby member or a party member alike. */
 type FeedMember = { id: PlayerId; name: string };
 
-/** A single feed line. */
-function NamedLine({
-  item,
+/** One turn's worth of feed output: events, chat, or notice. */
+function FeedTurn({
+  group,
   playerId,
   named,
   colorOf,
 }: {
-  item: FeedItem;
+  group: FeedGroup;
   playerId: PlayerId;
   named: (id: PlayerId) => string;
   colorOf: (id: PlayerId) => string;
 }) {
-  switch (item.kind) {
+  switch (group.kind) {
     case 'notice':
       return (
         <div className={styles.feedLine}>
-          <span className={styles.noticeText}>{item.text}</span>
+          <span className={styles.noticeText}>{group.text}</span>
         </div>
       );
     case 'chat': {
-      const mine = item.from === playerId;
+      const mine = group.from === playerId;
       return (
         <div className={styles.feedLine}>
           {!mine && (
-            <span style={{ color: colorOf(item.from) }}>
-              &lt;{named(item.from)}&gt;{' '}
+            <span style={{ color: colorOf(group.from) }}>
+              &lt;{named(group.from)}&gt;{' '}
             </span>
           )}
-          <span className={styles.chatText}>{item.text}</span>
+          <span className={styles.chatText}>{group.text}</span>
         </div>
       );
     }
-    case 'event': {
-      const textClass = FEED_KIND_CLASS[item.event.kind];
-      const parts = item.event.text.split(ACTOR_TOKEN);
+    case 'event':
       return (
-        <div className={styles.feedLine}>
-          {parts.map((part, i) => (
-            <Fragment key={i}>
-              {i > 0 && (
-                <span style={{ color: colorOf(item.from) }}>
-                  {named(item.from)}
-                </span>
-              )}
-              {part && <span className={textClass}>{part}</span>}
-            </Fragment>
-          ))}
-        </div>
+        <>
+          {group.events.map((event, i) => {
+            const textClass = FEED_KIND_CLASS[event.kind];
+            const parts = event.text.split(ACTOR_TOKEN);
+            return (
+              <div className={styles.feedLine} key={i}>
+                {parts.map((part, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && (
+                      <span style={{ color: colorOf(group.from) }}>
+                        {named(group.from)}
+                      </span>
+                    )}
+                    {part && <span className={textClass}>{part}</span>}
+                  </Fragment>
+                ))}
+              </div>
+            );
+          })}
+        </>
       );
-    }
   }
 }
 
@@ -98,17 +103,14 @@ export function Feed({
   return (
     <div ref={scroller} className={styles.feed} onScroll={onScroll}>
       <div className={styles.feedInner}>
-        {feed.map((turn, i) => (
+        {feed.map((group, i) => (
           <div className={styles.feedTurn} key={i}>
-            {turn.map((item, j) => (
-              <NamedLine
-                key={j}
-                item={item}
-                playerId={playerId}
-                named={named}
-                colorOf={colorOf}
-              />
-            ))}
+            <FeedTurn
+              group={group}
+              playerId={playerId}
+              named={named}
+              colorOf={colorOf}
+            />
           </div>
         ))}
       </div>

@@ -10,12 +10,11 @@ import { TableConnection, type ConnectionStatus } from './connection.js';
 
 export type TablePhase = 'lobby' | 'play';
 
-export type FeedItem =
-  | Readonly<{ kind: 'event'; from: PlayerId; event: Event }>
+/** One turn's worth of output. */
+export type FeedGroup =
+  | Readonly<{ kind: 'event'; from: PlayerId; events: readonly Event[] }>
   | Readonly<{ kind: 'chat'; from: PlayerId; name: string; text: string }>
   | Readonly<{ kind: 'notice'; text: string }>;
-
-export type FeedGroup = readonly FeedItem[];
 
 export type TableState = Readonly<{
   status: ConnectionStatus;
@@ -43,9 +42,9 @@ const MAX_FEED = 256;
 
 function appendFeed(
   feed: readonly FeedGroup[],
-  items: readonly FeedItem[]
+  group: FeedGroup
 ): readonly FeedGroup[] {
-  const next = [...feed, items];
+  const next = [...feed, group];
   return next.length > MAX_FEED ? next.slice(-MAX_FEED) : next;
 }
 
@@ -60,9 +59,10 @@ export function tableReducer(
         return {
           ...state,
           status: action.status,
-          feed: appendFeed(state.feed, [
-            { kind: 'notice', text: 'Connected.' },
-          ]),
+          feed: appendFeed(state.feed, {
+            kind: 'notice',
+            text: 'Connected.',
+          }),
         };
       }
       return { ...state, status: action.status };
@@ -74,26 +74,21 @@ export function tableReducer(
     case 'events':
       return {
         ...state,
-        feed: appendFeed(
-          state.feed,
-          action.events.map((event) => ({
-            kind: 'event' as const,
-            from: action.from,
-            event,
-          }))
-        ),
+        feed: appendFeed(state.feed, {
+          kind: 'event',
+          from: action.from,
+          events: action.events,
+        }),
       };
     case 'chat':
       return {
         ...state,
-        feed: appendFeed(state.feed, [
-          {
-            kind: 'chat',
-            from: action.from,
-            name: action.name,
-            text: action.text,
-          },
-        ]),
+        feed: appendFeed(state.feed, {
+          kind: 'chat',
+          from: action.from,
+          name: action.name,
+          text: action.text,
+        }),
       };
     case 'error':
       return { ...state, error: action.message };

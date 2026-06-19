@@ -289,7 +289,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
    * text; everyone else sees only the events that carry a `broadcast` line.
    */
   private fanOut(result: StepResult) {
-    const events = result.events.filter(event => event.kind !== 'PROMPT');
+    const events = result.events.filter((event) => event.kind !== 'PROMPT');
     const forMe = events.map(({ broadcast, ...event }) => event);
     const forOthers = events
       .filter((event) => event.broadcast !== undefined)
