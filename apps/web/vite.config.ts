@@ -28,6 +28,11 @@ export default defineConfig(({}) => {
         '@dod/net/shared': netShared,
       },
     },
+    build: {
+      // Never inline the title art
+      assetsInlineLimit: (filePath: string) =>
+        filePath.endsWith('.svg') ? false : undefined,
+    },
     server: {
       host: true,
       port: Number(process.env.PORT ?? '5173'),
