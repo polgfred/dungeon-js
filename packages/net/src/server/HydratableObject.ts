@@ -23,7 +23,6 @@ export abstract class HydratableObject<
 > extends DurableObject<Env> {
   /** Call from the subclass constructor, after `super()`. */
   protected restore() {
-    this.touch();
     this.hydrate(this.ctx.storage.kv.get<Snapshot>(SNAPSHOT_KEY));
   }
 
