@@ -104,7 +104,7 @@ export default function Help() {
           <p>Go in together. Come up together. Or do not come up at all.</p>
         </section>
 
-        <p className={styles.hail}>All hail the victor.</p>
+        <p className={styles.hail}>All hail the victors.</p>
       </article>
 
       <div className={styles.actions}>

@@ -451,12 +451,14 @@ function HelpControls() {
   );
 }
 
-function EndOverlay({ ended }: { ended: Mode }) {
+function EndOverlay({ ended, count }: { ended: Mode; count: number }) {
   const victory = ended === Mode.VICTORY;
   return (
     <div className={styles.end}>
       <h2 className={clsx('txt-h5', victory ? styles.endWin : styles.endLose)}>
-        {victory ? 'ALL HAIL THE VICTOR!' : 'THE PARTY HAS FALLEN.'}
+        {victory
+          ? `ALL HAIL THE ${count === 1 ? 'VICTOR' : 'VICTORS'}!`
+          : 'THE PARTY HAS FALLEN.'}
       </h2>
       <p className={styles.endText}>
         Art thou brave enough for another attempt?
@@ -541,7 +543,7 @@ export function Gameplay({
           colorOf={colorOf}
         />
         {view.ended ? (
-          <EndOverlay ended={view.ended} />
+          <EndOverlay ended={view.ended} count={view.party.length} />
         ) : (
           <CommandCluster
             view={view}

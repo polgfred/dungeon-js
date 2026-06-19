@@ -22,12 +22,7 @@ import {
   deserializePlayer,
   serializePlayer,
 } from './serialization.js';
-import {
-  Event,
-  type PlayerId,
-  type Prompt,
-  type StepResult,
-} from './types.js';
+import { Event, type PlayerId, type Prompt, type StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
 import { defaultRandomSource, type RandomSource } from './rng.js';
 import {
@@ -607,7 +602,8 @@ export class Game {
     state.exited = true;
     if (this.allExited()) {
       this.endMode = Mode.VICTORY;
-      return [Event.info('ALL HAIL THE VICTOR!', 'ALL HAIL THE VICTOR!')];
+      const message = `ALL HAIL THE ${pluralize(this.players.size, 'VICTOR', 'VICTORS')}!`;
+      return [Event.info(message, message)];
     }
 
     return [
