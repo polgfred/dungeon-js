@@ -201,10 +201,12 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     names.set(playerId, name); // reconnect / rename
     this.persist();
     this.pushViews();
+    const events = game.resumeEvents(playerId);
+    if (!events.length) return;
     this.send(ws, {
       type: 'events',
       from: playerId,
-      events: game.resumeEvents(playerId),
+      events,
     });
   }
 
@@ -247,6 +249,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     this.state = { kind: 'play', game, names };
     for (const id of game.playerIds) {
       const events = game.startEvents(id);
+      if (!events.length) continue;
       for (const ws of this.socketsOf(id)) {
         this.send(ws, { type: 'events', from: id, events });
       }
