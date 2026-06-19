@@ -7,7 +7,7 @@ import {
   initialTableState,
   type TableState,
 } from '../src/client/store.js';
-import type { PlayerView } from '../src/shared/index.js';
+import type { LobbyState, PlayerView } from '../src/shared/index.js';
 
 function makeView(overrides: Partial<PlayerView> = {}): PlayerView {
   return {
@@ -17,6 +17,8 @@ function makeView(overrides: Partial<PlayerView> = {}): PlayerView {
     treasuresFound: 0,
     ended: null,
     party: [],
+    occupants: [],
+    monster: null,
     prompt: null,
     ...overrides,
   };
@@ -35,7 +37,10 @@ describe('tableReducer', () => {
 
   it('replaces lobby state and clears a prior error', () => {
     const withError: TableState = { ...initialTableState, error: 'boom' };
-    const lobby = { members: [{ id: 'a', name: 'Alice', ready: true }] };
+    const lobby = {
+      members: [{ id: 'a', name: 'Alice', ready: true, connected: true }],
+      character: null,
+    } satisfies LobbyState;
 
     const next = tableReducer(withError, { type: 'lobby', state: lobby });
 
@@ -52,24 +57,27 @@ describe('tableReducer', () => {
     expect(next.error).toBeNull();
   });
 
-  it('appends events to the feed, flattened and attributed', () => {
+  it("appends a turn's events as one attributed group", () => {
     const next = tableReducer(initialTableState, {
       type: 'events',
       from: 'alice',
       events: [Event.info('a door creaks'), Event.loot('you find gold')],
     });
 
+    // One message → one group holding both events.
     expect(next.feed).toEqual([
-      {
-        kind: 'event',
-        from: 'alice',
-        event: { kind: 'INFO', text: 'a door creaks' },
-      },
-      {
-        kind: 'event',
-        from: 'alice',
-        event: { kind: 'LOOT', text: 'you find gold' },
-      },
+      [
+        {
+          kind: 'event',
+          from: 'alice',
+          event: { kind: 'INFO', text: 'a door creaks' },
+        },
+        {
+          kind: 'event',
+          from: 'alice',
+          event: { kind: 'LOOT', text: 'you find gold' },
+        },
+      ],
     ]);
   });
 
@@ -85,21 +93,31 @@ describe('tableReducer', () => {
       events: [Event.info('two')],
     });
 
-    expect(second.feed.map((item) => item.from)).toEqual(['alice', 'bob']);
+    // Each message is its own group, in arrival order.
+    expect(second.feed).toHaveLength(2);
+    expect(
+      second.feed.map((group) => {
+        const item = group[0];
+        return item.kind === 'event' ? item.from : null;
+      })
+    ).toEqual(['alice', 'bob']);
     expect(first.feed).toHaveLength(1); // prior state untouched (immutable fold)
   });
 
-  it('caps the scrollback at 256, dropping the oldest', () => {
-    const events = Array.from({ length: 300 }, (_, i) => Event.info(`m${i}`));
-    const next = tableReducer(initialTableState, {
-      type: 'events',
-      from: 'alice',
-      events,
-    });
+  it('caps the scrollback at 256 turns, dropping the oldest', () => {
+    // One turn per message, so 300 messages → 300 groups before the cap.
+    let state: TableState = initialTableState;
+    for (let i = 0; i < 300; i++) {
+      state = tableReducer(state, {
+        type: 'events',
+        from: 'alice',
+        events: [Event.info(`m${i}`)],
+      });
+    }
 
-    expect(next.feed).toHaveLength(256);
-    const first = next.feed[0];
-    const last = next.feed[255];
+    expect(state.feed).toHaveLength(256);
+    const first = state.feed[0][0];
+    const last = state.feed[255][0];
     // oldest 44 dropped (300 - 256), newest retained
     expect(first.kind === 'event' && first.event.text).toBe('m44');
     expect(last.kind === 'event' && last.event.text).toBe('m299');
@@ -113,7 +131,7 @@ describe('tableReducer', () => {
       text: 'on my way',
     });
     expect(next.feed).toEqual([
-      { kind: 'chat', from: 'bob', name: 'Bob', text: 'on my way' },
+      [{ kind: 'chat', from: 'bob', name: 'Bob', text: 'on my way' }],
     ]);
   });
 
@@ -123,7 +141,7 @@ describe('tableReducer', () => {
       type: 'status',
       status: 'open',
     });
-    expect(open.feed).toEqual([{ kind: 'notice', text: 'Connected.' }]);
+    expect(open.feed).toEqual([[{ kind: 'notice', text: 'Connected.' }]]);
 
     // open → closed → connecting: no new notices while away.
     const dropped = tableReducer(open, { type: 'status', status: 'closed' });
@@ -136,8 +154,8 @@ describe('tableReducer', () => {
     // back to open: a second notice.
     const back = tableReducer(retrying, { type: 'status', status: 'open' });
     expect(back.feed).toEqual([
-      { kind: 'notice', text: 'Connected.' },
-      { kind: 'notice', text: 'Connected.' },
+      [{ kind: 'notice', text: 'Connected.' }],
+      [{ kind: 'notice', text: 'Connected.' }],
     ]);
   });
 

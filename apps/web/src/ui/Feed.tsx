@@ -98,9 +98,9 @@ export function Feed({
   return (
     <div ref={scroller} className={styles.feed} onScroll={onScroll}>
       <div className={styles.feedInner}>
-        {feed.map((group, i) => (
-          <div className={styles.feedGroup} key={i}>
-            {group.map((item, j) => (
+        {feed.map((turn, i) => (
+          <div className={styles.feedTurn} key={i}>
+            {turn.map((item, j) => (
               <NamedLine
                 key={j}
                 item={item}
