@@ -482,7 +482,7 @@ export function Gameplay({
   onChat,
 }: {
   view: PlayerView;
-  feed: FeedItem[];
+  feed: readonly FeedItem[];
   status: ConnectionStatus;
   playerId: PlayerId;
   onAction: (command: string) => void;

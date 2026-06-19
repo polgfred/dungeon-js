@@ -11,18 +11,18 @@ import { TableConnection, type ConnectionStatus } from './connection.js';
 export type TablePhase = 'lobby' | 'play';
 
 export type FeedItem =
-  | { kind: 'event'; from: PlayerId; event: Event }
-  | { kind: 'chat'; from: PlayerId; name: string; text: string }
-  | { kind: 'notice'; text: string };
+  | Readonly<{ kind: 'event'; from: PlayerId; event: Event }>
+  | Readonly<{ kind: 'chat'; from: PlayerId; name: string; text: string }>
+  | Readonly<{ kind: 'notice'; text: string }>;
 
-export interface TableState {
+export type TableState = Readonly<{
   status: ConnectionStatus;
   phase: TablePhase;
   lobby: LobbyState | null;
   view: PlayerView | null;
-  feed: FeedItem[];
+  feed: readonly FeedItem[];
   error: string | null;
-}
+}>;
 
 export const initialTableState: TableState = {
   status: 'connecting',
@@ -35,11 +35,14 @@ export const initialTableState: TableState = {
 
 export type TableAction =
   | ServerMessage
-  | { type: 'status'; status: ConnectionStatus };
+  | Readonly<{ type: 'status'; status: ConnectionStatus }>;
 
 const MAX_FEED = 256;
 
-function appendFeed(feed: FeedItem[], items: FeedItem[]): FeedItem[] {
+function appendFeed(
+  feed: readonly FeedItem[],
+  items: readonly FeedItem[]
+): readonly FeedItem[] {
   const next = [...feed, ...items];
   return next.length > MAX_FEED ? next.slice(-MAX_FEED) : next;
 }
