@@ -289,9 +289,8 @@ export class TableObject extends HydratableObject<TableSnapshot> {
    * text; everyone else sees only the events that carry a `broadcast` line.
    */
   private fanOut(result: StepResult) {
-    const events = result.events.filter((event) => event.kind !== 'PROMPT');
-    const forMe = events.map(({ broadcast, ...event }) => event);
-    const forOthers = events
+    const forMe = result.events.map(({ broadcast, ...event }) => event);
+    const forOthers = result.events
       .filter((event) => event.broadcast !== undefined)
       .map(({ broadcast, ...event }) => ({ ...event, text: broadcast! }));
     for (const ws of this.ctx.getWebSockets()) {
@@ -346,8 +345,8 @@ export class TableObject extends HydratableObject<TableSnapshot> {
     if (!prompt) return null;
     return {
       text: prompt.text,
-      options: prompt.data?.options ?? [],
-      hasCancel: prompt.data?.hasCancel ?? false,
+      options: prompt.options ?? [],
+      hasCancel: prompt.hasCancel,
     };
   }
 

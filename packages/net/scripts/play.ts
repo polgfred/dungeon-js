@@ -112,6 +112,15 @@ function viewText(view: PlayerView): string {
   lines.push(
     `  ${MODE_NAMES[view.mode] ?? view.mode}  weapon ${self.weaponName}  armour ${self.armorName}  party: ${party}`
   );
+  if (view.prompt) {
+    lines.push(`  ${view.prompt.text}`);
+    for (const option of view.prompt.options) {
+      const note = option.note ? ` ${option.note}` : '';
+      const dim = option.disabled ? ' (unavailable)' : '';
+      lines.push(`    [${option.key}] ${option.label}${note}${dim}`);
+    }
+    if (view.prompt.hasCancel) lines.push('    [/cancel] back out');
+  }
   return lines.join('\n');
 }
 
@@ -120,17 +129,6 @@ function viewText(view: PlayerView): string {
 const names = new Map<string, string>();
 
 function formatEvent(event: Event, mine: boolean, fromName: string): string {
-  if (event.kind === 'PROMPT') {
-    const lines = [`  ${event.text}`];
-    for (const option of event.data?.options ?? []) {
-      const note = option.note ? ` ${option.note}` : '';
-      const dim = option.disabled ? ' (unavailable)' : '';
-      lines.push(`    [${option.key}] ${option.label}${note}${dim}`);
-    }
-    if (event.data?.hasCancel) lines.push('    [/cancel] back out');
-    return lines.join('\n');
-  }
-  // A game event embeds the actor's name as ACTOR_TOKEN.
   return `  * ${event.text.replaceAll(ACTOR_TOKEN, fromName)}`;
 }
 

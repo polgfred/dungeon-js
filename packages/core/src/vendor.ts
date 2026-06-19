@@ -13,7 +13,7 @@ import {
 import type { VendorSave } from './serialization.js';
 import { applyAttributeChange } from './model.js';
 import type { Player } from './model.js';
-import { Event } from './types.js';
+import { Event, makePrompt, type Prompt } from './types.js';
 import type { RandomSource } from './rng.js';
 import {
   drinkAttributePotionEvents,
@@ -58,15 +58,15 @@ export class VendorSession {
     };
   }
 
-  viewEvents(): Event[] {
+  prompt(): Prompt {
     switch (this.phase) {
       case 'item':
-        return [this.itemPrompt()];
+        return this.itemPrompt();
       case 'attribute':
-        return [this.attributePrompt()];
+        return this.attributePrompt();
       case 'category':
       default:
-        return [this.categoryPrompt()];
+        return this.categoryPrompt();
     }
   }
 
@@ -80,10 +80,7 @@ export class VendorSession {
         return this.handleShopAttribute(raw);
       default:
         return {
-          events: [
-            Event.error('Choose W/A/S/P or Esc.'),
-            this.categoryPrompt(),
-          ],
+          events: [Event.error('Choose W/A/S/P or Esc.')],
         };
     }
   }
@@ -92,15 +89,11 @@ export class VendorSession {
     switch (this.phase) {
       case 'attribute':
         this.phase = 'item';
-        return {
-          events: [this.itemPrompt()],
-        };
+        return { events: [] };
       case 'item':
         this.phase = 'category';
         this.category = null;
-        return {
-          events: [this.categoryPrompt()],
-        };
+        return { events: [] };
       case 'category':
       default:
         return {
@@ -118,17 +111,12 @@ export class VendorSession {
       case 'P':
         this.category = raw;
         this.phase = 'item';
-        return {
-          events: [this.itemPrompt()],
-        };
+        return { events: [] };
       case 'F':
         return this.purchaseFlares();
       default:
         return {
-          events: [
-            Event.error('Choose W/A/S/P/F or Esc.'),
-            this.categoryPrompt(),
-          ],
+          events: [Event.error('Choose W/A/S/P/F or Esc.')],
         };
     }
   }
@@ -145,10 +133,7 @@ export class VendorSession {
         return this.handleShopPotions(raw);
       default:
         return {
-          events: [
-            Event.error('Choose W/A/S/P/F or Esc.'),
-            this.categoryPrompt(),
-          ],
+          events: [Event.error('Choose W/A/S/P/F or Esc.')],
         };
     }
   }
@@ -157,7 +142,7 @@ export class VendorSession {
     const tier = { D: 1, S: 2, B: 3 }[raw];
     if (!tier) {
       return {
-        events: [Event.error('Choose D/S/B.'), this.itemPrompt()],
+        events: [Event.error('Choose D/S/B.')],
       };
     }
     const price = WEAPON_PRICES[tier];
@@ -167,7 +152,6 @@ export class VendorSession {
           Event.info(
             `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
           ),
-          this.itemPrompt(),
         ],
       };
     }
@@ -185,7 +169,7 @@ export class VendorSession {
     const tier = { L: 1, W: 2, C: 3 }[raw];
     if (!tier) {
       return {
-        events: [Event.error('Choose L/W/C.'), this.itemPrompt()],
+        events: [Event.error('Choose L/W/C.')],
       };
     }
     const price = ARMOR_PRICES[tier];
@@ -195,7 +179,6 @@ export class VendorSession {
           Event.info(
             `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
           ),
-          this.itemPrompt(),
         ],
       };
     }
@@ -203,10 +186,7 @@ export class VendorSession {
     this.player.armorName = ARMOR_NAMES[tier];
     this.player.armorDamaged = false;
     this.player.gold -= price;
-    return {
-      events: [],
-      done: true,
-    };
+    return { events: [], done: true };
   }
 
   private handleShopScrolls(raw: string): VendorResult {
@@ -219,7 +199,7 @@ export class VendorSession {
     }[raw];
     if (!spell) {
       return {
-        events: [Event.error('Choose P/F/L/W/T.'), this.itemPrompt()],
+        events: [Event.error('Choose P/F/L/W/T.')],
       };
     }
     const price = SPELL_PRICES[spell];
@@ -229,16 +209,12 @@ export class VendorSession {
           Event.info(
             `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
           ),
-          this.itemPrompt(),
         ],
       };
     }
     this.player.gold -= price;
     this.player.spells.set(spell, (this.player.spells.get(spell) ?? 0) + 1);
-    return {
-      events: [],
-      done: true,
-    };
+    return { events: [], done: true };
   }
 
   private handleShopPotions(raw: string): VendorResult {
@@ -251,7 +227,6 @@ export class VendorSession {
               Event.info(
                 `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
               ),
-              this.itemPrompt(),
             ],
           };
         }
@@ -270,18 +245,15 @@ export class VendorSession {
               Event.info(
                 `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
               ),
-              this.itemPrompt(),
             ],
           };
         }
         this.phase = 'attribute';
-        return {
-          events: [this.attributePrompt()],
-        };
+        return { events: [] };
       }
       default:
         return {
-          events: [Event.error('Choose H or A.'), this.itemPrompt()],
+          events: [Event.error('Choose H or A.')],
         };
     }
   }
@@ -294,16 +266,12 @@ export class VendorSession {
           Event.info(
             `Don't try to cheat me, you foolish ${raceName(this.player.race)}. It won't work!`
           ),
-          this.categoryPrompt(),
         ],
       };
     }
     this.player.gold -= price;
     this.player.flares += FLARE_BATCH;
-    return {
-      events: [],
-      done: true,
-    };
+    return { events: [], done: true };
   }
 
   private handleShopAttribute(raw: string): VendorResult {
@@ -323,10 +291,7 @@ export class VendorSession {
         break;
       default:
         return {
-          events: [
-            Event.error('Choose S/D/I/H or Esc.'),
-            this.attributePrompt(),
-          ],
+          events: [Event.error('Choose S/D/I/H or Esc.')],
         };
     }
     const price = POTION_PRICES['ATTRIBUTE'];
@@ -356,10 +321,10 @@ export class VendorSession {
     return this.player.gold < cheapest;
   }
 
-  private categoryPrompt(): Event {
+  private categoryPrompt(): Prompt {
     const cheapest = (prices: Record<PropertyKey, number>) =>
       Math.min(...Object.values(prices));
-    return Event.prompt('He is selling:', {
+    return makePrompt('He is selling:', {
       hasCancel: true,
       options: [
         {
@@ -387,10 +352,10 @@ export class VendorSession {
     });
   }
 
-  private itemPrompt(): Event {
+  private itemPrompt(): Prompt {
     switch (this.category) {
       case 'W':
-        return Event.prompt('Choose a weapon:', {
+        return makePrompt('Choose a weapon:', {
           hasCancel: true,
           options: [
             {
@@ -414,7 +379,7 @@ export class VendorSession {
           ],
         });
       case 'A':
-        return Event.prompt('Choose armour:', {
+        return makePrompt('Choose armour:', {
           hasCancel: true,
           options: [
             {
@@ -438,7 +403,7 @@ export class VendorSession {
           ],
         });
       case 'S':
-        return Event.prompt('Choose a scroll:', {
+        return makePrompt('Choose a scroll:', {
           hasCancel: true,
           options: [
             {
@@ -475,7 +440,7 @@ export class VendorSession {
         });
       case 'P':
       default:
-        return Event.prompt('Choose a potion:', {
+        return makePrompt('Choose a potion:', {
           hasCancel: true,
           options: [
             {
@@ -495,8 +460,8 @@ export class VendorSession {
     }
   }
 
-  private attributePrompt(): Event {
-    return Event.prompt('Choose an attribute:', {
+  private attributePrompt(): Prompt {
+    return makePrompt('Choose an attribute:', {
       hasCancel: true,
       options: [
         { key: 'S', label: 'Strength', disabled: false },

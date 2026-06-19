@@ -551,7 +551,7 @@ describe('Game interactions', () => {
       expect(resumedExplore.mode(ID)).toBe(Mode.EXPLORE);
     });
 
-    it('resumes in encounter spell selection with spell prompt events', () => {
+    it('resumes in encounter spell selection with the spell menu as state', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0 });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].monsterLevel = 1;
@@ -564,17 +564,17 @@ describe('Game interactions', () => {
       game.step(ID, 'S');
 
       const resumed = Game.fromSave(game.toSave());
-      const events = resumed.resumeEvents(ID);
-      const promptEvent = events.find((event) => event.kind === 'PROMPT');
 
       expect(resumed.mode(ID)).toBe(Mode.ENCOUNTER);
-      expect(events).toHaveLength(1);
-      expect(promptEvent?.text).toBe('Choose a spell:');
-      expect(promptEvent?.data?.hasCancel).toBe(true);
-      expect(promptEvent?.data?.options).toHaveLength(5);
+      // The pending menu is player state, not a feed event.
+      expect(resumed.resumeEvents(ID)).toEqual([]);
+      const prompt = resumed.currentPrompt(ID);
+      expect(prompt?.text).toBe('Choose a spell:');
+      expect(prompt?.hasCancel).toBe(true);
+      expect(prompt?.options).toHaveLength(5);
     });
 
-    it('resumes in vendor item selection with vendor intro and item prompt', () => {
+    it('resumes in vendor item selection with the intro in the feed, menu as state', () => {
       const player = buildPlayer({ z: 0, y: 0, x: 0, gold: 100 });
       const dungeon = createEmptyDungeon();
       dungeon.rooms[0][0][0].feature = Feature.VENDOR;
@@ -583,17 +583,18 @@ describe('Game interactions', () => {
       game.step(ID, 'W');
 
       const resumed = Game.fromSave(game.toSave());
-      const events = resumed.resumeEvents(ID);
-      const promptEvent = events.find((event) => event.kind === 'PROMPT');
 
-      expect(events).toHaveLength(2);
-      expect(events[0]).toMatchObject({
-        kind: 'INFO',
-        text: 'There is a vendor here. Do you wish to purchase something?',
-      });
-      expect(promptEvent?.text).toBe('Choose a weapon:');
-      expect(promptEvent?.data?.hasCancel).toBe(true);
-      expect(promptEvent?.data?.options).toHaveLength(3);
+      // Only the intro re-describes the situation; the menu is state.
+      expect(resumed.resumeEvents(ID)).toEqual([
+        {
+          kind: 'INFO',
+          text: 'There is a vendor here. Do you wish to purchase something?',
+        },
+      ]);
+      const prompt = resumed.currentPrompt(ID);
+      expect(prompt?.text).toBe('Choose a weapon:');
+      expect(prompt?.hasCancel).toBe(true);
+      expect(prompt?.options).toHaveLength(3);
     });
 
     it('throws when save version is missing', () => {

@@ -1,7 +1,7 @@
 import { monsterName, Spell, SPELL_MIN_IQ, spellName } from './constants.js';
 import type { EncounterSave } from './serialization.js';
 import type { Player, Room } from './model.js';
-import { Event, type PromptData } from './types.js';
+import { Event, makePrompt, type Prompt, type PromptData } from './types.js';
 import type { RandomSource } from './rng.js';
 
 export function rollMonsterVitality(rng: RandomSource, level: number): number {
@@ -100,15 +100,19 @@ export class EncounterSession {
   }
 
   viewEvents(): Event[] {
-    if (this.awaitingSpell) {
-      return [Event.prompt('Choose a spell:', this.spellMenu())];
-    }
+    if (this.awaitingSpell) return [];
     return [
       Event.combat(
         `You are facing an angry ${this.monsterName}!`,
         `<@> is facing an angry ${this.monsterName}!`
       ),
     ];
+  }
+
+  prompt(): Prompt | null {
+    return this.awaitingSpell
+      ? makePrompt('Choose a spell:', this.spellMenu())
+      : null;
   }
 
   step(raw: string): EncounterResult {
@@ -126,7 +130,7 @@ export class EncounterSession {
         return this.runAttempt();
       case 'S':
         this.awaitingSpell = true;
-        return { events: [Event.prompt('Choose a spell:', this.spellMenu())] };
+        return { events: [] };
       default:
         return { events: [Event.error("I don't understand that.")] };
     }

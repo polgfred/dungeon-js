@@ -25,7 +25,7 @@ import {
 import {
   Event,
   type PlayerId,
-  type PromptEvent,
+  type Prompt,
   type StepResult,
 } from './types.js';
 import { VendorSession } from './vendor.js';
@@ -392,7 +392,6 @@ export class Game {
         Event.info(
           'There is a vendor here. Do you wish to purchase something?'
         ),
-        ...state.vendor.viewEvents(),
       ];
     }
     if (state.encounter) {
@@ -401,11 +400,10 @@ export class Game {
     return this.describeRoom(this.currentRoom(state.player));
   }
 
-  currentPrompt(id: PlayerId): PromptEvent | null {
-    for (const event of this.resumeEvents(id)) {
-      if (event.kind === 'PROMPT') return event;
-    }
-    return null;
+  currentPrompt(id: PlayerId): Prompt | null {
+    if (this.endMode) return null;
+    const state = this.state(id);
+    return state.vendor?.prompt() ?? state.encounter?.prompt() ?? null;
   }
 
   private currentRoom(player: Player): Room {
@@ -840,12 +838,11 @@ export class Game {
     if (room.feature !== Feature.VENDOR) {
       return [Event.info('There is no vendor here.')];
     }
-
     state.vendor = new VendorSession({
       rng: this.rng,
       player: state.player,
     });
-    return state.vendor.viewEvents();
+    return [];
   }
 
   private randomRelocate(
