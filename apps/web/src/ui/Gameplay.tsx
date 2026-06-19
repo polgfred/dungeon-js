@@ -24,7 +24,7 @@ import {
   NAV_COMMANDS,
   TRANSIT_COMMANDS,
 } from './gameplayCommands.js';
-import { GlyphDefs, MapGrid } from './mapView.js';
+import { GlyphDefs, MapGrid } from './MapGrid.js';
 import { StatList, StatRow } from './StatList.js';
 import { navigate } from './useRoute.js';
 
