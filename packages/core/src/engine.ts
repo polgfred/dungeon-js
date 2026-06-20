@@ -231,18 +231,11 @@ export class Game {
   }
 
   private stepResult(id: PlayerId, events: Event[]): StepResult {
+    this.observe(this.state(id));
     return { playerId: id, events, mode: this.mode(id) };
   }
 
   step(id: PlayerId, command: string): StepResult {
-    const result = this.runStep(id, command);
-    const state = this.players.get(id);
-    // Update the map after each turn
-    if (state) this.observe(state);
-    return result;
-  }
-
-  private runStep(id: PlayerId, command: string): StepResult {
     const state = this.state(id);
     const raw = command.trim().toUpperCase();
     if (!raw) {
@@ -292,13 +285,7 @@ export class Game {
               );
             }
           }
-          this.observe(state);
-          // Reobserve for everyone in the room.
-          this.clearEncountersAt(
-            state.player.z,
-            state.player.y,
-            state.player.x
-          );
+          this.reobserveRoom(state.player.z, state.player.y, state.player.x);
         }
         if (result.relocate) {
           this.randomRelocate(state, {
@@ -369,6 +356,16 @@ export class Game {
     x: number = state.player.x
   ): void {
     state.observed[z][y][x] = this.resolveTile(this.dungeon.rooms[z][y][x]);
+  }
+
+  private reobserveRoom(z: number, y: number, x: number): void {
+    const monsterGone = this.dungeon.rooms[z][y][x].monsterLevel === 0;
+    for (const other of this.players.values()) {
+      const p = other.player;
+      if (p.z !== z || p.y !== y || p.x !== x) continue;
+      if (monsterGone) other.encounter = null;
+      this.observe(other);
+    }
   }
 
   resumeEvents(id: PlayerId): Event[] {
@@ -652,6 +649,7 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
+    this.reobserveRoom(player.z, player.y, player.x);
 
     const visions = [
       'The mirror is cloudy and yields no vision.',
@@ -718,6 +716,7 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
+    this.reobserveRoom(player.z, player.y, player.x);
 
     const rand = this.rng.random();
     if (rand < 0.1) {
@@ -787,6 +786,8 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
+    this.reobserveRoom(player.z, player.y, player.x);
+
     const spell = this.rng.randint(1, 5) as Spell;
     player.spells.set(spell, (player.spells.get(spell) ?? 0) + 1);
 
@@ -801,6 +802,7 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
+    this.reobserveRoom(player.z, player.y, player.x);
 
     const roll = this.rng.randint(1, 5);
     if (roll === 1) {
@@ -873,15 +875,5 @@ export class Game {
         `<@> finds the ${treasureName(treasureId)}!`
       ),
     ];
-  }
-
-  private clearEncountersAt(z: number, y: number, x: number): void {
-    for (const other of this.players.values()) {
-      const p = other.player;
-      if (other.encounter && p.z === z && p.y === y && p.x === x) {
-        other.encounter = null;
-        this.observe(other);
-      }
-    }
   }
 }

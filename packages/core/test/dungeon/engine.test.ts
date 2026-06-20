@@ -738,3 +738,45 @@ describe('Party setup', () => {
     expect({ y: b.y, x: b.x }).toEqual({ y: 3, x: 4 });
   });
 });
+
+describe('observed-map blast radius', () => {
+  it('records the emptied cell, not the consumed feature, after grabbing entry treasure', () => {
+    const a = buildPlayer({ z: 0, y: 0, x: 0 });
+    const dungeon = createEmptyDungeon();
+    dungeon.rooms[0][1][0].treasureId = 3; // the cell to the south
+    const game = new Game({
+      dungeon,
+      players: [{ id: 'a', player: a }],
+    });
+    game.startEvents('a');
+
+    game.step('a', 'S'); // walk onto the treasure and auto-grab it
+
+    // The actor's map shows the emptied cell.
+    expect(game.mapView('a')[1][0]).toBe(Feature.EMPTY);
+  });
+
+  it('refreshes a co-located teammate when a chest is opened', () => {
+    const opener = buildPlayer({ z: 0, y: 0, x: 0 });
+    const watcher = buildPlayer({ z: 0, y: 0, x: 0 });
+    const dungeon = createEmptyDungeon();
+    dungeon.rooms[0][0][0].feature = Feature.CHEST;
+    const game = new Game({
+      rng: new ScriptedRng({ random: [0.5], randint: [7] }),
+      dungeon,
+      players: [
+        { id: 'opener', player: opener },
+        { id: 'watcher', player: watcher },
+      ],
+    });
+    game.startEvents('opener');
+    game.startEvents('watcher');
+
+    expect(game.mapView('watcher')[0][0]).toBe(Feature.CHEST);
+
+    game.step('opener', 'O');
+
+    // The colocated teammate's map reflects the emptied room.
+    expect(game.mapView('watcher')[0][0]).toBe(Feature.EMPTY);
+  });
+});
