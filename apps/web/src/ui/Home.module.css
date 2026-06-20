@@ -32,12 +32,18 @@
   }
 }
 
+@keyframes fadeIn {
+  to {
+    opacity: 0.75;
+  }
+}
 .titleImage {
   display: block;
   width: 100%;
   aspect-ratio: 3 / 2;
   background-color: var(--text-primary);
-  opacity: 0.75;
+  opacity: 0.05;
+  animation: fadeIn 2.5s steps(3) forwards;
   mask: url(../assets/DofDTitle.svg) center / contain no-repeat;
 }
 
