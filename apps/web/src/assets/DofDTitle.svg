@@ -1,10 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 288 184">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 288 184" fill="url(#brick)" fill-rule="evenodd">
   <defs>
     <pattern id="brick" width="8" height="8" patternUnits="userSpaceOnUse">
       <rect x="1" y="0.75" width="6" height="2.5" rx="0.5" fill="#fff"/>
       <rect x="-3" y="4.75" width="6" height="2.5" rx="0.5" fill="#fff"/>
       <rect x="5" y="4.75" width="6" height="2.5" rx="0.5" fill="#fff"/>
     </pattern>
+    <path id="g0" d="M0 0H24V8H8V48H32V8H24V56H0Z"/>
+    <path id="g1" d="M0 0H8V48H24V0H32V56H0Z"/>
+    <path id="g2" d="M0 0H8V8H16V16H24V24H32V0H40V56H32V32H24V24H16V16H8V56H0Z "/>
+    <path id="g3" d="M0 0H32V16H24V8H8V48H24V40H16V32H32V56H0Z"/>
+    <path id="g4" d="M0 0H32V8H8V24H24V32H8V48H32V56H0Z"/>
+    <path id="g5" d="M0 0H32V56H0ZM8 8H24V48H8Z"/>
+    <path id="g6" d="M8 24H24V56H8V32H32V48H0V32H8Z"/>
+    <path id="g7" d="M16 0H32V8H40V16H32V8H16V24H24V32H16V56H8V32H0V24H8V8H16Z "/>
+    <path id="g8" d="M0 0H8V8H16V16H24V8H32V0H40V56H32V24H24V32H16V24H8V56H0Z"/>
   </defs>
-  <path d="M0 0h8v8h-8zM8 0h8v8h-8zM16 0h8v8h-8zM40 0h8v8h-8zM64 0h8v8h-8zM80 0h8v8h-8zM112 0h8v8h-8zM128 0h8v8h-8zM136 0h8v8h-8zM144 0h8v8h-8zM152 0h8v8h-8zM168 0h8v8h-8zM176 0h8v8h-8zM184 0h8v8h-8zM192 0h8v8h-8zM208 0h8v8h-8zM216 0h8v8h-8zM224 0h8v8h-8zM232 0h8v8h-8zM248 0h8v8h-8zM280 0h8v8h-8zM0 8h8v8h-8zM24 8h8v8h-8zM40 8h8v8h-8zM64 8h8v8h-8zM80 8h8v8h-8zM88 8h8v8h-8zM112 8h8v8h-8zM128 8h8v8h-8zM152 8h8v8h-8zM168 8h8v8h-8zM208 8h8v8h-8zM232 8h8v8h-8zM248 8h8v8h-8zM256 8h8v8h-8zM280 8h8v8h-8zM0 16h8v8h-8zM24 16h8v8h-8zM40 16h8v8h-8zM64 16h8v8h-8zM80 16h8v8h-8zM96 16h8v8h-8zM112 16h8v8h-8zM128 16h8v8h-8zM168 16h8v8h-8zM208 16h8v8h-8zM232 16h8v8h-8zM248 16h8v8h-8zM264 16h8v8h-8zM280 16h8v8h-8zM0 24h8v8h-8zM24 24h8v8h-8zM40 24h8v8h-8zM64 24h8v8h-8zM80 24h8v8h-8zM104 24h8v8h-8zM112 24h8v8h-8zM128 24h8v8h-8zM168 24h8v8h-8zM176 24h8v8h-8zM184 24h8v8h-8zM208 24h8v8h-8zM232 24h8v8h-8zM248 24h8v8h-8zM272 24h8v8h-8zM280 24h8v8h-8zM0 32h8v8h-8zM24 32h8v8h-8zM40 32h8v8h-8zM64 32h8v8h-8zM80 32h8v8h-8zM112 32h8v8h-8zM128 32h8v8h-8zM144 32h8v8h-8zM152 32h8v8h-8zM168 32h8v8h-8zM208 32h8v8h-8zM232 32h8v8h-8zM248 32h8v8h-8zM280 32h8v8h-8zM0 40h8v8h-8zM24 40h8v8h-8zM40 40h8v8h-8zM64 40h8v8h-8zM80 40h8v8h-8zM112 40h8v8h-8zM128 40h8v8h-8zM152 40h8v8h-8zM168 40h8v8h-8zM208 40h8v8h-8zM232 40h8v8h-8zM248 40h8v8h-8zM280 40h8v8h-8zM0 48h8v8h-8zM8 48h8v8h-8zM16 48h8v8h-8zM40 48h8v8h-8zM48 48h8v8h-8zM56 48h8v8h-8zM64 48h8v8h-8zM80 48h8v8h-8zM112 48h8v8h-8zM128 48h8v8h-8zM136 48h8v8h-8zM144 48h8v8h-8zM152 48h8v8h-8zM168 48h8v8h-8zM176 48h8v8h-8zM184 48h8v8h-8zM192 48h8v8h-8zM208 48h8v8h-8zM216 48h8v8h-8zM224 48h8v8h-8zM232 48h8v8h-8zM248 48h8v8h-8zM280 48h8v8h-8zM168 64h8v8h-8zM176 64h8v8h-8zM160 72h8v8h-8zM184 72h8v8h-8zM160 80h8v8h-8zM120 88h8v8h-8zM128 88h8v8h-8zM152 88h8v8h-8zM160 88h8v8h-8zM168 88h8v8h-8zM112 96h8v8h-8zM136 96h8v8h-8zM160 96h8v8h-8zM112 104h8v8h-8zM136 104h8v8h-8zM160 104h8v8h-8zM120 112h8v8h-8zM128 112h8v8h-8zM160 112h8v8h-8zM64 128h8v8h-8zM72 128h8v8h-8zM80 128h8v8h-8zM104 128h8v8h-8zM112 128h8v8h-8zM120 128h8v8h-8zM128 128h8v8h-8zM144 128h8v8h-8zM152 128h8v8h-8zM160 128h8v8h-8zM168 128h8v8h-8zM184 128h8v8h-8zM216 128h8v8h-8zM64 136h8v8h-8zM88 136h8v8h-8zM104 136h8v8h-8zM128 136h8v8h-8zM144 136h8v8h-8zM168 136h8v8h-8zM184 136h8v8h-8zM192 136h8v8h-8zM208 136h8v8h-8zM216 136h8v8h-8zM64 144h8v8h-8zM88 144h8v8h-8zM104 144h8v8h-8zM128 144h8v8h-8zM144 144h8v8h-8zM168 144h8v8h-8zM184 144h8v8h-8zM192 144h8v8h-8zM200 144h8v8h-8zM208 144h8v8h-8zM216 144h8v8h-8zM64 152h8v8h-8zM88 152h8v8h-8zM104 152h8v8h-8zM128 152h8v8h-8zM144 152h8v8h-8zM168 152h8v8h-8zM184 152h8v8h-8zM200 152h8v8h-8zM216 152h8v8h-8zM64 160h8v8h-8zM88 160h8v8h-8zM104 160h8v8h-8zM128 160h8v8h-8zM144 160h8v8h-8zM168 160h8v8h-8zM184 160h8v8h-8zM216 160h8v8h-8zM64 168h8v8h-8zM88 168h8v8h-8zM104 168h8v8h-8zM128 168h8v8h-8zM144 168h8v8h-8zM168 168h8v8h-8zM184 168h8v8h-8zM216 168h8v8h-8zM64 176h8v8h-8zM72 176h8v8h-8zM80 176h8v8h-8zM104 176h8v8h-8zM112 176h8v8h-8zM120 176h8v8h-8zM128 176h8v8h-8zM144 176h8v8h-8zM152 176h8v8h-8zM160 176h8v8h-8zM168 176h8v8h-8zM184 176h8v8h-8zM216 176h8v8h-8z" fill="url(#brick)"/>
+  <use href="#g0" x="0" y="0"/>
+  <use href="#g1" x="40" y="0"/>
+  <use href="#g2" x="80" y="0"/>
+  <use href="#g3" x="128" y="0"/>
+  <use href="#g4" x="168" y="0"/>
+  <use href="#g5" x="208" y="0"/>
+  <use href="#g2" x="248" y="0"/>
+  <use href="#g6" x="112" y="64"/>
+  <use href="#g7" x="152" y="64"/>
+  <use href="#g0" x="64" y="128"/>
+  <use href="#g5" x="104" y="128"/>
+  <use href="#g5" x="144" y="128"/>
+  <use href="#g8" x="184" y="128"/>
 </svg>
