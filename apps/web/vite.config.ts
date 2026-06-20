@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
+import { trimSvg } from './trim-svg.js';
+
 const commitSha = process.env.COMMIT_SHA ?? 'unknown';
 const commitUtc = new Date().toISOString();
 
@@ -20,7 +22,7 @@ const netShared = fileURLToPath(
 
 export default defineConfig(({}) => {
   return {
-    plugins: [react()],
+    plugins: [trimSvg(), react()],
     resolve: {
       alias: {
         '@dod/core': coreSrc,
