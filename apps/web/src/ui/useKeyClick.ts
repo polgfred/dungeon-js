@@ -32,8 +32,11 @@ export function useKeyClick(): void {
       enabled = on;
     };
 
+    const modifiers = new Set(['Alt', 'Control', 'Fn', 'Meta', 'Shift']);
+
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!enabled || !buffer || event.repeat) return;
+      if (!enabled || !buffer) return;
+      if (event.repeat || modifiers.has(event.key)) return;
       if (ctx.state === 'suspended') ctx.resume();
       const source = ctx.createBufferSource();
       source.buffer = buffer;
