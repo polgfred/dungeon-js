@@ -3,11 +3,13 @@ import Help from './Help.js';
 import Home from './Home.js';
 import Play from './Play.js';
 import { useAttractMode } from './useAttractMode.js';
+import { useKeyClick } from './useKeyClick.js';
 import { useRoute } from './useRoute.js';
 
 export default function App() {
   const route = useRoute();
   useAttractMode();
+  useKeyClick();
 
   return (
     <main className={styles.screen}>
