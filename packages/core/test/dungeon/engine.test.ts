@@ -617,7 +617,7 @@ describe('Game interactions', () => {
     });
   });
 
-  describe('per-player map memory', () => {
+  describe('shared map', () => {
     it('refreshes every co-fighter in the room the instant the monster dies', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 0 });
       const b = buildPlayer({ z: 0, y: 0, x: 0 });
@@ -645,7 +645,7 @@ describe('Game interactions', () => {
       expect(game.mapView('b')[0][0]).toBe(Feature.EMPTY);
     });
 
-    it('re-scouts a stale tile when a flare relights a cleared room', () => {
+    it('keeps a flared tile live: once seen, it tracks current truth', () => {
       const a = buildPlayer({ z: 0, y: 0, x: 1 });
       const b = buildPlayer({ z: 0, y: 0, x: 0, flares: 5 });
       const dungeon = createEmptyDungeon();
@@ -666,12 +666,9 @@ describe('Game interactions', () => {
       game.step('b', 'F');
       expect(game.mapView('b')[0][1]).toBe(MapTile.MONSTER);
 
-      // a clears the room; b's memory is now stale.
+      // a clears the room; the shared map resolves live, so b sees it cleared
+      // immediately — no stale snapshot, no re-flare needed.
       game.step('a', 'F');
-      expect(game.mapView('b')[0][1]).toBe(MapTile.MONSTER);
-
-      // a second flare overwrites the stale tile with current truth.
-      game.step('b', 'F');
       expect(game.mapView('b')[0][1]).toBe(Feature.EMPTY);
     });
   });

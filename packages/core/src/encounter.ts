@@ -15,7 +15,6 @@ export interface EncounterResult {
   relocate?: boolean;
   relocateAnyFloor?: boolean;
   relocateAvoidMonsters?: boolean;
-  enterRoom?: boolean;
 }
 
 export interface EncounterCancelResult {
@@ -212,7 +211,6 @@ export class EncounterSession {
         done: true,
         relocate: true,
         relocateAnyFloor: false,
-        enterRoom: true,
       };
     }
     this.player.fatigued = true;
@@ -393,7 +391,6 @@ export class EncounterSession {
           relocate: true,
           relocateAnyFloor: false,
           relocateAvoidMonsters: true,
-          enterRoom: true,
         };
       }
       default:

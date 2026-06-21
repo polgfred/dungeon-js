@@ -37,22 +37,13 @@ function pluralize(count: number, singular: string, plural = `${singular}s`) {
 export interface PlayerState {
   readonly id: PlayerId;
   player: Player;
-  observed: Tile[][][];
   encounter: EncounterSession | null;
   vendor: VendorSession | null;
   exited: boolean;
 }
 
-function createObservedGrid(depth: number): Tile[][][] {
-  return Array.from({ length: depth }, () =>
-    Array.from({ length: FLOOR_SIZE }, () =>
-      Array.from({ length: FLOOR_SIZE }, () => MapTile.UNSEEN as Tile)
-    )
-  );
-}
-
 export class Game {
-  static readonly SAVE_VERSION = 7;
+  static readonly SAVE_VERSION = 8;
 
   saveVersion = Game.SAVE_VERSION;
   rng: RandomSource;
@@ -79,7 +70,6 @@ export class Game {
       this.players.set(id, {
         id,
         player,
-        observed: createObservedGrid(this.depth),
         encounter: null,
         vendor: null,
         exited: false,
@@ -171,10 +161,6 @@ export class Game {
       const state: PlayerState = {
         id: entry.id,
         player,
-        // Repack the map after hydration.
-        observed: entry.observed.map((floor) =>
-          floor.map((row) => row.map((tile) => tile))
-        ),
         encounter: null,
         vendor: null,
         exited: entry.exited,
@@ -209,7 +195,6 @@ export class Game {
       players: Array.from(this.players.values(), (state) => ({
         id: state.id,
         player: serializePlayer(state.player),
-        observed: state.observed,
         encounter: state.encounter ? state.encounter.toSave() : null,
         vendor: state.vendor ? state.vendor.toSave() : null,
         exited: state.exited,
@@ -224,14 +209,10 @@ export class Game {
 
   startEvents(id: PlayerId): Event[] {
     const state = this.state(id);
-    const events = this.enterRoom(state);
-    // Update the map on start
-    this.observe(state);
-    return events;
+    return this.enterRoom(state);
   }
 
   private stepResult(id: PlayerId, events: Event[]): StepResult {
-    this.observe(this.state(id));
     return { playerId: id, events, mode: this.mode(id) };
   }
 
@@ -285,16 +266,14 @@ export class Game {
               );
             }
           }
-          this.reobserveRoom(state.player.z, state.player.y, state.player.x);
+          this.clearColocatedEncounters(state.player);
         }
         if (result.relocate) {
           this.randomRelocate(state, {
             anyFloor: Boolean(result.relocateAnyFloor),
             avoidMonsters: Boolean(result.relocateAvoidMonsters),
           });
-          if (result.enterRoom) {
-            events.push(...this.enterRoom(state));
-          }
+          events.push(...this.enterRoom(state));
         }
         if (state.player.hp <= 0) {
           this.endMode = Mode.GAME_OVER;
@@ -335,11 +314,14 @@ export class Game {
 
   mapView(id: PlayerId): Tile[][] {
     const state = this.state(id);
-    // Only ever used for sending JSON over a socket, so don't need to defensively copy
-    return state.observed[state.player.z];
+    const floor = this.dungeon.rooms[state.player.z];
+    return floor.map((row) => row.map((room) => this.resolveTile(room)));
   }
 
   private resolveTile(room: Room): Tile {
+    if (!room.observed) {
+      return MapTile.UNSEEN;
+    }
     if (room.monsterLevel > 0) {
       return MapTile.MONSTER;
     }
@@ -349,22 +331,22 @@ export class Game {
     return room.feature;
   }
 
-  private observe(
-    state: PlayerState,
-    z: number = state.player.z,
-    y: number = state.player.y,
-    x: number = state.player.x
+  private markObserved(
+    player: Player,
+    z: number = player.z,
+    y: number = player.y,
+    x: number = player.x
   ): void {
-    state.observed[z][y][x] = this.resolveTile(this.dungeon.rooms[z][y][x]);
+    this.dungeon.rooms[z][y][x].observed = true;
   }
 
-  private reobserveRoom(z: number, y: number, x: number): void {
-    const monsterGone = this.dungeon.rooms[z][y][x].monsterLevel === 0;
+  private clearColocatedEncounters(player: Player): void {
+    const { z, y, x } = player;
     for (const other of this.players.values()) {
       const p = other.player;
-      if (p.z !== z || p.y !== y || p.x !== x) continue;
-      if (monsterGone) other.encounter = null;
-      this.observe(other);
+      if (p.z === z && p.y === y && p.x === x) {
+        other.encounter = null;
+      }
     }
   }
 
@@ -475,6 +457,7 @@ export class Game {
   private enterRoom(state: PlayerState): Event[] {
     const player = state.player;
     const room = this.currentRoom(player);
+    this.markObserved(player);
 
     if (room.monsterLevel > 0) {
       if (room.monsterVitality <= 0) {
@@ -536,8 +519,6 @@ export class Game {
             '<@> is warped away...'
           ),
         ];
-        // Observe the departed warp room before we relocate away
-        this.observe(state);
         this.randomRelocate(state, { anyFloor: true, avoidMonsters: false });
         events.push(...this.enterRoom(state));
         return events;
@@ -633,7 +614,7 @@ export class Game {
         const ny = player.y + dy;
         const nx = player.x + dx;
         if (ny >= 0 && ny < FLOOR_SIZE && nx >= 0 && nx < FLOOR_SIZE) {
-          this.observe(state, player.z, ny, nx);
+          this.markObserved(player, player.z, ny, nx);
         }
       }
     }
@@ -649,7 +630,6 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
-    this.reobserveRoom(player.z, player.y, player.x);
 
     const visions = [
       'The mirror is cloudy and yields no vision.',
@@ -716,7 +696,6 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
-    this.reobserveRoom(player.z, player.y, player.x);
 
     const rand = this.rng.random();
     if (rand < 0.1) {
@@ -786,7 +765,6 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
-    this.reobserveRoom(player.z, player.y, player.x);
 
     const spell = this.rng.randint(1, 5) as Spell;
     player.spells.set(spell, (player.spells.get(spell) ?? 0) + 1);
@@ -802,7 +780,6 @@ export class Game {
     }
 
     room.feature = Feature.EMPTY;
-    this.reobserveRoom(player.z, player.y, player.x);
 
     const roll = this.rng.randint(1, 5);
     if (roll === 1) {

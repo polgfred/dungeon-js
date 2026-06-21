@@ -41,6 +41,7 @@ export function buildRoom(options: Partial<Room> = {}): Room {
     treasureId: 0,
     monsterLevel: 0,
     monsterVitality: 0,
+    observed: false,
     ...options,
   };
 }

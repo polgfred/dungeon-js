@@ -35,6 +35,7 @@ function createRoom(rng: RandomSource, floor: number): Room {
     treasureId: 0,
     monsterLevel: 0,
     monsterVitality: 0,
+    observed: false,
   };
   if (rng.random() > 0.3) {
     const roll = rng.randint(1, 10);

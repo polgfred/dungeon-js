@@ -14,6 +14,7 @@ export interface Room {
   treasureId: number;
   monsterLevel: number;
   monsterVitality: number;
+  observed: boolean;
 }
 
 export interface Dungeon {

@@ -70,8 +70,6 @@ test('hydrated Game matches the live V8 representation', () => {
   const hp = hyd.getPlayer(id);
   const ld = live.dungeon.rooms;
   const hd = hyd.dungeon.rooms;
-  const lo = live.state(id).observed;
-  const ho = hyd.state(id).observed;
 
   const checks: [string, string, string][] = [
     ['Game properties', props(live), props(hyd)],
@@ -82,9 +80,6 @@ test('hydrated Game matches the live V8 representation', () => {
     ['dungeon z elements', elemKind(ld), elemKind(hd)],
     ['dungeon y elements', elemKind(ld[0]), elemKind(hd[0])],
     ['dungeon x elements', elemKind(ld[0][0]), elemKind(hd[0][0])],
-    ['observed z elements', elemKind(lo), elemKind(ho)],
-    ['observed y elements', elemKind(lo[0]), elemKind(ho[0])],
-    ['observed x (leaf)', elemKind(lo[0][0]), elemKind(ho[0][0])],
   ];
 
   // Each hot structure must wake up in the same representation as live.

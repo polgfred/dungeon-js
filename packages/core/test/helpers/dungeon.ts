@@ -11,6 +11,7 @@ export function createEmptyDungeon() {
         treasureId: 0,
         monsterLevel: 0,
         monsterVitality: 0,
+        observed: false,
       }))
     )
   );

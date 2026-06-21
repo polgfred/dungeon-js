@@ -243,7 +243,6 @@ describe('EncounterSession spells', () => {
 
     expect(result.done).toBe(true);
     expect(result.relocate).toBe(true);
-    expect(result.enterRoom).toBe(true);
     expect(player.fatigued).toBe(false);
     expect(player.tempArmorBonus).toBe(0);
   });

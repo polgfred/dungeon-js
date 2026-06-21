@@ -1,4 +1,4 @@
-import { Spell, type Mode, type Race, type Tile } from './constants.js';
+import { Spell, type Mode, type Race } from './constants.js';
 import {
   makeDungeon,
   makePlayer,
@@ -47,7 +47,6 @@ export type PlayerSave = Readonly<{
 export type PlayerEntrySave = Readonly<{
   id: string;
   player: PlayerSave;
-  observed: readonly Tile[][][];
   encounter: EncounterSave | null;
   vendor: VendorSave | null;
   exited: boolean;
@@ -99,6 +98,7 @@ const FEATURE_SHIFT = 0;
 const TREASURE_SHIFT = 4;
 const MONSTER_SHIFT = 8;
 const VITALITY_SHIFT = 12;
+const OBSERVED_SHIFT = 18;
 const NIBBLE_MASK = 0x0f;
 const VITALITY_MASK = 0x3f;
 
@@ -107,7 +107,8 @@ function encodeRoom(room: Room): RoomPacked {
     ((room.feature & NIBBLE_MASK) << FEATURE_SHIFT) |
     ((room.treasureId & NIBBLE_MASK) << TREASURE_SHIFT) |
     ((room.monsterLevel & NIBBLE_MASK) << MONSTER_SHIFT) |
-    ((room.monsterVitality & VITALITY_MASK) << VITALITY_SHIFT)
+    ((room.monsterVitality & VITALITY_MASK) << VITALITY_SHIFT) |
+    ((room.observed ? 1 : 0) << OBSERVED_SHIFT)
   );
 }
 
@@ -117,5 +118,6 @@ function decodeRoom(savedRoom: RoomPacked): Room {
     treasureId: (savedRoom >> TREASURE_SHIFT) & NIBBLE_MASK,
     monsterLevel: (savedRoom >> MONSTER_SHIFT) & NIBBLE_MASK,
     monsterVitality: (savedRoom >> VITALITY_SHIFT) & VITALITY_MASK,
+    observed: ((savedRoom >> OBSERVED_SHIFT) & 1) === 1,
   };
 }
