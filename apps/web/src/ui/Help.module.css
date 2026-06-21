@@ -16,7 +16,7 @@
   width: 100%;
   border: 1px solid rgba(var(--primary-light-rgb), 0.55);
   border-radius: 4px;
-  background: rgba(0, 0, 0, .14);
+  background: rgba(0, 0, 0, 0.14);
   box-shadow: 0 0 24px var(--primary-dark);
 }
 
