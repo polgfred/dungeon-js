@@ -8,6 +8,9 @@ async function fetchAudio(ctx: AudioContext) {
   return await ctx.decodeAudioData(buffer);
 }
 
+// Whether key clicks are audible.
+let enabled = true;
+
 // Plays a short mechanical "click" on every keystroke, app-wide
 export function useKeyClick(): void {
   useEffect(() => {
@@ -25,10 +28,12 @@ export function useKeyClick(): void {
       })
       .catch(() => {});
 
+    window.setKeyClickEnabled = (on: boolean) => {
+      enabled = on;
+    };
+
     const onKeyDown = (event: KeyboardEvent) => {
-      // Skip auto-repeat
-      if (event.repeat || !buffer) return;
-      // Audio can't start without a gesture; keydown is one, so resume here.
+      if (!enabled || !buffer || event.repeat) return;
       if (ctx.state === 'suspended') ctx.resume();
       const source = ctx.createBufferSource();
       source.buffer = buffer;
@@ -38,6 +43,7 @@ export function useKeyClick(): void {
 
     window.addEventListener('keydown', onKeyDown);
     return () => {
+      delete window.setKeyClickEnabled;
       window.removeEventListener('keydown', onKeyDown);
       ctx.close();
     };

@@ -66,6 +66,9 @@ function toRgb(hex: string) {
   );
 }
 
+// Whether attract mode is allowed to engage.
+let enabled = true;
+
 export function useAttractMode(): void {
   useEffect(() => {
     const root = document.documentElement;
@@ -119,7 +122,17 @@ export function useAttractMode(): void {
     const onActivity = () => {
       leaveAttract();
       window.clearTimeout(idleTimer);
-      idleTimer = window.setTimeout(enterAttract, IDLE_MS);
+      if (enabled) idleTimer = window.setTimeout(enterAttract, IDLE_MS);
+    };
+
+    window.setAttractModeEnabled = (on: boolean) => {
+      enabled = on;
+      // Re-arm when enabling; leave attract and stop the timer when disabling.
+      if (on) onActivity();
+      else {
+        window.clearTimeout(idleTimer);
+        leaveAttract();
+      }
     };
 
     for (const event of ACTIVITY_EVENTS) {
@@ -130,6 +143,7 @@ export function useAttractMode(): void {
     onActivity();
 
     return () => {
+      delete window.setAttractModeEnabled;
       for (const event of ACTIVITY_EVENTS) {
         window.removeEventListener(event, onActivity);
       }
