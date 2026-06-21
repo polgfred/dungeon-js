@@ -33,7 +33,9 @@ export default defineConfig(({}) => {
     build: {
       // Never inline the title art
       assetsInlineLimit: (filePath: string) =>
-        filePath.endsWith('.svg') ? false : undefined,
+        filePath.endsWith('.svg') || filePath.endsWith('.mp3')
+          ? false
+          : undefined,
     },
     server: {
       host: true,
