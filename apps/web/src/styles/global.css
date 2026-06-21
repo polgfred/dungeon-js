@@ -49,6 +49,10 @@
     caret-color: rgba(var(--text-primary-rgb), 0.75);
     caret-shape: block;
     caret-animation: manual;
+
+    &::placeholder {
+      color: var(--text-disabled);
+    }
   }
 }
 
