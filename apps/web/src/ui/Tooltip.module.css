@@ -7,8 +7,7 @@
   content: attr(data-tooltip);
   position: absolute;
   bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   padding: 4px 8px;
   background: var(--text-primary);
   color: var(--primary-main);
@@ -24,23 +23,7 @@
   transition: opacity 120ms ease;
 }
 
-.wrapper[data-tooltip]::before {
-  content: '';
-  position: absolute;
-  bottom: calc(100% + 1px);
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: var(--primary-light);
-  pointer-events: none;
-  opacity: 0;
-  z-index: 100;
-  transition: opacity 120ms ease;
-}
-
 .wrapper[data-tooltip]:hover::after,
-.wrapper[data-tooltip]:hover::before,
-.wrapper[data-tooltip]:focus-within::after,
-.wrapper[data-tooltip]:focus-within::before {
+.wrapper[data-tooltip]:focus-within::after {
   opacity: 1;
 }
