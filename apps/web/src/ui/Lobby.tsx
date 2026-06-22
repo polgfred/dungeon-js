@@ -31,6 +31,19 @@ import {
 } from './SetupGameModel.js';
 import { StatList, StatRow } from './StatList.js';
 
+function shortValue(gear: string) {
+  switch (gear) {
+    case 'Short sword':
+      return 'Sh. sword';
+    case 'Broadsword':
+      return 'B. sword';
+    case 'Chain mail':
+      return 'Ch. mail';
+    default:
+      return gear;
+  }
+}
+
 /** The in-progress character. */
 export function CharacterReadout({
   stage,
@@ -62,16 +75,22 @@ export function CharacterReadout({
     <StatList>
       <StatRow label="Race" value={race !== null ? raceName(race) : dash} />
       <StatRow label="Health" value={stat(derivedStats?.HP)} />
-      <StatRow label="Strength" value={stat(derivedStats?.ST)} />
-      <StatRow label="Dexterity" value={stat(derivedStats?.DX)} />
-      <StatRow label="Intelligence" value={stat(derivedStats?.IQ)} />
+      <StatRow label="Str" value={stat(derivedStats?.ST)} />
+      <StatRow label="Dex" value={stat(derivedStats?.DX)} />
+      <StatRow label="Int" value={stat(derivedStats?.IQ)} />
       <StatRow
         label="Gold"
         value={remaining !== null ? String(remaining) : dash}
         tone={remaining !== null && remaining < 0 ? 'alert' : undefined}
       />
-      <StatRow label="Weapon" value={at('armor', WEAPON_NAMES[weaponTier])} />
-      <StatRow label="Armour" value={at('flares', ARMOR_NAMES[armorTier])} />
+      <StatRow
+        label="Weapon"
+        value={at('armor', shortValue(WEAPON_NAMES[weaponTier]))}
+      />
+      <StatRow
+        label="Armour"
+        value={at('flares', shortValue(ARMOR_NAMES[armorTier]))}
+      />
       <StatRow label="Flares" value={at('flares', String(flares))} />
     </StatList>
   );
