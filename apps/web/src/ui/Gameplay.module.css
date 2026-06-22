@@ -6,9 +6,9 @@
 .board {
   display: flex;
   flex-direction: row;
-  gap: 2.5rem;
+  gap: 2rem;
   align-items: flex-start;
-  padding-left: 1.25rem;
+  padding: 0 1rem;
 }
 
 /* --- command legend: slim, dim how-to (the keyboard does the real work) --- */

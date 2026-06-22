@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: center;
   color: var(--text-primary);
-  border: 1px solid rgba(var(--text-primary-rgb), 0.14);
+  border: 1px solid rgba(var(--text-primary-rgb), 0.18);
 }
 
 .cell[data-tip]::after {
@@ -83,7 +83,7 @@
 }
 
 .cellSelf {
-  background: rgba(var(--primary-light-rgb), 0.18);
+  background: rgba(var(--primary-light-rgb), 0.25);
 }
 
 .cellDanger {
