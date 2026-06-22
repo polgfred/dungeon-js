@@ -335,6 +335,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
           name: this.nameOf(id),
           alive: player.hp > 0,
           connected: connected.has(id),
+          hp: player.hp,
           z: player.z,
           y: player.y,
           x: player.x,

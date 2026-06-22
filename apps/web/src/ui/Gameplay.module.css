@@ -155,6 +155,8 @@
 }
 
 .partyRow {
+  /* px per HP */
+  --health-px: 2px;
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
@@ -167,10 +169,36 @@
 
 .partyName {
   flex: 1;
+  min-width: 0;
+}
+
+.partyNameText {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .partyOffline {
   opacity: 0.4;
+}
+
+.healthLane {
+  flex: none;
+  width: calc(20 * var(--health-px));
+  height: 10px;
+  background: rgba(var(--text-primary-rgb), 0.2);
+}
+
+.healthFill {
+  display: block;
+  height: 100%;
+  background: var(--text-primary);
+  image-rendering: pixelated;
+}
+
+.healthLow {
+  background: var(--error-main);
 }
 
 /* --- help dialog: the controls reference (rendered by <HelpControls />) --- */

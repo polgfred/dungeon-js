@@ -37,6 +37,7 @@ export type PartyMember = Readonly<{
   name: string;
   alive: boolean;
   connected: boolean;
+  hp: number;
   z: number;
   y: number;
   x: number;

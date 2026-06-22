@@ -26,6 +26,7 @@ import {
 } from './gameplayCommands.js';
 import { GlyphDefs, MapGrid } from './MapGrid.js';
 import { StatList, StatRow } from './StatList.js';
+import { Tooltip } from './Tooltip.js';
 import { navigate } from './useRoute.js';
 
 export type Command = {
@@ -86,6 +87,20 @@ function LocationReadout({ view }: { view: PlayerView }) {
   );
 }
 
+const HEALTH_CAP = 20;
+
+function HealthBar({ hp }: { hp: number }) {
+  const filled = Math.max(0, Math.min(hp, HEALTH_CAP));
+  return (
+    <span className={styles.healthLane} aria-hidden>
+      <span
+        className={clsx(styles.healthFill, hp < 10 && styles.healthLow)}
+        style={{ width: `calc(${filled} * var(--health-px))` }}
+      />
+    </span>
+  );
+}
+
 function Party({
   party,
   playerId,
@@ -103,14 +118,18 @@ function Party({
             <span className={styles.partyMark}>
               {member.id === playerId ? '*' : '√'}
             </span>
-            <span
-              className={clsx(
-                styles.partyName,
-                !member.connected && styles.partyOffline
-              )}
+            <Tooltip
+              title={`${member.name}: ${member.hp}`}
+              className={styles.partyName}
             >
-              <span style={{ color: colorOf(member.id) }}>{member.name}</span>
-            </span>
+              <span
+                className={styles.partyNameText}
+                style={{ color: colorOf(member.id) }}
+              >
+                {member.name}
+              </span>
+            </Tooltip>
+            <HealthBar hp={member.hp} />
           </li>
         ))}
       </ul>
