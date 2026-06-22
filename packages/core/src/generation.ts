@@ -2,23 +2,21 @@ import { Feature } from './constants.js';
 import { makeDungeon, Dungeon, type Room } from './model.js';
 import type { RandomSource } from './rng.js';
 
-/** Rooms along each edge of a floor (the y/x dimensions). */
-export const FLOOR_SIZE = 7;
-
 /** Number of floors (the z dimension), scaled by party size. */
-export function dungeonDepth(playerCount: number): number {
-  return 5 + 2 * Math.max(1, playerCount);
+export function dungeonDepth(playerCount: number) {
+  return 6 + playerCount;
 }
 
-const DEFAULT_DEPTH = dungeonDepth(1);
+export function dungeonSize(_: number) {
+  return 7;
+}
 
-export function generateDungeon(
-  rng: RandomSource,
-  depth: number = DEFAULT_DEPTH
-): Dungeon {
+export function generateDungeon(rng: RandomSource, playerCount = 1): Dungeon {
+  const depth = dungeonDepth(playerCount);
+  const size = dungeonSize(playerCount);
   const rooms: Room[][][] = Array.from({ length: depth }, (_, z) =>
-    Array.from({ length: FLOOR_SIZE }, () =>
-      Array.from({ length: FLOOR_SIZE }, () => createRoom(rng, z))
+    Array.from({ length: size }, () =>
+      Array.from({ length: size }, () => createRoom(rng, z))
     )
   );
 
@@ -54,11 +52,12 @@ function createRoom(rng: RandomSource, floor: number): Room {
 
 function placeTreasures(rng: RandomSource, rooms: Room[][][]): void {
   const depth = rooms.length;
+  const size = rooms[0].length;
   let placed = 0;
   while (placed < 10) {
     const z = rng.randrange(depth);
-    const y = rng.randrange(FLOOR_SIZE);
-    const x = rng.randrange(FLOOR_SIZE);
+    const y = rng.randrange(size);
+    const x = rng.randrange(size);
     const room = rooms[z][y][x];
     if (room.treasureId !== 0) continue;
     if (room.feature !== Feature.EMPTY) continue;
@@ -68,10 +67,11 @@ function placeTreasures(rng: RandomSource, rooms: Room[][][]): void {
 }
 
 function placeStairs(rng: RandomSource, rooms: Room[][][]): void {
+  const size = rooms[0].length;
   for (let z = 0; z < rooms.length - 1; z += 1) {
     while (true) {
-      const y = rng.randrange(FLOOR_SIZE);
-      const x = rng.randrange(FLOOR_SIZE);
+      const y = rng.randrange(size);
+      const x = rng.randrange(size);
       const room = rooms[z][y][x];
       const roomAbove = rooms[z + 1][y][x];
       if (room.treasureId > 0 || room.monsterLevel > 0) continue;
@@ -85,10 +85,11 @@ function placeStairs(rng: RandomSource, rooms: Room[][][]): void {
 }
 
 function placeExit(rng: RandomSource, rooms: Room[][][]): void {
+  const size = rooms[0].length;
   const z = rooms.length - 1;
   while (true) {
-    const y = rng.randrange(FLOOR_SIZE);
-    const x = rng.randrange(FLOOR_SIZE);
+    const y = rng.randrange(size);
+    const x = rng.randrange(size);
     const room = rooms[z][y][x];
     if (room.treasureId > 0 || room.monsterLevel > 0) continue;
     if (
@@ -105,6 +106,7 @@ function placeExit(rng: RandomSource, rooms: Room[][][]): void {
 export function validateDungeon(dungeon: Dungeon): string[] {
   const errors: string[] = [];
   const depth = dungeon.rooms.length;
+  const size = dungeon.rooms[0].length;
   if (depth < 2) {
     errors.push('Dungeon must have at least two floors.');
     return errors;
@@ -115,14 +117,14 @@ export function validateDungeon(dungeon: Dungeon): string[] {
   const stairsUpCounts = Array.from({ length: depth }, () => 0);
   const stairsDownCounts = Array.from({ length: depth }, () => 0);
   for (let z = 0; z < depth; z += 1) {
-    if (dungeon.rooms[z].length !== FLOOR_SIZE) {
+    if (dungeon.rooms[z].length !== size) {
       errors.push(`Floor size mismatch on floor ${z}.`);
     }
-    for (let y = 0; y < FLOOR_SIZE; y += 1) {
-      if (dungeon.rooms[z][y].length !== FLOOR_SIZE) {
+    for (let y = 0; y < size; y += 1) {
+      if (dungeon.rooms[z][y].length !== size) {
         errors.push(`Row size mismatch on floor ${z}.`);
       }
-      for (let x = 0; x < FLOOR_SIZE; x += 1) {
+      for (let x = 0; x < size; x += 1) {
         const room = dungeon.rooms[z][y][x];
         if (room.feature === Feature.EXIT) {
           if (z !== depth - 1) {

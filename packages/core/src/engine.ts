@@ -11,7 +11,7 @@ import {
   type Tile,
 } from './constants.js';
 import { EncounterSession, rollMonsterVitality } from './encounter.js';
-import { FLOOR_SIZE, dungeonDepth, generateDungeon } from './generation.js';
+import { dungeonDepth, generateDungeon } from './generation.js';
 import { applyAttributeChange } from './model.js';
 import type { Dungeon, Player, Room } from './model.js';
 import {
@@ -62,8 +62,7 @@ export class Game {
   ) {
     this.rng = options.rng ?? defaultRandomSource;
     const roster = options.players ?? [];
-    this.dungeon =
-      options.dungeon ?? generateDungeon(this.rng, dungeonDepth(roster.length));
+    this.dungeon = options.dungeon ?? generateDungeon(this.rng, roster.length);
     this.treasuresFound = options.treasuresFound ?? new Set();
 
     for (const { id, player } of roster) {
@@ -81,14 +80,19 @@ export class Game {
     return this.dungeon.rooms.length;
   }
 
+  get size(): number {
+    return this.dungeon.rooms[0].length;
+  }
+
   /** Scatter every player onto a distinct, monster-free first-floor room. */
   scatterParty(): void {
+    const size = this.dungeon.rooms[0].length;
     const taken = new Set<string>();
     for (const { player } of this.players.values()) {
       player.z = 0;
       while (true) {
-        const y = this.rng.randrange(FLOOR_SIZE);
-        const x = this.rng.randrange(FLOOR_SIZE);
+        const y = this.rng.randrange(size);
+        const x = this.rng.randrange(size);
         if (taken.has(`${y},${x}`)) continue;
         if (this.dungeon.rooms[0][y][x].monsterLevel > 0) continue;
         taken.add(`${y},${x}`);
@@ -422,7 +426,7 @@ export class Game {
     const player = state.player;
     const ny = player.y + dy;
     const nx = player.x + dx;
-    if (ny < 0 || ny >= FLOOR_SIZE || nx < 0 || nx >= FLOOR_SIZE) {
+    if (ny < 0 || ny >= this.size || nx < 0 || nx >= this.size) {
       return [Event.info('A wall interposes itself.')];
     }
     player.y = ny;
@@ -613,7 +617,7 @@ export class Game {
         if (dy === 0 && dx === 0) continue;
         const ny = player.y + dy;
         const nx = player.x + dx;
-        if (ny >= 0 && ny < FLOOR_SIZE && nx >= 0 && nx < FLOOR_SIZE) {
+        if (ny >= 0 && ny < this.size && nx >= 0 && nx < this.size) {
           this.markObserved(player, player.z, ny, nx);
         }
       }
@@ -648,8 +652,8 @@ export class Game {
         return [Event.info(this.rng.choice(visions))];
       }
       const treasure = this.rng.randint(1, 10);
-      const tx = this.rng.randint(1, FLOOR_SIZE);
-      const ty = this.rng.randint(1, FLOOR_SIZE);
+      const tx = this.rng.randint(1, this.size);
+      const ty = this.rng.randint(1, this.size);
       const tz = this.rng.randint(1, this.depth);
       return [
         Event.info(
@@ -826,8 +830,8 @@ export class Game {
     }
 
     while (true) {
-      const ny = this.rng.randrange(FLOOR_SIZE);
-      const nx = this.rng.randrange(FLOOR_SIZE);
+      const ny = this.rng.randrange(this.size);
+      const nx = this.rng.randrange(this.size);
       if (ny === player.y && nx === player.x) continue;
       if (
         options.avoidMonsters &&

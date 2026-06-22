@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Game } from '../../src/engine.js';
 import { Feature, MapTile, Mode, Spell } from '../../src/constants.js';
 import { buildPlayer } from '../helpers/factories.js';
+import { dungeonDepth } from '../../src/generation.js';
 import { ScriptedRng } from '../helpers/rng.js';
 import { createEmptyDungeon } from '../helpers/dungeon.js';
 
@@ -683,9 +684,9 @@ describe('Party setup', () => {
   }
 
   it('deepens the dungeon for a larger party', () => {
-    expect(new Game().depth).toBe(7);
-    expect(new Game({ players: roster(2) }).depth).toBe(9);
-    expect(new Game({ players: roster(4) }).depth).toBe(13);
+    expect(new Game({ players: roster(1) }).depth).toBe(dungeonDepth(1));
+    expect(new Game({ players: roster(2) }).depth).toBe(dungeonDepth(2));
+    expect(new Game({ players: roster(4) }).depth).toBe(dungeonDepth(4));
   });
 
   it('keeps a solo adventurer at their character start', () => {
