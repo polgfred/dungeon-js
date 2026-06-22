@@ -10,61 +10,27 @@ const TONE = {
   loot: styles.loot,
 } as const;
 
-/** A compact label → value readout (the gameplay Status pane shape). Shared by
- *  the in-play stats and the lobby's in-progress character. */
 export function StatList({ children }: { children: ReactNode }) {
   return <dl className={styles.list}>{children}</dl>;
-}
-
-function shortLabel(label: string) {
-  switch (label) {
-    case 'Strength':
-      return 'Str';
-    case 'Dexterity':
-      return 'Dex';
-    case 'Intelligence':
-      return 'Int';
-    case 'Treasures':
-      return 'Treas';
-    default:
-      return label;
-  }
-}
-
-function shortValue(gear: string) {
-  switch (gear) {
-    case 'Short sword':
-      return 'Sh. sword';
-    case 'Broadsword':
-      return 'B. sword';
-    case 'Chain mail':
-      return 'Ch. mail';
-    default:
-      return gear;
-  }
 }
 
 export function StatRow({
   label,
   value,
   tone,
-  title,
+  tip,
 }: {
   label: string;
   value: string;
   tone?: keyof typeof TONE;
-  title?: string;
+  tip?: ReactNode;
 }) {
   return (
     <div className={styles.row}>
       <dt className={styles.label}>
-        <Tooltip content={`${label}: ${value}`}>
-          {shortLabel(label)}
-        </Tooltip>
+        {tip ? <Tooltip content={tip}>{label}</Tooltip> : label}
       </dt>
-      <dd className={clsx(styles.value, tone && TONE[tone])} title={title}>
-        {shortValue(value)}
-      </dd>
+      <dd className={clsx(styles.value, tone && TONE[tone])}>{value}</dd>
     </div>
   );
 }

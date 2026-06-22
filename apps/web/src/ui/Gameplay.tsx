@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 
-import { Feature, Mode, raceName, SPELL_MIN_IQ } from '@dod/core';
+import { Feature, Mode, raceName, SPELL_MIN_IQ, spellName } from '@dod/core';
 import type {
   ConnectionStatus,
   FeedGroup,
@@ -37,6 +37,19 @@ export type Command = {
   primary?: boolean;
 };
 
+function shortValue(gear: string) {
+  switch (gear) {
+    case 'Short sword':
+      return 'Sh. sword';
+    case 'Broadsword':
+      return 'B. sword';
+    case 'Chain mail':
+      return 'Ch. mail';
+    default:
+      return gear;
+  }
+}
+
 function StatsReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
@@ -47,31 +60,41 @@ function StatsReadout({ view }: { view: PlayerView }) {
         value={`${s.hp}/${s.mhp}`}
         tone={s.hp < 10 ? 'alert' : undefined}
       />
-      <StatRow label="Strength" value={String(s.str)} />
-      <StatRow label="Dexterity" value={String(s.dex)} />
-      <StatRow label="Intelligence" value={String(s.iq)} />
+      <StatRow label="Str" value={String(s.str)} />
+      <StatRow label="Dex" value={String(s.dex)} />
+      <StatRow label="Int" value={String(s.iq)} />
       <StatRow label="Gold" value={String(s.gold)} />
       <StatRow
         label="Weapon"
-        value={s.weaponName}
+        value={shortValue(s.weaponName)}
         tone={s.weaponBroken ? 'alert' : undefined}
-        title={s.weaponBroken ? 'Broken' : undefined}
+        tip={s.weaponBroken ? <span>Weapon is broken</span> : undefined}
       />
       <StatRow
         label="Armour"
-        value={s.armorName}
+        value={shortValue(s.armorName)}
         tone={s.armorDamaged ? 'alert' : undefined}
-        title={s.armorDamaged ? 'Damaged' : undefined}
+        tip={s.armorDamaged ? <span>Armour is damaged</span> : undefined}
       />
       <StatRow label="Flares" value={String(s.flares)} />
       <StatRow
         label="Spells"
         value={String(s.spells.reduce((total, count) => total + count, 0))}
+        tip={
+          <ul>
+            {s.spells.map((count, i) => (
+              <li>
+                {spellName(i + 1)}: {count}
+              </li>
+            ))}
+          </ul>
+        }
       />
       <StatRow
-        label="Treasures"
+        label="Treas"
         value={`${view.treasuresFound}/10`}
         tone={view.treasuresFound >= 10 ? 'loot' : undefined}
+        tip={<ul></ul>}
       />
     </StatList>
   );
