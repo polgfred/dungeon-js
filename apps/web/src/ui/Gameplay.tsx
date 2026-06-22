@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 
-import { Feature, Mode, raceName, SPELL_MIN_IQ, spellName } from '@dod/core';
+import {
+  Feature,
+  Mode,
+  raceName,
+  SPELL_MIN_IQ,
+  spellName,
+  treasureName,
+} from '@dod/core';
 import type {
   ConnectionStatus,
   FeedGroup,
@@ -83,7 +90,7 @@ function StatsReadout({ view }: { view: PlayerView }) {
         tip={
           <ul>
             {s.spells.map((count, i) => (
-              <li>
+              <li key={i}>
                 {spellName(i + 1)}: {count}
               </li>
             ))}
@@ -92,9 +99,15 @@ function StatsReadout({ view }: { view: PlayerView }) {
       />
       <StatRow
         label="Treas"
-        value={`${view.treasuresFound}/10`}
-        tone={view.treasuresFound >= 10 ? 'loot' : undefined}
-        tip={<ul></ul>}
+        value={`${view.treasuresFound.length}/10`}
+        tone={view.treasuresFound.length >= 10 ? 'loot' : undefined}
+        tip={
+          <ul>
+            {view.treasuresFound.map((treasureId) => (
+              <li key={treasureId}>{treasureName(treasureId)}</li>
+            ))}
+          </ul>
+        }
       />
     </StatList>
   );

@@ -53,7 +53,7 @@ export type PlayerView = Readonly<{
   self: PlayerSave;
   mode: Mode;
   map: readonly Tile[][];
-  treasuresFound: number;
+  treasuresFound: readonly number[];
   ended: Mode | null;
   party: readonly PartyMember[];
   monster: string | null;

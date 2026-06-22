@@ -335,7 +335,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
       self: serializePlayer(self),
       mode: game.mode(playerId),
       map: game.mapView(playerId),
-      treasuresFound: game.treasuresFound.size,
+      treasuresFound: [...game.treasuresFound].sort((a, b) => a - b),
       ended: game.endMode,
       party: game.playerIds.map((id) => {
         const player = game.getPlayer(id);

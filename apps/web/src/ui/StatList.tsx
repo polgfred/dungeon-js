@@ -28,7 +28,13 @@ export function StatRow({
   return (
     <div className={styles.row}>
       <dt className={styles.label}>
-        {tip ? <Tooltip content={tip}>{label}</Tooltip> : label}
+        {tip ? (
+          <Tooltip className={styles.tip} content={tip}>
+            {label}
+          </Tooltip>
+        ) : (
+          label
+        )}
       </dt>
       <dd className={clsx(styles.value, tone && TONE[tone])}>{value}</dd>
     </div>
