@@ -102,11 +102,13 @@ function StatsReadout({ view }: { view: PlayerView }) {
         value={`${view.treasuresFound.length}/10`}
         tone={view.treasuresFound.length >= 10 ? 'loot' : undefined}
         tip={
-          <ul>
-            {view.treasuresFound.map((treasureId) => (
-              <li key={treasureId}>{treasureName(treasureId)}</li>
-            ))}
-          </ul>
+          view.treasuresFound.length ? (
+            <ul>
+              {view.treasuresFound.map((treasureId) => (
+                <li key={treasureId}>{treasureName(treasureId)}</li>
+              ))}
+            </ul>
+          ) : null
         }
       />
     </StatList>
