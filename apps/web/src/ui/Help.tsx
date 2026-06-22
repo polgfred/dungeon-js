@@ -60,8 +60,8 @@ export default function Help() {
           <p>
             One map is drawn between you — where any of you treads, the way is
             lit for all. Yet the map will not tell you who stands bleeding, who
-            has a beast at their throat, or who has strayed too far to call back.
-            So speak to one another. A dungeon is best survived out loud.
+            has a beast at their throat, or who has strayed too far to call
+            back. So speak to one another. A dungeon is best survived out loud.
           </p>
         </section>
 
