@@ -16,6 +16,9 @@ import type {
 } from '../shared/index.js';
 import { HydratableObject } from './HydratableObject.js';
 
+/** The largest party the table seats. */
+const MAX_PARTY = 8;
+
 interface Member {
   id: PlayerId;
   name: string;
@@ -181,6 +184,12 @@ export class TableObject extends HydratableObject<TableSnapshot> {
       const existing = members.get(playerId);
       if (existing) {
         existing.name = name; // reconnect / rename
+      } else if (members.size >= MAX_PARTY) {
+        this.send(ws, {
+          type: 'error',
+          message: `This party is full (${MAX_PARTY} adventurers).`,
+        });
+        return;
       } else {
         members.set(playerId, { id: playerId, name, character: null });
       }
