@@ -94,21 +94,21 @@ export function deserializeDungeon(save: DungeonSave): Dungeon {
   return makeDungeon(rooms);
 }
 
-const FEATURE_SHIFT = 0;
-const TREASURE_SHIFT = 4;
-const MONSTER_SHIFT = 8;
-const VITALITY_SHIFT = 12;
-const OBSERVED_SHIFT = 18;
+const OBSERVED_SHIFT = 0;
+const FEATURE_SHIFT = 1;
+const TREASURE_SHIFT = 5;
+const MONSTER_SHIFT = 9;
+const VITALITY_SHIFT = 13;
 const NIBBLE_MASK = 0x0f;
 const VITALITY_MASK = 0x3f;
 
 function encodeRoom(room: Room): RoomPacked {
   return (
+    ((room.observed ? 1 : 0) << OBSERVED_SHIFT) |
     ((room.feature & NIBBLE_MASK) << FEATURE_SHIFT) |
     ((room.treasureId & NIBBLE_MASK) << TREASURE_SHIFT) |
     ((room.monsterLevel & NIBBLE_MASK) << MONSTER_SHIFT) |
-    ((room.monsterVitality & VITALITY_MASK) << VITALITY_SHIFT) |
-    ((room.observed ? 1 : 0) << OBSERVED_SHIFT)
+    ((room.monsterVitality & VITALITY_MASK) << VITALITY_SHIFT)
   );
 }
 

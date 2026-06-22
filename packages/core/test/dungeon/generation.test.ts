@@ -6,6 +6,7 @@ import {
   validateDungeon,
 } from '../../src/generation.js';
 import { defaultRandomSource } from '../../src/rng.js';
+import { deserializeDungeon, serializeDungeon } from '../../src/serialization.js';
 
 describe('Dungeon generation invariants', () => {
   it('passes validation across many generations', () => {
@@ -17,6 +18,15 @@ describe('Dungeon generation invariants', () => {
         errors,
         `generation ${i + 1} failed: ${errors.join('; ')}`
       ).toEqual([]);
+    }
+  });
+
+  it('rehydrates games across many generations', () => {
+    const totalRuns = 500;
+    for (let i = 0; i < totalRuns; i += 1) {
+      const dungeon = generateDungeon(defaultRandomSource);
+      const hydrated = deserializeDungeon(serializeDungeon(dungeon));
+      expect(hydrated).toEqual(dungeon);
     }
   });
 
