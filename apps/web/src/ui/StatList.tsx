@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import clsx from 'clsx';
 
 import styles from './StatList.module.css';
+import { Tooltip } from './Tooltip.js';
 
 const TONE = {
   alert: styles.alert,
@@ -56,7 +57,11 @@ export function StatRow({
 }) {
   return (
     <div className={styles.row}>
-      <dt className={styles.label}>{shortLabel(label)}</dt>
+      <dt className={styles.label}>
+        <Tooltip title={`${label}: ${value}`}>
+          {shortLabel(label)}
+        </Tooltip>
+      </dt>
       <dd className={clsx(styles.value, tone && TONE[tone])} title={title}>
         {shortValue(value)}
       </dd>
