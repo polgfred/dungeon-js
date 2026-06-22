@@ -32,7 +32,7 @@ describe('Dungeon generation invariants', () => {
     }
   });
 
-  it.skip('plateaus deep-floor monsters at [8,10] instead of all Dragons', () => {
+  it('plateaus deep-floor monsters at [7,10] instead of all Dragons', () => {
     const levels = new Set<number>();
     for (let run = 0; run < 200; run += 1) {
       const dungeon = generateDungeon(defaultRandomSource, dungeonDepth(4));
@@ -45,9 +45,8 @@ describe('Dungeon generation invariants', () => {
         }
       }
     }
-    // The floor clamp holds the deepest band at 8..10 (Hellhound/Chimaera/
-    // Dragon), not a collapse to nothing but level-10 Dragons.
-    expect(Math.min(...levels)).toBe(8);
+    // The floor clamp holds the deepest band at 7..10.
+    expect(Math.min(...levels)).toBe(7);
     expect(Math.max(...levels)).toBe(10);
   });
 });

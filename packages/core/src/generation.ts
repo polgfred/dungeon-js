@@ -16,7 +16,7 @@ export function generateDungeon(rng: RandomSource, playerCount = 1): Dungeon {
   const size = dungeonSize(playerCount);
   const rooms: Room[][][] = Array.from({ length: depth }, (_, z) =>
     Array.from({ length: size }, () =>
-      Array.from({ length: size }, () => createRoom(rng, z))
+      Array.from({ length: size }, () => createRoom(rng, depth, z))
     )
   );
 
@@ -27,7 +27,7 @@ export function generateDungeon(rng: RandomSource, playerCount = 1): Dungeon {
   return makeDungeon(rooms);
 }
 
-function createRoom(rng: RandomSource, floor: number): Room {
+function createRoom(rng: RandomSource, depth: number, floor: number): Room {
   const room: Room = {
     feature: Feature.EMPTY,
     treasureId: 0,
@@ -38,9 +38,8 @@ function createRoom(rng: RandomSource, floor: number): Room {
   if (rng.random() > 0.3) {
     const roll = rng.randint(1, 10);
     if (roll > 8) {
-      // Clamp the floor so we don't get all dragons at z>9.
-      floor = Math.min(floor, 7);
-      const minLevel = floor + 1;
+      // Spread out base monster level from 1->7 across floors.
+      const minLevel = Math.ceil(floor * 7 / depth);
       const maxLevel = Math.min(10, minLevel + 5);
       room.monsterLevel = rng.randint(minLevel, maxLevel);
     } else {
