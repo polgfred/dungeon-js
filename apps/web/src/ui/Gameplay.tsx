@@ -119,7 +119,7 @@ function Party({
               {member.id === playerId ? '*' : '√'}
             </span>
             <Tooltip
-              title={`${member.name}: ${member.hp}`}
+              content={`${member.name}: ${member.hp}`}
               className={styles.partyName}
             >
               <span

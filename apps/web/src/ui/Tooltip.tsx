@@ -4,16 +4,20 @@ import type { ReactNode } from 'react';
 import styles from './Tooltip.module.css';
 
 type TooltipProps = {
-  title: string;
+  content: ReactNode;
   children: ReactNode;
   className?: string;
 };
 
-export function Tooltip({ title, children, className }: TooltipProps) {
-  const tooltipProps = title ? { 'data-tooltip': title } : {};
+export function Tooltip({ content, children, className }: TooltipProps) {
   return (
-    <span className={clsx(styles.wrapper, className)} {...tooltipProps}>
+    <span className={clsx(styles.wrapper, className)}>
       {children}
+      {content != null && content !== '' && (
+        <span className={styles.tip} role="tooltip">
+          {content}
+        </span>
+      )}
     </span>
   );
 }

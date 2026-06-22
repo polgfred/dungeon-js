@@ -58,7 +58,7 @@ export function StatRow({
   return (
     <div className={styles.row}>
       <dt className={styles.label}>
-        <Tooltip title={`${label}: ${value}`}>
+        <Tooltip content={`${label}: ${value}`}>
           {shortLabel(label)}
         </Tooltip>
       </dt>

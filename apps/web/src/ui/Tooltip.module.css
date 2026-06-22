@@ -3,8 +3,7 @@
   display: inline-block;
 }
 
-.wrapper[data-tooltip]::after {
-  content: attr(data-tooltip);
+.tip {
   position: absolute;
   bottom: 18px;
   left: 0;
@@ -23,7 +22,7 @@
   transition: opacity 120ms ease;
 }
 
-.wrapper[data-tooltip]:hover::after,
-.wrapper[data-tooltip]:focus-within::after {
+.wrapper:hover .tip,
+.wrapper:focus-within .tip {
   opacity: 1;
 }
