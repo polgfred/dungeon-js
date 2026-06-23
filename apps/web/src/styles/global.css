@@ -33,7 +33,7 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-user-select: none;
     user-select: none;
-  }
+   }
 
   p {
     margin: 0;
@@ -67,7 +67,6 @@
     font-size: 1.5rem;
     font-weight: 400;
     line-height: 1.334;
-    letter-spacing: 0em;
   }
 
   .txt-body2 {
@@ -84,7 +83,6 @@
   .txt-overline {
     font-size: 0.75rem;
     line-height: 2.66;
-    letter-spacing: 0.08333em;
     text-transform: uppercase;
   }
 
@@ -100,7 +98,6 @@
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.75;
-    letter-spacing: 0.02857em;
     text-transform: none;
     cursor: pointer;
     border: 1px solid transparent;
@@ -127,7 +124,6 @@
     color: var(--primary-main);
     border-color: var(--text-primary);
     font-weight: 700;
-    letter-spacing: 1.2px;
   }
   .btn-contained:hover {
     background-color: var(--grey-200);

@@ -35,7 +35,6 @@
   border-radius: 3px;
   font-family: var(--font-family);
   font-size: 0.7rem;
-  letter-spacing: 0.6px;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;

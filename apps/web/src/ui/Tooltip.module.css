@@ -22,7 +22,6 @@
   border-radius: 3px;
   font-family: var(--font-family);
   font-size: 12px;
-  letter-spacing: 0.6px;
   pointer-events: none;
   opacity: 0;
   z-index: 100;
