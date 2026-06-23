@@ -6,8 +6,8 @@
 
 .tip {
   position: absolute;
-  bottom: 18px;
-  left: 0;
+  top: 2em;
+  left: -4px;
   padding: 4px 8px;
   background: var(--text-primary);
   color: var(--primary-main);
