@@ -234,7 +234,7 @@ export function Lobby({
       <aside className={layout.sidebar}>
         {status !== 'open' && (
           <p className={layout.reconnecting}>
-            {status === 'closed' ? 'Reconnecting...' : 'Connecting…'}
+            {status === 'closed' ? 'Reconnecting…' : 'Connecting…'}
           </p>
         )}
         <section>
