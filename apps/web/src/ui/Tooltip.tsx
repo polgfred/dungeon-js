@@ -12,7 +12,9 @@ type TooltipProps = {
 export function Tooltip({ content, children, className }: TooltipProps) {
   return (
     <span className={clsx(styles.wrapper, className)}>
-      {children}
+      <span className={styles.trigger}>
+        {children}
+      </span>
       {content != null && content !== '' && (
         <span className={styles.tip} role="tooltip">
           {content}
