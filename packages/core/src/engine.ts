@@ -206,11 +206,6 @@ export class Game {
     };
   }
 
-  getEncounterSave(id: PlayerId): EncounterSave | null {
-    const state = this.state(id);
-    return state.encounter ? state.encounter.toSave() : null;
-  }
-
   startEvents(id: PlayerId): Event[] {
     const state = this.state(id);
     return this.enterRoom(state);
