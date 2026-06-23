@@ -10,13 +10,13 @@ import styles from './MapGrid.module.css';
 
 type TileGlyph = {
   id?: GlyphId;
-  tooltip: string;
+  tooltip?: string;
   danger?: boolean;
   treasure?: boolean;
 };
 
 const FEATURE_GLYPH: Partial<Record<Feature, TileGlyph>> = {
-  [Feature.EMPTY]: { tooltip: 'Empty' },
+  [Feature.EMPTY]: {},
   [Feature.MIRROR]: { id: 'MIRROR', tooltip: 'Mirror' },
   [Feature.SCROLL]: { id: 'SCROLL', tooltip: 'Scroll' },
   [Feature.CHEST]: { id: 'CHEST', tooltip: 'Chest' },
@@ -32,7 +32,7 @@ const FEATURE_GLYPH: Partial<Record<Feature, TileGlyph>> = {
 
 /** A last-observed tile → its map glyph. Mirrors the server's resolve order. */
 export function tileGlyph(tile: Tile): TileGlyph {
-  if (tile === MapTile.UNSEEN) return { id: 'DOT', tooltip: 'Unknown' };
+  if (tile === MapTile.UNSEEN) return { id: 'DOT' };
   if (tile === MapTile.MONSTER)
     return { id: 'MONSTER', tooltip: 'Monster', danger: true };
   if (tile === MapTile.TREASURE)
