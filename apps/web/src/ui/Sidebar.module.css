@@ -1,0 +1,9 @@
+.glyphGroup {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.glyph {
+  width: 20px;
+  height: 20px;
+}

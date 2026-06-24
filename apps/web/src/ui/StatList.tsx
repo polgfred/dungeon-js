@@ -21,7 +21,7 @@ export function StatRow({
   tip,
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   tone?: keyof typeof TONE;
   tip?: ReactNode;
 }) {
