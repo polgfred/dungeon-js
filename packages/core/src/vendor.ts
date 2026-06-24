@@ -184,7 +184,7 @@ export class VendorSession {
     }
     this.player.armorTier = tier;
     this.player.armorName = ARMOR_NAMES[tier];
-    this.player.armorDamaged = false;
+    this.player.armorDamage = 0;
     this.player.gold -= price;
     return { events: [], done: true };
   }

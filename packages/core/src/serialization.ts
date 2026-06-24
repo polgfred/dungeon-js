@@ -38,7 +38,7 @@ export type PlayerSave = Readonly<{
   weaponName: string;
   weaponBroken: boolean;
   armorName: string;
-  armorDamaged: boolean;
+  armorDamage: number;
   spells: readonly number[];
   fatigued: boolean;
   tempArmorBonus: number;

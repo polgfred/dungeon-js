@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Game } from '../../src/engine.js';
+import { effectiveArmorTier } from '../../src/model.js';
 import { Feature, MapTile, Mode, Spell } from '../../src/constants.js';
 import { buildPlayer } from '../helpers/factories.js';
 import { dungeonDepth } from '../../src/generation.js';
@@ -76,6 +77,22 @@ describe('Game interactions', () => {
       );
       expect(player.armorTier).toBe(0);
       expect(dungeon.rooms[0][0][0].feature).toBe(Feature.EMPTY);
+    });
+
+    it('opens a chest and damages (not destroys) higher-tier armor', () => {
+      const rng = new ScriptedRng({ random: [0.05] });
+      const { game, player } = setupGame({ feature: Feature.CHEST, rng });
+      player.armorTier = 3;
+
+      const result = game.step(ID, 'O');
+
+      expect(result.events[0].text).toBe(
+        'The perverse thing explodes as you open it, damaging your armour!'
+      );
+      // Nominal tier is preserved; the damage count erodes the effective tier.
+      expect(player.armorTier).toBe(3);
+      expect(player.armorDamage).toBe(1);
+      expect(effectiveArmorTier(player)).toBe(2);
     });
 
     it('opens a chest and dies from the explosion when unarmored', () => {

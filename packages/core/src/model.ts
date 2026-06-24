@@ -54,7 +54,7 @@ export interface Player {
   weaponName: string;
   weaponBroken: boolean;
   armorName: string;
-  armorDamaged: boolean;
+  armorDamage: number;
   spells: SpellCounts;
   fatigued: boolean;
   tempArmorBonus: number;
@@ -77,7 +77,7 @@ interface PlayerInit {
   weaponName?: string;
   weaponBroken?: boolean;
   armorName?: string;
-  armorDamaged?: boolean;
+  armorDamage?: number;
   spells?: SpellCounts;
   fatigued?: boolean;
   tempArmorBonus?: number;
@@ -101,11 +101,19 @@ export function makePlayer(options: PlayerInit): Player {
     weaponName: options.weaponName ?? 'none',
     weaponBroken: options.weaponBroken ?? false,
     armorName: options.armorName ?? 'none',
-    armorDamaged: options.armorDamaged ?? false,
+    armorDamage: options.armorDamage ?? 0,
     spells: options.spells ?? makeSpellCounts(),
     fatigued: options.fatigued ?? false,
     tempArmorBonus: options.tempArmorBonus ?? 0,
   };
+}
+
+export function effectiveWeaponTier(player: Player): number {
+  return player.weaponBroken ? 0 : player.weaponTier;
+}
+
+export function effectiveArmorTier(player: Player): number {
+  return Math.max(0, player.armorTier - player.armorDamage);
 }
 
 export function rollBaseStats(

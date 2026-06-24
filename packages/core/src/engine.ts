@@ -43,7 +43,7 @@ export interface PlayerState {
 }
 
 export class Game {
-  static readonly SAVE_VERSION = 8;
+  static readonly SAVE_VERSION = 9;
 
   saveVersion = Game.SAVE_VERSION;
   rng: RandomSource;
@@ -699,10 +699,11 @@ export class Game {
     const rand = this.rng.random();
     if (rand < 0.1) {
       if (player.armorTier > 0) {
-        player.armorTier -= 1;
-        if (player.armorTier === 0) {
+        player.armorDamage += 1;
+        if (player.armorDamage >= player.armorTier) {
+          player.armorTier = 0;
+          player.armorDamage = 0;
           player.armorName = ARMOR_NAMES[0];
-          player.armorDamaged = false;
           return [
             Event.info(
               'The perverse thing explodes as you open it, destroying your armour!',
@@ -711,7 +712,6 @@ export class Game {
           ];
         }
 
-        player.armorDamaged = true;
         return [
           Event.info(
             'The perverse thing explodes as you open it, damaging your armour!',
@@ -721,7 +721,6 @@ export class Game {
       }
 
       player.armorName = ARMOR_NAMES[0];
-      player.armorDamaged = false;
       player.hp -= this.rng.randint(0, 4) + 3;
       if (player.hp <= 0) {
         this.endMode = Mode.GAME_OVER;

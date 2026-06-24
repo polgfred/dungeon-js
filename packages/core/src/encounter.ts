@@ -1,6 +1,11 @@
 import { monsterName, Spell, SPELL_MIN_IQ, spellName } from './constants.js';
 import type { EncounterSave } from './serialization.js';
-import type { Player, Room } from './model.js';
+import {
+  effectiveArmorTier,
+  effectiveWeaponTier,
+  type Player,
+  type Room,
+} from './model.js';
 import { Event, makePrompt, type Prompt, type PromptData } from './types.js';
 import type { RandomSource } from './rng.js';
 
@@ -147,14 +152,14 @@ export class EncounterSession {
     const events: Event[] = [];
     const level = this.monsterLevel;
     const attackScore =
-      20 + 5 * (11 - level) + this.player.dex + 3 * this.player.weaponTier;
+      20 + 5 * (11 - level) + this.player.dex + 3 * effectiveWeaponTier(this.player);
 
     const roll = this.rng.randint(1, 100);
     if (roll > attackScore) {
       events.push(Event.combat(`The ${this.monsterName} evades your blow!`));
     } else {
       const damage = Math.max(
-        this.player.weaponTier +
+        effectiveWeaponTier(this.player) +
           Math.floor(this.player.str / 3) +
           this.rng.randint(0, 4) -
           2,
@@ -172,8 +177,11 @@ export class EncounterSession {
           { desperateAttack: true }
         );
       }
-      if (this.rng.random() < 0.05 && this.player.weaponTier > 0) {
-        this.player.weaponTier = 0;
+      if (
+        this.rng.random() < 0.05 &&
+        this.player.weaponTier > 0 &&
+        !this.player.weaponBroken
+      ) {
         this.player.weaponBroken = true;
         events.push(Event.info('Your weapon breaks with the impact!'));
       }
@@ -233,7 +241,7 @@ export class EncounterSession {
       return { events };
     }
 
-    const armor = this.player.armorTier + this.player.tempArmorBonus;
+    const armor = effectiveArmorTier(this.player) + this.player.tempArmorBonus;
     const damage = Math.max(
       this.rng.randint(0, level - 1) + Math.floor(2.5 + level / 3) - armor,
       0

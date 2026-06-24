@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { EncounterSession } from '../../src/encounter.js';
+import { effectiveWeaponTier } from '../../src/model.js';
 import { ARMOR_NAMES, Spell, WEAPON_NAMES } from '../../src/constants.js';
 import type { Event } from '../../src/types.js';
 import { buildPlayer, buildRoom } from '../helpers/factories.js';
@@ -84,9 +85,12 @@ describe('EncounterSession fight loop', () => {
     const result = session.step('F');
 
     expectEvent(result.events, 'Your weapon breaks with the impact!');
-    expect(player.weaponTier).toBe(0);
+    // Nominal tier + name are preserved (for display); weaponBroken carries the
+    // condition, and the *effective* tier is what's zeroed for combat.
+    expect(player.weaponTier).toBe(2);
     expect(player.weaponBroken).toBe(true);
     expect(player.weaponName).toBe('Short sword');
+    expect(effectiveWeaponTier(player)).toBe(0);
   });
 
   it('monster attack is dodged', () => {
