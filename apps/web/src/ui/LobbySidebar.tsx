@@ -8,7 +8,6 @@ import type { ConnectionStatus, LobbyMember, PlayerId } from '@dod/net/client';
 import { chatColorsById } from './chatColors.js';
 import layout from './Layout.module.css';
 import styles from './LobbySidebar.module.css';
-import { GlyphDefs } from './MapGrid.js';
 import sidebar from './Sidebar.module.css';
 import { ArmorRow, WeaponRow } from './Sidebar.js';
 import { stageReached, type SetupStage } from './SetupGameModel.js';
@@ -169,7 +168,6 @@ export function LobbySidebar({
 }) {
   return (
     <>
-      <GlyphDefs />
       {status !== 'open' && (
         <p className={layout.reconnecting}>
           {status === 'closed' ? 'Reconnecting…' : 'Connecting…'}

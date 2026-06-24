@@ -26,7 +26,7 @@ import {
   NAV_COMMANDS,
   TRANSIT_COMMANDS,
 } from './gameplayCommands.js';
-import { GlyphDefs, MapGrid } from './MapGrid.js';
+import { MapGrid } from './MapGrid.js';
 import { navigate } from './useRoute.js';
 import { Sidebar } from './Sidebar.js';
 
@@ -453,8 +453,6 @@ export function Gameplay({
 
   return (
     <div className={layout.root}>
-      <GlyphDefs />
-
       <section className={clsx(layout.board, styles.board)}>
         <MapGrid
           map={view.map}

@@ -1,4 +1,5 @@
 import styles from './App.module.css';
+import { GlyphDefs } from './Glyphs.js';
 import Help from './Help.js';
 import Home from './Home.js';
 import Play from './Play.js';
@@ -13,6 +14,7 @@ export default function App() {
 
   return (
     <main className={styles.screen}>
+      <GlyphDefs />
       {route.name === 'home' ? (
         <Home />
       ) : route.name === 'help' ? (

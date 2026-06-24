@@ -11,18 +11,10 @@ import {
 } from '@dod/core';
 import { ConnectionStatus, PartyMember, PlayerView } from '@dod/net/client';
 
-import type { GlyphId } from './glyphPaths.js';
 import layout from './Layout.module.css';
 import styles from './Sidebar.module.css';
 import { chatColorsById } from './chatColors.js';
-
-function GlyphIcon({ id }: { id: GlyphId }) {
-  return (
-    <svg className={styles.glyph} viewBox="0 0 8 8" aria-hidden="true">
-      <use href={`#glyph-${id}`} />
-    </svg>
-  );
-}
+import { GlyphIcon } from './Glyphs.js';
 
 // --- Status rows -----------------------------------------------------------
 
