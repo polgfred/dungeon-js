@@ -65,7 +65,7 @@ function DexRow({ dex }: { dex: number }) {
 function IntRow({ iq }: { iq: number }) {
   return (
     <div className={styles.row}>
-      <span className={styles.label}>Intel</span>
+      <span className={styles.label}>Intellect</span>
       <span className={styles.value}>{iq}</span>
     </div>
   );
@@ -180,7 +180,7 @@ function ArmorRow({
 function TreasRow({ found }: { found: readonly number[] }) {
   const numFound = found.length;
   return (
-    <div className={clsx(numFound > 0 && styles.interactive)}>
+    <div className={clsx(styles.treasures, numFound > 0 && styles.interactive)}>
       <div className={styles.glyphGroup}>
         {Array.from({ length: found.length }).map((_, i) => (
           <span key={`found-${i}`} className={styles.loot}>
@@ -208,38 +208,52 @@ function TreasRow({ found }: { found: readonly number[] }) {
 
 // --- Readouts --------------------------------------------------------------
 
+function CharacterReadout({ view }: { view: PlayerView }) {
+  const s = view.self;
+  return (
+    <section>
+      <div className={styles.group}>
+        <RaceRow race={s.race} />
+        <HealthRow hp={s.hp} mhp={s.mhp} />
+        <StrRow str={s.str} />
+        <DexRow dex={s.dex} />
+        <IntRow iq={s.iq} />
+      </div>
+    </section>
+  );
+}
+
 function StatusReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
-    <div className={styles.group}>
-      <RaceRow race={s.race} />
-      <HealthRow hp={s.hp} mhp={s.mhp} />
-      <StrRow str={s.str} />
-      <DexRow dex={s.dex} />
-      <IntRow iq={s.iq} />
-      <GoldRow gold={s.gold} />
-      <FlaresRow flares={s.flares} />
-      <SpellsRow spells={s.spells} />
-      <LocationRow player={s} />
-    </div>
+    <section>
+      <div className={styles.group}>
+        <LocationRow player={s} />
+        <GoldRow gold={s.gold} />
+        <FlaresRow flares={s.flares} />
+        <SpellsRow spells={s.spells} />
+      </div>
+    </section>
   );
 }
 
 function GearReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
-    <div className={styles.group}>
-      <WeaponRow
-        tier={s.weaponTier}
-        name={s.weaponName}
-        broken={s.weaponBroken}
-      />
-      <ArmorRow
-        tier={s.armorTier}
-        name={s.armorName}
-        damaged={s.armorDamaged}
-      />
-    </div>
+    <section>
+      <div className={styles.group}>
+        <WeaponRow
+          tier={s.weaponTier}
+          name={s.weaponName}
+          broken={s.weaponBroken}
+        />
+        <ArmorRow
+          tier={s.armorTier}
+          name={s.armorName}
+          damaged={s.armorDamaged}
+        />
+      </div>
+    </section>
   );
 }
 
@@ -252,6 +266,7 @@ function Player({
   color: string;
   isSelf: boolean;
 }) {
+  const hearts = member.hp >= 20 ? 3 : member.hp >= 10 ? 2 : 1;
   return (
     <div className={clsx(styles.row, styles.interactive)}>
       <span
@@ -262,7 +277,7 @@ function Player({
       </span>
       <span className={clsx(styles.value, member.hp < 10 && styles.alert)}>
         <span className={styles.glyphGroup}>
-          {Array.from({ length: Math.ceil(member.hp / 10) }).map((_, i) => (
+          {Array.from({ length: hearts }).map((_, i) => (
             <GlyphIcon key={i} id="HEART" />
           ))}
         </span>
@@ -283,15 +298,18 @@ function PartyReadout({
 }) {
   const colorOf = chatColorsById(party);
   return (
-    <div className={styles.group}>
-      {party.map((member) => (
-        <Player
-          member={member}
-          color={colorOf(member.id)}
-          isSelf={playerId === member.id}
-        />
-      ))}
-    </div>
+    <section>
+      <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
+      <div className={styles.group}>
+        {party.map((member) => (
+          <Player
+            member={member}
+            color={colorOf(member.id)}
+            isSelf={playerId === member.id}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -311,22 +329,11 @@ export function Sidebar({
           {status === 'closed' ? 'Reconnecting…' : 'Connecting…'}
         </p>
       )}
-      <section>
-        <p className={clsx('ui-panel-title', layout.railTitle)}>Status</p>
-        <StatusReadout view={view} />
-      </section>
-      <section>
-        <p className={clsx('ui-panel-title', layout.railTitle)}>Gear</p>
-        <GearReadout view={view} />
-      </section>
-      <section>
-        <p className={clsx('ui-panel-title', layout.railTitle)}>Treasures</p>
-        <TreasRow found={view.treasuresFound} />
-      </section>
-      <section>
-        <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
-        <PartyReadout party={view.party} playerId={playerId} />
-      </section>
+      <TreasRow found={view.treasuresFound} />
+      <CharacterReadout view={view} />
+      <StatusReadout view={view} />
+      <GearReadout view={view} />
+      <PartyReadout party={view.party} playerId={playerId} />
     </>
   );
 }
