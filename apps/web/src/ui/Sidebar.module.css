@@ -79,3 +79,19 @@
 .interactive:focus-within .tip {
   opacity: 1;
 }
+
+.partySelf {
+  font-style: italic;
+}
+
+.partyName {
+  display: block;
+  width: 10em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.partyOffline {
+  opacity: 0.4;
+}

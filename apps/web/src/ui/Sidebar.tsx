@@ -234,8 +234,16 @@ function GearReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
     <div className={styles.group}>
-      <WeaponRow tier={s.weaponTier} name={s.weaponName} broken={s.weaponBroken} />
-      <ArmourRow tier={s.armorTier} name={s.armorName} damaged={s.armorDamaged} />
+      <WeaponRow
+        tier={s.weaponTier}
+        name={s.weaponName}
+        broken={s.weaponBroken}
+      />
+      <ArmourRow
+        tier={s.armorTier}
+        name={s.armorName}
+        damaged={s.armorDamaged}
+      />
     </div>
   );
 }
@@ -263,8 +271,58 @@ function HealthBar({ hp }: { hp: number }) {
     </span>
   );
 }
+/*
+<li key={member.id} className={styles.partyRow}>
+  <span className={styles.partyMark}>
+    {member.id === playerId ? '*' : '√'}
+  </span>
+  <Tooltip
+    content={`${member.name}: ${member.hp}`}
+    className={styles.partyName}
+  >
+    <span
+      className={styles.partyNameText}
+      style={{ color: colorOf(member.id) }}
+    >
+      {member.name}
+    </span>
+  </Tooltip>
+  <HealthBar hp={member.hp} />
+</li>
+*/
 
-function Party({
+function Player({
+  member,
+  color,
+  isSelf,
+}: {
+  member: PartyMember;
+  color: string;
+  isSelf: boolean;
+}) {
+  return (
+    <div className={clsx(styles.row, styles.interactive)}>
+      <span
+        className={clsx(styles.partyName, isSelf && styles.partySelf)}
+        style={{ color }}
+      >
+        {member.name}
+      </span>
+      <span className={clsx(styles.value, member.hp < 10 && styles.alert)}>
+        <span className={styles.glyphGroup}>
+          {Array.from({ length: Math.ceil(member.hp / 10) }).map((_, i) => (
+            <GlyphIcon key={i} id="HEART" />
+          ))}
+        </span>
+      </span>
+      <span className={styles.tip} role="tooltip">
+        {member.name}: {member.hp}
+      </span>
+    </div>
+  );
+}
+
+function PartyReadout({
   party,
   playerId,
 }: {
@@ -273,30 +331,15 @@ function Party({
 }) {
   const colorOf = chatColorsById(party);
   return (
-    <section>
-      <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
-      <ul className={styles.partyList}>
-        {party.map((member) => (
-          <li key={member.id} className={styles.partyRow}>
-            <span className={styles.partyMark}>
-              {member.id === playerId ? '*' : '√'}
-            </span>
-            <Tooltip
-              content={`${member.name}: ${member.hp}`}
-              className={styles.partyName}
-            >
-              <span
-                className={styles.partyNameText}
-                style={{ color: colorOf(member.id) }}
-              >
-                {member.name}
-              </span>
-            </Tooltip>
-            <HealthBar hp={member.hp} />
-          </li>
-        ))}
-      </ul>
-    </section>
+    <div className={styles.group}>
+      {party.map((member) => (
+        <Player
+          member={member}
+          color={colorOf(member.id)}
+          isSelf={playerId === member.id}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -332,7 +375,10 @@ export function Sidebar({
         <p className={clsx('ui-panel-title', layout.railTitle)}>Location</p>
         <LocationReadout view={view} />
       </section>
-      {/* <Party party={view.party} playerId={playerId} /> */}
+      <section>
+        <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
+        <PartyReadout party={view.party} playerId={playerId} />
+      </section>
     </>
   );
 }

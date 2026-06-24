@@ -186,6 +186,7 @@ export const EXIT: Glyph = [
 
 // Health — a heart, drawn 1–3× for proximity to death (red at 1)
 export const HEART: Glyph = [
+  '........',
   '.##..##.',
   '########',
   '########',
@@ -193,7 +194,6 @@ export const HEART: Glyph = [
   '.######.',
   '..####..',
   '...##...',
-  '........',
 ];
 
 // Weapon — an upright sword, drawn 1–3× for tier (red when broken)
@@ -210,6 +210,7 @@ export const SWORD: Glyph = [
 
 // Armour — a heater shield, drawn 1–3× for tier (red when damaged)
 export const SHIELD: Glyph = [
+  '........',
   '########',
   '###..###',
   '##....##',
@@ -217,5 +218,4 @@ export const SHIELD: Glyph = [
   '.##..##.',
   '..####..',
   '...##...',
-  '........',
 ];
