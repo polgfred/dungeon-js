@@ -210,12 +210,12 @@ export const SWORD: Glyph = [
 
 // Armour — a heater shield, drawn 1–3× for tier (red when damaged)
 export const SHIELD: Glyph = [
-  '........',
+  '..####..',
   '########',
-  '###..###',
-  '##....##',
-  '.#....#.',
-  '.##..##.',
+  '########',
+  '########',
+  '.######.',
+  '.######.',
   '..####..',
   '...##...',
 ];
