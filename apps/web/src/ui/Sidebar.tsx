@@ -93,7 +93,9 @@ function SpellsRow({ spells }: { spells: readonly number[] }) {
   const total = spells.reduce((sum, count) => sum + count, 0);
   return (
     <div className={clsx(styles.row, styles.interactive)}>
-      <span className={styles.label}>Spells</span>
+      <span className={styles.label}>
+        Spells<sup>?</sup>
+      </span>
       <span className={styles.value}>{total}</span>
       <span className={styles.tip} role="tooltip">
         <ul>
@@ -113,7 +115,7 @@ function LocationRow({ player }: { player: PlayerSave }) {
     <div className={styles.row}>
       <span className={styles.label}>Location</span>
       <span className={styles.value}>
-        {player.z},{player.y},{player.x}
+        {player.z + 1},{player.y + 1},{player.x + 1}
       </span>
     </div>
   );
@@ -132,7 +134,9 @@ function WeaponRow({
 }) {
   return (
     <div className={clsx(styles.row, styles.interactive)}>
-      <span className={styles.label}>Weapon</span>
+      <span className={styles.label}>
+        Weapon<sup>?</sup>
+      </span>
       <span className={clsx(styles.value, broken && styles.alert)}>
         <span className={styles.glyphGroup}>
           {Array.from({ length: tier }).map((_, i) => (
@@ -151,25 +155,30 @@ function WeaponRow({
 function ArmorRow({
   tier,
   name,
-  damaged,
+  damage,
 }: {
   tier: number;
   name: string;
-  damaged: boolean;
+  damage: number;
 }) {
+  const intact = tier - damage;
   return (
     <div className={clsx(styles.row, styles.interactive)}>
-      <span className={styles.label}>Armour</span>
-      <span className={clsx(styles.value, damaged && styles.alert)}>
+      <span className={styles.label}>
+        Armour<sup>?</sup>
+      </span>
+      <span className={styles.value}>
         <span className={styles.glyphGroup}>
           {Array.from({ length: tier }).map((_, i) => (
-            <GlyphIcon key={i} id="SHIELD" />
+            <span key={i} className={i >= intact ? styles.dimmed : undefined}>
+              <GlyphIcon id="SHIELD" />
+            </span>
           ))}
         </span>
       </span>
       <span className={styles.tip} role="tooltip">
         {name}
-        {damaged ? ' (damaged)' : ''}
+        {damage > 0 ? ' (damaged)' : ''}
       </span>
     </div>
   );
@@ -250,7 +259,7 @@ function GearReadout({ view }: { view: PlayerView }) {
         <ArmorRow
           tier={s.armorTier}
           name={s.armorName}
-          damaged={s.armorDamaged}
+          damage={s.armorDamage}
         />
       </div>
     </section>
@@ -270,7 +279,11 @@ function Player({
   return (
     <div className={clsx(styles.row, styles.interactive)}>
       <span
-        className={clsx(styles.partyName, isSelf && styles.partySelf)}
+        className={clsx(
+          styles.label,
+          styles.partyName,
+          isSelf && styles.partySelf
+        )}
         style={{ color }}
       >
         {member.name}

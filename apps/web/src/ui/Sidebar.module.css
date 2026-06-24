@@ -23,6 +23,12 @@
 .label {
   color: var(--text-secondary);
   width: 10em;
+
+  sup {
+    vertical-align: top;
+    color: var(--text-disabled);
+    font-size: 0.75em;
+  }
 }
 
 .value {
@@ -90,7 +96,6 @@
 }
 
 .partyName {
-  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
