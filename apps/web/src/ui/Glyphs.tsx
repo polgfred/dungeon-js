@@ -1,7 +1,8 @@
+import type { HTMLAttributes } from 'react';
+
 import { Feature, MapTile, type Tile } from '@dod/core';
 
 import { GLYPH_PATHS, type GlyphId } from './glyphPaths.js';
-import styles from './Glyphs.module.css';
 
 type TileGlyph = {
   id?: GlyphId;
@@ -54,9 +55,15 @@ export function GlyphDefs() {
   );
 }
 
-export function GlyphIcon({ id }: { id: GlyphId }) {
+export function GlyphIcon({
+  id,
+  className,
+}: {
+  id: GlyphId;
+  className?: HTMLAttributes<SVGElement>['className'];
+}) {
   return (
-    <svg className={styles.glyph} viewBox="0 0 8 8" aria-hidden="true">
+    <svg className={className} viewBox="0 0 8 8" aria-hidden="true">
       <use href={`#glyph-${id}`} />
     </svg>
   );

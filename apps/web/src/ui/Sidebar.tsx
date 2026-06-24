@@ -126,7 +126,7 @@ export function WeaponRow({ tier, broken }: { tier: number; broken: boolean }) {
       <span className={clsx(styles.value, broken && styles.alert)}>
         <span className={styles.glyphGroup}>
           {Array.from({ length: tier }).map((_, i) => (
-            <GlyphIcon key={i} id="SWORD" />
+            <GlyphIcon key={i} id="SWORD" className={styles.glyph} />
           ))}
         </span>
       </span>
@@ -149,7 +149,7 @@ export function ArmorRow({ tier, damage }: { tier: number; damage: number }) {
         <span className={styles.glyphGroup}>
           {Array.from({ length: tier }).map((_, i) => (
             <span key={i} className={i >= intact ? styles.dimmed : undefined}>
-              <GlyphIcon id="SHIELD" />
+              <GlyphIcon id="SHIELD" className={styles.glyph} />
             </span>
           ))}
         </span>
@@ -171,12 +171,12 @@ function TreasureBar({ found }: { found: readonly number[] }) {
       <div className={styles.glyphGroup}>
         {Array.from({ length: found.length }).map((_, i) => (
           <span key={`found-${i}`} className={styles.loot}>
-            <GlyphIcon id="GEM" />
+            <GlyphIcon id="GEM" className={styles.glyph} />
           </span>
         ))}
         {Array.from({ length: 10 - found.length }).map((_, i) => (
           <span key={`empty-${i}`} className={styles.dimmed}>
-            <GlyphIcon id="GEM" />
+            <GlyphIcon id="GEM" className={styles.glyph} />
           </span>
         ))}
       </div>
@@ -261,7 +261,7 @@ function Player({
       <span className={clsx(styles.value, member.hp < 10 && styles.alert)}>
         <span className={styles.glyphGroup}>
           {Array.from({ length: hearts }).map((_, i) => (
-            <GlyphIcon key={i} id="HEART" />
+            <GlyphIcon key={i} id="HEART" className={styles.glyph} />
           ))}
         </span>
       </span>

@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-
 import clsx from 'clsx';
+import { useEffect, useState } from 'react';
 
 import { serializePlayer, type PlayerSave } from '@dod/core';
 import type {

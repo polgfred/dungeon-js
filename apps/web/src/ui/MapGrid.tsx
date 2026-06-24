@@ -1,6 +1,5 @@
-import type { CSSProperties } from 'react';
-
 import clsx from 'clsx';
+import type { CSSProperties } from 'react';
 
 import { MapTile, type Tile } from '@dod/core';
 import type { PartyMember, PlayerId } from '@dod/net/client';
@@ -68,7 +67,9 @@ export function MapGrid({
                   glyph.treasure && styles.cellTreasure
                 )}
               >
-                {glyph.id && <GlyphIcon id={glyph.id} />}
+                {glyph.id && (
+                  <GlyphIcon id={glyph.id} className={styles.glyph} />
+                )}
               </div>
             );
           })}
