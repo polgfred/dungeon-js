@@ -172,7 +172,7 @@ function ArmorRow({ tier, damage }: { tier: number; damage: number }) {
 
 // --- Treasures -------------------------------------------------------------
 
-function TreasRow({ found }: { found: readonly number[] }) {
+function TreasureBar({ found }: { found: readonly number[] }) {
   const numFound = found.length;
   return (
     <div className={clsx(styles.treasures, numFound > 0 && styles.interactive)}>
@@ -320,7 +320,7 @@ export function Sidebar({
           {status === 'closed' ? 'Reconnecting…' : 'Connecting…'}
         </p>
       )}
-      <TreasRow found={view.treasuresFound} />
+      <TreasureBar found={view.treasuresFound} />
       <CharacterReadout view={view} />
       <StatusReadout view={view} />
       <GearReadout view={view} />
