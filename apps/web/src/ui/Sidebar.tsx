@@ -1,13 +1,18 @@
 import { clsx } from 'clsx';
 
-import { raceName, spellName, treasureName, type PlayerId } from '@dod/core';
+import {
+  raceName,
+  spellName,
+  treasureName,
+  type PlayerId,
+  type PlayerSave,
+} from '@dod/core';
 import { ConnectionStatus, PartyMember, PlayerView } from '@dod/net/client';
 
 import type { GlyphId } from './glyphPaths.js';
 import layout from './Layout.module.css';
 import styles from './Sidebar.module.css';
 import { chatColorsById } from './chatColors.js';
-import { Tooltip } from './Tooltip.js';
 
 function GlyphIcon({ id }: { id: GlyphId }) {
   return (
@@ -31,7 +36,7 @@ function RaceRow({ race }: { race: number }) {
 function HealthRow({ hp, mhp }: { hp: number; mhp: number }) {
   return (
     <div className={styles.row}>
-      <span className={styles.label}>Heal</span>
+      <span className={styles.label}>Health</span>
       <span className={clsx(styles.value, hp < 10 && styles.alert)}>
         {hp}/{mhp}
       </span>
@@ -42,7 +47,7 @@ function HealthRow({ hp, mhp }: { hp: number; mhp: number }) {
 function StrRow({ str }: { str: number }) {
   return (
     <div className={styles.row}>
-      <span className={styles.label}>Str</span>
+      <span className={styles.label}>Strength</span>
       <span className={styles.value}>{str}</span>
     </div>
   );
@@ -51,7 +56,7 @@ function StrRow({ str }: { str: number }) {
 function DexRow({ dex }: { dex: number }) {
   return (
     <div className={styles.row}>
-      <span className={styles.label}>Dex</span>
+      <span className={styles.label}>Dexterity</span>
       <span className={styles.value}>{dex}</span>
     </div>
   );
@@ -60,7 +65,7 @@ function DexRow({ dex }: { dex: number }) {
 function IntRow({ iq }: { iq: number }) {
   return (
     <div className={styles.row}>
-      <span className={styles.label}>Int</span>
+      <span className={styles.label}>Intel</span>
       <span className={styles.value}>{iq}</span>
     </div>
   );
@@ -78,7 +83,7 @@ function GoldRow({ gold }: { gold: number }) {
 function FlaresRow({ flares }: { flares: number }) {
   return (
     <div className={styles.row}>
-      <span className={styles.label}>Flare</span>
+      <span className={styles.label}>Flares</span>
       <span className={styles.value}>{flares}</span>
     </div>
   );
@@ -88,7 +93,7 @@ function SpellsRow({ spells }: { spells: readonly number[] }) {
   const total = spells.reduce((sum, count) => sum + count, 0);
   return (
     <div className={clsx(styles.row, styles.interactive)}>
-      <span className={styles.label}>Spell</span>
+      <span className={styles.label}>Spells</span>
       <span className={styles.value}>{total}</span>
       <span className={styles.tip} role="tooltip">
         <ul>
@@ -98,6 +103,17 @@ function SpellsRow({ spells }: { spells: readonly number[] }) {
             </li>
           ))}
         </ul>
+      </span>
+    </div>
+  );
+}
+
+function LocationRow({ player }: { player: PlayerSave }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Location</span>
+      <span className={styles.value}>
+        {player.z},{player.y},{player.x}
       </span>
     </div>
   );
@@ -132,7 +148,7 @@ function WeaponRow({
   );
 }
 
-function ArmourRow({
+function ArmorRow({
   tier,
   name,
   damaged,
@@ -190,28 +206,6 @@ function TreasRow({ found }: { found: readonly number[] }) {
   );
 }
 
-// --- Location rows ---------------------------------------------------------
-
-function LevelRow({ z }: { z: number }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>Level</span>
-      <span className={styles.value}>{z + 1}</span>
-    </div>
-  );
-}
-
-function RoomRow({ x, y }: { x: number; y: number }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>Room</span>
-      <span className={styles.value}>
-        {y + 1},{x + 1}
-      </span>
-    </div>
-  );
-}
-
 // --- Readouts --------------------------------------------------------------
 
 function StatusReadout({ view }: { view: PlayerView }) {
@@ -226,6 +220,7 @@ function StatusReadout({ view }: { view: PlayerView }) {
       <GoldRow gold={s.gold} />
       <FlaresRow flares={s.flares} />
       <SpellsRow spells={s.spells} />
+      <LocationRow player={s} />
     </div>
   );
 }
@@ -239,7 +234,7 @@ function GearReadout({ view }: { view: PlayerView }) {
         name={s.weaponName}
         broken={s.weaponBroken}
       />
-      <ArmourRow
+      <ArmorRow
         tier={s.armorTier}
         name={s.armorName}
         damaged={s.armorDamaged}
@@ -247,49 +242,6 @@ function GearReadout({ view }: { view: PlayerView }) {
     </div>
   );
 }
-
-function LocationReadout({ view }: { view: PlayerView }) {
-  const s = view.self;
-  return (
-    <div className={styles.group}>
-      <LevelRow z={s.z} />
-      <RoomRow x={s.x} y={s.y} />
-    </div>
-  );
-}
-
-const HEALTH_CAP = 20;
-
-function HealthBar({ hp }: { hp: number }) {
-  const filled = Math.max(0, Math.min(hp, HEALTH_CAP));
-  return (
-    <span className={styles.healthLane} aria-hidden>
-      <span
-        className={clsx(styles.healthFill, hp < 10 && styles.healthLow)}
-        style={{ width: `calc(${filled} * var(--health-px))` }}
-      />
-    </span>
-  );
-}
-/*
-<li key={member.id} className={styles.partyRow}>
-  <span className={styles.partyMark}>
-    {member.id === playerId ? '*' : '√'}
-  </span>
-  <Tooltip
-    content={`${member.name}: ${member.hp}`}
-    className={styles.partyName}
-  >
-    <span
-      className={styles.partyNameText}
-      style={{ color: colorOf(member.id) }}
-    >
-      {member.name}
-    </span>
-  </Tooltip>
-  <HealthBar hp={member.hp} />
-</li>
-*/
 
 function Player({
   member,
@@ -370,10 +322,6 @@ export function Sidebar({
       <section>
         <p className={clsx('ui-panel-title', layout.railTitle)}>Treasures</p>
         <TreasRow found={view.treasuresFound} />
-      </section>
-      <section>
-        <p className={clsx('ui-panel-title', layout.railTitle)}>Location</p>
-        <LocationReadout view={view} />
       </section>
       <section>
         <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>

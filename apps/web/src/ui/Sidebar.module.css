@@ -22,6 +22,7 @@
 
 .label {
   color: var(--text-secondary);
+  width: 10em;
 }
 
 .value {
@@ -42,7 +43,7 @@
 
 .glyphGroup {
   display: inline-flex;
-  gap: 3px;
+  gap: 4px;
 }
 
 .glyph {
@@ -86,7 +87,6 @@
 
 .partyName {
   display: block;
-  width: 10em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
