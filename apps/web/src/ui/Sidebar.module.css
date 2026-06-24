@@ -58,6 +58,11 @@
   height: 16px;
 }
 
+.gem {
+  width: 18px;
+  height: 18px;
+}
+
 .tip {
   position: fixed;
   position-anchor: --row-tip;

@@ -78,9 +78,19 @@ function StatusReadout({ build }: { build: LobbyBuild }) {
           value={remaining !== null ? String(remaining) : dash}
           alert={remaining !== null && remaining < 0}
         />
+        <StatRow label="Flares" value={at('flares', String(build.flares))} />
+        <StatRow label="Spells" value={dash} />
+      </div>
+    </section>
+  );
+}
+
+function GearReadout({ build }: { build: LobbyBuild }) {
+  return (
+    <section>
+      <div className={sidebar.group}>
         <WeaponRow tier={build.weaponTier} broken={false} />
         <ArmorRow tier={build.armorTier} damage={0} />
-        <StatRow label="Flares" value={at('flares', String(build.flares))} />
       </div>
     </section>
   );
@@ -175,6 +185,7 @@ export function LobbySidebar({
       )}
       <CharacterReadout build={build} />
       <StatusReadout build={build} />
+      <GearReadout build={build} />
       <PartyReadout members={members} playerId={playerId} />
       <TableInfo code={code} />
     </>
