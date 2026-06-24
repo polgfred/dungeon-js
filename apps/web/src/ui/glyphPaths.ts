@@ -31,7 +31,7 @@ export const GLYPH_PATHS: Record<GlyphId, string> = {
   MIRROR: 'M2 0h4v1h-4zM1 1h2v1h-2zM5 1h2v1h-2zM0 2h4v1h-4zM6 2h2v1h-2zM0 3h2v1h-2zM4 3h1v1h-1zM6 3h2v1h-2zM0 4h2v1h-2zM6 4h2v1h-2zM0 5h2v1h-2zM6 5h2v1h-2zM1 6h2v1h-2zM5 6h2v1h-2zM2 7h4v1h-4z',
   MONSTER: 'M0 0h2v1h-2zM6 0h2v1h-2zM0 1h8v1h-8zM0 2h1v1h-1zM2 2h4v1h-4zM7 2h1v1h-1zM0 3h2v1h-2zM3 3h2v1h-2zM6 3h2v1h-2zM0 4h8v1h-8zM0 5h1v1h-1zM7 5h1v1h-1zM0 6h1v1h-1zM2 6h1v1h-1zM5 6h1v1h-1zM7 6h1v1h-1zM1 7h6v1h-6z',
   SCROLL: 'M1 0h6v1h-6zM0 1h8v1h-8zM1 2h1v1h-1zM6 2h1v1h-1zM1 3h6v1h-6zM1 4h1v1h-1zM6 4h1v1h-1zM1 5h6v1h-6zM0 6h8v1h-8zM1 7h6v1h-6z',
-  SHIELD: 'M0 0h8v1h-8zM0 1h8v1h-8zM0 2h8v1h-8zM1 3h6v1h-6zM1 4h6v1h-6zM2 5h4v1h-4zM3 6h2v1h-2z',
+  SHIELD: 'M0 0h8v1h-8zM0 1h3v1h-3zM5 1h3v1h-3zM0 2h2v1h-2zM6 2h2v1h-2zM1 3h1v1h-1zM6 3h1v1h-1zM1 4h2v1h-2zM5 4h2v1h-2zM2 5h4v1h-4zM3 6h2v1h-2z',
   STAIRS_DOWN: 'M0 0h2v1h-2zM0 1h2v1h-2zM0 2h4v1h-4zM0 3h4v1h-4zM0 4h6v1h-6zM0 5h6v1h-6zM0 6h8v1h-8zM0 7h8v1h-8z',
   STAIRS_UP: 'M6 0h2v1h-2zM6 1h2v1h-2zM4 2h4v1h-4zM4 3h4v1h-4zM2 4h6v1h-6zM2 5h6v1h-6zM0 6h8v1h-8zM0 7h8v1h-8z',
   SWORD: 'M3 0h2v1h-2zM3 1h2v1h-2zM3 2h2v1h-2zM3 3h2v1h-2zM3 4h2v1h-2zM1 5h6v1h-6zM3 6h2v1h-2zM2 7h4v1h-4z',

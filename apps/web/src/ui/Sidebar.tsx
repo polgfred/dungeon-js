@@ -6,7 +6,6 @@ import { ConnectionStatus, PartyMember, PlayerView } from '@dod/net/client';
 import type { GlyphId } from './glyphPaths.js';
 import layout from './Layout.module.css';
 import styles from './Sidebar.module.css';
-import { StatList, StatRow } from './StatList.js';
 import { chatColorsById } from './chatColors.js';
 import { Tooltip } from './Tooltip.js';
 
@@ -18,87 +17,227 @@ function GlyphIcon({ id }: { id: GlyphId }) {
   );
 }
 
+// --- Status rows -----------------------------------------------------------
+
+function RaceRow({ race }: { race: number }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Race</span>
+      <span className={styles.value}>{raceName(race)}</span>
+    </div>
+  );
+}
+
+function HealthRow({ hp, mhp }: { hp: number; mhp: number }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Health</span>
+      <span className={clsx(styles.value, hp < 10 && styles.alert)}>
+        {hp}/{mhp}
+      </span>
+    </div>
+  );
+}
+
+function StrRow({ str }: { str: number }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Str</span>
+      <span className={styles.value}>{str}</span>
+    </div>
+  );
+}
+
+function DexRow({ dex }: { dex: number }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Dex</span>
+      <span className={styles.value}>{dex}</span>
+    </div>
+  );
+}
+
+function IntRow({ iq }: { iq: number }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Int</span>
+      <span className={styles.value}>{iq}</span>
+    </div>
+  );
+}
+
+function GoldRow({ gold }: { gold: number }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Gold</span>
+      <span className={styles.value}>{gold}</span>
+    </div>
+  );
+}
+
+function FlaresRow({ flares }: { flares: number }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Flare</span>
+      <span className={styles.value}>{flares}</span>
+    </div>
+  );
+}
+
+function SpellsRow({ spells }: { spells: readonly number[] }) {
+  const total = spells.reduce((sum, count) => sum + count, 0);
+  return (
+    <div className={clsx(styles.row, styles.interactive)}>
+      <span className={styles.label}>Spell</span>
+      <span className={styles.value}>{total}</span>
+      <span className={styles.tip} role="tooltip">
+        <ul>
+          {spells.map((count, i) => (
+            <li key={i}>
+              {spellName(i + 1)}: {count}
+            </li>
+          ))}
+        </ul>
+      </span>
+    </div>
+  );
+}
+
+function TreasRow({ found }: { found: readonly number[] }) {
+  const hasFound = found.length > 0;
+  return (
+    <div className={clsx(styles.row, hasFound && styles.interactive)}>
+      <span className={styles.label}>Treas</span>
+      <span className={clsx(styles.value, found.length >= 10 && styles.loot)}>
+        {found.length}/10
+      </span>
+      {hasFound && (
+        <span className={styles.tip} role="tooltip">
+          <ul>
+            {found.map((treasureId) => (
+              <li key={treasureId}>{treasureName(treasureId)}</li>
+            ))}
+          </ul>
+        </span>
+      )}
+    </div>
+  );
+}
+
+// --- Gear rows -------------------------------------------------------------
+
+function WeaponRow({
+  tier,
+  name,
+  broken,
+}: {
+  tier: number;
+  name: string;
+  broken: boolean;
+}) {
+  return (
+    <div className={clsx(styles.row, styles.interactive)}>
+      <span className={styles.label}>Weapon</span>
+      <span className={clsx(styles.value, broken && styles.alert)}>
+        <span className={styles.glyphGroup}>
+          {Array.from({ length: tier }).map((_, i) => (
+            <GlyphIcon key={i} id="SWORD" />
+          ))}
+        </span>
+      </span>
+      <span className={styles.tip} role="tooltip">
+        {name}
+        {broken ? ' (broken)' : ''}
+      </span>
+    </div>
+  );
+}
+
+function ArmourRow({
+  tier,
+  name,
+  damaged,
+}: {
+  tier: number;
+  name: string;
+  damaged: boolean;
+}) {
+  return (
+    <div className={clsx(styles.row, styles.interactive)}>
+      <span className={styles.label}>Armour</span>
+      <span className={clsx(styles.value, damaged && styles.alert)}>
+        <span className={styles.glyphGroup}>
+          {Array.from({ length: tier }).map((_, i) => (
+            <GlyphIcon key={i} id="SHIELD" />
+          ))}
+        </span>
+      </span>
+      <span className={styles.tip} role="tooltip">
+        {name}
+        {damaged ? ' (damaged)' : ''}
+      </span>
+    </div>
+  );
+}
+
+// --- Location rows ---------------------------------------------------------
+
+function LevelRow({ z }: { z: number }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Level</span>
+      <span className={styles.value}>{z + 1}</span>
+    </div>
+  );
+}
+
+function RoomRow({ x, y }: { x: number; y: number }) {
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>Room</span>
+      <span className={styles.value}>
+        {y + 1},{x + 1}
+      </span>
+    </div>
+  );
+}
+
+// --- Readouts --------------------------------------------------------------
+
 function StatsReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
-    <StatList>
-      <StatRow label="Race" value={String(raceName(s.race))} />
-      <StatRow
-        label="Health"
-        value={`${s.hp}/${s.mhp}`}
-        tone={s.hp < 10 ? 'alert' : undefined}
-      />
-      <StatRow label="Str" value={String(s.str)} />
-      <StatRow label="Dex" value={String(s.dex)} />
-      <StatRow label="Int" value={String(s.iq)} />
-      <StatRow label="Gold" value={String(s.gold)} />
-      <StatRow label="Flares" value={String(s.flares)} />
-      <StatRow
-        label="Spells"
-        value={String(s.spells.reduce((total, count) => total + count, 0))}
-        tip={
-          <ul>
-            {s.spells.map((count, i) => (
-              <li key={i}>
-                {spellName(i + 1)}: {count}
-              </li>
-            ))}
-          </ul>
-        }
-      />
-      <StatRow
-        label="Treas"
-        value={`${view.treasuresFound.length}/10`}
-        tone={view.treasuresFound.length >= 10 ? 'loot' : undefined}
-        tip={
-          view.treasuresFound.length ? (
-            <ul>
-              {view.treasuresFound.map((treasureId) => (
-                <li key={treasureId}>{treasureName(treasureId)}</li>
-              ))}
-            </ul>
-          ) : null
-        }
-      />
-    </StatList>
+    <div className={styles.group}>
+      <RaceRow race={s.race} />
+      <HealthRow hp={s.hp} mhp={s.mhp} />
+      <StrRow str={s.str} />
+      <DexRow dex={s.dex} />
+      <IntRow iq={s.iq} />
+      <GoldRow gold={s.gold} />
+      <FlaresRow flares={s.flares} />
+      <SpellsRow spells={s.spells} />
+      <TreasRow found={view.treasuresFound} />
+    </div>
   );
 }
 
 function GearReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
-    <StatList>
-      <StatRow
-        label="Weapon"
-        value={
-          <span className={styles.glyphGroup}>
-          {Array.from({ length: s.weaponTier }).map(() => <GlyphIcon id="SWORD" />)}
-          </span>
-        }
-        tone={s.weaponBroken ? 'alert' : undefined}
-        tip={`${s.weaponName}${s.weaponBroken ? ' (broken)' : ''}`}
-      />
-      <StatRow
-        label="Armour"
-        value={
-          <span className={styles.glyphGroup}>
-          {Array.from({ length: s.armorTier }).map(() => <GlyphIcon id="SHIELD" />)}
-          </span>
-        }
-        tone={s.armorDamaged ? 'alert' : undefined}
-        tip={`${s.armorName}${s.armorDamaged ? ' (damaged)' : ''}`}
-      />
-    </StatList>
-  )
+    <div className={styles.group}>
+      <WeaponRow tier={s.weaponTier} name={s.weaponName} broken={s.weaponBroken} />
+      <ArmourRow tier={s.armorTier} name={s.armorName} damaged={s.armorDamaged} />
+    </div>
+  );
 }
 
 function LocationReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
-    <StatList>
-      <StatRow label="Level" value={String(s.z + 1)} />
-      <StatRow label="Room" value={`${s.y + 1},${s.x + 1}`} />
-    </StatList>
+    <div className={styles.group}>
+      <LevelRow z={s.z} />
+      <RoomRow x={s.x} y={s.y} />
+    </div>
   );
 }
 
@@ -151,7 +290,6 @@ function Party({
     </section>
   );
 }
-
 
 export function Sidebar({
   playerId,

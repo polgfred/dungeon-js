@@ -1,9 +1,77 @@
+.group {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+.row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+
+.interactive {
+  anchor-scope: --row-tip;
+  anchor-name: --row-tip;
+  position: relative;
+  cursor: help;
+}
+
+.label {
+  color: var(--text-secondary);
+}
+
+.value {
+  text-align: right;
+}
+
+.alert {
+  color: var(--error-light);
+}
+
+.loot {
+  color: var(--loot-main);
+}
+
 .glyphGroup {
   display: inline-flex;
   gap: 3px;
 }
 
 .glyph {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
+}
+
+.tip {
+  position: fixed;
+  position-anchor: --row-tip;
+  top: calc(anchor(bottom) + 6px);
+  left: calc(anchor(left) - 24px);
+  max-width: 246px;
+  padding: 4px 8px;
+  background: var(--text-primary);
+  color: var(--primary-main);
+  border: 1px solid var(--primary-light);
+  border-radius: 3px;
+  font-size: 12px;
+  text-align: left;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 100;
+  transition: opacity 120ms ease;
+
+  ul {
+    margin: 0;
+    padding-left: 1em;
+    list-style-type: '-';
+  }
+}
+
+.interactive:hover .tip,
+.interactive:focus-within .tip {
+  opacity: 1;
 }
