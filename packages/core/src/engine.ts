@@ -20,6 +20,7 @@ import {
   deserializePlayer,
   serializePlayer,
 } from './serialization.js';
+import { migrateSave, type SaveBlob } from './migrations.js';
 import { Event, type PlayerId, type Prompt, type StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
 import { defaultRandomSource, type RandomSource } from './rng.js';
@@ -140,25 +141,24 @@ export class Game {
     if (typeof save.version !== 'number' || !Number.isInteger(save.version)) {
       throw new Error('Save file is missing a valid version.');
     }
-    if (save.version !== Game.SAVE_VERSION) {
-      throw new Error(
-        `Unsupported save version ${save.version}. Expected ${Game.SAVE_VERSION}.`
-      );
-    }
+    // Bring older saves forward one version at a time. Anything we can't reach
+    // the current version from throws, and the caller falls back to a fresh
+    // start rather than resuming a corrupt game.
+    const migrated = migrateSave(save as SaveBlob, Game.SAVE_VERSION);
 
-    const dungeon = deserializeDungeon(save.dungeon);
+    const dungeon = deserializeDungeon(migrated.dungeon);
     const game = new Game({
       rng,
       dungeon,
-      treasuresFound: save.treasuresFound,
+      treasuresFound: migrated.treasuresFound,
     });
-    game.saveVersion = save.version;
+    game.saveVersion = migrated.version;
     game.endMode =
-      save.endMode === Mode.GAME_OVER || save.endMode === Mode.VICTORY
-        ? save.endMode
+      migrated.endMode === Mode.GAME_OVER || migrated.endMode === Mode.VICTORY
+        ? migrated.endMode
         : null;
 
-    for (const entry of save.players) {
+    for (const entry of migrated.players) {
       const player = deserializePlayer(entry.player);
       const state: PlayerState = {
         id: entry.id,

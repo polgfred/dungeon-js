@@ -2,6 +2,7 @@ export * from './constants.js';
 export * from './encounter.js';
 export * from './engine.js';
 export * from './generation.js';
+export * from './migrations.js';
 export * from './model.js';
 export * from './rng.js';
 export * from './serialization.js';

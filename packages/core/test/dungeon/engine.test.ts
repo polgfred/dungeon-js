@@ -633,6 +633,16 @@ describe('Game interactions', () => {
 
       expect(() => Game.fromSave(save)).toThrow('Unsupported save version');
     });
+
+    it('throws when an older save has no migration path', () => {
+      const game = new Game({ players: [{ id: ID, player: buildPlayer() }] });
+      const save = game.toSave();
+      // @ts-expect-error readonly
+      save.version = 1;
+
+      // No registered migration yet, so the caller falls back to a fresh start.
+      expect(() => Game.fromSave(save)).toThrow('No migration path');
+    });
   });
 
   describe('shared map', () => {
