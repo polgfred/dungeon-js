@@ -17,7 +17,7 @@ const ALLOC_KEYS: AllocationKey[] = ['ST', 'DX', 'IQ'];
 const ALLOC_LABEL: Record<AllocationKey, string> = {
   ST: 'Strength',
   DX: 'Dexterity',
-  IQ: 'Intelligence',
+  IQ: 'Intellect',
 };
 
 type StageProps = { model: SetupGameModel };
@@ -90,7 +90,7 @@ function AllocateStage({ model }: StageProps) {
     <div className={styles.menu}>
       <p className={styles.question}>
         Thy characteristics are as follows. Thou may distribute 5 points among
-        thy strength, dexterity, and intelligence, up to a maximum of 18.
+        thy strength, dexterity, and intellect, up to a maximum of 18.
       </p>
       <div className={styles.body}>
         <div className={styles.choices}>

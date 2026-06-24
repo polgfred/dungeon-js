@@ -1,13 +1,7 @@
-/* The grid shell, panes, .railTitle and .reconnecting live in Layout.module.css;
-   this module supplies only the board's inner layout and lobby content. */
-
-/* --- board: the character build (panel-light, like the map board) --- */
-
 .board {
   padding-left: 2rem;
 }
 
-/* Post-build waiting state, styled like a setup phase: prose over one action. */
 .ready {
   display: flex;
   flex-direction: column;
@@ -28,7 +22,6 @@
   font-size: 1.25em;
 }
 
-/* Waiting state: "Awaiting the party" with 1→2→3 dots cycling. */
 .awaiting {
   margin: 1rem 0;
   line-height: 1.4;
@@ -52,63 +45,6 @@
   }
 }
 
-/* The feed dock's log is the shared Feed component (Feed.module.css). */
-
-/* --- sidebar sections: character / party / table (shared .sidebar chrome and
-   column layout live in Layout.module.css). --- */
-
-.tableInfo,
-.adventurers {
-  display: flex;
-  flex-direction: column;
-}
-
-/* The table code/link sits at the foot of the tall sidebar, under the party. */
-.tableInfo {
-  margin-top: auto;
-}
-
-.code {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin: 0 0 0.5rem;
-}
-
-.partyList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.9rem;
-}
-
-.partyRow {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-}
-
-.partyMark {
-  color: var(--text-primary);
-  width: 1ch;
-}
-
-.partyMarkPending {
-  color: var(--text-disabled);
-}
-
-.partyName {
-  flex: 1;
-}
-
-/* Disconnected: fade the whole name (dims its chat color too). */
-.partyOffline {
-  opacity: 0.4;
-}
-
-/* Start lives in the ready card now, as the phase's single action. */
 .startBtn {
   margin: 1rem;
   align-self: center;

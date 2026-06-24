@@ -125,7 +125,7 @@ function LocationRow({ player }: { player: PlayerSave }) {
 
 // --- Gear rows -------------------------------------------------------------
 
-function WeaponRow({ tier, broken }: { tier: number; broken: boolean }) {
+export function WeaponRow({ tier, broken }: { tier: number; broken: boolean }) {
   return (
     <div className={clsx(styles.row, styles.interactive)}>
       <span className={styles.label}>
@@ -146,7 +146,7 @@ function WeaponRow({ tier, broken }: { tier: number; broken: boolean }) {
   );
 }
 
-function ArmorRow({ tier, damage }: { tier: number; damage: number }) {
+export function ArmorRow({ tier, damage }: { tier: number; damage: number }) {
   const intact = tier - damage;
   return (
     <div className={clsx(styles.row, styles.interactive)}>
@@ -294,6 +294,7 @@ function PartyReadout({
       <div className={styles.group}>
         {party.map((member) => (
           <Player
+            key={member.id}
             member={member}
             color={colorOf(member.id)}
             isSelf={playerId === member.id}

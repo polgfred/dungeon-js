@@ -1,15 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 
-import {
-  ARMOR_NAMES,
-  WEAPON_NAMES,
-  raceName,
-  serializePlayer,
-  type PlayerSave,
-  type Race,
-} from '@dod/core';
+import { serializePlayer, type PlayerSave } from '@dod/core';
 import type {
   ConnectionStatus,
   FeedGroup,
@@ -18,83 +11,12 @@ import type {
 } from '@dod/net/client';
 
 import { ChatInput } from './ChatInput.js';
-import { chatColorsById } from './chatColors.js';
 import { Feed } from './Feed.js';
 import { LobbyBuilder } from './LobbyBuilder.js';
+import { LobbySidebar, type LobbyBuild } from './LobbySidebar.js';
 import layout from './Layout.module.css';
 import styles from './Lobby.module.css';
-import {
-  stageReached,
-  useSetupGameModel,
-  type SetupStage,
-  type Stats,
-} from './SetupGameModel.js';
-import { StatList, StatRow } from './StatList.js';
-
-function shortValue(gear: string) {
-  switch (gear) {
-    case 'Short sword':
-      return 'Sh. sword';
-    case 'Broadsword':
-      return 'B. sword';
-    case 'Chain mail':
-      return 'Ch. mail';
-    default:
-      return gear;
-  }
-}
-
-/** The in-progress character. */
-export function CharacterReadout({
-  stage,
-  race,
-  derivedStats,
-  gold,
-  weaponTier,
-  armorTier,
-  flares,
-  totalCost,
-}: {
-  stage: SetupStage;
-  race: Race | null;
-  derivedStats: Stats | null;
-  gold: number | null;
-  weaponTier: number;
-  armorTier: number;
-  flares: number;
-  totalCost: number;
-}) {
-  const dash = '-';
-  const stat = (value: number | undefined) =>
-    derivedStats && value !== undefined ? String(value) : dash;
-  const at = (target: SetupStage, value: string) =>
-    stageReached(stage, target) ? value : dash;
-  const remaining = gold !== null ? gold - totalCost : null;
-
-  return (
-    <StatList>
-      <StatRow label="Race" value={race !== null ? raceName(race) : dash} />
-      <StatRow label="Health" value={stat(derivedStats?.HP)} />
-      <StatRow label="Str" value={stat(derivedStats?.ST)} />
-      <StatRow label="Dex" value={stat(derivedStats?.DX)} />
-      <StatRow label="Int" value={stat(derivedStats?.IQ)} />
-      <StatRow
-        label="Gold"
-        value={remaining !== null ? String(remaining) : dash}
-        tone={remaining !== null && remaining < 0 ? 'alert' : undefined}
-      />
-      <StatRow
-        label="Weapon"
-        value={at('armor', shortValue(WEAPON_NAMES[weaponTier]))}
-      />
-      <StatRow
-        label="Armour"
-        value={at('flares', shortValue(ARMOR_NAMES[armorTier]))}
-      />
-      <StatRow label="Flares" value={at('flares', String(flares))} />
-    </StatList>
-  );
-}
+import { useSetupGameModel } from './SetupGameModel.js';
 
 function ReadyCard({
   everyoneReady,
@@ -176,16 +98,15 @@ export function Lobby({
 
   const members = lobby?.members ?? [];
   const everyoneReady = members.length > 0 && members.every((m) => m.ready);
-  const colorOf = chatColorsById(members);
 
   const myCharacter = lobby?.character ?? null;
   const iAmReady = myCharacter !== null;
   const showReady = submitted || iAmReady;
 
   // Render the Character pane from the server's character when we have one.
-  const readout = myCharacter
+  const build: LobbyBuild = myCharacter
     ? {
-        stage: 'ready' as const,
+        stage: 'ready',
         race: myCharacter.race,
         derivedStats: {
           ST: myCharacter.str,
@@ -210,17 +131,6 @@ export function Lobby({
         flares: model.flares,
       };
 
-  const [copied, setCopied] = useState(false);
-  const copyTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const copyLink = () => {
-    navigator.clipboard?.writeText(window.location.href).then(() => {
-      setCopied(true);
-      clearTimeout(copyTimer.current);
-      copyTimer.current = setTimeout(() => setCopied(false), 1500);
-    });
-  };
-  useEffect(() => () => clearTimeout(copyTimer.current), []);
-
   return (
     <div className={layout.root}>
       <section className={clsx(layout.board, styles.board)}>
@@ -232,64 +142,13 @@ export function Lobby({
       </section>
 
       <aside className={layout.sidebar}>
-        {status !== 'open' && (
-          <p className={layout.reconnecting}>
-            {status === 'closed' ? 'Reconnecting…' : 'Connecting…'}
-          </p>
-        )}
-        <section>
-          <p className={clsx('ui-panel-title', layout.railTitle)}>Character</p>
-          <CharacterReadout
-            stage={readout.stage}
-            race={readout.race}
-            derivedStats={readout.derivedStats}
-            gold={readout.gold}
-            weaponTier={readout.weaponTier}
-            armorTier={readout.armorTier}
-            flares={readout.flares}
-            totalCost={readout.totalCost}
-          />
-        </section>
-
-        <div className={styles.adventurers}>
-          <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
-          <ul className={styles.partyList}>
-            {members.map((member) => (
-              <li key={member.id} className={styles.partyRow}>
-                <span
-                  className={clsx(
-                    styles.partyMark,
-                    !member.ready && styles.partyMarkPending
-                  )}
-                >
-                  {member.ready ? (member.id === playerId ? '*' : '√') : '·'}
-                </span>
-                <span
-                  className={clsx(
-                    styles.partyName,
-                    !member.connected && styles.partyOffline
-                  )}
-                >
-                  <span style={{ color: colorOf(member.id) }}>
-                    {member.name}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className={styles.tableInfo}>
-          <p className={clsx('ui-panel-title', layout.railTitle)}>Table</p>
-          <p className={styles.code}>{code}</p>
-          <button
-            type="button"
-            className={clsx('btn', 'btn-outlined', 'btn-small')}
-            onClick={copyLink}
-          >
-            {copied ? 'copied!' : 'copy link'}
-          </button>
-        </div>
+        <LobbySidebar
+          status={status}
+          build={build}
+          members={members}
+          playerId={playerId}
+          code={code}
+        />
       </aside>
 
       <section className={layout.feedDock}>
