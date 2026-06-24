@@ -31,7 +31,7 @@ function RaceRow({ race }: { race: number }) {
 function HealthRow({ hp, mhp }: { hp: number; mhp: number }) {
   return (
     <div className={styles.row}>
-      <span className={styles.label}>Health</span>
+      <span className={styles.label}>Heal</span>
       <span className={clsx(styles.value, hp < 10 && styles.alert)}>
         {hp}/{mhp}
       </span>
@@ -103,27 +103,6 @@ function SpellsRow({ spells }: { spells: readonly number[] }) {
   );
 }
 
-function TreasRow({ found }: { found: readonly number[] }) {
-  const hasFound = found.length > 0;
-  return (
-    <div className={clsx(styles.row, hasFound && styles.interactive)}>
-      <span className={styles.label}>Treas</span>
-      <span className={clsx(styles.value, found.length >= 10 && styles.loot)}>
-        {found.length}/10
-      </span>
-      {hasFound && (
-        <span className={styles.tip} role="tooltip">
-          <ul>
-            {found.map((treasureId) => (
-              <li key={treasureId}>{treasureName(treasureId)}</li>
-            ))}
-          </ul>
-        </span>
-      )}
-    </div>
-  );
-}
-
 // --- Gear rows -------------------------------------------------------------
 
 function WeaponRow({
@@ -180,6 +159,37 @@ function ArmourRow({
   );
 }
 
+// --- Treasures -------------------------------------------------------------
+
+function TreasRow({ found }: { found: readonly number[] }) {
+  const numFound = found.length;
+  return (
+    <div className={clsx(numFound > 0 && styles.interactive)}>
+      <div className={styles.glyphGroup}>
+        {Array.from({ length: found.length }).map((_, i) => (
+          <span key={`found-${i}`} className={styles.loot}>
+            <GlyphIcon id="GEM" />
+          </span>
+        ))}
+        {Array.from({ length: 10 - found.length }).map((_, i) => (
+          <span key={`empty-${i}`} className={styles.dimmed}>
+            <GlyphIcon id="GEM" />
+          </span>
+        ))}
+      </div>
+      {numFound > 0 && (
+        <span className={styles.tip} role="tooltip">
+          <ul>
+            {found.map((treasureId) => (
+              <li key={treasureId}>{treasureName(treasureId)}</li>
+            ))}
+          </ul>
+        </span>
+      )}
+    </div>
+  );
+}
+
 // --- Location rows ---------------------------------------------------------
 
 function LevelRow({ z }: { z: number }) {
@@ -204,7 +214,7 @@ function RoomRow({ x, y }: { x: number; y: number }) {
 
 // --- Readouts --------------------------------------------------------------
 
-function StatsReadout({ view }: { view: PlayerView }) {
+function StatusReadout({ view }: { view: PlayerView }) {
   const s = view.self;
   return (
     <div className={styles.group}>
@@ -216,7 +226,6 @@ function StatsReadout({ view }: { view: PlayerView }) {
       <GoldRow gold={s.gold} />
       <FlaresRow flares={s.flares} />
       <SpellsRow spells={s.spells} />
-      <TreasRow found={view.treasuresFound} />
     </div>
   );
 }
@@ -309,17 +318,21 @@ export function Sidebar({
       )}
       <section>
         <p className={clsx('ui-panel-title', layout.railTitle)}>Status</p>
-        <StatsReadout view={view} />
+        <StatusReadout view={view} />
       </section>
       <section>
         <p className={clsx('ui-panel-title', layout.railTitle)}>Gear</p>
         <GearReadout view={view} />
       </section>
       <section>
+        <p className={clsx('ui-panel-title', layout.railTitle)}>Treasures</p>
+        <TreasRow found={view.treasuresFound} />
+      </section>
+      <section>
         <p className={clsx('ui-panel-title', layout.railTitle)}>Location</p>
         <LocationReadout view={view} />
       </section>
-      <Party party={view.party} playerId={playerId} />
+      {/* <Party party={view.party} playerId={playerId} /> */}
     </>
   );
 }

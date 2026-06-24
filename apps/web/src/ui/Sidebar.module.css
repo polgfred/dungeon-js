@@ -36,6 +36,10 @@
   color: var(--loot-main);
 }
 
+.dimmed {
+  color: var(--text-disabled);
+}
+
 .glyphGroup {
   display: inline-flex;
   gap: 3px;
