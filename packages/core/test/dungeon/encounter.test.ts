@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { EncounterSession } from '../../src/encounter.js';
 import { effectiveWeaponTier } from '../../src/model.js';
-import { ARMOR_NAMES, Spell, WEAPON_NAMES } from '../../src/constants.js';
+import { Spell, weaponName } from '../../src/constants.js';
 import type { Event } from '../../src/types.js';
 import { buildPlayer, buildRoom } from '../helpers/factories.js';
 import { ScriptedRng } from '../helpers/rng.js';
@@ -89,7 +89,7 @@ describe('EncounterSession fight loop', () => {
     // condition, and the *effective* tier is what's zeroed for combat.
     expect(player.weaponTier).toBe(2);
     expect(player.weaponBroken).toBe(true);
-    expect(player.weaponName).toBe('Short sword');
+    expect(weaponName(player.weaponTier)).toBe('Short sword');
     expect(effectiveWeaponTier(player)).toBe(0);
   });
 
@@ -274,7 +274,6 @@ describe('EncounterSession real RNG bounds', () => {
           str,
           dex,
           weaponTier,
-          weaponName: WEAPON_NAMES[weaponTier],
         }),
         room,
         save: {
@@ -315,12 +314,10 @@ describe('EncounterSession real RNG bounds', () => {
       const player = buildPlayer({
         dex: rng.randint(1, 18),
         armorTier: armor,
-        armorName: ARMOR_NAMES[armor],
         tempArmorBonus,
         hp: 999,
         mhp: 999,
         weaponTier: 0,
-        weaponName: '(None)',
       });
       const session = EncounterSession.fromSave({
         rng: rng,

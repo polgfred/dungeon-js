@@ -25,6 +25,8 @@ import {
   rollBaseStats,
   createPlayer,
   serializePlayer,
+  weaponName,
+  armorName,
 } from '@dod/core';
 import type {
   ClientMessage,
@@ -110,7 +112,7 @@ function viewText(view: PlayerView): string {
       `flares ${self.flares}  treasures ${view.treasuresFound}/10`
   );
   lines.push(
-    `  ${MODE_NAMES[view.mode] ?? view.mode}  weapon ${self.weaponName}  armour ${self.armorName}  party: ${party}`
+    `  ${MODE_NAMES[view.mode] ?? view.mode}  weapon ${weaponName(self.weaponTier)}  armour ${armorName(self.armorTier)}  party: ${party}`
   );
   if (view.prompt) {
     lines.push(`  ${view.prompt.text}`);

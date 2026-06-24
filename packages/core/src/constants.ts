@@ -121,6 +121,14 @@ export function treasureName(treasureId: number): string {
 export const WEAPON_NAMES = ['(None)', 'Dagger', 'Short sword', 'Broadsword'];
 export const ARMOR_NAMES = ['(None)', 'Leather', 'Wooden', 'Chain mail'];
 
+export function weaponName(tier: number): string {
+  return WEAPON_NAMES[tier];
+}
+
+export function armorName(tier: number): string {
+  return ARMOR_NAMES[tier];
+}
+
 export const WEAPON_PRICES: Record<number, number> = { 1: 10, 2: 20, 3: 30 };
 export const ARMOR_PRICES: Record<number, number> = { 1: 10, 2: 20, 3: 30 };
 

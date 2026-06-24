@@ -28,8 +28,6 @@ export function buildPlayer(options: Partial<Player> = {}): Player {
     flares: 0,
     weaponTier: 2,
     armorTier: 1,
-    weaponName: 'Short sword',
-    armorName: 'Leather',
     spells: defaultSpells,
     ...options,
   });

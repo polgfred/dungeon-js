@@ -1,5 +1,4 @@
 import {
-  ARMOR_NAMES,
   EXPLORE_COMMANDS,
   Feature,
   MapTile,
@@ -11,12 +10,11 @@ import {
   type Tile,
 } from './constants.js';
 import { EncounterSession, rollMonsterVitality } from './encounter.js';
-import { dungeonDepth, generateDungeon } from './generation.js';
+import { generateDungeon } from './generation.js';
 import { applyAttributeChange } from './model.js';
 import type { Dungeon, Player, Room } from './model.js';
 import {
   type GameSave,
-  type EncounterSave,
   deserializeDungeon,
   serializeDungeon,
   deserializePlayer,
@@ -703,7 +701,6 @@ export class Game {
         if (player.armorDamage >= player.armorTier) {
           player.armorTier = 0;
           player.armorDamage = 0;
-          player.armorName = ARMOR_NAMES[0];
           return [
             Event.info(
               'The perverse thing explodes as you open it, destroying your armour!',
@@ -720,7 +717,6 @@ export class Game {
         ];
       }
 
-      player.armorName = ARMOR_NAMES[0];
       player.hp -= this.rng.randint(0, 4) + 3;
       if (player.hp <= 0) {
         this.endMode = Mode.GAME_OVER;

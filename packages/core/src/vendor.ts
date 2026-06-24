@@ -1,11 +1,9 @@
 import {
-  ARMOR_NAMES,
   ARMOR_PRICES,
   FLARE_BATCH,
   FLARE_PRICE,
   POTION_PRICES,
   SPELL_PRICES,
-  WEAPON_NAMES,
   WEAPON_PRICES,
   Spell,
   raceName,
@@ -156,7 +154,6 @@ export class VendorSession {
       };
     }
     this.player.weaponTier = tier;
-    this.player.weaponName = WEAPON_NAMES[tier];
     this.player.weaponBroken = false;
     this.player.gold -= price;
     return {
@@ -183,7 +180,6 @@ export class VendorSession {
       };
     }
     this.player.armorTier = tier;
-    this.player.armorName = ARMOR_NAMES[tier];
     this.player.armorDamage = 0;
     this.player.gold -= price;
     return { events: [], done: true };

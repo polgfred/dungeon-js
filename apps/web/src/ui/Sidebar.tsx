@@ -1,9 +1,11 @@
 import { clsx } from 'clsx';
 
 import {
+  armorName,
   raceName,
   spellName,
   treasureName,
+  weaponName,
   type PlayerId,
   type PlayerSave,
 } from '@dod/core';
@@ -123,15 +125,7 @@ function LocationRow({ player }: { player: PlayerSave }) {
 
 // --- Gear rows -------------------------------------------------------------
 
-function WeaponRow({
-  tier,
-  name,
-  broken,
-}: {
-  tier: number;
-  name: string;
-  broken: boolean;
-}) {
+function WeaponRow({ tier, broken }: { tier: number; broken: boolean }) {
   return (
     <div className={clsx(styles.row, styles.interactive)}>
       <span className={styles.label}>
@@ -145,22 +139,14 @@ function WeaponRow({
         </span>
       </span>
       <span className={styles.tip} role="tooltip">
-        {name}
+        {weaponName(tier)}
         {broken ? ' (broken)' : ''}
       </span>
     </div>
   );
 }
 
-function ArmorRow({
-  tier,
-  name,
-  damage,
-}: {
-  tier: number;
-  name: string;
-  damage: number;
-}) {
+function ArmorRow({ tier, damage }: { tier: number; damage: number }) {
   const intact = tier - damage;
   return (
     <div className={clsx(styles.row, styles.interactive)}>
@@ -177,7 +163,7 @@ function ArmorRow({
         </span>
       </span>
       <span className={styles.tip} role="tooltip">
-        {name}
+        {armorName(tier)}
         {damage > 0 ? ' (damaged)' : ''}
       </span>
     </div>
@@ -251,16 +237,8 @@ function GearReadout({ view }: { view: PlayerView }) {
   return (
     <section>
       <div className={styles.group}>
-        <WeaponRow
-          tier={s.weaponTier}
-          name={s.weaponName}
-          broken={s.weaponBroken}
-        />
-        <ArmorRow
-          tier={s.armorTier}
-          name={s.armorName}
-          damage={s.armorDamage}
-        />
+        <WeaponRow tier={s.weaponTier} broken={s.weaponBroken} />
+        <ArmorRow tier={s.armorTier} damage={s.armorDamage} />
       </div>
     </section>
   );

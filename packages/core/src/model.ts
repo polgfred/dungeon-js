@@ -1,7 +1,5 @@
 import {
-  ARMOR_NAMES,
   ARMOR_PRICES,
-  WEAPON_NAMES,
   WEAPON_PRICES,
   Race,
   Spell,
@@ -51,9 +49,7 @@ export interface Player {
   flares: number;
   weaponTier: number;
   armorTier: number;
-  weaponName: string;
   weaponBroken: boolean;
-  armorName: string;
   armorDamage: number;
   spells: SpellCounts;
   fatigued: boolean;
@@ -74,9 +70,7 @@ interface PlayerInit {
   flares: number;
   weaponTier?: number;
   armorTier?: number;
-  weaponName?: string;
   weaponBroken?: boolean;
-  armorName?: string;
   armorDamage?: number;
   spells?: SpellCounts;
   fatigued?: boolean;
@@ -98,9 +92,7 @@ export function makePlayer(options: PlayerInit): Player {
     flares: options.flares,
     weaponTier: options.weaponTier ?? 0,
     armorTier: options.armorTier ?? 0,
-    weaponName: options.weaponName ?? 'none',
     weaponBroken: options.weaponBroken ?? false,
-    armorName: options.armorName ?? 'none',
     armorDamage: options.armorDamage ?? 0,
     spells: options.spells ?? makeSpellCounts(),
     fatigued: options.fatigued ?? false,
@@ -194,8 +186,6 @@ export function createPlayer(options: {
     flares,
     weaponTier,
     armorTier,
-    weaponName: WEAPON_NAMES[weaponTier],
-    armorName: ARMOR_NAMES[armorTier],
   });
 }
 

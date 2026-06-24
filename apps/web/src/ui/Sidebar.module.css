@@ -61,8 +61,8 @@
   position: fixed;
   position-anchor: --row-tip;
   top: calc(anchor(bottom) + 6px);
-  left: calc(anchor(left) - 24px);
-  max-width: 246px;
+  left: calc(anchor(left) - 32px);
+  max-width: 300px;
   padding: 4px 8px;
   background: var(--text-primary);
   color: var(--primary-main);
