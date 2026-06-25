@@ -110,13 +110,11 @@ function TreasureBar({ found }: { found: readonly number[] }) {
   return (
     <div className={clsx(styles.treasures, numFound > 0 && styles.interactive)}>
       <div className={styles.glyphGroup}>
-        {Array.from({ length: found.length }).map((_, i) => (
-          <span key={`found-${i}`} className={styles.loot}>
-            <GlyphIcon id="GEM" className={styles.glyph} />
-          </span>
-        ))}
-        {Array.from({ length: 10 - found.length }).map((_, i) => (
-          <span key={`empty-${i}`} className={styles.dimmed}>
+        {Array.from({ length: 10 }).map((_, i) => (
+          <span
+            key={`found-${i}`}
+            className={numFound >= i + 1 ? styles.loot : styles.dimmed}
+          >
             <GlyphIcon id="GEM" className={styles.glyph} />
           </span>
         ))}
