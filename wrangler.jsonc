@@ -8,12 +8,12 @@
   "assets": {
     "directory": "apps/web/dist",
     "binding": "ASSETS",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
   },
 
   // Durable Object with SQLite-backed storage.
   "durable_objects": {
-    "bindings": [{ "name": "TABLE", "class_name": "TableObject" }]
+    "bindings": [{ "name": "TABLE", "class_name": "TableObject" }],
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["TableObject"] }]
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["TableObject"] }],
 }

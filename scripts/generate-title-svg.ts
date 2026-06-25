@@ -88,7 +88,14 @@ const bbox = (cs: Cell[]) => {
     if (y < minY) minY = y;
     if (y > maxY) maxY = y;
   }
-  return { minX, minY, maxX, maxY, cols: maxX - minX + 1, rows: maxY - minY + 1 };
+  return {
+    minX,
+    minY,
+    maxX,
+    maxY,
+    cols: maxX - minX + 1,
+    rows: maxY - minY + 1,
+  };
 };
 
 // Build an SVG from a cell list, normalized so its bounding box starts at 0,0.
@@ -120,7 +127,7 @@ const write = (name: string, cs: Cell[]) => {
   const out = resolve(assets, name);
   writeFileSync(out, svg);
   console.log(
-    `Wrote ${name}: ${cols}x${rows} cells, ${cs.length} bricks, ${svg.length} bytes`,
+    `Wrote ${name}: ${cols}x${rows} cells, ${cs.length} bricks, ${svg.length} bytes`
   );
 };
 
@@ -144,7 +151,9 @@ const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${favSize}
 </svg>
 `;
 writeFileSync(resolve(assets, 'brick.svg'), favicon);
-console.log(`Wrote brick.svg (favicon): ${favSize}x${favSize}, ${favicon.length} bytes`);
+console.log(
+  `Wrote brick.svg (favicon): ${favSize}x${favSize}, ${favicon.length} bytes`
+);
 
 // Flat: lay the words end to end on a common baseline, WORD_GAP cells apart.
 const maxRows = Math.max(...words.map((w) => bbox(w).rows));

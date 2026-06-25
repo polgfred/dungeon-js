@@ -44,4 +44,6 @@ if (rows.length === 0) {
 }
 
 const snapshot = deserialize(rows[0].value);
-console.log(inspect(snapshot, { colors: true, compact: true, depth: Infinity }));
+console.log(
+  inspect(snapshot, { colors: true, compact: true, depth: Infinity })
+);
