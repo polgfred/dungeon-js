@@ -14,7 +14,7 @@ function makeView(overrides: Partial<PlayerView> = {}): PlayerView {
     self: {} as PlayerView['self'],
     mode: 1 as PlayerView['mode'],
     map: [],
-    treasuresFound: 0,
+    treasuresFound: [],
     ended: null,
     party: [],
     monster: null,
@@ -48,7 +48,7 @@ describe('tableReducer', () => {
   });
 
   it('advances to the play phase and stores the view', () => {
-    const view = makeView({ treasuresFound: 3 });
+    const view = makeView({ treasuresFound: [1, 2, 3] });
     const next = tableReducer(initialTableState, { type: 'view', view });
 
     expect(next.phase).toBe('play');
