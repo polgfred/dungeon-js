@@ -12,7 +12,6 @@
 
 .partyMark {
   color: var(--text-primary);
-  width: 1ch;
 }
 
 .partyMarkPending {

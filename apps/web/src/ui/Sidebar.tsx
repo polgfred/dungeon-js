@@ -252,7 +252,8 @@ function Player({
         className={clsx(
           styles.label,
           styles.partyName,
-          isSelf && styles.partySelf
+          isSelf && styles.partySelf,
+          !member.connected && styles
         )}
         style={{ color }}
       >

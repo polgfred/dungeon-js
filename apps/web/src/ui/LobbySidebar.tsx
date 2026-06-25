@@ -96,6 +96,41 @@ function GearReadout({ build }: { build: LobbyBuild }) {
   );
 }
 
+function Player({
+  member,
+  color,
+  isSelf,
+}: {
+  member: LobbyMember;
+  color: string;
+  isSelf: boolean;
+}) {
+  return (
+    <div className={sidebar.row}>
+      <span
+        className={clsx(
+          sidebar.label,
+          sidebar.partyName,
+          isSelf && sidebar.partySelf,
+          !member.connected && sidebar.partyOffline
+        )}
+        style={{ color }}
+      >
+        {member.name}
+      </span>
+      <span
+        className={clsx(
+          sidebar.value,
+          styles.partyMark,
+          !member.ready && styles.partyMarkPending
+        )}
+      >
+        {member.ready ? '√' : '…'}
+      </span>
+    </div>
+  );
+}
+
 function PartyReadout({
   members,
   playerId,
@@ -109,27 +144,12 @@ function PartyReadout({
       <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
       <div className={sidebar.group}>
         {members.map((member) => (
-          <div key={member.id} className={sidebar.row}>
-            <span
-              className={clsx(
-                styles.partyMark,
-                !member.ready && styles.partyMarkPending
-              )}
-            >
-              {member.ready ? '√' : '·'}
-            </span>
-            <span
-              className={clsx(
-                sidebar.label,
-                sidebar.partyName,
-                member.id === playerId && sidebar.partySelf,
-                !member.connected && sidebar.partyOffline
-              )}
-              style={{ color: colorOf(member.id) }}
-            >
-              {member.name}
-            </span>
-          </div>
+          <Player
+            key={member.id}
+            member={member}
+            color={colorOf(member.id)}
+            isSelf={playerId === member.id}
+          />
         ))}
       </div>
     </section>
