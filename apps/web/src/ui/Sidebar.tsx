@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import type { ReactNode } from 'react';
 
 import {
   armorName,
@@ -7,7 +8,6 @@ import {
   treasureName,
   weaponName,
   type PlayerId,
-  type PlayerSave,
 } from '@dod/core';
 import { ConnectionStatus, PartyMember, PlayerView } from '@dod/net/client';
 
@@ -18,67 +18,19 @@ import { GlyphIcon } from './Glyphs.js';
 
 // --- Status rows -----------------------------------------------------------
 
-function RaceRow({ race }: { race: number }) {
+export function StatRow({
+  label,
+  value,
+  alert,
+}: {
+  label: string;
+  value: ReactNode;
+  alert?: boolean;
+}) {
   return (
     <div className={styles.row}>
-      <span className={styles.label}>Race</span>
-      <span className={styles.value}>{raceName(race)}</span>
-    </div>
-  );
-}
-
-function HealthRow({ hp, mhp }: { hp: number; mhp: number }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>Health</span>
-      <span className={clsx(styles.value, hp < 10 && styles.alert)}>
-        {hp}/{mhp}
-      </span>
-    </div>
-  );
-}
-
-function StrRow({ str }: { str: number }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>Strength</span>
-      <span className={styles.value}>{str}</span>
-    </div>
-  );
-}
-
-function DexRow({ dex }: { dex: number }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>Dexterity</span>
-      <span className={styles.value}>{dex}</span>
-    </div>
-  );
-}
-
-function IntRow({ iq }: { iq: number }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>Intellect</span>
-      <span className={styles.value}>{iq}</span>
-    </div>
-  );
-}
-
-function GoldRow({ gold }: { gold: number }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>Gold</span>
-      <span className={styles.value}>{gold}</span>
-    </div>
-  );
-}
-
-function FlaresRow({ flares }: { flares: number }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>Flares</span>
-      <span className={styles.value}>{flares}</span>
+      <span className={styles.label}>{label}</span>
+      <span className={clsx(styles.value, alert && styles.alert)}>{value}</span>
     </div>
   );
 }
@@ -99,17 +51,6 @@ function SpellsRow({ spells }: { spells: readonly number[] }) {
             </li>
           ))}
         </ul>
-      </span>
-    </div>
-  );
-}
-
-function LocationRow({ player }: { player: PlayerSave }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>Location</span>
-      <span className={styles.value}>
-        {player.z + 1},{player.y + 1},{player.x + 1}
       </span>
     </div>
   );
@@ -200,11 +141,11 @@ function CharacterReadout({ view }: { view: PlayerView }) {
   return (
     <section>
       <div className={styles.group}>
-        <RaceRow race={s.race} />
-        <HealthRow hp={s.hp} mhp={s.mhp} />
-        <StrRow str={s.str} />
-        <DexRow dex={s.dex} />
-        <IntRow iq={s.iq} />
+        <StatRow label="Race" value={raceName(s.race)} />
+        <StatRow label="Health" value={`${s.hp}/${s.mhp}`} />
+        <StatRow label="Strength" value={s.str} />
+        <StatRow label="Dexterity" value={s.dex} />
+        <StatRow label="Intellect" value={s.iq} />
       </div>
     </section>
   );
@@ -215,9 +156,9 @@ function StatusReadout({ view }: { view: PlayerView }) {
   return (
     <section>
       <div className={styles.group}>
-        <LocationRow player={s} />
-        <GoldRow gold={s.gold} />
-        <FlaresRow flares={s.flares} />
+        <StatRow label="Location" value={`${s.z + 1},${s.y + 1},${s.x + 1}`} />
+        <StatRow label="Gold" value={s.gold} />
+        <StatRow label="Flares" value={s.flares} />
         <SpellsRow spells={s.spells} />
       </div>
     </section>

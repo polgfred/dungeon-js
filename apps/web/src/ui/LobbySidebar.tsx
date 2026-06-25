@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-
 import clsx from 'clsx';
+import { useEffect, useRef, useState } from 'react';
 
 import { raceName, type Race } from '@dod/core';
 import type { ConnectionStatus, LobbyMember, PlayerId } from '@dod/net/client';
@@ -9,7 +8,7 @@ import { chatColorsById } from './chatColors.js';
 import layout from './Layout.module.css';
 import styles from './LobbySidebar.module.css';
 import sidebar from './Sidebar.module.css';
-import { ArmorRow, WeaponRow } from './Sidebar.js';
+import { ArmorRow, StatRow, WeaponRow } from './Sidebar.js';
 import { stageReached, type SetupStage } from './SetupGameModel.js';
 
 export type LobbyBuild = {
@@ -22,26 +21,6 @@ export type LobbyBuild = {
   armorTier: number;
   flares: number;
 };
-
-/** A plain label/value row on the same grid as the in-game sidebar's rows. */
-function StatRow({
-  label,
-  value,
-  alert,
-}: {
-  label: string;
-  value: ReactNode;
-  alert?: boolean;
-}) {
-  return (
-    <div className={sidebar.row}>
-      <span className={sidebar.label}>{label}</span>
-      <span className={clsx(sidebar.value, alert && sidebar.alert)}>
-        {value}
-      </span>
-    </div>
-  );
-}
 
 function CharacterReadout({ build }: { build: LobbyBuild }) {
   const dash = '-';
