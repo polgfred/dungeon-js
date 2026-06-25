@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 /**
  * A dumb autopilot — connects a throwaway adventurer to a table and plays on its
  * own, so you can fill a party and exercise the multiplayer server without a roomful

@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { serialize } from 'node:v8';
 import { Game, createPlayer } from '@dod/core';
 

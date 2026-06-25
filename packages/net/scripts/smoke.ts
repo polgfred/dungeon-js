@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 /**
  * Network smoke test — proves the server layer end to end without a browser:
  * two players join a table, ready up, start, take a turn, and reconnect, while we

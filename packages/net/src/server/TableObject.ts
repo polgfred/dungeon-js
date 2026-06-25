@@ -301,6 +301,7 @@ export class TableObject extends HydratableObject<TableSnapshot> {
    * text; everyone else sees only the events that carry a `broadcast` line.
    */
   private fanOut(result: StepResult) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const forMe = result.events.map(({ broadcast, ...event }) => event);
     const forOthers = result.events
       .filter((event) => event.broadcast !== undefined)
