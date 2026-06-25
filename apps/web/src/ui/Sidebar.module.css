@@ -48,8 +48,10 @@
   color: var(--text-disabled);
 }
 
-.glyphGroup {
+.glyphValue {
+  width: 5em;
   display: inline-flex;
+  justify-content: end;
   gap: 4px;
 }
 
@@ -63,7 +65,7 @@
   position-anchor: --row-tip;
   top: calc(anchor(bottom) + 6px);
   left: calc(anchor(left) - 56px);
-  max-width: 300px;
+  max-width: 30em;
   padding: 4px 8px;
   background: var(--text-primary);
   color: var(--primary-main);
@@ -77,6 +79,7 @@
   transition: opacity 120ms ease;
 
   .tipHeading {
+    color: var(--primary-main);
   }
 
   .tipList {
@@ -92,7 +95,9 @@
 }
 
 .treasures {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
 }
 
 .partySelf {
@@ -107,4 +112,26 @@
 
 .partyOffline {
   opacity: 0.4;
+}
+
+/** lobby */
+
+.tableInfo {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+}
+
+.code {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0 0 0.5rem;
+}
+
+.partyMark {
+  color: var(--text-primary);
+}
+
+.partyMarkPending {
+  color: var(--text-disabled);
 }

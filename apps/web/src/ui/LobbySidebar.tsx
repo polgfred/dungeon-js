@@ -1,15 +1,15 @@
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 
-import { raceName, type Race } from '@dod/core';
+import { armorName, raceName, weaponName, type Race } from '@dod/core';
 import type { ConnectionStatus, LobbyMember, PlayerId } from '@dod/net/client';
 
 import { chatColorsById } from './chatColors.js';
 import layout from './Layout.module.css';
-import styles from './LobbySidebar.module.css';
-import sidebar from './Sidebar.module.css';
-import { ArmorRow, StatRow, WeaponRow } from './Sidebar.js';
+import styles from './Sidebar.module.css';
+import { StatRow } from './Sidebar.js';
 import { stageReached, type SetupStage } from './SetupGameModel.js';
+import { GlyphIcon } from './Glyphs.js';
 
 export type LobbyBuild = {
   stage: SetupStage;
@@ -22,6 +22,65 @@ export type LobbyBuild = {
   flares: number;
 };
 
+function WeaponRow({ tier }: { tier: number }) {
+  if (tier === 0) {
+    return (
+      <div className={styles.row}>
+        <span className={styles.label}>Weapon</span>
+        <span className={styles.glyphValue}>
+          <GlyphIcon id="SWORD" className={clsx(styles.glyph, styles.dimmed)} />
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className={clsx(styles.row, styles.interactive)}>
+      <span className={styles.label}>
+        Weapon<sup>?</sup>
+      </span>
+      <span className={styles.glyphValue}>
+        {Array.from({ length: tier }).map((_, i) => (
+          <GlyphIcon key={`w-${i}`} id="SWORD" className={styles.glyph} />
+        ))}
+      </span>
+      <span className={styles.tip} role="tooltip">
+        <p className={styles.tipHeading}>{weaponName(tier)}</p>
+      </span>
+    </div>
+  );
+}
+
+function ArmorRow({ tier }: { tier: number }) {
+  if (tier === 0) {
+    return (
+      <div className={styles.row}>
+        <span className={styles.label}>Armour</span>
+        <span className={styles.glyphValue}>
+          <GlyphIcon
+            id="SHIELD"
+            className={clsx(styles.glyph, styles.dimmed)}
+          />
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className={clsx(styles.row, styles.interactive)}>
+      <span className={styles.label}>
+        Armour<sup>?</sup>
+      </span>
+      <span className={styles.glyphValue}>
+        {Array.from({ length: tier }).map((_, i) => (
+          <GlyphIcon key={`a-${i}`} id="SHIELD" className={styles.glyph} />
+        ))}
+      </span>
+      <span className={styles.tip} role="tooltip">
+        <p className={styles.tipHeading}>{armorName(tier)}</p>
+      </span>
+    </div>
+  );
+}
+
 function CharacterReadout({ build }: { build: LobbyBuild }) {
   const dash = '-';
   const { race, derivedStats } = build;
@@ -31,7 +90,7 @@ function CharacterReadout({ build }: { build: LobbyBuild }) {
 
   return (
     <section>
-      <div className={sidebar.group}>
+      <div className={styles.group}>
         <StatRow label="Race" value={race !== null ? raceName(race) : dash} />
         <StatRow label="Health" value={`${hp}/${hp}`} />
         <StatRow label="Strength" value={stat(derivedStats?.ST)} />
@@ -51,7 +110,7 @@ function StatusReadout({ build }: { build: LobbyBuild }) {
 
   return (
     <section>
-      <div className={sidebar.group}>
+      <div className={styles.group}>
         <StatRow
           label="Gold"
           value={remaining !== null ? String(remaining) : dash}
@@ -67,9 +126,9 @@ function StatusReadout({ build }: { build: LobbyBuild }) {
 function GearReadout({ build }: { build: LobbyBuild }) {
   return (
     <section>
-      <div className={sidebar.group}>
-        <WeaponRow tier={build.weaponTier} broken={false} />
-        <ArmorRow tier={build.armorTier} damage={0} />
+      <div className={styles.group}>
+        <WeaponRow tier={build.weaponTier} />
+        <ArmorRow tier={build.armorTier} />
       </div>
     </section>
   );
@@ -85,13 +144,13 @@ function Player({
   isSelf: boolean;
 }) {
   return (
-    <div className={sidebar.row}>
+    <div className={styles.row}>
       <span
         className={clsx(
-          sidebar.label,
-          sidebar.partyName,
-          isSelf && sidebar.partySelf,
-          !member.connected && sidebar.partyOffline
+          styles.label,
+          styles.partyName,
+          isSelf && styles.partySelf,
+          !member.connected && styles.partyOffline
         )}
         style={{ color }}
       >
@@ -99,7 +158,7 @@ function Player({
       </span>
       <span
         className={clsx(
-          sidebar.value,
+          styles.value,
           styles.partyMark,
           !member.ready && styles.partyMarkPending
         )}
@@ -121,10 +180,10 @@ function PartyReadout({
   return (
     <section>
       <p className={clsx('ui-panel-title', layout.railTitle)}>Party</p>
-      <div className={sidebar.group}>
+      <div className={styles.group}>
         {members.map((member) => (
           <Player
-            key={member.id}
+            key={`p-${member.id}`}
             member={member}
             color={colorOf(member.id)}
             isSelf={playerId === member.id}

@@ -49,7 +49,7 @@ function SpellsRow({ spells }: { spells: readonly number[] }) {
           {spells.map(
             (count, i) =>
               count > 0 && (
-                <li key={i}>
+                <li key={`spell-${i}`}>
                   {spellName(i + 1)}: {count}
                 </li>
               )
@@ -62,47 +62,59 @@ function SpellsRow({ spells }: { spells: readonly number[] }) {
 
 // --- Gear rows -------------------------------------------------------------
 
-export function WeaponRow({ tier, broken }: { tier: number; broken: boolean }) {
+function WeaponRow({ tier, broken }: { tier: number; broken: boolean }) {
   return (
     <div className={clsx(styles.row, styles.interactive)}>
       <span className={styles.label}>
         Weapon<sup>?</sup>
       </span>
-      <span className={clsx(styles.value, broken && styles.alert)}>
-        <span className={styles.glyphGroup}>
-          {Array.from({ length: tier }).map((_, i) => (
-            <GlyphIcon key={i} id="SWORD" className={styles.glyph} />
-          ))}
-        </span>
+      <span className={styles.glyphValue}>
+        {broken ? (
+          <GlyphIcon id="SWORD" className={clsx(styles.glyph, styles.alert)} />
+        ) : (
+          Array.from({ length: tier }).map((_, i) => (
+            <GlyphIcon key={`w-${i}`} id="SWORD" className={styles.glyph} />
+          ))
+        )}
       </span>
       <span className={styles.tip} role="tooltip">
-        <p className={styles.tipHeading}>Weapon: {weaponName(tier)}</p>
-        {broken && <p className={styles.tipHeading}>Your weapon is broken.</p>}
+        {broken ? (
+          <p className={styles.tipHeading}>Weapon is broken</p>
+        ) : (
+          <p className={styles.tipHeading}>{weaponName(tier)}</p>
+        )}
       </span>
     </div>
   );
 }
 
-export function ArmorRow({ tier, damage }: { tier: number; damage: number }) {
+function ArmorRow({ tier, damage }: { tier: number; damage: number }) {
   const intact = tier - damage;
   return (
     <div className={clsx(styles.row, styles.interactive)}>
       <span className={styles.label}>
         Armour<sup>?</sup>
       </span>
-      <span className={styles.value}>
-        <span className={styles.glyphGroup}>
-          {Array.from({ length: tier }).map((_, i) => (
-            <span key={i} className={i >= intact ? styles.dimmed : undefined}>
-              <GlyphIcon id="SHIELD" className={styles.glyph} />
-            </span>
-          ))}
-        </span>
+      <span className={styles.glyphValue}>
+        {tier === 0 ? (
+          <GlyphIcon id="SHIELD" className={clsx(styles.glyph, styles.alert)} />
+        ) : (
+          Array.from({ length: tier }).map((_, i) => (
+            <GlyphIcon
+              key={`a-${i}`}
+              id="SHIELD"
+              className={clsx(styles.glyph, i >= intact && styles.dimmed)}
+            />
+          ))
+        )}
       </span>
       <span className={styles.tip} role="tooltip">
-        <p className={styles.tipHeading}>Armour: {armorName(tier)}</p>
-        {damage > 0 && (
-          <p className={styles.tipHeading}>Your armour is damaged.</p>
+        {tier === 0 ? (
+          <p className={styles.tipHeading}>Armour is destroyed</p>
+        ) : damage > 0 ? (
+          <p className={styles.tipHeading}>{armorName(tier)} (damaged)</p>
+        ) : (
+          <p className={styles.tipHeading}>{armorName(tier)}</p>
         )}
       </span>
     </div>
@@ -114,15 +126,17 @@ export function ArmorRow({ tier, damage }: { tier: number; damage: number }) {
 function TreasureBar({ found }: { found: readonly number[] }) {
   const numFound = found.length;
   return (
-    <div className={clsx(styles.treasures, numFound > 0 && styles.interactive)}>
-      <div className={styles.glyphGroup}>
+    <div className={clsx(numFound > 0 && styles.interactive)}>
+      <div className={styles.treasures}>
         {Array.from({ length: 10 }).map((_, i) => (
-          <span
-            key={`found-${i}`}
-            className={numFound >= i + 1 ? styles.loot : styles.dimmed}
-          >
-            <GlyphIcon id="GEM" className={styles.glyph} />
-          </span>
+          <GlyphIcon
+            key={`g-${i}`}
+            id="GEM"
+            className={clsx(
+              styles.glyph,
+              i <= numFound - 1 ? styles.loot : styles.dimmed
+            )}
+          />
         ))}
       </div>
       {numFound > 0 && (
@@ -130,7 +144,7 @@ function TreasureBar({ found }: { found: readonly number[] }) {
           <p className={styles.tipHeading}>Treasures found:</p>
           <ul className={styles.tipList}>
             {found.map((treasureId) => (
-              <li key={treasureId}>{treasureName(treasureId)}</li>
+              <li key={`t-${treasureId}`}>{treasureName(treasureId)}</li>
             ))}
           </ul>
         </span>
@@ -147,7 +161,7 @@ function CharacterReadout({ view }: { view: PlayerView }) {
     <section>
       <div className={styles.group}>
         <StatRow label="Race" value={raceName(s.race)} />
-        <StatRow label="Health" value={`${s.hp}/${s.mhp}`} />
+        <StatRow label="Health" value={`${s.hp}/${s.mhp}`} alert={s.hp < 10} />
         <StatRow label="Strength" value={s.str} />
         <StatRow label="Dexterity" value={s.dex} />
         <StatRow label="Intellect" value={s.iq} />
@@ -205,12 +219,14 @@ function Player({
       >
         {member.name}
       </span>
-      <span className={clsx(styles.value, member.hp < 10 && styles.alert)}>
-        <span className={styles.glyphGroup}>
-          {Array.from({ length: hearts }).map((_, i) => (
-            <GlyphIcon key={i} id="HEART" className={styles.glyph} />
-          ))}
-        </span>
+      <span className={styles.glyphValue}>
+        {Array.from({ length: hearts }).map((_, i) => (
+          <GlyphIcon
+            key={`h-${i}`}
+            id="HEART"
+            className={clsx(styles.glyph, member.hp < 10 && styles.alert)}
+          />
+        ))}
       </span>
       <span className={styles.tip} role="tooltip">
         <p className={styles.tipHeading}>Player: {member.name}</p>
@@ -234,7 +250,7 @@ function PartyReadout({
       <div className={styles.group}>
         {party.map((member) => (
           <Player
-            key={member.id}
+            key={`p-${member.id}`}
             member={member}
             color={colorOf(member.id)}
             isSelf={playerId === member.id}
