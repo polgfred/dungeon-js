@@ -44,12 +44,16 @@ function SpellsRow({ spells }: { spells: readonly number[] }) {
       </span>
       <span className={styles.value}>{total}</span>
       <span className={styles.tip} role="tooltip">
-        <ul>
-          {spells.map((count, i) => (
-            <li key={i}>
-              {spellName(i + 1)}: {count}
-            </li>
-          ))}
+        <p className={styles.tipHeading}>Spells acquired:</p>
+        <ul className={styles.tipList}>
+          {spells.map(
+            (count, i) =>
+              count > 0 && (
+                <li key={i}>
+                  {spellName(i + 1)}: {count}
+                </li>
+              )
+          )}
         </ul>
       </span>
     </div>
@@ -72,8 +76,8 @@ export function WeaponRow({ tier, broken }: { tier: number; broken: boolean }) {
         </span>
       </span>
       <span className={styles.tip} role="tooltip">
-        {weaponName(tier)}
-        {broken ? ' (broken)' : ''}
+        <p className={styles.tipHeading}>Weapon: {weaponName(tier)}</p>
+        {broken && <p className={styles.tipHeading}>Your weapon is broken.</p>}
       </span>
     </div>
   );
@@ -96,8 +100,10 @@ export function ArmorRow({ tier, damage }: { tier: number; damage: number }) {
         </span>
       </span>
       <span className={styles.tip} role="tooltip">
-        {armorName(tier)}
-        {damage > 0 ? ' (damaged)' : ''}
+        <p className={styles.tipHeading}>Armour: {armorName(tier)}</p>
+        {damage > 0 && (
+          <p className={styles.tipHeading}>Your armour is damaged.</p>
+        )}
       </span>
     </div>
   );
@@ -121,7 +127,8 @@ function TreasureBar({ found }: { found: readonly number[] }) {
       </div>
       {numFound > 0 && (
         <span className={styles.tip} role="tooltip">
-          <ul>
+          <p className={styles.tipHeading}>Treasures found:</p>
+          <ul className={styles.tipList}>
             {found.map((treasureId) => (
               <li key={treasureId}>{treasureName(treasureId)}</li>
             ))}
@@ -206,7 +213,8 @@ function Player({
         </span>
       </span>
       <span className={styles.tip} role="tooltip">
-        {member.name}: {member.hp}
+        <p className={styles.tipHeading}>Player: {member.name}</p>
+        <p className={styles.tipHeading}>Health: {member.hp}</p>
       </span>
     </div>
   );
