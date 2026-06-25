@@ -112,12 +112,12 @@ function TreasureBar({ found }: { found: readonly number[] }) {
       <div className={styles.glyphGroup}>
         {Array.from({ length: found.length }).map((_, i) => (
           <span key={`found-${i}`} className={styles.loot}>
-            <GlyphIcon id="GEM" className={styles.gem} />
+            <GlyphIcon id="GEM" className={styles.glyph} />
           </span>
         ))}
         {Array.from({ length: 10 - found.length }).map((_, i) => (
           <span key={`empty-${i}`} className={styles.dimmed}>
-            <GlyphIcon id="GEM" className={styles.gem} />
+            <GlyphIcon id="GEM" className={styles.glyph} />
           </span>
         ))}
       </div>
