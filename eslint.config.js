@@ -5,6 +5,7 @@ import importPlugin from 'eslint-plugin-import';
 import prettierPlugin from 'eslint-plugin-prettier';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import workspacesPlugin from "eslint-plugin-workspaces";
 import globals from 'globals';
 
 export default [
@@ -33,6 +34,7 @@ export default [
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,
       prettier: prettierPlugin,
+      workspaces: workspacesPlugin,
     },
     settings: {
       'import/resolver': {
@@ -47,6 +49,7 @@ export default [
       ...tsPlugin.configs.recommended.rules,
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
+      'no-undef': 'off', // let TS handle this
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-redeclare': 'off',
       'prettier/prettier': 'error',

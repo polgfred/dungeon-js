@@ -25,6 +25,7 @@
     "deploy": "./scripts/deploy-cloudflare.sh",
     "docker": "./scripts/build-docker.sh",
     "gen:glyphs": "tsx scripts/generate-glyphs.ts",
+    "lint": "eslint packages/core/src packages/net/src apps/web/src",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -38,6 +39,7 @@
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-workspaces": "^0.12.1",
     "prettier": "^3.8.4",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
