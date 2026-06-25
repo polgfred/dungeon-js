@@ -18,6 +18,6 @@
     "@dod/core": "*"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260611.1"
+    "@cloudflare/workers-types": "^4.20260625.1"
   }
 }
