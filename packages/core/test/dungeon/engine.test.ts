@@ -708,7 +708,7 @@ describe('Party setup', () => {
 
   it('keeps a solo adventurer at their character start', () => {
     const a = buildPlayer({ z: 0, y: 3, x: 3 });
-    const game = new Game({
+    new Game({
       dungeon: createEmptyDungeon(),
       players: [{ id: ID, player: a }],
     });

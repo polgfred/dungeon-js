@@ -257,10 +257,8 @@ describe('EncounterSession real RNG bounds', () => {
     const targetSamples = 500;
     const rng = defaultRandomSource;
     let samples = 0;
-    let iterations = 0;
 
     while (samples < targetSamples) {
-      iterations += 1;
       const str = rng.randint(1, 18);
       const dex = rng.randint(1, 18);
       const weaponTier = rng.randint(0, 3);
@@ -298,10 +296,8 @@ describe('EncounterSession real RNG bounds', () => {
     const targetSamples = 500;
     const rng = defaultRandomSource;
     let samples = 0;
-    let iterations = 0;
 
     while (samples < targetSamples) {
-      iterations += 1;
       const level = rng.randint(1, 10);
       const armor = rng.randint(0, 3);
       const tempArmorBonus = rng.randint(0, 3);

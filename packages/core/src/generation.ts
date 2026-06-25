@@ -7,6 +7,7 @@ export function dungeonDepth(playerCount: number) {
   return 6 + playerCount;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function dungeonSize(_: number) {
   return 7;
 }
