@@ -151,15 +151,16 @@ export class EncounterSession {
   private fightRound(): EncounterResult {
     const events: Event[] = [];
     const level = this.monsterLevel;
+    const weaponTier = effectiveWeaponTier(this.player);
     const attackScore =
-      20 + 5 * (11 - level) + this.player.dex + 3 * effectiveWeaponTier(this.player);
+      20 + 5 * (11 - level) + this.player.dex + 3 * weaponTier;
 
     const roll = this.rng.randint(1, 100);
     if (roll > attackScore) {
       events.push(Event.combat(`The ${this.monsterName} evades your blow!`));
     } else {
       const damage = Math.max(
-        effectiveWeaponTier(this.player) +
+        weaponTier +
           Math.floor(this.player.str / 3) +
           this.rng.randint(0, 4) -
           2,
@@ -241,9 +242,10 @@ export class EncounterSession {
       return { events };
     }
 
-    const armor = effectiveArmorTier(this.player) + this.player.tempArmorBonus;
+    const armorTier =
+      effectiveArmorTier(this.player) + this.player.tempArmorBonus;
     const damage = Math.max(
-      this.rng.randint(0, level - 1) + Math.floor(2.5 + level / 3) - armor,
+      this.rng.randint(0, level - 1) + Math.floor(2.5 + level / 3) - armorTier,
       0
     );
     this.player.hp = Math.max(0, this.player.hp - damage);

@@ -1,11 +1,7 @@
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 
-import {
-  Feature,
-  Mode,
-  SPELL_MIN_IQ,
-} from '@dod/core';
+import { Feature, Mode, SPELL_MIN_IQ } from '@dod/core';
 import type {
   ConnectionStatus,
   FeedGroup,

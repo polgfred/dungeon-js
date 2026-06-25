@@ -39,7 +39,7 @@ function createRoom(rng: RandomSource, depth: number, floor: number): Room {
     const roll = rng.randint(1, 10);
     if (roll > 8) {
       // Spread out base monster level from 1->7 across floors.
-      const minLevel = Math.ceil(floor * 7 / depth);
+      const minLevel = Math.ceil((floor * 7) / depth);
       const maxLevel = Math.min(10, minLevel + 5);
       room.monsterLevel = rng.randint(minLevel, maxLevel);
     } else {
