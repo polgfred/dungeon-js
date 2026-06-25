@@ -135,7 +135,7 @@ export function useSetupGameModel({
     : null;
 
   // Wipe back to a fresh, unbuilt character.
-  const reset = () => {
+  const reset = useCallback(() => {
     setStage('race');
     setRace(null);
     setBaseStats(null);
@@ -146,34 +146,37 @@ export function useSetupGameModel({
     setFlares(0);
     setSetupError(null);
     setPlayer(null);
-  };
+  }, []);
 
-  const handleRaceSelect = (value: Race) => {
-    const [st, dx, iq, hp] = rollBaseStats(rng, value);
-    setRace(value);
-    setBaseStats({ ST: st, DX: dx, IQ: iq, HP: hp });
-    setAllocations({ ST: 0, DX: 0, IQ: 0 });
-    setSetupError(null);
-    setStage('allocate');
-  };
+  const handleRaceSelect = useCallback(
+    (value: Race) => {
+      const [st, dx, iq, hp] = rollBaseStats(rng, value);
+      setRace(value);
+      setBaseStats({ ST: st, DX: dx, IQ: iq, HP: hp });
+      setAllocations({ ST: 0, DX: 0, IQ: 0 });
+      setSetupError(null);
+      setStage('allocate');
+    },
+    [rng]
+  );
 
-  const handleAdjust = (key: AllocationKey, delta: number) => {
+  const handleAdjust = useCallback((key: AllocationKey, delta: number) => {
     setAllocations((prev) => {
       const next = Math.max(0, prev[key] + delta);
       return { ...prev, [key]: next };
     });
-  };
+  }, []);
 
-  const handleAdvanceToShop = () => {
+  const handleAdvanceToShop = useCallback(() => {
     if (remainingPoints === 0) {
       setStage('weapon');
       if (gold === null) {
         setGold(rng.randint(50, 60));
       }
     }
-  };
+  }, [gold, remainingPoints, rng]);
 
-  const handleFinish = () => {
+  const handleFinish = useCallback(() => {
     if (!race || !baseStats || gold === null) return;
     setSetupError(null);
     try {
@@ -191,7 +194,7 @@ export function useSetupGameModel({
     } catch (error) {
       setSetupError(error instanceof Error ? error.message : 'Setup failed.');
     }
-  };
+  }, [allocations, armorTier, baseStats, flares, gold, race, weaponTier]);
 
   const commandList = useMemo(() => {
     if (stage === 'race') {
@@ -344,16 +347,13 @@ export function useSetupGameModel({
     ];
   }, [
     stage,
-    race,
     baseStats,
     allocations,
     remainingPoints,
     weaponTier,
-    armorTier,
     flares,
     maxFlares,
     gold,
-    totalCost,
   ]);
 
   const commandMap = useMemo(() => {
@@ -470,16 +470,11 @@ export function useSetupGameModel({
     },
     [
       stage,
-      race,
-      baseStats,
       handleRaceSelect,
       handleAdjust,
       handleAdvanceToShop,
       handleFinish,
       maxFlares,
-      gold,
-      weaponTier,
-      armorTier,
       player,
       onComplete,
       reset,

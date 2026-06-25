@@ -1,4 +1,3 @@
-import { clsx } from 'clsx';
 import { Fragment, useEffect, useRef } from 'react';
 
 import { ACTOR_TOKEN } from '@dod/core';

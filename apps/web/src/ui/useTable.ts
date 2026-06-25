@@ -1,14 +1,10 @@
-import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 
 import { TableStore } from '@dod/net/client';
 
 /** Subscribe a component to a table over its WebSocket. */
 export function useTable(url: string) {
-  const storeRef = useRef<TableStore | null>(null);
-  if (storeRef.current === null) {
-    storeRef.current = new TableStore(url);
-  }
-  const store = storeRef.current;
+  const [store] = useState(() => new TableStore(url));
 
   useEffect(() => {
     store.connect();

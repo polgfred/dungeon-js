@@ -225,7 +225,7 @@ export function LobbyBuilder({ model }: { model: SetupGameModel }) {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [model.handleKeyDown]);
+  }, [model]);
 
   switch (model.stage) {
     case 'race':

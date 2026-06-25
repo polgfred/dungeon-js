@@ -95,7 +95,7 @@ export default function Home() {
         </p>
         <p>
           The original game engine was ported to Python and TypeScript in
-          conversation with OpenAI's GPT-5.2-Codex.
+          conversation with OpenAI&apos;s GPT-5.2-Codex.
         </p>
         <p>
           I have attempted to preserve the language and visual style of the game

@@ -29,7 +29,7 @@ export default function Help() {
           <h2 className={styles.heading}>Thy Quest</h2>
           <p>
             Enter together. Recover all ten treasures. Climb back to the light
-            and step out of the dungeon's mouth —{' '}
+            and step out of the dungeon&apos;s mouth —{' '}
             <em>every last one of you.</em> The quest is won only when all ten
             treasures are found <em>and</em> every adventurer has escaped. Leave
             a treasure in the dark and the exit will not have you. Leave a
