@@ -21,8 +21,8 @@ const FEATURE_GLYPH: Partial<Record<Feature, TileGlyph>> = {
   [Feature.VENDOR]: { id: 'VENDOR', tooltip: 'Vendor' },
   [Feature.THIEF]: { id: 'THIEF', tooltip: 'Thief', danger: true },
   [Feature.WARP]: { id: 'WARP', tooltip: 'Warp', danger: true },
-  [Feature.STAIRS_UP]: { id: 'STAIRS_UP', tooltip: 'Stairs up' },
-  [Feature.STAIRS_DOWN]: { id: 'STAIRS_DOWN', tooltip: 'Stairs down' },
+  [Feature.STAIRS_UP]: { id: 'UP', tooltip: 'Stairs up' },
+  [Feature.STAIRS_DOWN]: { id: 'DOWN', tooltip: 'Stairs down' },
   [Feature.EXIT]: { id: 'EXIT', tooltip: 'Exit', treasure: true },
 };
 
@@ -35,7 +35,6 @@ export function tileGlyph(tile: Tile): TileGlyph {
   return FEATURE_GLYPH[tile as Feature] ?? { tooltip: 'Empty' };
 }
 
-/** Inline defs for every glyph; render once per screen. */
 export function GlyphDefs() {
   return (
     <svg
@@ -46,7 +45,12 @@ export function GlyphDefs() {
     >
       <defs>
         {Object.entries(GLYPH_PATHS).map(([id, d]) => (
-          <symbol key={id} id={`glyph-${id}`} viewBox="0 0 8 8">
+          <symbol
+            key={id}
+            id={`glyph-${id}`}
+            viewBox="0 0 8 8"
+            fillRule="evenodd"
+          >
             <path d={d} fill="currentColor" shapeRendering="crispEdges" />
           </symbol>
         ))}

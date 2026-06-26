@@ -24,7 +24,6 @@
     "dist": "./scripts/update-dist-branch.sh",
     "deploy": "./scripts/deploy-cloudflare.sh",
     "docker": "./scripts/build-docker.sh",
-    "gen:glyphs": "tsx scripts/generate-glyphs.ts",
     "lint": "eslint packages/core/src packages/net/src apps/web/src",
     "test": "vitest run",
     "test:watch": "vitest"
