@@ -1,5 +1,5 @@
 import { Feature } from './constants.js';
-import { makeDungeon, Dungeon, type Room } from './model.js';
+import { makeDungeon, type Dungeon, type Room } from './model.js';
 import type { RandomSource } from './rng.js';
 
 /** Number of floors (the z dimension), scaled by party size. */

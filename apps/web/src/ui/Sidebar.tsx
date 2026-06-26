@@ -9,7 +9,11 @@ import {
   weaponName,
   type PlayerId,
 } from '@dod/core';
-import { ConnectionStatus, PartyMember, PlayerView } from '@dod/net/client';
+import type {
+  ConnectionStatus,
+  PartyMember,
+  PlayerView,
+} from '@dod/net/client';
 
 import { GlyphIcon } from './Glyphs.js';
 import layout from './Layout.module.css';

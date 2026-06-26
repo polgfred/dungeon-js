@@ -5,7 +5,7 @@ import {
   ARMOR_PRICES,
   WEAPON_NAMES,
   WEAPON_PRICES,
-  Player,
+  type Player,
   Race,
   defaultRandomSource,
   rollBaseStats,

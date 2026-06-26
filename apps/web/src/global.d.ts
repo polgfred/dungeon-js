@@ -1,4 +1,4 @@
-import { Game } from '@dod/core';
+import type { Game } from '@dod/core';
 
 declare global {
   interface Window {
