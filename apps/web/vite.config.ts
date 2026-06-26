@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 
-import react from '@vitejs/plugin-react';
+import preact from '@preact/preset-vite';
 import { defineConfig } from 'vitest/config';
 
 import { trimSvg } from './trim-svg.js';
@@ -20,9 +20,9 @@ const netShared = fileURLToPath(
   new URL('../../packages/net/src/shared/index.ts', import.meta.url)
 );
 
-export default defineConfig(({}) => {
+export default defineConfig(() => {
   return {
-    plugins: [trimSvg(), react()],
+    plugins: [trimSvg(), preact()],
     resolve: {
       alias: {
         '@dod/core': coreSrc,
