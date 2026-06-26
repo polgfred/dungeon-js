@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import { armorName, raceName, weaponName, type Race } from '@dod/core';
 import type { ConnectionStatus, LobbyMember, PlayerId } from '@dod/net/client';
 
-import { chatColorsById } from './chatColors.js';
-import layout from './Layout.module.css';
-import styles from './Sidebar.module.css';
-import { StatRow } from './Sidebar.js';
-import { stageReached, type SetupStage } from './SetupGameModel.js';
 import { GlyphIcon } from './Glyphs.js';
+import layout from './Layout.module.css';
+import { stageReached, type SetupStage } from './SetupGameModel.js';
+import { StatRow } from './Sidebar.js';
+import styles from './Sidebar.module.css';
+import { chatColorsById } from './chatColors.js';
 
 export type LobbyBuild = {
   stage: SetupStage;

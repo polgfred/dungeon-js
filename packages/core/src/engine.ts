@@ -14,6 +14,11 @@ import { generateDungeon } from './generation.js';
 import { applyAttributeChange } from './model.js';
 import type { Dungeon, Player, Room } from './model.js';
 import {
+  drinkAttributePotionEvents,
+  drinkHealingPotionEvents,
+} from './potions.js';
+import { defaultRandomSource, type RandomSource } from './rng.js';
+import {
   type GameSave,
   deserializeDungeon,
   serializeDungeon,
@@ -22,11 +27,6 @@ import {
 } from './serialization.js';
 import { Event, type PlayerId, type Prompt, type StepResult } from './types.js';
 import { VendorSession } from './vendor.js';
-import { defaultRandomSource, type RandomSource } from './rng.js';
-import {
-  drinkAttributePotionEvents,
-  drinkHealingPotionEvents,
-} from './potions.js';
 
 function pluralize(count: number, singular: string, plural = `${singular}s`) {
   return count === 1 ? singular : plural;

@@ -11,10 +11,10 @@ import type {
 
 import { ChatInput } from './ChatInput.js';
 import { Feed } from './Feed.js';
-import { LobbyBuilder } from './LobbyBuilder.js';
-import { LobbySidebar, type LobbyBuild } from './LobbySidebar.js';
 import layout from './Layout.module.css';
 import styles from './Lobby.module.css';
+import { LobbyBuilder } from './LobbyBuilder.js';
+import { LobbySidebar, type LobbyBuild } from './LobbySidebar.js';
 import { useSetupGameModel } from './SetupGameModel.js';
 
 function ReadyCard({

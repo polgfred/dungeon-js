@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-
 import clsx from 'clsx';
+import { useCallback, useEffect, useState } from 'react';
 
 import styles from './Home.module.css';
 import { generateTableCode, normalizeTableCode } from './table.js';

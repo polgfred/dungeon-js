@@ -6,6 +6,7 @@ import type {
   PlayerView,
   ServerMessage,
 } from '../shared/index.js';
+
 import { TableConnection, type ConnectionStatus } from './connection.js';
 
 export type TablePhase = 'lobby' | 'play';

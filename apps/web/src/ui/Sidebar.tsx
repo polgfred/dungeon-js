@@ -11,10 +11,10 @@ import {
 } from '@dod/core';
 import { ConnectionStatus, PartyMember, PlayerView } from '@dod/net/client';
 
+import { GlyphIcon } from './Glyphs.js';
 import layout from './Layout.module.css';
 import styles from './Sidebar.module.css';
 import { chatColorsById } from './chatColors.js';
-import { GlyphIcon } from './Glyphs.js';
 
 // --- Status rows -----------------------------------------------------------
 

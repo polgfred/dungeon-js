@@ -5,12 +5,12 @@ import {
   ARMOR_PRICES,
   WEAPON_NAMES,
   WEAPON_PRICES,
+  Player,
   Race,
+  defaultRandomSource,
   rollBaseStats,
   createPlayer,
 } from '@dod/core';
-import { Player } from '@dod/core';
-import { defaultRandomSource } from '@dod/core';
 
 /** A single keyed choice in the builder's prompt menus. */
 export type SetupCommand = {

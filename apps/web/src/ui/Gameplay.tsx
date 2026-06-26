@@ -10,11 +10,13 @@ import type {
 } from '@dod/net/client';
 
 import { ChatInput } from './ChatInput.js';
-import { chatColorsById } from './chatColors.js';
 import { Dialog, DialogContent, DialogTitle, dialogStyles } from './Dialog.js';
 import { Feed } from './Feed.js';
 import styles from './Gameplay.module.css';
 import layout from './Layout.module.css';
+import { MapGrid } from './MapGrid.js';
+import { Sidebar } from './Sidebar.js';
+import { chatColorsById } from './chatColors.js';
 import {
   ENCOUNTER_COMMANDS,
   FEATURE_COMMANDS,
@@ -22,9 +24,7 @@ import {
   NAV_COMMANDS,
   TRANSIT_COMMANDS,
 } from './gameplayCommands.js';
-import { MapGrid } from './MapGrid.js';
 import { navigate } from './useRoute.js';
-import { Sidebar } from './Sidebar.js';
 
 export type Command = {
   id: string;

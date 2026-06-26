@@ -8,16 +8,16 @@ import {
   Spell,
   raceName,
 } from './constants.js';
-import type { VendorSave } from './serialization.js';
 import { applyAttributeChange } from './model.js';
 import type { Player } from './model.js';
-import { Event, makePrompt, type Prompt } from './types.js';
-import type { RandomSource } from './rng.js';
 import {
   drinkAttributePotionEvents,
   drinkHealingPotionEvents,
   type PotionAttributeTarget,
 } from './potions.js';
+import type { RandomSource } from './rng.js';
+import type { VendorSave } from './serialization.js';
+import { Event, makePrompt, type Prompt } from './types.js';
 
 export interface VendorResult {
   events: Event[];

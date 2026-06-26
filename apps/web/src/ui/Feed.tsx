@@ -3,8 +3,8 @@ import { Fragment, useEffect, useRef } from 'react';
 import { ACTOR_TOKEN } from '@dod/core';
 import type { FeedGroup, PlayerId } from '@dod/net/client';
 
-import { chatColorsById } from './chatColors.js';
 import styles from './Feed.module.css';
+import { chatColorsById } from './chatColors.js';
 
 const FEED_GROUP_MARK: Partial<Record<FeedGroup['kind'], string>> = {
   notice: '=',

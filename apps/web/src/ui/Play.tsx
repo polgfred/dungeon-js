@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-
 import clsx from 'clsx';
+import { useEffect, useMemo, useState } from 'react';
 
 import { loadPlayerId } from '@dod/net/client';
 
@@ -15,8 +14,8 @@ import {
   saveTableName,
   tableWsUrl,
 } from './table.js';
-import { useTable } from './useTable.js';
 import { navigate } from './useRoute.js';
+import { useTable } from './useTable.js';
 
 function NamePhase({
   onSubmit,

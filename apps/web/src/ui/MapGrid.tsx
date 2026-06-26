@@ -4,8 +4,8 @@ import type { CSSProperties } from 'react';
 import { MapTile, type Tile } from '@dod/core';
 import type { PartyMember, PlayerId } from '@dod/net/client';
 
-import styles from './MapGrid.module.css';
 import { GlyphIcon, tileGlyph } from './Glyphs.js';
+import styles from './MapGrid.module.css';
 
 type CellOccupancy = { colors: string[]; isSelf: boolean };
 

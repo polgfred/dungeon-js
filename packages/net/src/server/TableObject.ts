@@ -14,6 +14,7 @@ import type {
   PlayerView,
   ServerMessage,
 } from '../shared/index.js';
+
 import { HydratableObject } from './HydratableObject.js';
 
 /** The largest party the table seats. */

@@ -1,13 +1,13 @@
 import { monsterName, Spell, SPELL_MIN_IQ, spellName } from './constants.js';
-import type { EncounterSave } from './serialization.js';
 import {
   effectiveArmorTier,
   effectiveWeaponTier,
   type Player,
   type Room,
 } from './model.js';
-import { Event, makePrompt, type Prompt, type PromptData } from './types.js';
 import type { RandomSource } from './rng.js';
+import type { EncounterSave } from './serialization.js';
+import { Event, makePrompt, type Prompt, type PromptData } from './types.js';
 
 export function rollMonsterVitality(rng: RandomSource, level: number): number {
   return 3 * level + rng.randint(0, 3);
