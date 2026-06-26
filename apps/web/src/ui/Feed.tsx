@@ -18,10 +18,8 @@ const FEED_KIND_CLASS: Partial<Record<string, string>> = {
   ERROR: styles.feedError,
 };
 
-/** Anything with a name and id — a lobby member or a party member alike. */
 type FeedMember = { id: PlayerId; name: string };
 
-/** One turn's worth of feed output: events, chat, or notice. */
 function FeedTurn({
   group,
   playerId,
@@ -79,7 +77,6 @@ function FeedTurn({
   }
 }
 
-/** The scrolling chat/event log, shared by the lobby and gameplay */
 export function Feed({
   feed,
   members,
