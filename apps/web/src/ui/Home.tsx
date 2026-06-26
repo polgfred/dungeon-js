@@ -60,7 +60,7 @@ export default function Home() {
                   className={styles.input}
                   value={code}
                   placeholder="plum-warden"
-                  onChange={(event) => setCode(event.currentTarget.value)}
+                  onInput={(event) => setCode(event.currentTarget.value)}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' && canJoin) go(joinCode);
                   }}
