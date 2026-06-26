@@ -41,7 +41,7 @@ function NamePhase({
         maxLength={20}
         placeholder="Adventurer"
         autoFocus
-        onChange={(event) => setName(event.target.value)}
+        onChange={(event) => setName(event.currentTarget.value)}
         onKeyDown={(event) => {
           if (event.key === 'Enter') submit();
           else if (event.key === 'Escape') onCancel();

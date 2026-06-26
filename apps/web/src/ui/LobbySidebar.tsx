@@ -196,15 +196,19 @@ function PartyReadout({
 
 function TableInfo({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
-  const copyTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const copyLink = () => {
     navigator.clipboard?.writeText(window.location.href).then(() => {
       setCopied(true);
-      clearTimeout(copyTimer.current);
+      if (copyTimer.current) clearTimeout(copyTimer.current);
       copyTimer.current = setTimeout(() => setCopied(false), 1500);
     });
   };
-  useEffect(() => () => clearTimeout(copyTimer.current), []);
+  useEffect(() => {
+    return () => {
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+    };
+  }, []);
 
   return (
     <div className={styles.tableInfo}>

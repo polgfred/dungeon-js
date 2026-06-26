@@ -38,7 +38,7 @@ export function ChatInput({ onSend }: { onSend: (text: string) => void }) {
       value={text}
       maxLength={280}
       placeholder="Press / to chat"
-      onChange={(event) => setText(event.target.value)}
+      onChange={(event) => setText(event.currentTarget.value)}
       onKeyDown={(event) => {
         if (event.key === 'Enter') {
           send();
