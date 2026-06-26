@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef } from 'react';
+import { Fragment, useCallback, useEffect, useRef } from 'react';
 
 import { ACTOR_TOKEN } from '@dod/core';
 import type { FeedGroup, PlayerId } from '@dod/net/client';
@@ -89,11 +89,11 @@ export function Feed({
   const scroller = useRef<HTMLDivElement>(null);
   // Only autoscroll when the reader is already parked at the bottom.
   const pinned = useRef(true);
-  const onScroll = () => {
+  const onScroll = useCallback(() => {
     const el = scroller.current;
     if (el)
       pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 32;
-  };
+  }, []);
   useEffect(() => {
     const el = scroller.current;
     if (el && pinned.current) el.scrollTop = el.scrollHeight;
