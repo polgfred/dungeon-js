@@ -16,7 +16,6 @@
     "apps/*"
   ],
   "scripts": {
-    "typecheck": "npm run typecheck -w @dod/core -w @dod/net -w @dod/web",
     "dev": "npm run dev -w @dod/web",
     "dev:server": "wrangler dev",
     "build": "npm run build -w @dod/web",
@@ -24,9 +23,10 @@
     "dist": "./scripts/update-dist-branch.sh",
     "deploy": "./scripts/deploy-cloudflare.sh",
     "docker": "./scripts/build-docker.sh",
-    "lint": "eslint packages/core/src packages/net/src apps/web/src",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "npm run typecheck -w @dod/core -w @dod/net -w @dod/web",
+    "lint": "npm run lint -w @dod/core -w @dod/net -w @dod/web"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",
