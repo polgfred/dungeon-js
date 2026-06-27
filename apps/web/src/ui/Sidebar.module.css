@@ -63,9 +63,8 @@
 .tip {
   position: fixed;
   position-anchor: --row-tip;
-  top: calc(anchor(bottom) + 6px);
-  left: calc(anchor(left) - 56px);
-  max-width: 30em;
+  top: calc(anchor(bottom) + 0.5rem);
+  right: calc(anchor(right) - 2rem);
   padding: 4px 8px;
   background: var(--text-primary);
   color: var(--primary-main);
