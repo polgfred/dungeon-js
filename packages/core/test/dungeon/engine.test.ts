@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { Game } from '../../src/engine.js';
-import { effectiveArmorTier } from '../../src/model.js';
+
 import { Feature, MapTile, Mode, Spell } from '../../src/constants.js';
-import { buildPlayer } from '../helpers/factories.js';
+import { Game } from '../../src/engine.js';
 import { dungeonDepth } from '../../src/generation.js';
-import { ScriptedRng } from '../helpers/rng.js';
+import { effectiveArmorTier } from '../../src/model.js';
 import { createEmptyDungeon } from '../helpers/dungeon.js';
+import { buildPlayer } from '../helpers/factories.js';
+import { ScriptedRng } from '../helpers/rng.js';
 
 const ID = 'p1';
 

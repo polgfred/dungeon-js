@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
+
+import { Spell, weaponName } from '../../src/constants.js';
 import { EncounterSession } from '../../src/encounter.js';
 import { effectiveWeaponTier } from '../../src/model.js';
-import { Spell, weaponName } from '../../src/constants.js';
+import { defaultRandomSource } from '../../src/rng.js';
 import type { Event } from '../../src/types.js';
 import { buildPlayer, buildRoom } from '../helpers/factories.js';
 import { ScriptedRng } from '../helpers/rng.js';
-import { defaultRandomSource } from '../../src/rng.js';
 
 function eventTexts(events: Event[]): string[] {
   return events.map((event) => event.text);

@@ -1,10 +1,10 @@
+import { Feature, Race, Spell } from '../../src/constants.js';
 import {
   makePlayer,
   type Player,
   type Room,
   type SpellCounts,
 } from '../../src/model.js';
-import { Feature, Race, Spell } from '../../src/constants.js';
 
 export function buildPlayer(options: Partial<Player> = {}): Player {
   const defaultSpells: SpellCounts = new Map();

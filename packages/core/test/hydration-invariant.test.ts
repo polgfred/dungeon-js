@@ -1,5 +1,7 @@
 import { deserialize, serialize } from 'node:v8';
+
 import { expect, test } from 'vitest';
+
 import { Game, createPlayer, type Race } from '@dod/core';
 
 /**
