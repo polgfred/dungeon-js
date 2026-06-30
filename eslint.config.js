@@ -43,7 +43,7 @@ export default [
         typescript: true,
       },
       react: {
-        version: '19',
+        version: '18',
       },
     },
     rules: {
@@ -53,8 +53,8 @@ export default [
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
       'no-console': ['warn', { allow: ['warn', 'error'] }],
-      'no-redeclare': 'off', // for defining parallel value+type
-      'no-undef': 'off', // let TS handle this
+      'no-undef': 'off',
+      'no-redeclare': 'off',
       'prettier/prettier': 'error',
       'react/jsx-no-undef': 'error',
       'react/jsx-no-target-blank': 'error',
@@ -76,10 +76,7 @@ export default [
           ],
         },
       ],
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
-      ],
+      '@typescript-eslint/consistent-type-imports': 'error',
     },
   },
 ];
